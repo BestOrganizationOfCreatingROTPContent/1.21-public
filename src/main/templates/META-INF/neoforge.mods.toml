@@ -1,0 +1,46 @@
+modLoader="javafml"
+loaderVersion="${loader_version_range}"
+license="GNU GPL v3.0"
+# issueTrackerURL="https://......."
+
+[[mods]]
+modId="${mod_id}"
+version="${mod_version}"
+displayName="Ripples of the Past"
+# updateJSONURL="https://......."
+# displayURL="https://......."
+# logoFile="logo.png"
+# credits=""
+authors="StandoByte"
+description='''
+    This mod adds items and supernatural powers from the JoJo's Bizarre Adventure manga and anime series.'''
+
+[[mixins]]
+config="${mod_id}.mixins.json"
+
+[[accessTransformers]]
+file="META-INF/accesstransformer.cfg"
+
+# The coremods config file path is not configurable and is always loaded from META-INF/coremods.json
+
+[[dependencies.${mod_id}]]
+    modId="neoforge"
+    type="required"
+    # reason="..."
+    versionRange="${neo_version_range}"
+    ordering="NONE"
+    side="BOTH"
+
+# Here's another dependency
+[[dependencies.${mod_id}]]
+    modId="minecraft"
+    type="required"
+    versionRange="${minecraft_version_range}"
+    ordering="NONE"
+    side="BOTH"
+
+# Features are specific properties of the game environment, that you may want to declare you require. This example declares
+# that your mod requires GL version 3.2 or higher. Other features will be added. They are side aware so declaring this won't
+# stop your mod loading on the server for example.
+#[features.${mod_id}]
+#openGLVersion="[3.2,)"

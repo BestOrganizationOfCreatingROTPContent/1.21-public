@@ -1,0 +1,11 @@
+{
+  "required": true,
+  "compatibilityLevel": "JAVA_21",
+  "package": "com.github.standobyte.jojo.mixin",
+  "refmap": "mixins.jojo.refmap.json",
+  "minVersion": "0.8.5",
+  "mixins": [
+  ],
+  "client": [
+  ]
+}
