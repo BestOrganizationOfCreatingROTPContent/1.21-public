@@ -65,7 +65,7 @@ public class MannequinEntity extends ArmorStand {
 	@Override
 	public InteractionResult interactAt(Player player, Vec3 vec, InteractionHand hand) {
 		ItemStack heldItem = player.getItemInHand(hand);
-		if (!this.isMarker() && heldItem.getItem() != Items.NAME_TAG && !player.isSpectator() && !player.level().isClientSide()) {
+		if (!this.isMarker() && heldItem.getItem() != Items.NAME_TAG && !player.isSpectator()/* && !player.level().isClientSide()*/) { // TODO (!) (clothes) save & sync clothes on the mannequin entity
 			if (heldItem.isEmpty()) {
 				ClothesSlotType clickedSlot = getClothesSlotAt(vec);
 				if (clickedSlot != null) {
@@ -80,7 +80,7 @@ public class MannequinEntity extends ArmorStand {
 
 			else {
 				ClothesDataComponent clothesPiece = heldItem.get(ModItemDataComponents.CLOTHES_PIECE.get());
-				if (clothes != null) {
+				if (clothesPiece != null) {
 					ClothesSlotType clothesSlot = clothesPiece.getSlot();
 					if (clothesSlot == null) {
 						return InteractionResult.FAIL;

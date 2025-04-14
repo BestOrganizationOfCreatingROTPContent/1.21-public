@@ -17,7 +17,7 @@ import net.minecraft.network.codec.StreamCodec;
 /*
  * [V]	item model
  * [V]	item name
- * [_]	humanoid layer model
+ * [V]	humanoid layer model
  * [_]	equip sound
  */
 public class ClothesDataComponent {

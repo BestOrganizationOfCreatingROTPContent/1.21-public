@@ -32,7 +32,6 @@ public class MannequinRenderer extends LivingEntityRenderer<MannequinEntity, Man
 		this.smallModel = new MannequinModel(ctx.bakeLayer(ModEntityRenderers.MANNEQUIN_SMALL));
 		this.smallModelSlim = new MannequinModel(ctx.bakeLayer(ModEntityRenderers.MANNEQUIN_SLIM_SMALL));
 		// TODO (mannequin) armor layer
-		// TODO (mannequin) clothes layer
 //		this.addLayer(
 //			new HumanoidArmorLayer<>(
 //				this,

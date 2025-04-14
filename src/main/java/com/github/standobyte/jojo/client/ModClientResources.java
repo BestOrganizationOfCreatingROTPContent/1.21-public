@@ -1,6 +1,7 @@
 package com.github.standobyte.jojo.client;
 
 import com.github.standobyte.jojo.client.entityanim.AnimationLoader;
+import com.github.standobyte.jojo.client.entityrender.clothes.ClothesModelLoader;
 import com.github.standobyte.jojo.client.standskin.StandSkinsLoader;
 import com.github.standobyte.jojo.client.utils.ResourcePathChecker;
 import com.github.standobyte.jojo.core.JojoMod;
@@ -18,5 +19,6 @@ public class ModClientResources {
 		event.addListener(JojoMod.resLoc("resource_check"), new ResourcePathChecker.ResourceReloadNotifier());
 		StandSkinsLoader.init(event);
 		AnimationLoader.init(event);
+		ClothesModelLoader.init(event);
 	}
 }

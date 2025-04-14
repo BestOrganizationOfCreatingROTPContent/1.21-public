@@ -1,0 +1,114 @@
+package com.github.standobyte.jojo.client.entityrender.clothes;
+
+import java.util.ArrayList;
+import java.util.EnumMap;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
+import org.apache.commons.lang3.ArrayUtils;
+import org.jetbrains.annotations.ApiStatus;
+
+import com.github.standobyte.jojo.client.utils.ModelUtil;
+import com.github.standobyte.jojo.mechanics.clothes.itemdata.ClothesSlotType;
+
+import net.minecraft.client.model.HumanoidModel;
+import net.minecraft.client.model.geom.ModelPart;
+import net.minecraft.client.renderer.entity.state.HumanoidRenderState;
+
+public class HumanoidClothesModel extends HumanoidModel<HumanoidRenderState> {
+	private Map<ClothesSlotType, List<ModelPart>> byClothesPart = new EnumMap<>(ClothesSlotType.class);
+	public final ModelPart rightArmSlim;
+	public final ModelPart leftArmSlim;
+	
+	private static final String[] BASE_HUMANOID_PARTS = new String[] { "head", "body", "right_arm", "left_arm", "right_leg", "left_leg", "right_arm_slim", "left_arm_slim" };
+	protected static ModelPart addMissing(ModelPart root) {
+		for (String basePartName : BASE_HUMANOID_PARTS) {
+			root.children.putIfAbsent(basePartName, new ModelPart(new ArrayList<>(), new HashMap<>()));
+		}
+		root.getChild("head").children.putIfAbsent("hat", new ModelPart(new ArrayList<>(), new HashMap<>()));
+		return root;
+	}
+
+	@ApiStatus.Internal
+	public HumanoidClothesModel(ModelPart root) {
+		super(addMissing(root));
+		this.rightArmSlim = root.getChild("right_arm_slim");
+		this.leftArmSlim = root.getChild("left_arm_slim");
+		initClothesSlots();
+	}
+	
+	public void setClothesPartsVisibility(boolean slim, ClothesSlotType... slots) {
+		setAllVisible(true);
+		
+		if (byClothesPart != null) {
+			for (Map.Entry<ClothesSlotType, List<ModelPart>> modelPartsBySlot : byClothesPart.entrySet()) {
+				boolean visible = ArrayUtils.contains(slots, modelPartsBySlot.getKey());
+				List<ModelPart> modelParts = modelPartsBySlot.getValue();
+				if (modelParts != null) {
+					for (ModelPart modelPart : modelParts) {
+						modelPart.visible = visible;
+					}
+				}
+			}
+		}
+		
+		if (slim) {
+			leftArm.visible = false;
+			rightArm.visible = false;
+		}
+		else {
+			leftArmSlim.visible = false;
+			rightArmSlim.visible = false;
+		}
+	}
+
+
+	public void poseClothes(HumanoidModel<?> originalModel) {
+		this.head.copyFrom(originalModel.head);
+		this.body.copyFrom(originalModel.body);
+		this.rightArm.copyFrom(originalModel.rightArm);
+		this.leftArm.copyFrom(originalModel.leftArm);
+		this.rightArmSlim.copyFrom(originalModel.rightArm);
+		this.leftArmSlim.copyFrom(originalModel.leftArm);
+		this.rightLeg.copyFrom(originalModel.rightLeg);
+		this.leftLeg.copyFrom(originalModel.leftLeg);
+	}
+	
+	
+	@Override
+	public void setAllVisible(boolean visible) {
+		super.setAllVisible(visible);
+		this.rightArmSlim.visible = visible;
+		this.leftArmSlim.visible = visible;
+	}
+	
+	
+	public void initClothesSlots() {
+		var modelParts = ModelUtil.getAllNamedModelParts(root);
+		for (Map.Entry<String, ModelPart> modelPart : modelParts.entrySet()) {
+			String name = modelPart.getKey();
+			if (name.length() >= 5 && name.startsWith("slot")) {
+				ClothesSlotType clothesPart = null;
+				switch (name.charAt(4)) {
+				case '0':
+					clothesPart = ClothesSlotType.HEAD;
+					break;
+				case '1':
+					clothesPart = ClothesSlotType.CHEST;
+					break;
+				case '2':
+					clothesPart = ClothesSlotType.LEGS;
+					break;
+				case '3':
+					clothesPart = ClothesSlotType.FEET;
+					break;
+				}
+				if (clothesPart != null) {
+					byClothesPart.computeIfAbsent(clothesPart, __ -> new ArrayList<>()).add(modelPart.getValue());
+				}
+			}
+		}
+	}
+
+}
