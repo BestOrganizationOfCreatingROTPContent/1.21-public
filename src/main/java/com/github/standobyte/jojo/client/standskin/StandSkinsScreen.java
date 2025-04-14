@@ -13,6 +13,10 @@ import com.github.standobyte.jojo.client.ClientProxy;
 import com.github.standobyte.jojo.client.entityrender.stand.StandEntityRenderer;
 import com.github.standobyte.jojo.client.input.InputHandler;
 import com.github.standobyte.jojo.core.packet.fromclient.ClSetStandSkinPacket;
+import com.github.standobyte.jojo.client.jojomenu.IJojoMenuScreen;
+import com.github.standobyte.jojo.client.jojomenu.JojoMenuTabs;
+import com.github.standobyte.jojo.client.jojomenu.Tab;
+import com.github.standobyte.jojo.client.jojomenu.TabCategory;
 import com.github.standobyte.jojo.powersystem.PowerClass;
 import com.github.standobyte.jojo.powersystem.standpower.StandInstance;
 import com.github.standobyte.jojo.powersystem.standpower.StandPower;
@@ -35,7 +39,7 @@ import net.minecraft.util.Mth;
 import net.neoforged.neoforge.network.PacketDistributor;
 
 // XXX stans skins UI
-public class StandSkinsScreen extends Screen {
+public class StandSkinsScreen extends Screen implements IJojoMenuScreen {
 //	public static final ResourceLocation TEXTURE_MAIN_WINDOW = new ResourceLocation(JojoMod.MOD_ID, "textures/gui/stand_skins.png");
 //	private static final ResourceLocation TEXTURE_BG = new ResourceLocation(JojoMod.MOD_ID, "textures/gui/stand_skins_bg.png");
 	
@@ -91,6 +95,16 @@ public class StandSkinsScreen extends Screen {
 	}
 	
 	@Override
+	public TabCategory getTabCategory() {
+		return JojoMenuTabs.CATEGORY_STAND;
+	}
+	
+	@Override
+	public Tab getTab() {
+		return JojoMenuTabs.STAND_SKINS;
+	}
+	
+	@Override
 	public void tick() {
 		tickCount++;
 	}
@@ -108,6 +122,9 @@ public class StandSkinsScreen extends Screen {
 //		renderWindow(gui);
 //		
 //		defaultRenderTabs(gui, mouseX, mouseY, this);
+		
+		renderTabs(gui, this);
+		renderTabTooltip(gui, this, mouseX, mouseY);
 		
 		for (Renderable renderable : renderables) {
 			renderable.render(gui, mouseX, mouseY, partialTick);
@@ -200,6 +217,8 @@ public class StandSkinsScreen extends Screen {
 	
 	@Override
 	public boolean mouseClicked(double mouseX, double mouseY, int mouseButton) {
+		if (clickTab(mouseX, mouseY, mouseButton, this)) return true;
+		
 		Optional<SkinView> hoveredBox = getSkinAt((int) mouseX, (int) mouseY);
 		if (skinFullView == null) {
 			switch (mouseButton) {

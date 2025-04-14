@@ -1,0 +1,11 @@
+package com.github.standobyte.jojo.client.jojomenu;
+
+import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.client.gui.screens.Screen;
+import net.minecraft.network.chat.Component;
+
+public interface IJojoMenuTab {
+	void renderIcon(GuiGraphics guiGraphics, int x, int y);
+	Component getName();
+	boolean onClick(Screen curScreen);
+}

@@ -2,6 +2,7 @@ package com.github.standobyte.jojo.client;
 
 import com.github.standobyte.jojo.client.entityrender.stand.StandEntityRenderer;
 import com.github.standobyte.jojo.client.input.InputHandler;
+import com.github.standobyte.jojo.client.jojomenu.JojoMenuTabs;
 import com.github.standobyte.jojo.core.JojoMod;
 import com.github.standobyte.jojo.init.ModEntityTypes;
 
@@ -19,6 +20,7 @@ public class ClientSetup {
 
 	@SubscribeEvent(priority = EventPriority.HIGHEST)
 	public static void onClientSetup0(FMLClientSetupEvent event) {
+		JojoMenuTabs.initDefaults();
 	}
 
 	@SubscribeEvent

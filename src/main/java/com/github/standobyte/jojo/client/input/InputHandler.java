@@ -10,6 +10,7 @@ import javax.annotation.Nullable;
 import org.lwjgl.glfw.GLFW;
 
 import com.github.standobyte.jojo.client.event.PreKeyInputEvent;
+import com.github.standobyte.jojo.client.jojomenu.IJojoMenuScreen;
 import com.github.standobyte.jojo.core.JojoMod;
 import com.github.standobyte.jojo.core.packet.fromclient.ClAbilityInputPacket;
 import com.github.standobyte.jojo.core.packet.fromclient.ClSummonStandPacket;
@@ -88,6 +89,10 @@ public class InputHandler {
 //				actionsOverlay.onStandSummon();
 //			}
 			PacketDistributor.sendToServer(new ClSummonStandPacket());
+		}
+		
+		if (jojoStuffMenu.consumeClick()) {
+			IJojoMenuScreen.onScreenKeyPress();
 		}
 		
 		for (var heldKey : heldKeys.values()) {

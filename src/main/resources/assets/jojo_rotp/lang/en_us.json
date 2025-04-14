@@ -1,6 +1,31 @@
 {
   "itemGroup.jojo_rotp.main": "JoJo",
   
+  "jojo.ui.player_menu": "Player Menu (NYI)",
+  "jojo_rotp.menu.player.profile": "Character Profile (NYI)",
+  "jojo_rotp.menu.player.group": "Group (NYI)",
+  "jojo_rotp.menu.player.story_arcs": "Story Arcs (NYI)",
+  "jojo_rotp.menu.player.clothes": "Clothes (NYI)",
+  
+  "jojo.screen.edit_hud_layout": "Edit Controls (NYI)",
+  
+  
+  "jojo_rotp.power.hamon": "Hamon",
+  "hamon.intro.tab": "Introduction",
+  "hamon.stats.tab": "Stats",
+  "hamon.strength_skills.tab": "Combat Skills",
+  "hamon.control_skills.tab": "Supportive Skills",
+  "hamon.techniques.tab": "Techniques",
+  
+  
+  "jojo_rotp.power.vampirism": "Vampirism",
+  "jojo_rotp.vampirism.skills": "Skills",
+  
+  
+  "jojo_rotp.menu.stand.info": "Stand Info (NYI)",
+  "jojo_rotp.menu.stand.skills": "Skills (NYI)",
+  "jojo_rotp.menu.stand.skins": "Stand Skins",
+  
   "stand.unknown": "Unknown Stand: %s",
   
   "jojo_rotp.subtitle.stand_summon": "Stand summoned",

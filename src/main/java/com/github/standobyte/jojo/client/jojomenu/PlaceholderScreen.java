@@ -1,0 +1,53 @@
+package com.github.standobyte.jojo.client.jojomenu;
+
+import com.github.standobyte.jojo.core.JojoMod;
+
+import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.client.gui.screens.Screen;
+import net.minecraft.client.renderer.RenderType;
+import net.minecraft.network.chat.Component;
+import net.minecraft.resources.ResourceLocation;
+
+public class PlaceholderScreen extends Screen implements IJojoMenuScreen {
+	public static final ResourceLocation WINDOW = JojoMod.resLoc("textures/gui/empty.png");
+	
+	protected TabCategory category;
+	protected Tab tab;
+
+	public PlaceholderScreen(Component title, TabCategory category, Tab tab) {
+		super(title);
+		this.category = category;
+		this.tab = tab;
+	}
+
+	@Override
+	public TabCategory getTabCategory() {
+		return category;
+	}
+
+	@Override
+	public Tab getTab() {
+		return tab;
+	}
+
+	@Override
+	public void render(GuiGraphics guiGraphics, int mouseX, int mouseY, float p_283123_) {
+		super.render(guiGraphics, mouseX, mouseY, p_283123_);
+
+		int x = getWindowX(this);
+		int y = getWindowY(this);
+		int width = getWindowWidth();
+		int height = getWindowHeight();
+		guiGraphics.blit(RenderType::guiTextured, WINDOW, x, y, 0.0F, 0.0F, width, height, 256, 256);
+		
+		renderTabs(guiGraphics, this);
+		renderTabTooltip(guiGraphics, this, mouseX, mouseY);
+	}
+
+	@Override
+	public boolean mouseClicked(double mouseX, double mouseY, int button) {
+		if (clickTab(mouseX, mouseY, button, this)) return true;
+		return super.mouseClicked(mouseX, mouseY, button);
+	}
+
+}
