@@ -1,0 +1,114 @@
+package com.github.standobyte.jojo.client.entityrender.entities;
+
+import javax.annotation.Nullable;
+
+import com.github.standobyte.jojo.client.entityrender.ModEntityRenderers;
+import com.github.standobyte.jojo.core.JojoMod;
+import com.github.standobyte.jojo.mechanics.clothes.mannequin.MannequinEntity;
+import com.mojang.blaze3d.vertex.PoseStack;
+import com.mojang.math.Axis;
+
+import net.minecraft.client.renderer.MultiBufferSource;
+import net.minecraft.client.renderer.RenderType;
+import net.minecraft.client.renderer.entity.EntityRendererProvider;
+import net.minecraft.client.renderer.entity.HumanoidMobRenderer;
+import net.minecraft.client.renderer.entity.LivingEntityRenderer;
+import net.minecraft.client.renderer.entity.layers.CustomHeadLayer;
+import net.minecraft.client.renderer.entity.layers.ItemInHandLayer;
+import net.minecraft.client.renderer.entity.layers.WingsLayer;
+import net.minecraft.resources.ResourceLocation;
+import net.minecraft.util.Mth;
+
+public class MannequinRenderer extends LivingEntityRenderer<MannequinEntity, MannequinRenderState, MannequinModel> {
+	public static final ResourceLocation DEFAULT_SKIN_LOCATION = JojoMod.resLoc("textures/entity/mannequin.png");
+	private final MannequinModel bigModel = this.getModel();
+	private final MannequinModel bigModelSlim;
+	private final MannequinModel smallModel;
+	private final MannequinModel smallModelSlim;
+
+	public MannequinRenderer(EntityRendererProvider.Context ctx) {
+		super(ctx, new MannequinModel(ctx.bakeLayer(ModEntityRenderers.MANNEQUIN)), 0.0F);
+		this.bigModelSlim = new MannequinModel(ctx.bakeLayer(ModEntityRenderers.MANNEQUIN_SLIM));
+		this.smallModel = new MannequinModel(ctx.bakeLayer(ModEntityRenderers.MANNEQUIN_SMALL));
+		this.smallModelSlim = new MannequinModel(ctx.bakeLayer(ModEntityRenderers.MANNEQUIN_SLIM_SMALL));
+		// TODO (mannequin) armor layer
+		// TODO (mannequin) clothes layer
+//		this.addLayer(
+//			new HumanoidArmorLayer<>(
+//				this,
+//				new MannequinModel(ctx.bakeLayer(ModelLayers.ARMOR_STAND_INNER_ARMOR)),
+//				new MannequinModel(ctx.bakeLayer(ModelLayers.ARMOR_STAND_OUTER_ARMOR)),
+//				new MannequinModel(ctx.bakeLayer(ModelLayers.ARMOR_STAND_SMALL_INNER_ARMOR)),
+//				new MannequinModel(ctx.bakeLayer(ModelLayers.ARMOR_STAND_SMALL_OUTER_ARMOR)),
+//				ctx.getEquipmentRenderer()
+//			)
+//		);
+		this.addLayer(new ItemInHandLayer<>(this));
+		this.addLayer(new WingsLayer<>(this, ctx.getModelSet(), ctx.getEquipmentRenderer()));
+		this.addLayer(new CustomHeadLayer<>(this, ctx.getModelSet()));
+	}
+
+	@Override
+	public ResourceLocation getTextureLocation(MannequinRenderState renderState) {
+		return DEFAULT_SKIN_LOCATION;
+	}
+
+	@Override
+	public MannequinRenderState createRenderState() {
+		return new MannequinRenderState();
+	}
+
+	@Override
+	public void extractRenderState(MannequinEntity entity, MannequinRenderState renderState, float partialTick) {
+		super.extractRenderState(entity, renderState, partialTick);
+		HumanoidMobRenderer.extractHumanoidRenderState(entity, renderState, partialTick, this.itemModelResolver);
+		renderState.yRot = Mth.rotLerp(partialTick, entity.yRotO, entity.getYRot());
+		renderState.isMarker = entity.isMarker();
+		renderState.isSmall = entity.isSmall();
+		renderState.showArms = entity.showArms();
+		renderState.showBasePlate = entity.showBasePlate();
+		renderState.bodyPose = entity.getBodyPose();
+		renderState.headPose = entity.getHeadPose();
+		renderState.leftArmPose = entity.getLeftArmPose();
+		renderState.rightArmPose = entity.getRightArmPose();
+		renderState.leftLegPose = entity.getLeftLegPose();
+		renderState.rightLegPose = entity.getRightLegPose();
+		renderState.wiggle = (float)(entity.level().getGameTime() - entity.lastHit) + partialTick;
+		renderState.isSlim = entity.isSlim();
+	}
+
+	@Override
+	public void render(MannequinRenderState renderState, PoseStack matrixStack, MultiBufferSource bufferSource, int light) {
+		if (renderState.isSlim) this.model = renderState.isSmall ? this.smallModelSlim : this.bigModelSlim;
+		else 					this.model = renderState.isSmall ? this.smallModel : this.bigModel;
+		super.render(renderState, matrixStack, bufferSource, light);
+	}
+
+	@Override
+	protected void setupRotations(MannequinRenderState renderState, PoseStack matrixStack, float bodyRot, float scale) {
+		matrixStack.mulPose(Axis.YP.rotationDegrees(180.0F - bodyRot));
+		if (renderState.wiggle < 5.0F) {
+			matrixStack.mulPose(Axis.YP.rotationDegrees(Mth.sin(renderState.wiggle / 1.5F * (float) Math.PI) * 3.0F));
+		}
+	}
+
+	@Override
+	protected boolean shouldShowName(MannequinEntity entity, double distSqr) {
+		return entity.isCustomNameVisible();
+	}
+
+	@Nullable
+	@Override
+	protected RenderType getRenderType(MannequinRenderState renderState, boolean isVisible, boolean renderTranslucent, boolean appearsGlowing) {
+		if (!renderState.isMarker) {
+			return super.getRenderType(renderState, isVisible, renderTranslucent, appearsGlowing);
+		} else {
+			ResourceLocation resourcelocation = this.getTextureLocation(renderState);
+			if (renderTranslucent) {
+				return RenderType.entityTranslucent(resourcelocation, false);
+			} else {
+				return isVisible ? RenderType.entityCutoutNoCull(resourcelocation, false) : null;
+			}
+		}
+	}
+}
