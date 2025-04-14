@@ -1,0 +1,45 @@
+package com.github.standobyte.jojo.init;
+
+import com.github.standobyte.jojo.core.JojoMod;
+import com.github.standobyte.jojo.powersystem.standpower.entity.StandEntity;
+
+import net.minecraft.core.registries.Registries;
+import net.minecraft.resources.ResourceKey;
+import net.minecraft.resources.ResourceLocation;
+import net.minecraft.world.entity.EntityType;
+import net.minecraft.world.entity.MobCategory;
+import net.minecraft.world.entity.player.Player;
+import net.neoforged.bus.api.SubscribeEvent;
+import net.neoforged.fml.common.EventBusSubscriber;
+import net.neoforged.neoforge.event.entity.EntityAttributeCreationEvent;
+import net.neoforged.neoforge.registries.DeferredHolder;
+import net.neoforged.neoforge.registries.DeferredRegister;
+
+@EventBusSubscriber(modid = JojoMod.MOD_ID, bus = EventBusSubscriber.Bus.MOD)
+public final class ModEntityTypes {
+	public static final DeferredRegister<EntityType<?>> ENTITY_TYPES = DeferredRegister.create(Registries.ENTITY_TYPE, JojoMod.MOD_ID);
+	
+	@SubscribeEvent
+	public static void registerAttributes(EntityAttributeCreationEvent event) {
+		event.put(HUMANOID_STAND.get(), StandEntity.createAttributes().build());
+	}
+	
+	
+	public static final DeferredHolder<EntityType<?>, EntityType<StandEntity>> HUMANOID_STAND = ENTITY_TYPES.register("humanoid_stand", key -> 
+			EntityType.Builder.of(StandEntity::new, MobCategory.MISC)
+			.noSave()
+			.noSummon()
+			.sized(0.6F, 1.8F)
+			.eyeHeight(1.62F)
+			.vehicleAttachment(Player.DEFAULT_VEHICLE_ATTACHMENT)
+			.clientTrackingRange(32)
+			.updateInterval(2)
+			.build(createIDFor(key)));
+	
+	
+	
+	public static ResourceKey<EntityType<?>> createIDFor(ResourceLocation key) {
+		return ResourceKey.create(Registries.ENTITY_TYPE, key);
+	}
+	
+}

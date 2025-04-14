@@ -1,0 +1,17 @@
+{
+  "itemGroup.jojo_rotp.main": "JoJo",
+  
+  "stand.unknown": "Unknown Stand: %s",
+  
+  "jojo_rotp.subtitle.stand_summon": "Stand summoned",
+  "jojo_rotp.subtitle.stand_unsummon": "Stand unsummoned",
+  "jojo_rotp.subtitle.stand_attack_light": "Attack",
+  "jojo_rotp.subtitle.stand_attack_strong": "Strong attack",
+  "jojo_rotp.subtitle.stand_attack_barrage": "Attack",
+  "jojo_rotp.subtitle.stand_punch_swing": "Punch swing",
+  "jojo_rotp.subtitle.stand_damage_block": "Damage blocked",
+  "jojo_rotp.subtitle.ora": "ORA",
+  "jojo_rotp.subtitle.ora_ora_ora": "ORA ORA ORA",
+  "jojo_rotp.subtitle.muda": "MUDA",
+  "jojo_rotp.subtitle.muda_muda_muda": "MUDA MUDA MUDA"
+}

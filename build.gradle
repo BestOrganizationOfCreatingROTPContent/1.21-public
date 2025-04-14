@@ -83,6 +83,13 @@ configurations {
 
 dependencies {
     implementation "net.neoforged:neoforge:${neo_version}"
+    jarJar(implementation('team.unnamed:mocha')) {
+    	version {
+	    	strictly '[3.0.0, 4.0.0)'
+	        prefer '3.0.0'
+        }
+    }
+    additionalRuntimeClasspath 'team.unnamed:mocha:3.0.0'
 }
 
 var generateModMetadata = tasks.register("generateModMetadata", ProcessResources) {

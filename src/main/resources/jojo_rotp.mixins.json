@@ -7,5 +7,12 @@
   "mixins": [
   ],
   "client": [
+    "client.controls.KeyboardHandlerMixin",
+    "client.playeranim.HumanoidRendererMixin",
+    "client.playeranim.HumanoidRenderStateMixin",
+    "client.playeranim.HumanoidModelMixin",
+    "client.playeranim.ModelMixin",
+    "client.playeranim.ModelPartMixin",
+    "client.standskin.SoundInstanceMixin"
   ]
 }

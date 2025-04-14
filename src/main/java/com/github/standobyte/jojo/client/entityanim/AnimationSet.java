@@ -1,0 +1,173 @@
+package com.github.standobyte.jojo.client.entityanim;
+
+import java.util.Comparator;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Optional;
+import java.util.OptionalInt;
+import java.util.stream.Collectors;
+
+import com.github.standobyte.jojo.client.entityrender.stand.StandEntityRenderer;
+import com.github.standobyte.jojo.powersystem.entityaction.ActionAnimIdentifier;
+import com.github.standobyte.jojo.util.StringUtil;
+import com.mojang.datafixers.util.Pair;
+
+import it.unimi.dsi.fastutil.ints.Int2ObjectArrayMap;
+import it.unimi.dsi.fastutil.ints.Int2ObjectMap;
+
+/**
+ * Has some stuff specific to Stands, but it can be used for other entities as well.
+ */
+public class AnimationSet {
+	protected final Map<ActionAnimIdentifier, List<AnimWithExtras>> namedAnimations;
+	protected AnimWithExtras idleAnim;
+//	@Nullable protected AnimWithExtras curAnim;
+	
+	protected AnimationSet(Map<ActionAnimIdentifier, List<AnimWithExtras>> namedAnimations) {
+		this.namedAnimations = namedAnimations;
+		this.idleAnim = Optional.ofNullable(namedAnimations.get(StandEntityRenderer.IDLE_ANIM))
+				.map(list -> list.isEmpty() ? null : list.get(0)).orElse(null);
+	}
+	
+	public AnimWithExtras getNamedAnim(ActionAnimIdentifier name) {
+		return getNamedAnim(name, 0);
+	}
+	
+	public AnimWithExtras getNamedAnim(ActionAnimIdentifier name, int numberWrapped) {
+		if (name == StandEntityRenderer.IDLE_ANIM) {
+			return idleAnim;
+		}
+		List<AnimWithExtras> anims = namedAnimations.get(name);
+		if (anims == null || anims.isEmpty()) return null;
+		return anims.get(numberWrapped % anims.size());
+	}
+	
+	public AnimWithExtras getStandIdleAnim() {
+		return idleAnim;
+	}
+	
+	
+	public static class Builder {
+		Map<String, Int2ObjectMap<AnimWithExtras>> namedAnimations = new HashMap<>();
+		
+		public void putNamedAnim(String name, AnimWithExtras anim) {
+			Pair<String, OptionalInt> enumeratedName = StringUtil.splitIntAtTheEnd(name);
+			Int2ObjectMap<AnimWithExtras> anims = this.namedAnimations.computeIfAbsent(
+					enumeratedName.getFirst(), __ -> new Int2ObjectArrayMap<>());
+			anims.put(enumeratedName.getSecond().orElse(0), anim);
+		}
+		
+		public boolean isEmpty() {
+			return namedAnimations.isEmpty();
+		}
+		
+		public AnimationSet build() {
+			Map<ActionAnimIdentifier, List<AnimWithExtras>> anims = this.namedAnimations.entrySet().stream()
+					.collect(Collectors.toMap(
+							entry -> ActionAnimIdentifier.getOrCreate(entry.getKey()), 
+							entry -> entry.getValue()
+								.int2ObjectEntrySet().stream()
+								.sorted(Comparator.comparingInt(Int2ObjectMap.Entry::getIntKey))
+								.map(Int2ObjectMap.Entry::getValue)
+								.toList()));
+			AnimationSet animationSet = new AnimationSet(anims);
+			return animationSet;
+		}
+	}
+
+	// TODO (!) (entity anims) all the stand animation stuff
+//	@Override
+//	public <T extends StandEntity> boolean poseStand(@Nullable T entity, StandEntityModel<T> model, StandPoseData poseData, 
+//			float ticks, float yRotOffsetDeg, float xRotDeg) {
+//		model.resetPose(entity);
+//		curAnim = null;
+//		
+//		StandPose standPose = poseData.standPose;
+//		if (standPose == StandPose.SUMMON) {
+//			List<StandActionAnimation> summonAnims = namedAnimations.get(StandPose.SUMMON.getName());
+//			if (summonAnims != null && summonAnims.size() > 0) {
+//				StandActionAnimation summonAnim = StandPose.SUMMON.getAnim(summonAnims, entity);
+//				
+//				if (ticks > summonAnim.anim.lengthInSeconds() * 20) {
+//					standPose = StandPose.IDLE;
+//					model.setStandPose(standPose, entity);
+//				}
+//				
+//				model.idleLoopTickStamp = ticks;
+//				return applyAnim(summonAnim, entity, model, yRotOffsetDeg, xRotDeg, standPose, poseData);
+//			}
+//		}
+//		
+//		if (standPose != null && standPose != StandPose.IDLE) {
+//			model.idleLoopTickStamp = ticks;
+//			
+//			List<StandActionAnimation> anims = getAnims(entity, standPose);
+//			if (anims != null) {
+//				StandActionAnimation anim = standPose.getAnim(anims, entity);
+//				if (anim != null) {
+//					return applyAnim(anim, entity, model, yRotOffsetDeg, xRotDeg, standPose, poseData);
+//				}
+//			}
+//		}
+//		
+//		StandActionAnimation idleAnim = getIdleAnim(entity);
+//		if (idleAnim != null) {
+//			return applyAnim(idleAnim, entity, model, yRotOffsetDeg, xRotDeg, standPose, poseData);
+//		}
+//		
+//		return exists;
+//	}
+//	
+//	protected <T extends StandEntity> boolean applyAnim(StandActionAnimation anim, @Nullable T entity, 
+//			StandEntityModel<T> model, float yRotOffsetDeg, float xRotDeg, StandPose standPose, StandPoseData poseData) {
+//		curAnim = anim;
+//		poseData.edit().standPose(standPose);
+//		poseData.standPose.applyAnim(entity, model, anim, yRotOffsetDeg, xRotDeg, poseData);
+//		return true;
+//		
+//	}
+//	
+//	protected List<StandActionAnimation> getAnims(@Nullable StandEntity entity, StandPose standPose) {
+//		String key = standPose.getName();
+//		if (entity != null && entity.isArmsOnlyMode()) {
+//			String key2 = "armsOnly_" + key;
+//			if (namedAnimations.containsKey(key2)) {
+//				return namedAnimations.get(key2);
+//			}
+//		}
+//		return namedAnimations.get(key);
+//	}
+//	
+//	
+//	
+//	
+//
+//
+//	@Override
+//	public <T extends StandEntity> void addBarrageSwings(T entity, StandEntityModel<T> model, float ticks) {
+//		boolean isBarraging = false;
+//		if (curAnim != null) {
+//			String barrageType = curAnim.getStringTimelineVal(TimelineKeys.BARRAGE, curAnim.animTime);
+//			if (barrageType != null) {
+//				isBarraging = BarrageSwings.onBarrageAnim(barrageType, entity, model, curAnim, ticks, curAnim.animTime);
+//			}
+//		}
+//		entity.animWasBarraging = isBarraging;
+//	}
+//
+//	@Override
+//	public <T extends StandEntity> void renderBarrageSwings(T entity, StandEntityModel<T> model, float yRotOffsetDeg, float xRotDeg,
+//			MatrixStack matrixStack, IVertexBuilder buffer, int packedLight, int packedOverlay, float red, float green,
+//			float blue, float alpha) {
+//		BarrageSwings swings = entity.getBarrageSwings();
+//		if (swings != null) {
+//			for (BarrageSwing swing : swings.getSwings()) {
+//				swing.poseAndRender(entity, model, 
+//						matrixStack, buffer, yRotOffsetDeg, xRotDeg, 
+//						packedLight, packedOverlay, red, green, blue, alpha);
+//			}
+//		}
+//	}
+	
+}

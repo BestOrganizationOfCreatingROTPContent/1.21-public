@@ -1,0 +1,82 @@
+package com.github.standobyte.jojo.core;
+
+import com.github.standobyte.jojo.jojoimpl.hamon.HamonSkill;
+import com.github.standobyte.jojo.jojoimpl.hamon.HamonTechnique;
+import com.github.standobyte.jojo.powersystem.ability.AbilityType;
+import com.github.standobyte.jojo.powersystem.playerpower.PlayerPowerType;
+import com.github.standobyte.jojo.powersystem.standpower.StandEffectType;
+import com.github.standobyte.jojo.powersystem.standpower.type.StandType;
+
+import net.minecraft.core.Registry;
+import net.minecraft.resources.ResourceKey;
+import net.neoforged.bus.api.SubscribeEvent;
+import net.neoforged.fml.common.EventBusSubscriber;
+import net.neoforged.neoforge.registries.DeferredRegister;
+import net.neoforged.neoforge.registries.NewRegistryEvent;
+import net.neoforged.neoforge.registries.RegistryBuilder;
+
+@EventBusSubscriber(modid = JojoMod.MOD_ID, bus = EventBusSubscriber.Bus.MOD)
+public final class JojoRegistries {
+	public static final ResourceKey<Registry<AbilityType<?>>> ABILITY_TYPES_REG_KEY = ResourceKey.createRegistryKey(
+			JojoMod.resLoc("ability_type"));
+	
+	public static final Registry<AbilityType<?>> ABILITY_TYPES_REG = new RegistryBuilder<>(ABILITY_TYPES_REG_KEY)
+			.create();
+	
+	
+	public static final ResourceKey<Registry<PlayerPowerType<?>>> PLAYER_POWER_TYPES_REG_KEY = ResourceKey.createRegistryKey(
+			JojoMod.resLoc("player_power_type"));
+	
+	public static final Registry<PlayerPowerType<?>> PLAYER_POWER_TYPES_REG = new RegistryBuilder<>(PLAYER_POWER_TYPES_REG_KEY)
+			.sync(true)
+			.create();
+	
+	
+	public static final ResourceKey<Registry<HamonSkill>> HAMON_SKILLS_REG_KEY = ResourceKey.createRegistryKey(
+			JojoMod.resLoc("hamon_skill"));
+	
+	public static final Registry<HamonSkill> HAMON_SKILLS_REG = new RegistryBuilder<>(HAMON_SKILLS_REG_KEY)
+			.sync(true)
+			.create();
+	
+	
+	public static final ResourceKey<Registry<HamonTechnique>> HAMON_TECHNIQUES_REG_KEY = ResourceKey.createRegistryKey(
+			JojoMod.resLoc("hamon_technique"));
+	
+	public static final Registry<HamonTechnique> HAMON_TECHNIQUES_REG = new RegistryBuilder<>(HAMON_TECHNIQUES_REG_KEY)
+			.sync(true)
+			.create();
+	
+	public static final ResourceKey<Registry<StandEffectType<?>>> STAND_EFFECTS_REG_KEY = ResourceKey.createRegistryKey(
+			JojoMod.resLoc("stand_effect"));
+	
+	public static final Registry<StandEffectType<?>> STAND_EFFECTS_REG = new RegistryBuilder<>(STAND_EFFECTS_REG_KEY)
+			.sync(true)
+			.create();
+	
+	
+	public static final ResourceKey<Registry<StandType>> DEFAULT_STANDS_REG_KEY = ResourceKey.createRegistryKey(
+			JojoMod.resLoc("stand_type"));
+	
+	public static final Registry<StandType> DEFAULT_STANDS_REG = new RegistryBuilder<>(DEFAULT_STANDS_REG_KEY)
+			.sync(true)
+			.create();
+	
+	
+	public static final DeferredRegister<AbilityType<?>> ABILITY_TYPES = DeferredRegister.create(JojoRegistries.ABILITY_TYPES_REG, JojoMod.MOD_ID);
+	
+	@SubscribeEvent
+	public static void registerRegistries(NewRegistryEvent event) {
+		event.register(ABILITY_TYPES_REG);
+		event.register(PLAYER_POWER_TYPES_REG);
+		event.register(HAMON_SKILLS_REG);
+		event.register(HAMON_TECHNIQUES_REG);
+		event.register(STAND_EFFECTS_REG);
+		event.register(DEFAULT_STANDS_REG);
+	}
+	
+//	@SubscribeEvent
+//	public static void registerDataPackRegistries(DataPackRegistryEvent.NewRegistry event) {
+//	}
+	
+}

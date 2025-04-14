@@ -1,0 +1,66 @@
+{  
+  "stand_summon": {
+    "subtitle": "jojo_rotp.subtitle.stand_summon",
+    "sounds": [ "jojo_rotp:stand_summon" ]
+  },
+  "stand_unsummon": {
+    "subtitle": "jojo_rotp.subtitle.stand_unsummon",
+    "sounds": [ "jojo_rotp:stand_unsummon" ]
+  },
+  "stand_damage_block": {
+    "subtitle": "jojo_rotp.subtitle.stand_damage_block",
+    "sounds": [ "jojo_rotp:attack_block_1", "jojo_rotp:attack_block_2" ]
+  },
+  "stand_punch_light": {
+    "subtitle": "jojo_rotp.subtitle.stand_attack_light",
+    "sounds": [ "jojo_rotp:stand_punch_light", "jojo_rotp:stand_punch_light_2", "jojo_rotp:stand_punch_light_3", "jojo_rotp:stand_punch_light_4" ]
+  },
+  "stand_punch_barrage": {
+    "subtitle": "jojo_rotp.subtitle.stand_attack_barrage",
+    "sounds": [ 
+      {
+        "name": "jojo_rotp:stand_punch_light",
+        "type": "event"
+      }
+    ]
+  },
+  "stand_punch_heavy": {
+    "subtitle": "jojo_rotp.subtitle.stand_attack_strong",
+    "sounds": [ "jojo_rotp:stand_punch_heavy" ]
+  },
+  "stand_crash": {
+    "subtitle": "jojo_rotp.subtitle.stand_crash",
+    "sounds": [ "jojo_rotp:stand_parry" ]
+  },
+  "stand_parry": {
+    "subtitle": "jojo_rotp.subtitle.stand_attack_parried",
+    "sounds": [ "jojo_rotp:stand_parry" ]
+  },
+  "stand_leap": {
+    "sounds": [ "jojo_rotp:stand_leap" ]
+  },
+  "stand_punch_swing": {
+    "subtitle": "jojo_rotp.subtitle.stand_punch_swing",
+    "sounds": [ "jojo_rotp:swing1", "jojo_rotp:swing2", "jojo_rotp:swing3", "jojo_rotp:swing4", "jojo_rotp:swing5" ]
+  },
+  "stand_punch_heavy_swing": {
+    "subtitle": "jojo_rotp.subtitle.stand_punch_swing",
+    "sounds": [ 
+      {
+        "name": "jojo_rotp:stand_punch_swing",
+        "type": "event",
+        "pitch" : 0.5
+      }
+    ]
+  },
+  "stand_punch_barrage_swing": {
+    "subtitle": "jojo_rotp.subtitle.stand_punch_swing",
+    "sounds": [ 
+      {
+        "name": "jojo_rotp:stand_punch_swing",
+        "type": "event",
+        "pitch" : 1.0
+      }
+    ]
+  }
+}
