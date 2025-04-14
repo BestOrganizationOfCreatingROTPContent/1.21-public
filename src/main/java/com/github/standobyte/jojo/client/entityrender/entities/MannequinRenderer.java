@@ -8,19 +8,25 @@ import com.github.standobyte.jojo.mechanics.clothes.mannequin.MannequinEntity;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.math.Axis;
 
+import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.RenderType;
 import net.minecraft.client.renderer.entity.EntityRendererProvider;
 import net.minecraft.client.renderer.entity.HumanoidMobRenderer;
 import net.minecraft.client.renderer.entity.LivingEntityRenderer;
-import net.minecraft.client.renderer.entity.layers.CustomHeadLayer;
 import net.minecraft.client.renderer.entity.layers.ItemInHandLayer;
 import net.minecraft.client.renderer.entity.layers.WingsLayer;
+import net.minecraft.core.component.DataComponents;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.util.Mth;
+import net.minecraft.world.entity.EquipmentSlot;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.Items;
 
 public class MannequinRenderer extends LivingEntityRenderer<MannequinEntity, MannequinRenderState, MannequinModel> {
-	public static final ResourceLocation DEFAULT_SKIN_LOCATION = JojoMod.resLoc("textures/entity/mannequin.png");
+	public static final ResourceLocation DEFAULT_TEXTURE = JojoMod.resLoc("textures/entity/mannequin.png");
+	public static final ResourceLocation STEVE_TEXTURE = ResourceLocation.withDefaultNamespace("textures/entity/player/wide/steve.png");
+	public static final ResourceLocation ALEX_TEXTURE = ResourceLocation.withDefaultNamespace("textures/entity/player/slim/alex.png");
 	private final MannequinModel bigModel = this.getModel();
 	private final MannequinModel bigModelSlim;
 	private final MannequinModel smallModel;
@@ -44,12 +50,18 @@ public class MannequinRenderer extends LivingEntityRenderer<MannequinEntity, Man
 //		);
 		this.addLayer(new ItemInHandLayer<>(this));
 		this.addLayer(new WingsLayer<>(this, ctx.getModelSet(), ctx.getEquipmentRenderer()));
-		this.addLayer(new CustomHeadLayer<>(this, ctx.getModelSet()));
 	}
 
 	@Override
 	public ResourceLocation getTextureLocation(MannequinRenderState renderState) {
-		return DEFAULT_SKIN_LOCATION;
+		if (renderState.playerProfile != null) {
+			ResourceLocation texture = Minecraft.getInstance().getSkinManager().getInsecureSkin(renderState.playerProfile.gameProfile()).texture();
+			return texture;
+		}
+		if (renderState.hasSkull) {
+			return renderState.isSlim ? ALEX_TEXTURE : STEVE_TEXTURE;
+		}
+		return DEFAULT_TEXTURE;
 	}
 
 	@Override
@@ -73,7 +85,17 @@ public class MannequinRenderer extends LivingEntityRenderer<MannequinEntity, Man
 		renderState.leftLegPose = entity.getLeftLegPose();
 		renderState.rightLegPose = entity.getRightLegPose();
 		renderState.wiggle = (float)(entity.level().getGameTime() - entity.lastHit) + partialTick;
+		
 		renderState.isSlim = entity.isSlim();
+		ItemStack headItem = entity.getItemBySlot(EquipmentSlot.HEAD);
+		renderState.hasSkull = headItem.is(Items.PLAYER_HEAD);
+		// XXX (mannequin) don't render the player head item itself
+		if (renderState.hasSkull) {
+			renderState.playerProfile = !headItem.isEmpty() ? headItem.get(DataComponents.PROFILE) : null;
+		}
+		else {
+			renderState.playerProfile = null;
+		}
 	}
 
 	@Override

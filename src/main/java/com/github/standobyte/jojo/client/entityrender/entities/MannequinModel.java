@@ -20,25 +20,56 @@ public class MannequinModel extends HumanoidModel<MannequinRenderState> {
 		PartDefinition root = mesh.getRoot();
 		
 		if (slim) {
-			root.addOrReplaceChild(
-				"left_arm",
-				CubeListBuilder.create().texOffs(32, 48).addBox(-1.0F, -2.0F, -2.0F, 3.0F, 12.0F, 4.0F, cubeDeformation),
-				PartPose.offset(5.0F, 2.0F, 0.0F));
-			root.addOrReplaceChild(
-				"right_arm",
-				CubeListBuilder.create().texOffs(40, 16).addBox(-2.0F, -2.0F, -2.0F, 3.0F, 12.0F, 4.0F, cubeDeformation),
-				PartPose.offset(-5.0F, 2.0F, 0.0F));
+			PartDefinition leftArm = root.addOrReplaceChild(
+					"left_arm",
+					CubeListBuilder.create().texOffs(32, 48).addBox(-1.0F, -2.0F, -2.0F, 3.0F, 12.0F, 4.0F, cubeDeformation),
+					PartPose.offset(5.0F, 2.0F, 0.0F));
+			PartDefinition rightArm = root.addOrReplaceChild(
+					"right_arm",
+					CubeListBuilder.create().texOffs(40, 16).addBox(-2.0F, -2.0F, -2.0F, 3.0F, 12.0F, 4.0F, cubeDeformation),
+					PartPose.offset(-5.0F, 2.0F, 0.0F));
+			leftArm.addOrReplaceChild(
+					"left_sleeve", 
+					CubeListBuilder.create().texOffs(48, 48).addBox(-1.0F, -2.0F, -2.0F, 3.0F, 12.0F, 4.0F, cubeDeformation.extend(0.25F)), 
+					PartPose.ZERO);
+			rightArm.addOrReplaceChild(
+					"right_sleeve", 
+					CubeListBuilder.create().texOffs(40, 32).addBox(-2.0F, -2.0F, -2.0F, 3.0F, 12.0F, 4.0F, cubeDeformation.extend(0.25F)), 
+					PartPose.ZERO);
 		}
 		else {
-			root.addOrReplaceChild(
-				"left_arm",
-				CubeListBuilder.create().texOffs(32, 48).addBox(-1.0F, -2.0F, -2.0F, 4.0F, 12.0F, 4.0F, cubeDeformation),
-				PartPose.offset(5.0F, 2.0F, 0.0F));
+			PartDefinition leftArm = root.addOrReplaceChild(
+					"left_arm",
+					CubeListBuilder.create().texOffs(32, 48).addBox(-1.0F, -2.0F, -2.0F, 4.0F, 12.0F, 4.0F, cubeDeformation),
+					PartPose.offset(5.0F, 2.0F, 0.0F));
+			PartDefinition rightArm = root.getChild("right_arm");
+			leftArm.addOrReplaceChild(
+					"left_sleeve", 
+					CubeListBuilder.create().texOffs(48, 48).addBox(-1.0F, -2.0F, -2.0F, 4.0F, 12.0F, 4.0F, cubeDeformation.extend(0.25F)), 
+					PartPose.ZERO);
+			rightArm.addOrReplaceChild(
+					"right_sleeve", 
+					CubeListBuilder.create().texOffs(40, 32).addBox(-3.0F, -2.0F, -2.0F, 4.0F, 12.0F, 4.0F, cubeDeformation.extend(0.25F)), 
+					PartPose.ZERO);
 		}
 		root.clearChild("hat");
-		root.addOrReplaceChild(
+		PartDefinition leftLeg = root.addOrReplaceChild(
 				"left_leg", CubeListBuilder.create().texOffs(16, 48).addBox(-2.0F, 0.0F, -2.0F, 4.0F, 12.0F, 4.0F, cubeDeformation), 
 				PartPose.offset(1.9F, 12.0F, 0.0F));
+		PartDefinition rightLeg = root.getChild("right_leg");
+		leftLeg.addOrReplaceChild(
+				"left_pants", 
+				CubeListBuilder.create().texOffs(0, 48).addBox(-2.0F, 0.0F, -2.0F, 4.0F, 12.0F, 4.0F, cubeDeformation.extend(0.25F)), 
+				PartPose.ZERO);
+		rightLeg.addOrReplaceChild(
+				"right_pants", 
+				CubeListBuilder.create().texOffs(0, 32).addBox(-2.0F, 0.0F, -2.0F, 4.0F, 12.0F, 4.0F, cubeDeformation.extend(0.25F)), 
+				PartPose.ZERO);
+		PartDefinition body = root.getChild("body");
+		body.addOrReplaceChild(
+				"jacket", 
+				CubeListBuilder.create().texOffs(16, 32).addBox(-4.0F, 0.0F, -2.0F, 8.0F, 12.0F, 4.0F, cubeDeformation.extend(0.25F)), 
+				PartPose.ZERO);
 		
 		return LayerDefinition.create(mesh, 64, 64);
 	}
