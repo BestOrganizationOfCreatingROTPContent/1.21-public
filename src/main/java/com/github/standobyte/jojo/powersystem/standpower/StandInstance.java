@@ -13,10 +13,11 @@ import com.github.standobyte.jojo.powersystem.standpower.type.StandType;
 import com.github.standobyte.jojo.util.NBTUtil;
 import com.github.standobyte.jojo.util.network.NetworkUtil;
 import com.mojang.datafixers.util.Either;
+import com.mojang.serialization.Codec;
+import com.mojang.serialization.codecs.RecordCodecBuilder;
 
-import net.minecraft.nbt.CompoundTag;
-import net.minecraft.nbt.StringTag;
 import net.minecraft.network.FriendlyByteBuf;
+import net.minecraft.network.chat.Component;
 import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.resources.ResourceLocation;
 
@@ -42,7 +43,8 @@ public class StandInstance {
 	protected StandInstance(Either<StandType, ResourceLocation> standType) {
 		this.standType = standType;
 	}
-	
+
+	@Nullable
 	public StandType getStandType() {
 		return standType.left().filter(StandType::isEnabled).orElse(null);
 	}
@@ -67,22 +69,42 @@ public class StandInstance {
 	}
 	
 	
+	@Override
+	public int hashCode() {
+		return Objects.hash(getStandId(), skin);
+	}
 	
-	public CompoundTag serializeNBT() {
-		CompoundTag nbt = new CompoundTag();
-		nbt.put("StandType", StringTag.valueOf(getStandId().toString()));
-		skin.ifPresent(skinId -> nbt.put("Skin", StringTag.valueOf(skinId.toString())));
-		return nbt;
+	@Override
+	public boolean equals(Object obj) {
+		return obj == this || obj instanceof StandInstance other
+				&& this.getStandId().equals(other.getStandId())
+				&& this.skin.equals(other.skin);
 	}
-
-	public static Optional<StandInstance> fromNBT(CompoundTag nbt) {
-		Optional<StandInstance> standOptional = NBTUtil.getResLocOptional(nbt, "StandType")
-				.map(StandInstance::fromStandId);
-		standOptional.ifPresent(stand -> {
-			NBTUtil.getResLocOptional(nbt, "Skin").ifPresent(skinId -> stand.setCustomSkin(Optional.of(skinId)));
-		});
-		return standOptional;
+	
+	public StandInstance copy() {
+		StandInstance stand = new StandInstance(this.standType);
+		stand.setCustomSkin(this.skin);
+		return stand;
 	}
+	
+	
+	@Nullable
+	public Component getStandName() {
+		StandType stand = getStandType();
+		return stand != null ? Component.translatable(stand.getId().toString()) : null;
+	}
+	
+	
+	public static final Codec<StandInstance> CODEC = RecordCodecBuilder.create(
+			builder -> builder.group(
+					ResourceLocation.CODEC.fieldOf("stand_type").forGetter(StandInstance::getStandId),
+					ResourceLocation.CODEC.optionalFieldOf("skin").forGetter(StandInstance::getSelectedSkin))
+			.apply(builder, 
+					(ResourceLocation standId, Optional<ResourceLocation> standSkin) -> {
+						StandInstance stand = StandInstance.fromStandId(standId);
+						stand.setCustomSkin(standSkin);
+						return stand;
+					}));
 	
 	public static final StreamCodec<FriendlyByteBuf, StandInstance> NETWORK_CODEC = StreamCodec.composite(
 			ResourceLocation.STREAM_CODEC, instance -> instance.getStandId(),

@@ -15,7 +15,7 @@ import net.minecraft.resources.ResourceLocation;
 
 public interface IJojoMenuScreen {
 	public static final int DEFAULT_WIDTH = 230;
-	public static final int DEFAULT_HEIGHT = 180;
+	public static final int DEFAULT_HEIGHT = 227;
 	public static final ResourceLocation TABS_TEXTURE = JojoMod.resLoc("textures/gui/screen_tabs.png");
 	
 	TabCategory getTabCategory();
@@ -28,7 +28,7 @@ public interface IJojoMenuScreen {
 	default int getWindowHeight() { return DEFAULT_HEIGHT; }
 	
 	public static final int TAB_WIDTH = 28;
-	public static final int TAB_HEIGHT = 32;
+	public static final int TAB_LENGTH = 32;
 	
 	public default void renderTabs(GuiGraphics guiGraphics, Screen screen) {
 		int x = getWindowX(screen);
@@ -37,16 +37,16 @@ public interface IJojoMenuScreen {
 		TabCategory curCategory = getTabCategory();
 		Tab curTab = getTab();
 		
-		int tabX = x;
-		int tabY = y - TAB_HEIGHT + 4;
+		int tabX = x - TAB_LENGTH + 4;
+		int tabY = y;
 		boolean firstTab = true;
 		for (TabCategory category : TabCategory.getActiveCategories()) {
-			float texX = firstTab ? 0 : TAB_WIDTH;
-			float texY = category == curCategory ? TAB_HEIGHT : 0;
+			float texX = firstTab ? 0 : TAB_LENGTH;
+			float texY = TAB_LENGTH * 2 + (category == curCategory ? TAB_WIDTH : 0);
 			guiGraphics.blit(RenderType::guiTextured, TABS_TEXTURE, 
-					tabX, tabY, texX, texY, TAB_WIDTH, TAB_HEIGHT, 256, 256);
-			category.renderIcon(guiGraphics, tabX + 6, tabY + 10);
-			tabX += TAB_WIDTH;
+					tabX, tabY, texX, texY, TAB_LENGTH, TAB_WIDTH, 256, 256);
+			category.renderIcon(guiGraphics, tabX + 10, tabY + 6);
+			tabY += TAB_WIDTH;
 			firstTab = false;
 		}
 
@@ -54,10 +54,10 @@ public interface IJojoMenuScreen {
 		tabY = y;
 		firstTab = true;
 		for (Tab tab : curCategory.getActiveTabs()) {
-			float texX = TAB_HEIGHT * 3 + (firstTab ? 0 : TAB_HEIGHT);
-			float texY = TAB_HEIGHT * 2 + (tab == curTab ? TAB_WIDTH : 0);
+			float texX = TAB_LENGTH * 3 + (firstTab ? 0 : TAB_LENGTH);
+			float texY = TAB_LENGTH * 2 + (tab == curTab ? TAB_WIDTH : 0);
 			guiGraphics.blit(RenderType::guiTextured, TABS_TEXTURE, 
-					tabX, tabY, texX, texY, TAB_HEIGHT, TAB_WIDTH, 256, 256);
+					tabX, tabY, texX, texY, TAB_LENGTH, TAB_WIDTH, 256, 256);
 			tab.renderIcon(guiGraphics, tabX + 6, tabY + 6);
 			tabY += TAB_WIDTH;
 			firstTab = false;
@@ -91,19 +91,21 @@ public interface IJojoMenuScreen {
 		int y = getWindowY(screen);
 		int width = getWindowWidth();
 		
-		if (mouseY < y && mouseY >= y - TAB_HEIGHT && mouseX >= x) {
-			int categoryIndex = (int) ((mouseX - x) / TAB_WIDTH);
-			List<TabCategory> categories = TabCategory.getActiveCategories();
-			if (categoryIndex < categories.size()) {
-				return categories.get(categoryIndex);
+		if (mouseY >= y) {
+			if (mouseX < x && mouseX >= x - TAB_LENGTH) {
+				int categoryIndex = (int) ((mouseY - y) / TAB_WIDTH);
+				List<TabCategory> categories = TabCategory.getActiveCategories();
+				if (categoryIndex < categories.size()) {
+					return categories.get(categoryIndex);
+				}
 			}
-		}
-		
-		if (mouseX > x + width && mouseX <= x + width + TAB_HEIGHT && mouseY >= y) {
-			int tabIndex = (int) ((mouseY - y) / TAB_WIDTH);
-			List<Tab> tabs = getTabCategory().getActiveTabs();
-			if (tabIndex < tabs.size()) {
-				return tabs.get(tabIndex);
+			
+			if (mouseX > x + width && mouseX <= x + width + TAB_LENGTH) {
+				int tabIndex = (int) ((mouseY - y) / TAB_WIDTH);
+				List<Tab> tabs = getTabCategory().getActiveTabs();
+				if (tabIndex < tabs.size()) {
+					return tabs.get(tabIndex);
+				}
 			}
 		}
 		

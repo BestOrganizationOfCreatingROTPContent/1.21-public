@@ -9,7 +9,7 @@ import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
 
 public class PlaceholderScreen extends Screen implements IJojoMenuScreen {
-	public static final ResourceLocation WINDOW = JojoMod.resLoc("textures/gui/empty.png");
+	public static final ResourceLocation WINDOW = JojoMod.resLoc("textures/gui/empty2.png");
 	
 	protected TabCategory category;
 	protected Tab tab;

@@ -14,6 +14,7 @@ import com.github.standobyte.jojo.util.NBTUtil;
 
 import net.minecraft.core.HolderLookup;
 import net.minecraft.nbt.CompoundTag;
+import net.minecraft.nbt.NbtOps;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.entity.LivingEntity;
@@ -132,14 +133,18 @@ public class StandPower extends Power<StandPower> {
 	@Override
 	public CompoundTag serializeNBT(HolderLookup.Provider provider) {
 		CompoundTag nbt = super.serializeNBT(provider);
-		standInstance.ifPresent(stand -> nbt.put("StandInstance", stand.serializeNBT()));
+		standInstance.ifPresent(
+				stand -> StandInstance.CODEC.encodeStart(NbtOps.INSTANCE, stand)
+				.ifSuccess(standNbt -> nbt.put("StandInstance", standNbt)));
 		return nbt;
 	}
 
 	@Override
 	public void deserializeNBT(HolderLookup.Provider provider, CompoundTag nbt) {
 		super.deserializeNBT(provider, nbt);
-		standInstance = NBTUtil.getCompoundOptional(nbt, "StandInstance").flatMap(StandInstance::fromNBT);
+		standInstance = NBTUtil.getCompoundOptional(nbt, "StandInstance")
+				.flatMap(standNbt -> StandInstance.CODEC.decode(NbtOps.INSTANCE, standNbt).result())
+				.map(pair -> pair.getFirst());
 	}
 	
 	
