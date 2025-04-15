@@ -38,17 +38,11 @@ public class ModelPartMixin implements IPlayerLimbBend {
 	private void rotpCubesCompile(PoseStack poseStack, VertexConsumer buffer, 
 			int packedLight, int packedOverlay, int color, CallbackInfo ci) {
 		if (rotpBendBone != null && (rotpBendBone.xRot != 0.0F || rotpBendBone.yRot != 0.0F || rotpBendBone.zRot != 0.0F)) {
-			if (rotpInvertBend) {
-				rotpBendBone.xRot = -rotpBendBone.xRot;
-			}
 			ModelPart asModelPart = (ModelPart) (Object) this;
-			PlayerModelBends.drawBentCubes(asModelPart, rotpBendBone, 
+			PlayerModelBends.drawBentCubes(asModelPart, rotpBendBone, rotpInvertBend, 
 					rotpBendOffsetX, rotpBendOffsetY, rotpBendOffsetZ,
 					skipDraw, poseStack, 
 					buffer, packedLight, packedOverlay, color);
-			if (rotpInvertBend) {
-				rotpBendBone.xRot = -rotpBendBone.xRot;
-			}
 			poseStack.popPose();
 			ci.cancel();
 		}

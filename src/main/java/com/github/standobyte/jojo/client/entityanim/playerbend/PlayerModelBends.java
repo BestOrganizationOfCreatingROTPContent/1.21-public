@@ -82,15 +82,21 @@ public class PlayerModelBends {
 	
 	
 	
-	public static void drawBentCubes(ModelPart limb, ModelPart bend, 
+	public static void drawBentCubes(ModelPart limb, ModelPart bend, boolean invertBend, 
 			float bendOffsetX, float bendOffsetY, float bendOffsetZ, 
 			boolean skipDraw, PoseStack poseStack, 
 			VertexConsumer buffer, int packedLight, int packedOverlay, int color) {
 		if (!skipDraw) {
+			if (invertBend) {
+				bend.xRot = -bend.xRot;
+			}
 			for (ModelPart.Cube cube : limb.cubes) {
 				renderBentPolygons(cube.polygons, poseStack, bend,
 						bendOffsetX, bendOffsetY, bendOffsetZ, 
 						buffer, packedLight, packedOverlay, color);
+			}
+			if (invertBend) {
+				bend.xRot = -bend.xRot;
 			}
 		}
 		
