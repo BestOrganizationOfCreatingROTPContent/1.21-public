@@ -9,6 +9,7 @@ import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
+import com.github.standobyte.jojo.client.entityanim.IHumanoidAnimModel;
 import com.github.standobyte.jojo.client.entityanim.RotpPlayerRenderState;
 import com.github.standobyte.jojo.client.entityanim.RotpPlayerRenderState.IRotpRenderStateExtension;
 import com.github.standobyte.jojo.client.entityanim.playerbend.IPlayerLimbBend;
@@ -27,7 +28,7 @@ import net.minecraft.client.renderer.entity.state.HumanoidRenderState;
 import net.minecraft.resources.ResourceLocation;
 
 @Mixin(HumanoidModel.class)
-public abstract class HumanoidModelMixin extends ModelMixin implements IPlayerPseudoModelParts {
+public abstract class HumanoidModelMixin extends ModelMixin implements IHumanoidAnimModel, IPlayerPseudoModelParts {
 	@Shadow @Final public ModelPart body;
 	@Shadow @Final public ModelPart rightArm;
 	@Shadow @Final public ModelPart leftArm;
@@ -97,8 +98,8 @@ public abstract class HumanoidModelMixin extends ModelMixin implements IPlayerPs
 		}
 	}
 
-	@Inject(method = "setupAnim", at = @At("RETURN"))
-	private void rotpPlayerAnimation(HumanoidRenderState renderState, CallbackInfo ci) {
+	@Override
+	public void rotpSetupHumanoidAnim(HumanoidRenderState renderState) {
 		RotpPlayerRenderState rotpRenderState = ((IRotpRenderStateExtension) renderState).get();
 		this.rotpPlayerAnim = RotpPlayerRenderState.setupAnim((HumanoidModel<?>) (Object) this, renderState, rotpRenderState);
 	}

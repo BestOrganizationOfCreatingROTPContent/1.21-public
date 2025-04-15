@@ -10,6 +10,7 @@
     "client.controls.KeyboardHandlerMixin",
     "client.playeranim.HumanoidRendererMixin",
     "client.playeranim.HumanoidRenderStateMixin",
+    "client.playeranim.LivingEntityRendererMixin",
     "client.playeranim.HumanoidModelMixin",
     "client.playeranim.ModelMixin",
     "client.playeranim.ModelPartMixin",
