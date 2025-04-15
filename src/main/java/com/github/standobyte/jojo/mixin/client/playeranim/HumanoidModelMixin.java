@@ -87,11 +87,6 @@ public abstract class HumanoidModelMixin extends ModelMixin implements IPlayerPs
 		((IPlayerLimbBend) (Object) leftArm).rotpSetBendBone(rotpAnimLeftArmBend, false);
 		((IPlayerLimbBend) (Object) rightLeg).rotpSetBendBone(rotpAnimRightLegBend, false);
 		((IPlayerLimbBend) (Object) leftLeg).rotpSetBendBone(rotpAnimLeftLegBend, false);
-		setBend(body, "jacket", rotpAnimTorsoBend, true);
-		setBend(rightArm, "right_arm", rotpAnimRightArmBend, false);
-		setBend(leftArm, "left_arm", rotpAnimLeftArmBend, false);
-		setBend(rightLeg, "right_leg", rotpAnimRightLegBend, false);
-		setBend(leftLeg, "left_leg", rotpAnimLeftLegBend, false);
 		setBend(body, "cape", rotpAnimCapeBend, false);
 	}
 	

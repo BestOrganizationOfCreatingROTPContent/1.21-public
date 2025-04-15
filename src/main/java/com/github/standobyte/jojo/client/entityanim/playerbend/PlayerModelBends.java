@@ -82,24 +82,28 @@ public class PlayerModelBends {
 	
 	
 	
-	public static void compileCubes(ModelPart limb, ModelPart bend, boolean skipDraw, PoseStack poseStack, 
+	public static void drawBentCubes(ModelPart limb, ModelPart bend, 
+			float bendOffsetX, float bendOffsetY, float bendOffsetZ, 
+			boolean skipDraw, PoseStack poseStack, 
 			VertexConsumer buffer, int packedLight, int packedOverlay, int color) {
 		if (!skipDraw) {
 			for (ModelPart.Cube cube : limb.cubes) {
 				renderBentPolygons(cube.polygons, poseStack, bend,
+						bendOffsetX, bendOffsetY, bendOffsetZ, 
 						buffer, packedLight, packedOverlay, color);
 			}
 		}
 		
-		// TODO child elements with limb bends
-//		for (ModelPart modelpart : limb.children.values()) {
-//			modelpart.render(poseStack, buffer, packedLight, packedOverlay, color);
-//		}
+		// TODO (player anim) child elements with limb bends (clothes, stands)
+		for (ModelPart modelpart : limb.children.values()) {
+			modelpart.render(poseStack, buffer, packedLight, packedOverlay, color);
+		}
 	}
 	
 	// FIXME (player anim) use the main cube height (12 in case of players) instead of the individual cube heights for bending
 	private static Vector3f dest = new Vector3f();
 	private static void renderBentPolygons(ModelPart.Polygon[] polygons, PoseStack poseStack, ModelPart bend,
+			float bendOffsetX, float bendOffsetY, float bendOffsetZ, 
 			VertexConsumer buffer, int packedLight, int packedOverlay, int color) {
 		for (ModelPart.Polygon polygon : polygons) {
 			Vector3f normal = polygon.normal();
@@ -188,6 +192,12 @@ public class PlayerModelBends {
 		return true;
 	}
 	
+	// XXX try to fix the bent quad rendering
+	/* 
+	 * it's drawing a rectangle/quad as two triangles split by a diagonal line, 
+	 * when the quad is bent - both individual triangles are transformed correctly, 
+	 * but the resulting quad looks broken
+	 */
 	private static void renderPolygon(PoseStack.Pose pose, Vector3f normalVec, BendVertex[] vertices, 
 			VertexConsumer buffer, int packedLight, int packedOverlay, int color) {
 		dest.set(0);
@@ -197,7 +207,8 @@ public class PlayerModelBends {
 		float normalY = normal.y;
 		float normalZ = normal.z;
 
-		for (BendVertex vertex : vertices) {
+		for (int i = 0; i < vertices.length; i++) {
+			BendVertex vertex = vertices[i];
 			Vector3f pos = poseMatrix.transformPosition(vertex.x, vertex.y, vertex.z, dest);
 			buffer.addVertex(
 				pos.x, pos.y, pos.z, color, 
