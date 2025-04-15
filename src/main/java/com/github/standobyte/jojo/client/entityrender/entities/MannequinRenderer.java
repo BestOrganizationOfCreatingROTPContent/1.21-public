@@ -9,11 +9,13 @@ import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.math.Axis;
 
 import net.minecraft.client.Minecraft;
+import net.minecraft.client.model.geom.ModelLayers;
 import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.RenderType;
 import net.minecraft.client.renderer.entity.EntityRendererProvider;
 import net.minecraft.client.renderer.entity.HumanoidMobRenderer;
 import net.minecraft.client.renderer.entity.LivingEntityRenderer;
+import net.minecraft.client.renderer.entity.layers.HumanoidArmorLayer;
 import net.minecraft.client.renderer.entity.layers.ItemInHandLayer;
 import net.minecraft.client.renderer.entity.layers.WingsLayer;
 import net.minecraft.core.component.DataComponents;
@@ -37,17 +39,17 @@ public class MannequinRenderer extends LivingEntityRenderer<MannequinEntity, Man
 		this.bigModelSlim = new MannequinModel(ctx.bakeLayer(ModEntityRenderers.MANNEQUIN_SLIM));
 		this.smallModel = new MannequinModel(ctx.bakeLayer(ModEntityRenderers.MANNEQUIN_SMALL));
 		this.smallModelSlim = new MannequinModel(ctx.bakeLayer(ModEntityRenderers.MANNEQUIN_SLIM_SMALL));
-		// TODO (mannequin) armor layer
-//		this.addLayer(
-//			new HumanoidArmorLayer<>(
-//				this,
-//				new MannequinModel(ctx.bakeLayer(ModelLayers.ARMOR_STAND_INNER_ARMOR)),
-//				new MannequinModel(ctx.bakeLayer(ModelLayers.ARMOR_STAND_OUTER_ARMOR)),
-//				new MannequinModel(ctx.bakeLayer(ModelLayers.ARMOR_STAND_SMALL_INNER_ARMOR)),
-//				new MannequinModel(ctx.bakeLayer(ModelLayers.ARMOR_STAND_SMALL_OUTER_ARMOR)),
-//				ctx.getEquipmentRenderer()
-//			)
-//		);
+		// TODO (mannequin) switch between wide and slim layer variants
+		this.addLayer(
+			new HumanoidArmorLayer<>(
+				this,
+				new MannequinModel(ctx.bakeLayer(ModelLayers.ARMOR_STAND_INNER_ARMOR)),
+				new MannequinModel(ctx.bakeLayer(ModelLayers.ARMOR_STAND_OUTER_ARMOR)),
+				new MannequinModel(ctx.bakeLayer(ModelLayers.ARMOR_STAND_SMALL_INNER_ARMOR)),
+				new MannequinModel(ctx.bakeLayer(ModelLayers.ARMOR_STAND_SMALL_OUTER_ARMOR)),
+				ctx.getEquipmentRenderer()
+			)
+		);
 		this.addLayer(new ItemInHandLayer<>(this));
 		this.addLayer(new WingsLayer<>(this, ctx.getModelSet(), ctx.getEquipmentRenderer()));
 	}
