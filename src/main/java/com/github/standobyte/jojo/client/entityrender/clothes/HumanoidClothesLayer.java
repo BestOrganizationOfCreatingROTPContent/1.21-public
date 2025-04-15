@@ -46,6 +46,7 @@ public class HumanoidClothesLayer<S extends HumanoidRenderState, M extends Human
 			
 			HumanoidClothesModel clothesModel = modelEntry.getModel(renderState);
 			ResourceLocation clothesTexture = modelEntry.texPath;
+			parentModel.copyPropertiesTo((HumanoidModel<S>) clothesModel);
 			clothesModel.setClothesPartsVisibility(clothesRS.slimModel, piece);
 			clothesModel.poseClothes(parentModel);
 			VertexConsumer ivertexbuilder = bufferSource.getBuffer(RenderType.entityCutoutNoCull(clothesTexture));
