@@ -77,7 +77,8 @@ public class StandEntityRenderer<
 	@Override
 	public ResourceLocation getTextureLocation(S renderState) {
 		StandSkin standSkin = renderState.skin;
-		return standSkin != null ? standSkin.getStandTexture(renderState.defaultSkin) : MISSING_TEXTURE;
+		ResourceLocation texture = standSkin != null ? standSkin.getStandTexture(renderState.defaultSkin) : null;
+		return texture != null ? texture : MISSING_TEXTURE;
 	}
 	
 	protected final M missingSkinModel;
