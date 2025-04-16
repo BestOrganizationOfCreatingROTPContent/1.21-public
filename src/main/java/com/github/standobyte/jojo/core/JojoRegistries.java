@@ -68,11 +68,11 @@ public final class JojoRegistries {
 	
 	
 	public static final ResourceKey<Registry<StoryCharacter>> STORY_CHARACTERS_REG_KEY = ResourceKey.createRegistryKey(
-			ResourceLocation.fromNamespaceAndPath("rotp_clothes", "character"));
+			ResourceLocation.fromNamespaceAndPath("ripples_clothes", "character"));
 	
 	
 	public static final ResourceKey<Registry<ClothesSet>> CLOTHES_SET_REG_KEY = ResourceKey.createRegistryKey(
-			ResourceLocation.fromNamespaceAndPath("rotp_clothes", "clothes"));
+			ResourceLocation.fromNamespaceAndPath("ripples_clothes", "clothes"));
 	
 	
 	

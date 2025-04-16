@@ -1,0 +1,42 @@
+{
+  "itemGroup.jojo_ripples.main": "JoJo",
+  
+  "jojo.ui.player_menu": "Player Menu (NYI)",
+  "jojo_ripples.menu.player.profile": "Character Profile (NYI)",
+  "jojo_ripples.menu.player.group": "Group (NYI)",
+  "jojo_ripples.menu.player.story_arcs": "Story Arcs (NYI)",
+  "jojo_ripples.menu.player.clothes": "Clothes (NYI)",
+  
+  "jojo.screen.edit_hud_layout": "Edit Controls (NYI)",
+  
+  
+  "jojo_ripples.power.hamon": "Hamon",
+  "hamon.intro.tab": "Introduction",
+  "hamon.stats.tab": "Stats",
+  "hamon.strength_skills.tab": "Combat Skills",
+  "hamon.control_skills.tab": "Supportive Skills",
+  "hamon.techniques.tab": "Techniques",
+  
+  
+  "jojo_ripples.power.vampirism": "Vampirism",
+  "jojo_ripples.vampirism.skills": "Skills",
+  
+  
+  "jojo_ripples.menu.stand.info": "Stand Info (NYI)",
+  "jojo_ripples.menu.stand.skills": "Skills (NYI)",
+  "jojo_ripples.menu.stand.skins": "Stand Skins",
+  
+  "stand.unknown": "Unknown Stand: %s",
+  
+  "jojo_ripples.subtitle.stand_summon": "Stand summoned",
+  "jojo_ripples.subtitle.stand_unsummon": "Stand unsummoned",
+  "jojo_ripples.subtitle.stand_attack_light": "Attack",
+  "jojo_ripples.subtitle.stand_attack_strong": "Strong attack",
+  "jojo_ripples.subtitle.stand_attack_barrage": "Attack",
+  "jojo_ripples.subtitle.stand_punch_swing": "Punch swing",
+  "jojo_ripples.subtitle.stand_damage_block": "Damage blocked",
+  "jojo_ripples.subtitle.ora": "ORA",
+  "jojo_ripples.subtitle.ora_ora_ora": "ORA ORA ORA",
+  "jojo_ripples.subtitle.muda": "MUDA",
+  "jojo_ripples.subtitle.muda_muda_muda": "MUDA MUDA MUDA"
+}

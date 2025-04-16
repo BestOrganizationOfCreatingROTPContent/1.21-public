@@ -130,18 +130,18 @@ public class StandSkinsLoader extends SimplePreparableReloadListener<Map<Resourc
 	protected Map<ResourceLocation, StandSkinResourceBuilder> prepare(ResourceManager resourceManager, ProfilerFiller profiler) {
 		Map<ResourceLocation, StandSkinResourceBuilder> skins = new HashMap<>();
 
-		try (Zone zone = profiler.zone("rotp_stand_skins")) {
+		try (Zone zone = profiler.zone(JojoMod.MOD_ID + "_stand_skins")) {
 			Map<ResourceLocation, List<Resource>> allResourcesMap = resourceManager.listResourceStacks("stand_skins", path -> true);
 			for (var resourceEntry : allResourcesMap.entrySet()) {
 				/*
-				 *				  filePath[0]	 filePath[1]...	   [2]	 [3]			 [4]								   [5]
-				   assets/my_skins/stand_skins/cool_star_platinum_skin/assets/jojo_rotp/... (/textures/geo/animations/lang/sounds/...)/.../
-							  ^						  ^						^													 ^
-					   skin namespace				skin path				  in-mod namespace for assets used by the stand		 the actual asset file is most likely here
-						(arbitrary*)				(arbitrary*)				  (must match the namespace from stand id)			  (or it is a subdirectory, and the assets further down the path)
+				 *				  	filePath[0]	 filePath[1]...	   		[2]	 	[3]			 [4]								      	[5]
+				   assets/my_skins/stand_skins/cool_star_platinum_skin/assets/jojo_ripples/... (/textures/geo/animations/lang/sounds/...)/.../
+							  ^						  ^						^													    ^
+					   skin namespace				skin path				  in-mod namespace for assets used by the stand		    the actual asset file is most likely here
+						(arbitrary*)				(arbitrary*)				  (must match the namespace from stand id)			     (or it is a subdirectory, and the assets further down the path)
 						
 					   the resourceEntry.getKey() will look like this:
-				   my_skins:stand_skins/cool_star_platinum_skin/assets/jojo_rotp/...
+				   my_skins:stand_skins/cool_star_platinum_skin/assets/jojo_ripples/...
 					  
 					   (*) - for the skin to be considered the "default" one, the skin's 'namespace:path' pair must be the same as in the stand's id
 				   

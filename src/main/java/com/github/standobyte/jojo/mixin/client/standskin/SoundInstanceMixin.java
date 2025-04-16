@@ -24,27 +24,27 @@ import net.minecraft.resources.ResourceLocation;
 public class SoundInstanceMixin implements SoundInstanceWithStandSkin {
 	@Shadow protected Sound sound;
 	@Shadow @Final protected ResourceLocation location;
-	private ResourceLocation rotpStandId;
-	private Optional<ResourceLocation> rotpSelectedStandSkin;
-	private StandSkin rotpStandSkin;
-	private StandSkin rotpDefaultStandSkin;
+	private ResourceLocation jojoROAStandId;
+	private Optional<ResourceLocation> jojoROASelectedStandSkin;
+	private StandSkin jojoROAStandSkin;
+	private StandSkin jojoROADefaultStandSkin;
 	
 	@Override
-	public void setStandSkin(ResourceLocation standId, Optional<ResourceLocation> standSkin) {
-		this.rotpStandId = standId;
-		this.rotpSelectedStandSkin = standSkin;
+	public void jojoROASetStandSkin(ResourceLocation standId, Optional<ResourceLocation> standSkin) {
+		this.jojoROAStandId = standId;
+		this.jojoROASelectedStandSkin = standSkin;
 	}
 
 	@ModifyVariable(method = "resolve", at = @At("STORE"), ordinal = 0)
-	public WeighedSoundEvents rotpOverrideJsonSound(WeighedSoundEvents soundEvent) {
-		if (rotpStandId != null) {
+	public WeighedSoundEvents jojoROAOverrideJsonSound(WeighedSoundEvents soundEvent) {
+		if (jojoROAStandId != null) {
 			StandSkinsLoader standSkinsLoader = StandSkinsLoader.getInstance();
-			rotpStandSkin = standSkinsLoader.getSkinFromId(rotpStandId, rotpSelectedStandSkin);
-			rotpDefaultStandSkin = standSkinsLoader.getDefaultSkin(rotpStandId);
-			if (rotpStandSkin == null) {
-				rotpStandSkin = rotpDefaultStandSkin;
+			jojoROAStandSkin = standSkinsLoader.getSkinFromId(jojoROAStandId, jojoROASelectedStandSkin);
+			jojoROADefaultStandSkin = standSkinsLoader.getDefaultSkin(jojoROAStandId);
+			if (jojoROAStandSkin == null) {
+				jojoROAStandSkin = jojoROADefaultStandSkin;
 			}
-			WeighedSoundEvents standSkinSoundEvent = rotpStandSkin.getSoundEvent(location, rotpDefaultStandSkin);
+			WeighedSoundEvents standSkinSoundEvent = jojoROAStandSkin.getSoundEvent(location, jojoROADefaultStandSkin);
 			if (standSkinSoundEvent != null) {
 				return standSkinSoundEvent;
 			}
@@ -54,9 +54,9 @@ public class SoundInstanceMixin implements SoundInstanceWithStandSkin {
 	}
 	
 	@Inject(method = "resolve", at = @At("TAIL"))
-	public void rotpOverrideSoundFile(SoundManager handler, CallbackInfoReturnable<WeighedSoundEvents> ci) {
-		if (rotpStandSkin != null && this.sound != SoundManager.INTENTIONALLY_EMPTY_SOUND) {
-			Sound standSkinSound = rotpStandSkin.overrideSound(sound, rotpDefaultStandSkin);
+	public void jojoROAOverrideSoundFile(SoundManager handler, CallbackInfoReturnable<WeighedSoundEvents> ci) {
+		if (jojoROAStandSkin != null && this.sound != SoundManager.INTENTIONALLY_EMPTY_SOUND) {
+			Sound standSkinSound = jojoROAStandSkin.overrideSound(sound, jojoROADefaultStandSkin);
 			if (standSkinSound != null) {
 				this.sound = standSkinSound;
 			}

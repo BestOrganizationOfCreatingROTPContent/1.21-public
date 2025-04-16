@@ -44,8 +44,8 @@ public final class ModItems {
 	public static final DeferredItem<ClothesItem> CLOTHES_BASE_ITEM = ITEMS.registerItem("clothes", props -> new ClothesItem(props));
 	
 	
-	public static final DeferredHolder<CreativeModeTab, CreativeModeTab> MAIN_TAB = CREATIVE_MODE_TABS.register("jojo_rotp_main", () -> CreativeModeTab.builder()
-			.title(Component.translatable("itemGroup.jojo_rotp.main"))
+	public static final DeferredHolder<CreativeModeTab, CreativeModeTab> MAIN_TAB = CREATIVE_MODE_TABS.register(JojoMod.MOD_ID + "_main", () -> CreativeModeTab.builder()
+			.title(Component.translatable("itemGroup." + JojoMod.MOD_ID + "_main"))
 			.icon(() -> Items.STICK.getDefaultInstance())
 			.displayItems((parameters, output) -> {
 				Stream<StandType> stands = StandType.getAllEnabledStands();
@@ -58,8 +58,8 @@ public final class ModItems {
 				.forEach(item -> output.accept(item, CreativeModeTab.TabVisibility.PARENT_AND_SEARCH_TABS));
 			}).build());
 	
-	public static final DeferredHolder<CreativeModeTab, CreativeModeTab> CLOTHES_TAB = CREATIVE_MODE_TABS.register("jojo_rotp_clothes", () -> CreativeModeTab.builder()
-			.title(Component.translatable("itemGroup.jojo_rotp.clothes"))
+	public static final DeferredHolder<CreativeModeTab, CreativeModeTab> CLOTHES_TAB = CREATIVE_MODE_TABS.register(JojoMod.MOD_ID + "_clothes", () -> CreativeModeTab.builder()
+			.title(Component.translatable("itemGroup." + JojoMod.MOD_ID + "_clothes"))
 			.icon(() -> new ItemStack(CLOTHES_BASE_ITEM.get()))
 			.displayItems((parameters, output) -> {
 				output.accept(MANNEQUIN.get());

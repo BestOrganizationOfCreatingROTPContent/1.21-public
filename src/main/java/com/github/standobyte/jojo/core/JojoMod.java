@@ -40,7 +40,7 @@ import net.neoforged.neoforge.network.event.RegisterPayloadHandlersEvent;
 //		stand skins UI
 @Mod(JojoMod.MOD_ID)
 public class JojoMod {
-	public static final String MOD_ID = "jojo_rotp";
+	public static final String MOD_ID = "jojo_ripples";
 	public static final Logger LOGGER = LogUtils.getLogger();
 
 	public JojoMod(IEventBus modEventBus, ModContainer modContainer) {

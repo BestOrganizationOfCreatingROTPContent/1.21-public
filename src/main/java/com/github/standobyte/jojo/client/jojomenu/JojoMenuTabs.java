@@ -32,18 +32,18 @@ public class JojoMenuTabs {
 //			renderPlayerFace();
 		}
 	}
-			.withName(Component.translatable("jojo_rotp.menu.player.profile"));
+			.withName(Component.translatable(JojoMod.MOD_ID + ".menu.player.profile"));
 	
 	public static final Tab GROUP = new Tab(CATEGORY_PLAYER_MENU)
-			.withName(Component.translatable("jojo_rotp.menu.player.group"))
+			.withName(Component.translatable(JojoMod.MOD_ID + ".menu.player.group"))
 			.withIcon(/*groupIcon*/ placeholder);
 	
 	public static final Tab STORY_ARCS = new Tab(CATEGORY_PLAYER_MENU)
-			.withName(Component.translatable("jojo_rotp.menu.player.story_arcs"))
+			.withName(Component.translatable(JojoMod.MOD_ID + ".menu.player.story_arcs"))
 			.withIcon(/*storyArcsIcon*/ placeholder);
 	
 	public static final Tab CLOTHES = new Tab(CATEGORY_PLAYER_MENU)
-			.withName(Component.translatable("jojo_rotp.menu.player.clothes"))
+			.withName(Component.translatable(JojoMod.MOD_ID + ".menu.player.clothes"))
 			.withIcon(/*clothesIcon*/ placeholder);
 	
 	// Stand
@@ -66,10 +66,10 @@ public class JojoMenuTabs {
 //			renderStandIcon();
 		}
 	}
-			.withName(Component.translatable("jojo_rotp.menu.stand.info"));
+			.withName(Component.translatable(JojoMod.MOD_ID + ".menu.stand.info"));
 	
 	public static final Tab STAND_SKILLS = new Tab(CATEGORY_STAND)
-			.withName(Component.translatable("jojo_rotp.menu.stand.skills"))
+			.withName(Component.translatable(JojoMod.MOD_ID + ".menu.stand.skills"))
 			.withIcon(/*standSkillsIcon*/ placeholder);
 	
 	public static final Tab STAND_SKINS = new Tab(CATEGORY_STAND) {
@@ -78,7 +78,7 @@ public class JojoMenuTabs {
 //			renderStandSkinsIcons();
 		}
 	}
-			.withName(Component.translatable("jojo_rotp.menu.stand.skins"))
+			.withName(Component.translatable(JojoMod.MOD_ID + ".menu.stand.skins"))
 			.withScreen(() -> {
 				return PowerClass.STAND.getOptional(ClientProxy.getClientPlayer()).map(playerStand -> {
 					return playerStand.hasPower() ? new StandSkinsScreen(playerStand) : null;
@@ -88,7 +88,7 @@ public class JojoMenuTabs {
 	// Hamon
 	
 	public static final TabCategory CATEGORY_HAMON = new TabCategory(PowerClass.PLAYER_POWER, ModPlayerPowers.HAMON)
-			.withName(Component.translatable("jojo_rotp.power.hamon"))
+			.withName(Component.translatable(JojoMod.MOD_ID + ".power.hamon"))
 			.withIcon(/*hamonIcon*/ placeholder);
 	
 	public static final Tab HAMON_INTRO = new Tab(CATEGORY_HAMON)
@@ -122,11 +122,11 @@ public class JojoMenuTabs {
 	// Vampirism
 
 	public static final TabCategory CATEGORY_VAMPIRISM = new TabCategory(PowerClass.PLAYER_POWER, ModPlayerPowers.VAMPIRISM)
-			.withName(Component.translatable("jojo_rotp.power.vampirism"))
+			.withName(Component.translatable(JojoMod.MOD_ID + ".power.vampirism"))
 			.withIcon(/*vampirismIcon*/ placeholder);
 
 	public static final Tab VAMPIRISM_SKILLS = new Tab(CATEGORY_VAMPIRISM)
-			.withName(Component.translatable("jojo_rotp.vampirism.skills"));
+			.withName(Component.translatable(JojoMod.MOD_ID + ".vampirism.skills"));
 	
 	// Controls
 	

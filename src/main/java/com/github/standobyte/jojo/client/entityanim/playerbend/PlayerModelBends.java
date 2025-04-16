@@ -29,22 +29,22 @@ public class PlayerModelBends {
 	
 	public static ModelPart getModelPartForPlayerAnim(HumanoidModel<?> playerModel, String animBoneName) {
 		return switch (animBoneName) {
-			case "body" -> 				((IPlayerPseudoModelParts) playerModel).rotpAnimMainBody();
-			case "torso" -> 			((IPlayerPseudoModelParts) playerModel).rotpAnimTorso();
+			case "body" -> 				((IPlayerPseudoModelParts) playerModel).jojoROAAnimMainBody();
+			case "torso" -> 			((IPlayerPseudoModelParts) playerModel).jojoROAAnimTorso();
 			case "left_arm" -> 			playerModel.leftArm;
 			case "right_arm" -> 		playerModel.rightArm;
 			case "left_leg" ->			playerModel.leftLeg;
 			case "right_leg" -> 		playerModel.rightLeg;
 			case "head" -> 				playerModel.head;
-			case "torso_bend" -> 		((IPlayerPseudoModelParts) playerModel).rotpAnimTorsoBend();
-			case "left_arm_bend" -> 	((IPlayerPseudoModelParts) playerModel).rotpAnimLeftArmBend();
-			case "right_arm_bend" -> 	((IPlayerPseudoModelParts) playerModel).rotpAnimRightArmBend();
-			case "left_leg_bend" -> 	((IPlayerPseudoModelParts) playerModel).rotpAnimLeftLegBend();
-			case "right_leg_bend" -> 	((IPlayerPseudoModelParts) playerModel).rotpAnimRightLegBend();
-			case "leftItem" -> 			((IPlayerPseudoModelParts) playerModel).rotpAnimLeftItem();
-			case "rightItem" -> 		((IPlayerPseudoModelParts) playerModel).rotpAnimRightItem();
+			case "torso_bend" -> 		((IPlayerPseudoModelParts) playerModel).jojoROAAnimTorsoBend();
+			case "left_arm_bend" -> 	((IPlayerPseudoModelParts) playerModel).jojoROAAnimLeftArmBend();
+			case "right_arm_bend" -> 	((IPlayerPseudoModelParts) playerModel).jojoROAAnimRightArmBend();
+			case "left_leg_bend" -> 	((IPlayerPseudoModelParts) playerModel).jojoROAAnimLeftLegBend();
+			case "right_leg_bend" -> 	((IPlayerPseudoModelParts) playerModel).jojoROAAnimRightLegBend();
+			case "leftItem" -> 			((IPlayerPseudoModelParts) playerModel).jojoROAAnimLeftItem();
+			case "rightItem" -> 		((IPlayerPseudoModelParts) playerModel).jojoROAAnimRightItem();
 			case "cape" -> 				playerModel.body.children.get("cape");
-			case "cape_bend" -> 		((IPlayerPseudoModelParts) playerModel).rotpAnimCapeBend();
+			case "cape_bend" -> 		((IPlayerPseudoModelParts) playerModel).jojoROAAnimCapeBend();
 			default -> null;
 		};
 	}
@@ -53,18 +53,18 @@ public class PlayerModelBends {
 			PoseStack poseStack, VertexConsumer buffer, 
 			int packedLight, int packedOverlay, int color) {
 		poseStack.pushPose();
-			ModelPart part = animModel.rotpAnimMainBody();
+			ModelPart part = animModel.jojoROAAnimMainBody();
 			part.translateAndRotate(poseStack);
 			poseStack.translate(0, -part.getInitialPose().y() / 16, 0);
 			
 			model.leftLeg.render(poseStack, buffer, packedLight, packedOverlay, color);
 			model.rightLeg.render(poseStack, buffer, packedLight, packedOverlay, color);
 			poseStack.pushPose();
-				part = animModel.rotpAnimTorso();
+				part = animModel.jojoROAAnimTorso();
 				poseStack.translate(0, -part.getInitialPose().y() / 16, 0);
 				part.translateAndRotate(poseStack);
 				
-				part = animModel.rotpAnimTorsoBend();
+				part = animModel.jojoROAAnimTorsoBend();
 				poseStack.translate(0, -part.getInitialPose().y() / 16, 0);
 				poseStack.translate(part.x / 16.0F * 2, part.y / 16.0F * 2, part.z / 16.0F * 2);
 				if (part.xRot != 0.0F || part.yRot != 0.0F || part.zRot != 0.0F) {

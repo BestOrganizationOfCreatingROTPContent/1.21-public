@@ -5,8 +5,8 @@ import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
-import com.github.standobyte.jojo.client.entityanim.RotpPlayerRenderState;
-import com.github.standobyte.jojo.client.entityanim.RotpPlayerRenderState.IRotpRenderStateExtension;
+import com.github.standobyte.jojo.client.entityanim.RipplesPlayerRenderState;
+import com.github.standobyte.jojo.client.entityanim.RipplesPlayerRenderState.RipplesRenderStateExtensionMixin;
 
 import net.minecraft.client.renderer.entity.HumanoidMobRenderer;
 import net.minecraft.client.renderer.entity.state.HumanoidRenderState;
@@ -17,9 +17,9 @@ import net.minecraft.world.entity.LivingEntity;
 public class HumanoidRendererMixin {
 
 	@Inject(method = "extractHumanoidRenderState", at = @At("TAIL"))
-	private static void rotpAddHumanoidRenderState(LivingEntity entity, HumanoidRenderState reusedState, 
+	private static void jojoROAAddHumanoidRenderState(LivingEntity entity, HumanoidRenderState reusedState, 
 			float partialTick, ItemModelResolver itemModelResolver, CallbackInfo ci) {
-		RotpPlayerRenderState.extract(entity, reusedState, ((IRotpRenderStateExtension) reusedState).get(), partialTick, itemModelResolver);
+		RipplesPlayerRenderState.extract(entity, reusedState, ((RipplesRenderStateExtensionMixin) reusedState).get(), partialTick, itemModelResolver);
 	}
 	
 }

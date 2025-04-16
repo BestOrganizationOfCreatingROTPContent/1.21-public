@@ -55,22 +55,22 @@ public class InputHandler {
 		}
 	}
 	
-	public static final String MAIN_CATEGORY = "key.categories.rotp";
+	public static final String MAIN_CATEGORY = "key.categories." + JojoMod.MOD_ID;
 	public KeyMapping summonStand;
 	public KeyMapping jojoStuffMenu;
-	public static final String HUD_CATEGORY = "key.categories.rotp.hud";
+	public static final String HUD_CATEGORY = "key.categories." + JojoMod.MOD_ID + ".hud";
 	public KeyMapping standHudMode;
 	public KeyMapping playerPowerHudMode;
 	
 	private void registerBindings(RegisterKeyMappingsEvent event) {
 		event.register(summonStand = new KeyMapping(
-				"rotp.key.toggle_stand", KeyConflictContext.IN_GAME, InputConstants.Type.KEYSYM, GLFW.GLFW_KEY_M, MAIN_CATEGORY));
+				JojoMod.MOD_ID + ".key.toggle_stand", KeyConflictContext.IN_GAME, InputConstants.Type.KEYSYM, GLFW.GLFW_KEY_M, MAIN_CATEGORY));
 		event.register(jojoStuffMenu = new KeyMapping(
-				"rotp.key.jojo_menu", KeyConflictContext.IN_GAME, InputConstants.Type.KEYSYM, GLFW.GLFW_KEY_BACKSLASH, MAIN_CATEGORY));
+				JojoMod.MOD_ID + ".key.jojo_menu", KeyConflictContext.IN_GAME, InputConstants.Type.KEYSYM, GLFW.GLFW_KEY_BACKSLASH, MAIN_CATEGORY));
 		event.register(standHudMode = new KeyMapping(
-				"rotp.key.stand_mode", KeyConflictContext.IN_GAME, InputConstants.Type.KEYSYM, GLFW.GLFW_KEY_K, HUD_CATEGORY));
+				JojoMod.MOD_ID + ".key.stand_mode", KeyConflictContext.IN_GAME, InputConstants.Type.KEYSYM, GLFW.GLFW_KEY_K, HUD_CATEGORY));
 		event.register(playerPowerHudMode = new KeyMapping(
-				"rotp.key.non_stand_mode", KeyConflictContext.IN_GAME, InputConstants.Type.KEYSYM, GLFW.GLFW_KEY_J, HUD_CATEGORY));
+				JojoMod.MOD_ID + ".key.non_stand_mode", KeyConflictContext.IN_GAME, InputConstants.Type.KEYSYM, GLFW.GLFW_KEY_J, HUD_CATEGORY));
 	}
 	
 	

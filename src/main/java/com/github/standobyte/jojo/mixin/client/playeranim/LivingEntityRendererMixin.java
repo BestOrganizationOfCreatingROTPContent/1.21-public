@@ -26,10 +26,10 @@ public class LivingEntityRendererMixin {
 	    				+ "Lnet/minecraft/client/renderer/entity/state/EntityRenderState;"
 	    				+ ")V",
 				shift = Shift.AFTER))
-	public void rotpAfterVanillaAnimSetup(LivingEntityRenderState renderState, 
+	public void jojoROAAfterVanillaAnimSetup(LivingEntityRenderState renderState, 
 			PoseStack poseStack, MultiBufferSource bufferSource, int light, CallbackInfo ci) {
 		if (model instanceof IHumanoidAnimModel humanoidModel && renderState instanceof HumanoidRenderState humanoidRS) {
-			humanoidModel.rotpSetupHumanoidAnim(humanoidRS);
+			humanoidModel.jojoROASetupHumanoidAnim(humanoidRS);
 		}
 	}
 }

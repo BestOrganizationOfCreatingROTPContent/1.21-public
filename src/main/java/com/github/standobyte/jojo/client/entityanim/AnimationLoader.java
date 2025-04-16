@@ -55,7 +55,7 @@ public class AnimationLoader extends SimplePreparableReloadListener<Map<Resource
 	protected Map<ResourceLocation, AnimationSet.Builder> prepare(ResourceManager resourceManager, ProfilerFiller profiler) {
 		Map<ResourceLocation, AnimationSet.Builder> anims = new HashMap<>();
 
-		try (Zone zone = profiler.zone("rotp_animations")) {
+		try (Zone zone = profiler.zone(JojoMod.MOD_ID + "_animations")) {
 			Map<ResourceLocation, List<Resource>> resources = resourceManager.listResourceStacks(TOP_DIR, path -> path.getPath().endsWith(EXTENSION));
 			for (var resourceEntry : resources.entrySet()) {
 				ResourceLocation resourcePathFull = resourceEntry.getKey();

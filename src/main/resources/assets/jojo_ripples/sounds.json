@@ -1,0 +1,66 @@
+{  
+  "stand_summon": {
+    "subtitle": "jojo_ripples.subtitle.stand_summon",
+    "sounds": [ "jojo_ripples:stand_summon" ]
+  },
+  "stand_unsummon": {
+    "subtitle": "jojo_ripples.subtitle.stand_unsummon",
+    "sounds": [ "jojo_ripples:stand_unsummon" ]
+  },
+  "stand_damage_block": {
+    "subtitle": "jojo_ripples.subtitle.stand_damage_block",
+    "sounds": [ "jojo_ripples:attack_block_1", "jojo_ripples:attack_block_2" ]
+  },
+  "stand_punch_light": {
+    "subtitle": "jojo_ripples.subtitle.stand_attack_light",
+    "sounds": [ "jojo_ripples:stand_punch_light", "jojo_ripples:stand_punch_light_2", "jojo_ripples:stand_punch_light_3", "jojo_ripples:stand_punch_light_4" ]
+  },
+  "stand_punch_barrage": {
+    "subtitle": "jojo_ripples.subtitle.stand_attack_barrage",
+    "sounds": [ 
+      {
+        "name": "jojo_ripples:stand_punch_light",
+        "type": "event"
+      }
+    ]
+  },
+  "stand_punch_heavy": {
+    "subtitle": "jojo_ripples.subtitle.stand_attack_strong",
+    "sounds": [ "jojo_ripples:stand_punch_heavy" ]
+  },
+  "stand_crash": {
+    "subtitle": "jojo_ripples.subtitle.stand_crash",
+    "sounds": [ "jojo_ripples:stand_parry" ]
+  },
+  "stand_parry": {
+    "subtitle": "jojo_ripples.subtitle.stand_attack_parried",
+    "sounds": [ "jojo_ripples:stand_parry" ]
+  },
+  "stand_leap": {
+    "sounds": [ "jojo_ripples:stand_leap" ]
+  },
+  "stand_punch_swing": {
+    "subtitle": "jojo_ripples.subtitle.stand_punch_swing",
+    "sounds": [ "jojo_ripples:swing1", "jojo_ripples:swing2", "jojo_ripples:swing3", "jojo_ripples:swing4", "jojo_ripples:swing5" ]
+  },
+  "stand_punch_heavy_swing": {
+    "subtitle": "jojo_ripples.subtitle.stand_punch_swing",
+    "sounds": [ 
+      {
+        "name": "jojo_ripples:stand_punch_swing",
+        "type": "event",
+        "pitch" : 0.5
+      }
+    ]
+  },
+  "stand_punch_barrage_swing": {
+    "subtitle": "jojo_ripples.subtitle.stand_punch_swing",
+    "sounds": [ 
+      {
+        "name": "jojo_ripples:stand_punch_swing",
+        "type": "event",
+        "pitch" : 1.0
+      }
+    ]
+  }
+}

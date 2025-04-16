@@ -1,0 +1,38 @@
+{
+	"character": "jojo_ripples:dio",
+	"pieces": {
+		"head": {
+			"asset_id": "jojo_ripples:dio_p3_anime",
+			"item_model": "jojo_ripples:clothes/dio_p3_anime_head",
+			"item_name": "item.jojo_ripples.dio_p3_anime_head",
+			"equip_sound": "item.armor.equip_generic"
+		},
+		"chest": {
+			"asset_id": "jojo_ripples:dio_p3_anime",
+			"item_model": "jojo_ripples:clothes/dio_p3_anime_chest",
+			"item_name": "item.jojo_ripples.dio_p3_anime_chest",
+			"split_into": {
+				"top": {
+					"asset_id": "jojo_ripples:dio_p3_anime_jacket",
+					"item_model": "jojo_ripples:clothes/dio_p3_anime_jacket_chest",
+					"item_name": "item.jojo_ripples.dio_p3_anime_jacket_chest"
+				},
+				"bottom": {
+					"asset_id": "jojo_ripples:dio_p3_anime_no_jacket",
+					"item_model": "jojo_ripples:clothes/dio_p3_anime_no_jacket_chest",
+					"item_name": "item.jojo_ripples.dio_p3_anime_no_jacket_chest"
+				}
+			}
+		},
+		"legs": {
+			"asset_id": "jojo_ripples:dio_p3_anime",
+			"item_model": "jojo_ripples:clothes/dio_p3_anime_legs",
+			"item_name": "item.jojo_ripples.dio_p3_anime_legs"
+		},
+		"feet": {
+			"asset_id": "jojo_ripples:dio_p3_anime",
+			"item_model": "jojo_ripples:clothes/dio_p3_anime_feet",
+			"item_name": "item.jojo_ripples.dio_p3_anime_feet"
+		}
+	}
+}

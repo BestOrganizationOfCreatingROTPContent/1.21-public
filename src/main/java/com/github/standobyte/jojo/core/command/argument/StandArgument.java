@@ -26,7 +26,7 @@ import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
 
 public class StandArgument implements ArgumentType<StandType> {
-	private static final Collection<String> EXAMPLES = Arrays.asList("star_platinum", "jojo_rotp:the_world");
+	private static final Collection<String> EXAMPLES = Arrays.asList("star_platinum", JojoMod.MOD_ID + ":the_world");
 	public static final DynamicCommandExceptionType ERROR_UNKNOWN_TYPE = new DynamicCommandExceptionType(
 			arg -> Component.translatableEscape("stand.unknown", arg));
 	

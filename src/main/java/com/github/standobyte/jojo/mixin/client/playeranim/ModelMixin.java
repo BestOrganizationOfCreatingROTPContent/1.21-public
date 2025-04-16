@@ -17,10 +17,10 @@ public abstract class ModelMixin {
 			+ "Lcom/mojang/blaze3d/vertex/PoseStack;"
 			+ "Lcom/mojang/blaze3d/vertex/VertexConsumer;"
 			+ "III)V", at = @At("HEAD"), cancellable = true)
-	public void rotpRenderWithBends(PoseStack poseStack, VertexConsumer buffer, 
+	public void jojoROARenderWithBends(PoseStack poseStack, VertexConsumer buffer, 
 			int packedLight, int packedOverlay, int color, CallbackInfo ci) {}
 
 	@Inject(method = "resetPose()V", at = @At("HEAD"))
-	public void rotpResetPose(CallbackInfo ci) {}
+	public void jojoROAResetPose(CallbackInfo ci) {}
 	
 }

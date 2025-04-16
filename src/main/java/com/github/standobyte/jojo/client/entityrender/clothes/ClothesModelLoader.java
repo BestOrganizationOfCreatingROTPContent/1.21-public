@@ -51,7 +51,7 @@ public class ClothesModelLoader extends SimplePreparableReloadListener<Map<Resou
 	protected Map<ResourceLocation, LayerDefinition> prepare(ResourceManager resourceManager, ProfilerFiller profiler) {
 		Map<ResourceLocation, LayerDefinition> models = new HashMap<>();
 
-		try (Zone zone = profiler.zone("rotp_clothes")) {
+		try (Zone zone = profiler.zone(JojoMod.MOD_ID + "_clothes")) {
 			Map<ResourceLocation, Resource> resources = resourceManager.listResources(DIR, path -> path.getPath().endsWith(EXTENSION));
 			for (var resourceEntry : resources.entrySet()) {
 				ResourceLocation resourcePathFull = resourceEntry.getKey();
