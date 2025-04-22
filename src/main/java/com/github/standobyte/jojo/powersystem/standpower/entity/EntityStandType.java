@@ -111,6 +111,7 @@ public class EntityStandType extends StandType {
 			StandEntity standEntity = entityType.value.create(level, ebatTebyaNeDoljno)
 					.withStandId(getId());
 			standEntity.copyPosition(user);
+			standEntity.copyStandUserRotation(user);
 			standPower.setSummonedStand(standEntity);
 			beforeTheSummon.accept(standEntity);
 			

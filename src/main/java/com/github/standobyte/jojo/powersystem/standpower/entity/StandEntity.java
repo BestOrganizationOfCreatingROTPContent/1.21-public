@@ -116,7 +116,10 @@ public class StandEntity extends LivingEntity implements SummonedStand, IEntityW
 		Vec3 offset = relativeOffset.yRot(-user.yBodyRot * MathUtil.DEG_TO_RAD);
 		Vec3 pos = user.position().add(offset);
 		setPos(pos.x, pos.y, pos.z);
-		
+		copyStandUserRotation(user);
+	}
+	
+	public void copyStandUserRotation(LivingEntity user) {
 		this.setYRot(user.getYRot());
 		this.setXRot(user.getXRot());
 		this.yRotO = user.yRotO;
@@ -301,11 +304,14 @@ public class StandEntity extends LivingEntity implements SummonedStand, IEntityW
 	@Override
 	public void writeSpawnData(RegistryFriendlyByteBuf buffer) {
 		ResourceLocation.STREAM_CODEC.encode(buffer, standId);
+		buffer.writeFloat(yBodyRot);
 	}
 
 	@Override
 	public void readSpawnData(RegistryFriendlyByteBuf additionalData) {
 		standId = ResourceLocation.STREAM_CODEC.decode(additionalData);
+		yBodyRot = additionalData.readFloat();
+		yBodyRotO = yBodyRot;
 	}
 	
 	
