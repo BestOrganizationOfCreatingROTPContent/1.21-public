@@ -130,12 +130,14 @@ public class StandEntity extends LivingEntity implements SummonedStand, IEntityW
 		return true;
 	}
 	
-	// TODO make the stand entity not push the user on summon (this isn't enough for whatever f-ing reason)
 	@Override
 	public void push(Entity entity) {}
 	
 	@Override
 	public boolean isPushable() { return false; }
+	
+	@Override
+	public void pushEntities() {}
 	
 	
 	public ResourceLocation getStandId() {
