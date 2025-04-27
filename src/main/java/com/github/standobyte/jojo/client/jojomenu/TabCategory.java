@@ -24,7 +24,7 @@ public class TabCategory implements IJojoMenuTab {
 		this(null, null);
 	}
 	
-	public TabCategory(@Nullable PowerClass<?> powerClass, @Nullable Supplier<? extends PowerType<?>> powerType) {
+	public TabCategory(@Nullable PowerClass<?> powerClass, @Nullable Supplier<? extends PowerType> powerType) {
 		this.powerClass = powerClass;
 		this.powerType = powerType;
 		ALL_CATEGORIES.add(this);
@@ -35,7 +35,7 @@ public class TabCategory implements IJojoMenuTab {
 	}
 	
 	protected final @Nullable PowerClass<?> powerClass;
-	protected final @Nullable Supplier<? extends PowerType<?>> powerType;
+	protected final @Nullable Supplier<? extends PowerType> powerType;
 	protected final List<Tab> tabs = new ArrayList<>();
 	
 	public boolean isActive() {

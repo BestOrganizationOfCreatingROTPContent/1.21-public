@@ -5,6 +5,7 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import com.github.standobyte.jojo.core.molang.MolangValue;
+import com.github.standobyte.jojo.powersystem.PowerClass;
 import com.github.standobyte.jojo.powersystem.ability.AbilityId;
 import com.github.standobyte.jojo.powersystem.entityaction.ActionAnimIdentifier;
 import com.github.standobyte.jojo.powersystem.entityaction.ActionPhase;
@@ -19,7 +20,7 @@ import net.minecraft.server.network.ServerPlayerConnection;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.level.Level;
 
-public class StandEntityAbility<A extends EntityActionInstance> extends StandAbility implements EntityAbility<A, StandPower> {
+public class StandEntityAbility<A extends EntityActionInstance> extends StandAbility implements EntityAbility<A> {
 	protected ActionAnimIdentifier standAnim;
 
 	public StandEntityAbility(AbilityId abilityId) {
@@ -51,35 +52,34 @@ public class StandEntityAbility<A extends EntityActionInstance> extends StandAbi
 	
 	
 	@Override
-	public void onClick(Level level, LivingEntity user, StandPower power) {
-		setStandAction(level, user, power);
+	public void onClick(Level level, LivingEntity user) {
+		setStandAction(level, user);
 	}
 	
 	@Override
-	public A onButtonStartHold(Level level, LivingEntity user, StandPower power) {
-		return setStandAction(level, user, power);
+	public A onButtonStartHold(Level level, LivingEntity user) {
+		return setStandAction(level, user);
 	}
 	
-	protected A setStandAction(Level level, LivingEntity user, StandPower power) {
-		StandEntity standEntity = power.getSummonedStandEntity();
-		if (standEntity != null) {
-			A action = createEntityAction();
-			// onClick() and onButtonStartHold() calls are already sent to other clients, 
-			// the only case where we need to actually sync the StandEntity's EntityActionInstance as it is
-			// is when the user's entity is too far away for the client to call either of the methods above
-			if (user != standEntity && !standEntity.isFollowingUser()) {
-				Set<ServerPlayerConnection> trackingUser = NetworkUtil.getTrackingPlayers(user).collect(Collectors.toSet());
-				Stream<ServerPlayer> trackingOnlyStand = NetworkUtil.getTrackingPlayers(standEntity)
-						.filter(player -> !trackingUser.contains(player))
-						.map(ServerPlayerConnection::getPlayer);
-				standEntity.setStandAction(action, trackingOnlyStand);
-			}
-			else {
-				standEntity.setStandAction(action, false);
-			}
-			return action;
+	public A setStandAction(Level level, LivingEntity user) {
+		StandPower power = PowerClass.STAND.get(user); if (power == null) return null;
+		StandEntity standEntity = power.getSummonedStandEntity(); if (standEntity == null) return null;
+		
+		A action = createEntityAction();
+		// onClick() and onButtonStartHold() calls are already sent to other clients, 
+		// the only case where we need to actually sync the StandEntity's EntityActionInstance as it is
+		// is when the user's entity is too far away for the client to call either of the methods above
+		if (user != standEntity && !standEntity.isFollowingUser()) {
+			Set<ServerPlayerConnection> trackingUser = NetworkUtil.getTrackingPlayers(user).collect(Collectors.toSet());
+			Stream<ServerPlayer> trackingOnlyStand = NetworkUtil.getTrackingPlayers(standEntity)
+					.filter(player -> !trackingUser.contains(player))
+					.map(ServerPlayerConnection::getPlayer);
+			standEntity.setStandAction(action, trackingOnlyStand);
 		}
-		return null;
+		else {
+			standEntity.setStandAction(action, false);
+		}
+		return action;
 	}
 
 	@Override

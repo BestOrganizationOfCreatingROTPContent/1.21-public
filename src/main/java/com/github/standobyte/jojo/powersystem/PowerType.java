@@ -11,28 +11,28 @@ import com.mojang.serialization.JsonOps;
 
 import net.minecraft.resources.ResourceLocation;
 
-public abstract class PowerType<P extends Power<P>> implements JsonConfigurable {
-	protected final DefaultedValue<Moveset.Builder<P>> moveset;
-	protected transient Moveset<P> movesetLazyInit;
+public abstract class PowerType implements JsonConfigurable {
+	protected final DefaultedValue<Moveset.Builder> moveset;
+	protected transient Moveset movesetLazyInit;
 	
-	public PowerType(Moveset.Builder<P> movesetBuilder) {
+	public PowerType(Moveset.Builder movesetBuilder) {
 		this.moveset = new DefaultedValue<>(movesetBuilder);
 	}
 	
-	public Moveset<P> getMoveset() {
+	public Moveset getMoveset() {
 		if (movesetLazyInit == null) {
-			movesetLazyInit = moveset.value.build(getId());
+			movesetLazyInit = moveset.value.build(getPowerClass(), getId());
 		}
 		return movesetLazyInit;
 	}
 	
-	public Moveset.Builder<P> copyDefaultMoveset() {
+	public Moveset.Builder copyDefaultMoveset() {
 		return this.moveset.defaultValue.copy();
 	}
 	
 	public abstract ResourceLocation getId();
 	
-	public abstract PowerClass<P> getPowerClass();
+	public abstract PowerClass<?> getPowerClass();
 	
 	
 	public boolean isEnabled() {
@@ -43,7 +43,7 @@ public abstract class PowerType<P extends Power<P>> implements JsonConfigurable 
 	@Override
 	public JsonObject makeConfigTemplate() {
 		JsonObject json = new JsonObject();
-		Codec<Moveset.Builder<P>> movesetCodec = Moveset.builderCodec();
+		Codec<Moveset.Builder> movesetCodec = Moveset.builderCodec();
 		movesetCodec.encodeStart(JsonOps.INSTANCE, moveset.defaultValue).result().ifPresent(movesetJson -> json.add("moveset", movesetJson));
 		return json;
 	}
@@ -51,10 +51,10 @@ public abstract class PowerType<P extends Power<P>> implements JsonConfigurable 
 	@Override
 	public void applyConfig(JsonElement json) {
 		JsonObject config = json.getAsJsonObject();
-		Codec<Moveset.Builder<P>> movesetCodec = Moveset.builderCodec();
+		Codec<Moveset.Builder> movesetCodec = Moveset.builderCodec();
 		Optional.ofNullable(config.getAsJsonObject("moveset")).ifPresent(movesetJson -> {
 			movesetCodec.decode(JsonOps.INSTANCE, movesetJson).result().ifPresent(movesetEdits -> {
-				Moveset.Builder<P> moveset = this.moveset.defaultValue.copy();
+				Moveset.Builder moveset = this.moveset.defaultValue.copy();
 				Optional.ofNullable(movesetJson.getAsJsonArray("remove")).ifPresent(toRemove -> {
 					for (JsonElement nameToRemove : toRemove) {
 						moveset.removeAbility(nameToRemove.getAsString());

@@ -36,23 +36,23 @@ public abstract class Power<P extends Power<P>> implements SynchronizablePlayerD
 	
 	
 	@Nullable
-	public abstract PowerType<P> getPowerType();
+	public abstract PowerType getPowerType();
 	
 	@Nonnull
-	public Moveset<P> getMoveset() {
-		PowerType<P> powerType = getPowerType();
+	public Moveset getMoveset() {
+		PowerType powerType = getPowerType();
 		return powerType != null ? powerType.getMoveset() : Moveset.empty();
 	}
 	
 	@Nullable
-	public Ability<P> getAbility(String name) {
+	public Ability getAbility(String name) {
 		if (name == null) return null;
 		if (!hasPower()) {
 			JojoMod.getLogger().warn("Invalid state: {} tried to use ability {} with no {} power.", 
 					user.getDisplayName().getString(), name, getClass());
 			return null;
 		}
-		Ability<P> ability = getMoveset().getAbility(name);
+		Ability ability = getMoveset().getAbility(name);
 		if (ability == null) {
 			JojoMod.getLogger().warn("Invalid ability id: {} tried to use ability {} with {} power {}.", 
 					user.getDisplayName().getString(), name, getClass(), getPowerType().getId());

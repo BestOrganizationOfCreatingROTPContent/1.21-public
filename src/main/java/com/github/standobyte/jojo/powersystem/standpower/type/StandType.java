@@ -21,12 +21,12 @@ import com.google.gson.JsonObject;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.LivingEntity;
 
-public class StandType extends PowerType<StandPower> {
+public class StandType extends PowerType {
 	protected final ResourceLocation standTypeId;
 	protected StandStats stats;
 	protected boolean isEnabled;
 	
-	public StandType(StandStats stats, Moveset.Builder<StandPower> moveset, 
+	public StandType(StandStats stats, Moveset.Builder moveset, 
 			ResourceLocation id) {
 		super(moveset);
 		this.standTypeId = id;

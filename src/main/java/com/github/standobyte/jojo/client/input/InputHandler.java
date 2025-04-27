@@ -206,15 +206,15 @@ public class InputHandler {
 		return cancelVanilla;
 	}
 	
-	private <P extends Power<P>> void doInput(ClickInputType type, short keyId, Power<?> power, Ability<P> ability, float timeTookToResolve) {
+	private void doInput(ClickInputType type, short keyId, Power<?> power, Ability ability, float timeTookToResolve) {
 		Player player = mc.player;
 		switch (type) {
 			case PRESS_CLICK -> {
-				AbilityInputHandler.click(ability, power, inputBuf, timeTookToResolve);
+				AbilityInputHandler.click(ability, player, inputBuf, timeTookToResolve);
 				PacketDistributor.sendToServer(ClAbilityInputPacket.click(power, ability, timeTookToResolve));
 			}
 			case PRESS_HOLD -> {
-				AbilityInputHandler.startHolding(keyId, ability, power, player, inputBuf, timeTookToResolve);
+				AbilityInputHandler.startHolding(keyId, ability, player, inputBuf, timeTookToResolve);
 				PacketDistributor.sendToServer(ClAbilityInputPacket.startHold(keyId, power, ability, timeTookToResolve));
 			}
 			case RELEASE -> {
@@ -287,8 +287,8 @@ public class InputHandler {
 	
 	// The function that figures out what ability has the player inputed.
 	
-	private Ability<?> heldAbility;
-	private Ability<?> clickAbility;
+	private Ability heldAbility;
+	private Ability clickAbility;
 	
 	private void resolveInputAbilitiesOnClick(Power<?> power, Object key, @Nullable Key keyboardMouseKey, KeyModifier keyModifier) {
 		// XXX custom inputs

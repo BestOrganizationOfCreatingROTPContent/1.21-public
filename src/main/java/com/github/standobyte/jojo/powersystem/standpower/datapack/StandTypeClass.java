@@ -9,7 +9,6 @@ import org.jetbrains.annotations.ApiStatus;
 
 import com.github.standobyte.jojo.core.JojoMod;
 import com.github.standobyte.jojo.powersystem.Moveset;
-import com.github.standobyte.jojo.powersystem.standpower.StandPower;
 import com.github.standobyte.jojo.powersystem.standpower.StandStats;
 import com.github.standobyte.jojo.powersystem.standpower.type.StandType;
 import com.google.gson.JsonElement;
@@ -95,13 +94,13 @@ public class StandTypeClass<T extends StandType> {
 		return standClass;
 	}
 	
-	public T createStand(StandStats stats, Moveset.Builder<StandPower> moveset, ResourceLocation id) {
+	public T createStand(StandStats stats, Moveset.Builder moveset, ResourceLocation id) {
 		return constructor.create(stats, moveset, id);
 	}
 	
 	@FunctionalInterface
 	public static interface StandTypeFactory<T extends StandType> {
-		T create(StandStats stats, Moveset.Builder<StandPower> moveset, ResourceLocation id);
+		T create(StandStats stats, Moveset.Builder moveset, ResourceLocation id);
 		
 		@ApiStatus.Internal
 		public static class FromConstructor<T extends StandType> implements StandTypeFactory<T> {
@@ -112,7 +111,7 @@ public class StandTypeClass<T extends StandType> {
 			}
 			
 			@Override
-			public T create(StandStats stats, Moveset.Builder<StandPower> moveset, ResourceLocation id) {
+			public T create(StandStats stats, Moveset.Builder moveset, ResourceLocation id) {
 				try {
 					return c.newInstance(stats, moveset, id);
 				} catch (InstantiationException | IllegalAccessException | IllegalArgumentException | InvocationTargetException e) {

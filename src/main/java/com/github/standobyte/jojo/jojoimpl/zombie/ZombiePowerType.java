@@ -5,7 +5,6 @@ import static com.github.standobyte.jojo.init.power.ModPlayerPowers.PLAYER_POWER
 
 import com.github.standobyte.jojo.powersystem.Moveset;
 import com.github.standobyte.jojo.powersystem.ability.AbilityType;
-import com.github.standobyte.jojo.powersystem.playerpower.PlayerPower;
 import com.github.standobyte.jojo.powersystem.playerpower.PlayerPowerType;
 
 import net.minecraft.resources.ResourceLocation;
@@ -17,11 +16,11 @@ public class ZombiePowerType extends PlayerPowerType<ZombieData> {
 			"zombie_devour", key -> new AbilityType<>(key, ZombieAbility::new));
 
 	public static final DeferredHolder<PlayerPowerType<?>, ZombiePowerType> ZOMBIE = PLAYER_POWERS.register(
-			"zombie", key -> new ZombiePowerType(key, new Moveset.Builder<PlayerPower>()
+			"zombie", key -> new ZombiePowerType(key, new Moveset.Builder()
 					.addAbility("devour", ZOMBIE_DEVOUR)));
 
 	
-	protected ZombiePowerType(ResourceLocation registryKey, Moveset.Builder<PlayerPower> abilitySet) {
+	protected ZombiePowerType(ResourceLocation registryKey, Moveset.Builder abilitySet) {
 		super(registryKey, abilitySet);
 	}
 	

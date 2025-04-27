@@ -2,14 +2,12 @@ package com.github.standobyte.jojo.powersystem.entityaction;
 
 import org.jetbrains.annotations.ApiStatus;
 
-import com.github.standobyte.jojo.powersystem.Power;
-import com.github.standobyte.jojo.powersystem.PowerClass;
 import com.github.standobyte.jojo.util.entitycomponent.LivingAction;
 
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.level.Level;
 
-public interface EntityAbility<A extends EntityActionInstance, P extends Power<P>> {
+public interface EntityAbility<A extends EntityActionInstance> {
 	
 	/**
 	 * Call this in onClick() or in onButtonStartHold() to make the user do an EntityActionInstance.
@@ -27,19 +25,19 @@ public interface EntityAbility<A extends EntityActionInstance, P extends Power<P
 		return (A) new EntityActionInstance(this);
 	}
 	
-	default void onActionSet(A action, LivingEntity performer, P power) {}
+	default void onActionSet(A action, LivingEntity performer, LivingEntity user) {}
 	
-	default void tickEntityAction(A action, LivingEntity performer, P power) {}
+	default void tickEntityAction(A action, LivingEntity performer, LivingEntity user) {}
 	
-	default void entityPerform(A action, LivingEntity performer, P power) {}
+	default void entityPerform(A action, LivingEntity performer, LivingEntity user) {}
 	
-	default void onActionCleared(A action, LivingEntity performer, P power) {}
+	default void onActionCleared(A action, LivingEntity performer, LivingEntity user) {}
 	
 	@ApiStatus.Internal
-	default void onEntityActionTick(A action, LivingEntity performer, P power) {
-		tickEntityAction(action, performer, power);
+	default void onEntityActionTick(A action, LivingEntity performer, LivingEntity user) {
+		tickEntityAction(action, performer, user);
 		if (action.phase == ActionPhase.PERFORM && action.getTicksLeft() == 1) {
-			entityPerform(action, performer, power);
+			entityPerform(action, performer, user);
 		}
 	}
 	
@@ -51,7 +49,5 @@ public interface EntityAbility<A extends EntityActionInstance, P extends Power<P
 	
 	
 	ActionAnimIdentifier getEntityAnim();
-	
-	PowerClass<P> getPowerClass();
 	
 }

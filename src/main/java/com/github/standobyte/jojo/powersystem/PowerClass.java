@@ -8,7 +8,6 @@ import javax.annotation.Nullable;
 
 import com.github.standobyte.jojo.core.JojoRegistries;
 import com.github.standobyte.jojo.init.ModDataAttachmentTypes;
-import com.github.standobyte.jojo.powersystem.ability.Ability;
 import com.github.standobyte.jojo.powersystem.playerpower.PlayerPower;
 import com.github.standobyte.jojo.powersystem.standpower.StandPower;
 import com.github.standobyte.jojo.powersystem.standpower.type.StandType;
@@ -26,7 +25,7 @@ public abstract class PowerClass<P extends Power<P>> {
 			"stand", 0, ModDataAttachmentTypes.STAND_POWER) {
 
 		@Override
-		public PowerType<StandPower> getPowerType(ResourceLocation powerTypeId) {
+		public PowerType getPowerType(ResourceLocation powerTypeId) {
 			return StandType.fromId(powerTypeId);
 		}
 
@@ -35,7 +34,7 @@ public abstract class PowerClass<P extends Power<P>> {
 			"player", 1, ModDataAttachmentTypes.PLAYER_POWER) {
 
 		@Override
-		public PowerType<PlayerPower> getPowerType(ResourceLocation powerTypeId) {
+		public PowerType getPowerType(ResourceLocation powerTypeId) {
 			return JojoRegistries.PLAYER_POWER_TYPES_REG.getValue(powerTypeId);
 		}
 
@@ -84,12 +83,7 @@ public abstract class PowerClass<P extends Power<P>> {
 	}
 
 	
-	public abstract PowerType<P> getPowerType(ResourceLocation powerTypeId);
-	
-	public Ability<P> getAbility(ResourceLocation powerTypeId, String abilityName) {
-		PowerType<P> powerType = getPowerType(powerTypeId);
-		return powerType != null ? powerType.getMoveset().getAbility(abilityName) : null;
-	}
+	public abstract PowerType getPowerType(ResourceLocation powerTypeId);
 	
 
 	public static PowerClass<?>[] values() {

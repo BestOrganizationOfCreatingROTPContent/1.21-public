@@ -20,13 +20,13 @@ public class Tab implements IJojoMenuTab {
 	protected final TabCategory category;
 	protected boolean isDisabled = false;
 	protected final @Nullable PowerClass<?> powerClass;
-	protected final @Nullable Supplier<? extends PowerType<?>> powerType;
+	protected final @Nullable Supplier<? extends PowerType> powerType;
 	
 	public Tab(TabCategory category) {
 		this(category, null, null);
 	}
 	
-	protected Tab(TabCategory category, @Nullable PowerClass<?> powerClass, @Nullable Supplier<? extends PowerType<?>> powerType) {
+	protected Tab(TabCategory category, @Nullable PowerClass<?> powerClass, @Nullable Supplier<? extends PowerType> powerType) {
 		this.category = category;
 		category.tabs.add(this);
 		this.powerClass = powerClass;

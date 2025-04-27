@@ -3,7 +3,6 @@ package com.github.standobyte.jojo.init.power;
 import com.github.standobyte.jojo.core.JojoMod;
 import com.github.standobyte.jojo.core.JojoRegistries;
 import com.github.standobyte.jojo.powersystem.Moveset;
-import com.github.standobyte.jojo.powersystem.standpower.StandPower;
 import com.github.standobyte.jojo.powersystem.standpower.StandStats;
 import com.github.standobyte.jojo.powersystem.standpower.entity.EntityStandType;
 import com.github.standobyte.jojo.powersystem.standpower.type.StandType;
@@ -28,7 +27,7 @@ public class ModStands {
 					.build(),
 
 					// XXX addPowerTypeStandAbilities(Moveset.Builder<StandPower>)
-					new Moveset.Builder<StandPower>()
+					new Moveset.Builder()
 					.addAbility(ModStandAbilities.PUNCH)
 					.addAbility(ModStandAbilities.BARRAGE)
 					.addAbility(ModStandAbilities.HEAVY_PUNCH)

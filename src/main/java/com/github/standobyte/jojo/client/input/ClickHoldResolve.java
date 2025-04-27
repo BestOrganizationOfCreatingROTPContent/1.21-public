@@ -13,10 +13,10 @@ public class ClickHoldResolve {
 	private float timeHeld;
 	
 	public final Power<?> power;
-	public final Ability<?> clickAbility;
-	public final Ability<?> heldAbility;
+	public final Ability clickAbility;
+	public final Ability heldAbility;
 	
-	public ClickHoldResolve(Power<?> power, Ability<?> heldAbility, Ability<?> clickAbility) {
+	public ClickHoldResolve(Power<?> power, Ability heldAbility, Ability clickAbility) {
 		this.power = power;
 		this.clickAbility = clickAbility;
 		this.heldAbility = heldAbility;

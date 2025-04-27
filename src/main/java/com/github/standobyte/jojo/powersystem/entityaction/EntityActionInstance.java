@@ -4,10 +4,8 @@ import java.util.Map;
 
 import javax.annotation.Nonnull;
 
-import com.github.standobyte.jojo.powersystem.Power;
-import com.github.standobyte.jojo.powersystem.PowerClass;
 import com.github.standobyte.jojo.powersystem.ability.Ability;
-import com.github.standobyte.jojo.powersystem.ability.AbilityInputNetwork;
+import com.github.standobyte.jojo.powersystem.ability.AbilityId.AbilityInputNetwork;
 
 import net.minecraft.Util;
 import net.minecraft.network.RegistryFriendlyByteBuf;
@@ -16,14 +14,14 @@ import net.minecraft.world.entity.LivingEntity;
 
 // TODO (entity action) test the phase lengths stuff
 public class EntityActionInstance {
-	@Nonnull public final EntityAbility<?, ?> ability;
+	@Nonnull public final EntityAbility<?> ability;
 	protected Map<ActionPhase, Integer> phasesLength;
 	
 	@Nonnull protected ActionPhase phase;
 	protected int curPhaseTick;
 	protected int curPhaseLength;
 	
-	public EntityActionInstance(EntityAbility<?, ?> ability) {
+	public EntityActionInstance(EntityAbility<?> ability) {
 		this.ability = ability;
 		this.phasesLength = Util.makeEnumMap(ActionPhase.class, phase -> {
 			float length = ability.getPhaseLength(phase);
@@ -32,7 +30,7 @@ public class EntityActionInstance {
 		setPhase(ActionPhase.values()[0]);
 	}
 	
-	protected EntityActionInstance(EntityAbility<?, ?> ability, Map<ActionPhase, Integer> phasesLength, @Nonnull ActionPhase phase, int tick) {
+	protected EntityActionInstance(EntityAbility<?> ability, Map<ActionPhase, Integer> phasesLength, @Nonnull ActionPhase phase, int tick) {
 		this.ability = ability;
 		this.phasesLength = phasesLength;
 		this.phase = phase;
@@ -62,16 +60,15 @@ public class EntityActionInstance {
 	}
 	
 	
-	private LivingEntity performer;
-	private Power<?> power;
+	protected LivingEntity performer;
+	protected LivingEntity powerUser;
 	@SuppressWarnings("unchecked")
-	public <A extends EntityActionInstance, P extends Power<P>> void onActionSet(LivingEntity performer, LivingEntity user) {
+	public <A extends EntityActionInstance> void onActionSet(LivingEntity performer, LivingEntity user) {
 		this.performer = performer;
 		A action = (A) this;
-		EntityAbility<A, P> ability = (EntityAbility<A, P>) action.ability;
-		P power = user != null ? ((PowerClass<P>) ability.getPowerClass()).get(user) : null;
-		this.power = power;
-		ability.onActionSet(action, performer, power);
+		EntityAbility<A> ability = (EntityAbility<A>) action.ability;
+		this.powerUser = user;
+		ability.onActionSet(action, performer, user);
 	}
 	
 	/**
@@ -80,20 +77,20 @@ public class EntityActionInstance {
 	 * @return true if the action is over and should be set to null.
 	 */
 	@SuppressWarnings("unchecked")
-	public <A extends EntityActionInstance, P extends Power<P>> boolean tickAction() {
+	public <A extends EntityActionInstance> boolean tickAction() {
 		if (isOver()) return true;
 		A action = (A) this;
-		EntityAbility<A, P> ability = (EntityAbility<A, P>) action.ability;
-		ability.onEntityActionTick(action, performer, ability.getPowerClass().cast(power));
+		EntityAbility<A> ability = (EntityAbility<A>) action.ability;
+		ability.onEntityActionTick(action, performer, powerUser);
 		this.postTickTimer();
 		return isOver();
 	}
 
 	@SuppressWarnings("unchecked")
-	public <A extends EntityActionInstance, P extends Power<P>> void onActionCleared() {
+	public <A extends EntityActionInstance> void onActionCleared() {
 		A action = (A) this;
-		EntityAbility<A, P> ability = (EntityAbility<A, P>) action.ability;
-		ability.onActionCleared(action, performer, ability.getPowerClass().cast(power));
+		EntityAbility<A> ability = (EntityAbility<A>) action.ability;
+		ability.onActionCleared(action, performer, powerUser);
 	}
 	
 	
@@ -142,7 +139,7 @@ public class EntityActionInstance {
 		public EntityActionInstance decode(RegistryFriendlyByteBuf buffer) {
 			boolean valid = buffer.readBoolean();
 			if (valid) {
-				EntityAbility<?, ?> ability = (EntityAbility<?, ?>) AbilityInputNetwork.decodeInput(buffer);
+				EntityAbility<?> ability = (EntityAbility<?>) AbilityInputNetwork.decodeInput(buffer);
 				if (ability != null) {
 					EntityActionInstance action = ability.createEntityAction();
 					action.phasesLength = Util.makeEnumMap(ActionPhase.class, __ -> buffer.readVarInt());
@@ -160,7 +157,7 @@ public class EntityActionInstance {
 		public void encode(RegistryFriendlyByteBuf buffer, EntityActionInstance action) {
 			buffer.writeBoolean(action.phase != null);
 			if (action.phase != null) {
-				AbilityInputNetwork.encodeInput(buffer, (Ability<?>) action.ability, null);
+				AbilityInputNetwork.encodeInput(buffer, (Ability) action.ability, null);
 				action.phasesLength.values().forEach(buffer::writeVarInt);
 				buffer.writeVarInt(action.phase.ordinal());
 				buffer.writeVarInt(action.curPhaseTick);

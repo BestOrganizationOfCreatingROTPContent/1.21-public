@@ -4,7 +4,6 @@ import javax.annotation.Nullable;
 
 import com.github.standobyte.jojo.core.packet.fromserver.TrEntityActionInstancePacket;
 import com.github.standobyte.jojo.init.ModDataAttachmentTypes;
-import com.github.standobyte.jojo.powersystem.Power;
 import com.github.standobyte.jojo.powersystem.entityaction.EntityActionInstance;
 import com.github.standobyte.jojo.util.entitycomponent.helpers.SynchronizablePlayerData;
 import com.github.standobyte.jojo.util.entitycomponent.helpers.TickingEntityData;
@@ -55,7 +54,7 @@ public class LivingAction implements SynchronizablePlayerData, TickingEntityData
 		}
 	}
 	
-	protected <P extends Power<P>> void tickAction() {
+	protected void tickAction() {
 		if (action.tickAction()) {
 			setAction(null, false);
 		}

@@ -10,7 +10,7 @@ import org.jetbrains.annotations.ApiStatus;
 import net.minecraft.resources.ResourceLocation;
 
 @ApiStatus.NonExtendable
-public class AbilityType<A extends Ability<?>> {
+public class AbilityType<A extends Ability> {
 	public final ResourceLocation registryKey;
 	protected Function<AbilityId, A> constructor;
 	

@@ -8,10 +8,10 @@ import com.github.standobyte.jojo.powersystem.PowerType;
 
 import net.minecraft.resources.ResourceLocation;
 
-public abstract class PlayerPowerType<D extends PowerData> extends PowerType<PlayerPower> {
+public abstract class PlayerPowerType<D extends PowerData> extends PowerType {
 	private final ResourceLocation registryKey;
 
-	public PlayerPowerType(ResourceLocation registryKey, Moveset.Builder<PlayerPower> abilitySet) {
+	public PlayerPowerType(ResourceLocation registryKey, Moveset.Builder abilitySet) {
 		super(abilitySet);
 		this.registryKey = registryKey;
 	}

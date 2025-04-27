@@ -2,8 +2,6 @@ package com.github.standobyte.jojo.powersystem.ability;
 
 import javax.annotation.Nullable;
 
-import com.github.standobyte.jojo.powersystem.Power;
-
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.entity.LivingEntity;
 
@@ -58,7 +56,7 @@ public class ConditionCheck {
 		return warning;
 	}
 	
-	public static <P extends Power<P>> void sendActionFailedMessage(Ability<P> ability, ConditionCheck result, LivingEntity user) {
+	public static void sendActionFailedMessage(Ability ability, ConditionCheck result, LivingEntity user) {
 //		if (!user.level().isClientSide() && ability.sendsConditionMessage()) {
 //			Component message = result.getWarning();
 //			

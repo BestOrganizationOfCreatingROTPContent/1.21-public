@@ -5,7 +5,6 @@ import static com.github.standobyte.jojo.init.power.ModPlayerPowers.PLAYER_POWER
 
 import com.github.standobyte.jojo.powersystem.Moveset;
 import com.github.standobyte.jojo.powersystem.ability.AbilityType;
-import com.github.standobyte.jojo.powersystem.playerpower.PlayerPower;
 import com.github.standobyte.jojo.powersystem.playerpower.PlayerPowerType;
 
 import net.minecraft.resources.ResourceLocation;
@@ -17,11 +16,11 @@ public class VampirismPowerType extends PlayerPowerType<VampirismData> {
 			"vampire_blood_drain", key -> new AbilityType<>(key, VampirismAbility::new));
 
 	public static final DeferredHolder<PlayerPowerType<?>, VampirismPowerType> VAMPIRISM = PLAYER_POWERS.register(
-			"vampirism", key -> new VampirismPowerType(key, new Moveset.Builder<PlayerPower>()
+			"vampirism", key -> new VampirismPowerType(key, new Moveset.Builder()
 					.addAbility("blooddrain", VAMPIRE_BLOOD_DRAIN)));
 
 	
-	protected VampirismPowerType(ResourceLocation registryKey, Moveset.Builder<PlayerPower> abilitySet) {
+	protected VampirismPowerType(ResourceLocation registryKey, Moveset.Builder abilitySet) {
 		super(registryKey, abilitySet);
 	}
 	

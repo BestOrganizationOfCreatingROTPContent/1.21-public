@@ -1,17 +1,13 @@
 package com.github.standobyte.jojo.core.packet.fromclient;
 
-import java.util.function.Function;
-
 import javax.annotation.Nullable;
 
 import com.github.standobyte.jojo.core.PacketsRegister;
 import com.github.standobyte.jojo.powersystem.Power;
-import com.github.standobyte.jojo.powersystem.PowerClass;
 import com.github.standobyte.jojo.powersystem.ability.Ability;
+import com.github.standobyte.jojo.powersystem.ability.AbilityId.AbilityInputNetwork;
 import com.github.standobyte.jojo.powersystem.ability.AbilityInputHandler;
-import com.github.standobyte.jojo.powersystem.ability.AbilityInputNetwork;
 import com.github.standobyte.jojo.powersystem.ability.AbilityInputHandler.ClickInputType;
-import com.mojang.datafixers.util.Either;
 
 import net.minecraft.network.RegistryFriendlyByteBuf;
 import net.minecraft.network.protocol.common.custom.CustomPacketPayload;
@@ -22,32 +18,32 @@ import net.neoforged.neoforge.network.handling.IPayloadContext;
 public class ClAbilityInputPacket implements CustomPacketPayload {
 	private final short key;
 	private final ClickInputType inputType;
-	private final PowerClass<?> powerClass;
-	private final Either<Ability<?>, AbilityInputNetwork> ability;
+	private final Ability abilityEncode;
+	private final AbilityInputNetwork abilityDecoded;
 	private final float timeTookToResolve;
 
-	private Power<?> clUserPower;
+	private Power<?> clUserPower; // is used to optimize the packets - if the player has power of the same powerClass and powerTypeId as in the abilityId, we don't have to send powerTypeId
 	private RegistryFriendlyByteBuf extraData;
 	
-	public static ClAbilityInputPacket click(Power<?> power, Ability<?> ability, float timeTookToResolve) {
-		return new ClAbilityInputPacket((short) 0, ClickInputType.PRESS_CLICK, power.getPowerClass(), power, Either.left(ability), timeTookToResolve);
+	public static ClAbilityInputPacket click(Power<?> power, Ability ability, float timeTookToResolve) {
+		return new ClAbilityInputPacket((short) 0, ClickInputType.PRESS_CLICK, power, ability, null, timeTookToResolve);
 	}
 	
-	public static ClAbilityInputPacket startHold(short key, Power<?> power, Ability<?> ability, float timeTookToResolve) {
-		return new ClAbilityInputPacket(key, ClickInputType.PRESS_HOLD, power.getPowerClass(), power, Either.left(ability), timeTookToResolve);
+	public static ClAbilityInputPacket startHold(short key, Power<?> power, Ability ability, float timeTookToResolve) {
+		return new ClAbilityInputPacket(key, ClickInputType.PRESS_HOLD, power, ability, null, timeTookToResolve);
 	}
 	
 	public static ClAbilityInputPacket releaseHold(short key) {
 		return new ClAbilityInputPacket(key, ClickInputType.RELEASE, null, null, null, 0);
 	}
 	
-	private ClAbilityInputPacket(short key, ClickInputType inputType, PowerClass<?> powerClass, Power<?> userPower, 
-			@Nullable Either<Ability<?>, AbilityInputNetwork> ability, float timeTookToResolve) {
+	private ClAbilityInputPacket(short key, ClickInputType inputType, Power<?> userPower, 
+			@Nullable Ability abilityEncode, @Nullable AbilityInputNetwork abilityDecoded, float timeTookToResolve) {
 		this.key = key;
 		this.inputType = inputType;
-		this.powerClass = powerClass;
 		this.clUserPower = userPower;
-		this.ability = ability;
+		this.abilityEncode = abilityEncode;
+		this.abilityDecoded = abilityDecoded;
 		this.timeTookToResolve = timeTookToResolve;
 	}
 
@@ -71,12 +67,10 @@ public class ClAbilityInputPacket implements CustomPacketPayload {
 			buf.writeShort(packet.key);
 			buf.writeEnum(packet.inputType);
 			if (packet.inputType != ClickInputType.RELEASE) {
-				PowerClass.NETWORK_CODEC.encode(buf, packet.powerClass);
-				Ability<?> ability = packet.ability != null ? packet.ability.left().orElse(null) : null;
-				AbilityInputNetwork.encodeInput(buf, ability, packet.clUserPower);
-				if (packet.ability != null) {
+				AbilityInputNetwork.encodeInput(buf, packet.abilityEncode, packet.clUserPower);
+				if (packet.abilityEncode != null) {
 					buf.writeFloat(packet.timeTookToResolve);
-					ability.writeExtraInput(buf);
+					packet.abilityEncode.writeExtraInput(buf);
 				}	
 			}
 		}
@@ -88,11 +82,10 @@ public class ClAbilityInputPacket implements CustomPacketPayload {
 			return switch (inputType) {
 				case RELEASE -> ClAbilityInputPacket.releaseHold(key);
 				default -> {
-					PowerClass<?> powerClass = PowerClass.NETWORK_CODEC.decode(buf);
 					AbilityInputNetwork ability = AbilityInputNetwork.decodeInput(buf);
 					float timeTookToResolve = ability != null ? buf.readFloat() : 0;
 					
-					ClAbilityInputPacket packet = new ClAbilityInputPacket(key, inputType, powerClass, null, Either.right(ability), timeTookToResolve);
+					ClAbilityInputPacket packet = new ClAbilityInputPacket(key, inputType, null, null, ability, timeTookToResolve);
 					// TODO WAIT A FUCKING SECOND - it if disconnects a player because it "found extra bytes", does this mean i can't do it like this anymore??
 					packet.extraData = buf;
 					yield packet;
@@ -105,14 +98,12 @@ public class ClAbilityInputPacket implements CustomPacketPayload {
 			Player player = context.player();
 			switch (payload.inputType) {
 				case PRESS_CLICK -> {
-					Power<?> power = payload.powerClass.get(player);
-					Ability<?> ability = payload.ability != null ? payload.ability.map(Function.identity(), id -> id.getAbility(power)) : null;
-					AbilityInputHandler.click(ability, power, payload.extraData, payload.timeTookToResolve);
+					Ability ability = payload.abilityDecoded != null ? payload.abilityDecoded.getAbility(player) : null;
+					AbilityInputHandler.click(ability, player, payload.extraData, payload.timeTookToResolve);
 				}
 				case PRESS_HOLD -> {
-					Power<?> power = payload.powerClass.get(player);
-					Ability<?> ability = payload.ability != null ? payload.ability.map(Function.identity(), id -> id.getAbility(power)) : null;
-					AbilityInputHandler.startHolding(payload.key, ability, power, player, payload.extraData, payload.timeTookToResolve);
+					Ability ability = payload.abilityDecoded != null ? payload.abilityDecoded.getAbility(player) : null;
+					AbilityInputHandler.startHolding(payload.key, ability, player, payload.extraData, payload.timeTookToResolve);
 				}
 				case RELEASE -> AbilityInputHandler.releaseHolding(payload.key, player);
 			}

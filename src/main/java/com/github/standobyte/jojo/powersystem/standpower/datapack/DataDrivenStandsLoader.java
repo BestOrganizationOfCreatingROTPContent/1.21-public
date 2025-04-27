@@ -17,14 +17,12 @@ import com.github.standobyte.jojo.core.JojoMod;
 import com.github.standobyte.jojo.core.JojoRegistries;
 import com.github.standobyte.jojo.core.packet.fromserver.DatapackStandsPacket;
 import com.github.standobyte.jojo.powersystem.Moveset;
-import com.github.standobyte.jojo.powersystem.standpower.StandPower;
 import com.github.standobyte.jojo.powersystem.standpower.StandStats;
 import com.github.standobyte.jojo.powersystem.standpower.type.StandType;
 import com.github.standobyte.jojo.util.JSONUtil;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.mojang.datafixers.util.Pair;
-import com.mojang.serialization.Codec;
 import com.mojang.serialization.JsonOps;
 
 import net.minecraft.core.Registry;
@@ -154,7 +152,7 @@ public class DataDrivenStandsLoader {
 						try {
 							StandTypeClass<?> standTypeClass = StandTypeClass.byClass(baseStand.getClass());
 							StandStats stats = baseStand.getStandStats().defaultToBuilder().build();
-							Moveset.Builder<StandPower> moveset = baseStand.copyDefaultMoveset();
+							Moveset.Builder moveset = baseStand.copyDefaultMoveset();
 							newDatapackStand = standTypeClass.createStand(stats, moveset, standId);
 						} catch (Exception e) {
 							JojoMod.getLogger().error("Failed to create Stand {} from data pack (Stand {} can't be used as a base)", standId, baseStandId);
@@ -172,13 +170,12 @@ public class DataDrivenStandsLoader {
 					// Create the new Stand from scratch using all the JSON data.
 					StandStats stats = Optional.ofNullable(json.getAsJsonObject("stats"))
 							.map(StandStats::fromJson)
-							.orElse(new StandStats(0, 0, 0, 0, 0, 0));
+							.orElseGet(() -> new StandStats(0, 0, 0, 0, 0, 0));
 					
-					Codec<Moveset.Builder<StandPower>> javaZaebala = Moveset.builderCodec();
-					Moveset.Builder<StandPower> moveset = Optional.ofNullable(json.getAsJsonObject("moveset"))
-							.flatMap(movesetJson -> javaZaebala.decode(JsonOps.INSTANCE, movesetJson).result())
+					Moveset.Builder moveset = Optional.ofNullable(json.getAsJsonObject("moveset"))
+							.flatMap(movesetJson -> Moveset.builderCodec().decode(JsonOps.INSTANCE, movesetJson).result())
 							.map(Pair::getFirst)
-							.orElse(new Moveset.Builder<>());
+							.orElseGet(Moveset.Builder::new);
 					
 					String standClassAlias = StandTypeClass.getStandClassAlias(json);
 					try {

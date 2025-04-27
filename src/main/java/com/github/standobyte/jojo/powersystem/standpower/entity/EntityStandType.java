@@ -31,12 +31,12 @@ public class EntityStandType extends StandType {
 	
 	protected DefaultedValue<EntityType<? extends StandEntity>> entityType;
 	
-	public EntityStandType(StandStats stats, Moveset.Builder<StandPower> moveset, 
+	public EntityStandType(StandStats stats, Moveset.Builder moveset, 
 			ResourceLocation id) {
 		this(stats, moveset, ModEntityTypes.HUMANOID_STAND.get(), id);
 	}
 	
-	public EntityStandType(StandStats stats, Moveset.Builder<StandPower> moveset, 
+	public EntityStandType(StandStats stats, Moveset.Builder moveset, 
 			EntityType<? extends StandEntity> standEntityType, 
 			ResourceLocation id) {
 		super(stats, moveset, id);

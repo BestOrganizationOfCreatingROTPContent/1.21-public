@@ -23,56 +23,56 @@ import net.minecraft.resources.ResourceLocation;
 import net.neoforged.neoforge.registries.DeferredHolder;
 
 @ApiStatus.NonExtendable
-public class Moveset<P extends Power<P>> {
-	protected final Map<String, Ability<P>> abilities;
+public class Moveset {
+	protected final Map<String, Ability> abilities;
 	
-	protected Moveset(Moveset.Builder<P> builder, ResourceLocation powerTypeId) {
+	protected Moveset(Moveset.Builder builder, PowerClass<?> powerClass, ResourceLocation powerTypeId) {
 		this.abilities = builder.allAbilities.entrySet().stream().collect(Collectors.toMap(
-				Map.Entry::getKey, entry -> entry.getValue().makeAbility(new AbilityId(powerTypeId, entry.getKey()))));
+				Map.Entry::getKey, entry -> entry.getValue().makeAbility(new AbilityId(powerClass, powerTypeId, entry.getKey()))));
 	}
 	
-	public Ability<P> getAbility(String name) {
+	public Ability getAbility(String name) {
 		return abilities.get(name);
 	}
 	
 	
-	public static class Builder<P extends Power<P>> {
-		protected final Map<String, ConfigAbilityFactory<P, ?>> allAbilities = new HashMap<>();
+	public static class Builder {
+		protected final Map<String, ConfigAbilityFactory<?>> allAbilities = new HashMap<>();
 		
-		public <A extends Ability<P>> Builder<P> addAbility(String abilityName, AbilityType<A> abilityType) {
+		public <A extends Ability> Builder addAbility(String abilityName, AbilityType<A> abilityType) {
 			return addAbility(abilityName, abilityType, null);
 		}
 		
-		public <A extends Ability<P>> Builder<P> addAbility(String abilityName, AbilityType<A> abilityType, @Nullable AbilityConfig<A> setParameters) {
+		public <A extends Ability> Builder addAbility(String abilityName, AbilityType<A> abilityType, @Nullable AbilityConfig<A> setParameters) {
 			allAbilities.put(abilityName, new ConfigAbilityFactory<>(abilityType, setParameters));
 			return this;
 		}
 		
-		public <A extends Ability<P>> Builder<P> addAbility(String abilityName, Supplier<? extends AbilityType<A>> abilityType) {
+		public <A extends Ability> Builder addAbility(String abilityName, Supplier<? extends AbilityType<A>> abilityType) {
 			return addAbility(abilityName, abilityType.get());
 		}
 		
-		public <A extends Ability<P>> Builder<P> addAbility(String abilityName, Supplier<? extends AbilityType<A>> abilityType, @Nullable AbilityConfig<A> setParameters) {
+		public <A extends Ability> Builder addAbility(String abilityName, Supplier<? extends AbilityType<A>> abilityType, @Nullable AbilityConfig<A> setParameters) {
 			return addAbility(abilityName, abilityType.get(), setParameters);
 		}
 		
-		public Builder<P> removeAbility(String abilityName) {
+		public Builder removeAbility(String abilityName) {
 			allAbilities.remove(abilityName);
 			return this;
 		}
 		
 		
 		// convenience methods to work with the deferred registry entries
-		public Builder<P> addAbility(DeferredHolder<AbilityType<?>, ? extends AbilityType<? extends Ability<P>>> abilityType) {
+		public Builder addAbility(DeferredHolder<AbilityType<?>, ? extends AbilityType<? extends Ability>> abilityType) {
 			return addAbility(getLocalId(abilityType), abilityType.get(), null);
 		}
 		
-		public <A extends Ability<P>> Builder<P> addAbility(DeferredHolder<AbilityType<?>, ? extends AbilityType<A>> abilityType, @Nullable AbilityConfig<A> setParameters) {
+		public <A extends Ability> Builder addAbility(DeferredHolder<AbilityType<?>, ? extends AbilityType<A>> abilityType, @Nullable AbilityConfig<A> setParameters) {
 			return addAbility(getLocalId(abilityType), abilityType.get(), setParameters);
 		}
 		
 		@SafeVarargs
-		public final Builder<P> addAbilities(DeferredHolder<AbilityType<?>, ? extends AbilityType<? extends Ability<P>>>... abilityTypes) {
+		public final Builder addAbilities(DeferredHolder<AbilityType<?>, ? extends AbilityType<? extends Ability>>... abilityTypes) {
 			for (var abilityType : abilityTypes) {
 				addAbility(getLocalId(abilityType), abilityType.get());
 			}
@@ -86,15 +86,15 @@ public class Moveset<P extends Power<P>> {
 		}
 		
 		
-		public Moveset.Builder<P> copy() {
-			Moveset.Builder<P> copy = new Moveset.Builder<>();
+		public Moveset.Builder copy() {
+			Moveset.Builder copy = new Moveset.Builder();
 			for (var ability : this.allAbilities.entrySet()) {
 				copy.allAbilities.put(ability.getKey(), ability.getValue().copy());
 			}
 			return copy;
 		}
 		
-		public void merge(Moveset.Builder<P> edits) {
+		public void merge(Moveset.Builder edits) {
 			for (var editEntry : edits.allAbilities.entrySet()) {
 				String abilityName = editEntry.getKey();
 				var curAbility = this.allAbilities.get(abilityName);
@@ -107,12 +107,12 @@ public class Moveset<P extends Power<P>> {
 			}
 		}
 		
-		public Moveset<P> build(ResourceLocation powerTypeId) {
-			return new Moveset<>(this, powerTypeId);
+		public Moveset build(PowerClass<?> powerClass, ResourceLocation powerTypeId) {
+			return new Moveset(this, powerClass, powerTypeId);
 		}
 	}
 	
-	public static class ConfigAbilityFactory<P extends Power<P>, A extends Ability<P>> {
+	public static class ConfigAbilityFactory<A extends Ability> {
 		private final AbilityType<A> abilityType;
 		private final AbilityConfig<A> abilityConfig;
 		
@@ -121,7 +121,7 @@ public class Moveset<P extends Power<P>> {
 			this.abilityConfig = abilityConfig;
 		}
 		
-		protected ConfigAbilityFactory<P, A> copy() {
+		protected ConfigAbilityFactory<A> copy() {
 			return new ConfigAbilityFactory<>(this.abilityType, this.abilityConfig != null ? this.abilityConfig.copy() : null);
 		}
 		
@@ -136,7 +136,7 @@ public class Moveset<P extends Power<P>> {
 		protected static final Codec<AbilityConfig> CONFIG_CODEC_PLACEHOLDER = CodecUtil.placeholderCodec(null);
 		
 		@SuppressWarnings({ "unchecked", "rawtypes" })
-		protected static final Codec<ConfigAbilityFactory> CODEC = RecordCodecBuilder.create(instance -> instance.group(
+		protected static final Codec<ConfigAbilityFactory<?>> CODEC = RecordCodecBuilder.create(instance -> instance.group(
 				JojoRegistries.ABILITY_TYPES_REG.byNameCodec().fieldOf("type").forGetter(factory -> factory.abilityType),
 				CONFIG_CODEC_PLACEHOLDER.optionalFieldOf("config").forGetter(factory -> Optional.ofNullable(factory.abilityConfig))
 			).apply(instance, 
@@ -147,16 +147,14 @@ public class Moveset<P extends Power<P>> {
 	}
 	
 	
-	@SuppressWarnings("unchecked")
-	public static <P extends Power<P>> Codec<Moveset.Builder<P>> builderCodec() {
-		return (Codec<Moveset.Builder<P>>) BUILDER_CODEC;
+	public static Codec<Moveset.Builder> builderCodec() {
+		return BUILDER_CODEC;
 	}
 	
 	// XXX deserialize default control schemes
-	@SuppressWarnings({ "unchecked", "rawtypes" })
-	protected static final Codec<? extends Moveset.Builder> BUILDER_CODEC = RecordCodecBuilder.create(instance -> instance.group(
+	protected static final Codec<Moveset.Builder> BUILDER_CODEC = RecordCodecBuilder.create(instance -> instance.group(
 			Codec.simpleMap(Codec.STRING, ConfigAbilityFactory.CODEC, null).codec().fieldOf("abilities").forGetter(moveset -> moveset.allAbilities))
-			.apply(instance, (Map<String, ConfigAbilityFactory> abilities) -> {
+			.apply(instance, (Map<String, ConfigAbilityFactory<?>> abilities) -> {
 				Moveset.Builder moveset = new Moveset.Builder();
 				for (var ability : abilities.entrySet()) {
 					moveset.allAbilities.put(ability.getKey(), ability.getValue());
@@ -165,12 +163,10 @@ public class Moveset<P extends Power<P>> {
 			}));
 	
 	
-	@SuppressWarnings({ "unchecked", "rawtypes" })
-	protected static final Moveset<?> EMPTY = new Moveset(new Moveset.Builder(), null);
+	protected static final Moveset EMPTY = new Moveset(new Moveset.Builder(), null, null);
 	
-	@SuppressWarnings("unchecked")
-	public static <P extends Power<P>> Moveset<P> empty() {
-		return (Moveset<P>) EMPTY;
+	public static Moveset empty() {
+		return EMPTY;
 	}
 	
 }
