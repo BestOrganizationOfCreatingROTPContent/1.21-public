@@ -171,6 +171,11 @@ public class StandEntity extends LivingEntity implements SummonedStand, IEntityW
 		}
 	}
 	
+	@Override
+	public StandEntity getStandEntity() {
+		return this;
+	}
+	
 	/**
 	 * Careful - the user's entity might not always be loaded on client in case of long-ranged Stands.
 	 */

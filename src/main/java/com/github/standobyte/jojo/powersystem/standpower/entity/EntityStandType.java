@@ -12,7 +12,6 @@ import com.github.standobyte.jojo.powersystem.standpower.StandPower;
 import com.github.standobyte.jojo.powersystem.standpower.StandStats;
 import com.github.standobyte.jojo.powersystem.standpower.datapack.StandTypeClass;
 import com.github.standobyte.jojo.powersystem.standpower.type.StandType;
-import com.github.standobyte.jojo.powersystem.standpower.type.SummonedStand;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 
@@ -163,9 +162,8 @@ public class EntityStandType extends StandType {
 	@Override
 	public void forceUnsummon(LivingEntity user, StandPower standPower) {
 		if (!user.level().isClientSide()) {
-			SummonedStand stand = standPower.getSummonedStand();
-			if (stand instanceof StandEntity) {
-				StandEntity standEntity = (StandEntity) stand;
+			StandEntity standEntity = standPower.getSummonedStandEntity();
+			if (standEntity != null) {
 				standPower.setSummonedStand(null);
 				standEntity.remove(Entity.RemovalReason.DISCARDED);
 			}

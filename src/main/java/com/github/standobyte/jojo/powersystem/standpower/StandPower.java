@@ -8,6 +8,7 @@ import com.github.standobyte.jojo.core.packet.fromserver.TrPowerStandInstancePac
 import com.github.standobyte.jojo.core.packet.fromserver.TrStandSkinPacket;
 import com.github.standobyte.jojo.powersystem.Power;
 import com.github.standobyte.jojo.powersystem.PowerClass;
+import com.github.standobyte.jojo.powersystem.standpower.entity.StandEntity;
 import com.github.standobyte.jojo.powersystem.standpower.type.StandType;
 import com.github.standobyte.jojo.powersystem.standpower.type.SummonedStand;
 import com.github.standobyte.jojo.util.NBTUtil;
@@ -76,6 +77,11 @@ public class StandPower extends Power<StandPower> {
 	
 	public SummonedStand getSummonedStand() {
 		return summonedStand;
+	}
+	
+	@Nullable
+	public StandEntity getSummonedStandEntity() {
+		return summonedStand != null ? summonedStand.getStandEntity() : null;
 	}
 	
 	public boolean isSummoned() {

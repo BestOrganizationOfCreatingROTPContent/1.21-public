@@ -61,7 +61,8 @@ public class StandEntityAbility<A extends EntityActionInstance> extends StandAbi
 	}
 	
 	protected A setStandAction(Level level, LivingEntity user, StandPower power) {
-		if (power.getSummonedStand() instanceof StandEntity standEntity) {
+		StandEntity standEntity = power.getSummonedStandEntity();
+		if (standEntity != null) {
 			A action = createEntityAction();
 			// onClick() and onButtonStartHold() calls are already sent to other clients, 
 			// the only case where we need to actually sync the StandEntity's EntityActionInstance as it is
