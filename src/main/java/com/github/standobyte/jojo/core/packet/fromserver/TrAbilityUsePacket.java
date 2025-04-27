@@ -69,8 +69,8 @@ public class TrAbilityUsePacket implements CustomPacketPayload {
 			buf.writeEnum(packet.inputType);
 			if (packet.inputType != ClickInputType.RELEASE) {
 				AbilityInputNetwork.encodeInput(buf, packet.abilityEncode, null);
+				buf.writeFloat(packet.timeTookToResolve);
 				if (packet.abilityEncode != null) {
-					buf.writeFloat(packet.timeTookToResolve);
 					packet.abilityEncode.writeExtraInput(buf);
 				}	
 			}
@@ -85,7 +85,7 @@ public class TrAbilityUsePacket implements CustomPacketPayload {
 				case RELEASE -> TrAbilityUsePacket.releaseHold(entityId, key);
 				default -> {
 					AbilityInputNetwork ability = AbilityInputNetwork.decodeInput(buf);
-					float timeTookToResolve = ability != null ? buf.readFloat() : 0;
+					float timeTookToResolve = buf.readFloat();
 					
 					TrAbilityUsePacket packet = new TrAbilityUsePacket(entityId, key, inputType, null, ability, timeTookToResolve);
 					packet.extraData = buf;
@@ -100,11 +100,11 @@ public class TrAbilityUsePacket implements CustomPacketPayload {
 			if (entity instanceof LivingEntity living) {
 				switch (payload.inputType) {
 					case PRESS_CLICK -> {
-						Ability ability = payload.abilityDecoded != null ? payload.abilityDecoded.getAbility(living) : null;
+						Ability ability = payload.abilityDecoded.getAbility(living);
 						AbilityInputHandler.click(ability, living, payload.extraData, payload.timeTookToResolve);
 					}
 					case PRESS_HOLD -> {
-						Ability ability = payload.abilityDecoded != null ? payload.abilityDecoded.getAbility(living) : null;
+						Ability ability = payload.abilityDecoded.getAbility(living);
 						AbilityInputHandler.startHolding(payload.key, ability, living, payload.extraData, payload.timeTookToResolve);
 					}
 					case RELEASE -> {

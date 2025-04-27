@@ -139,7 +139,7 @@ public class EntityActionInstance {
 		public EntityActionInstance decode(RegistryFriendlyByteBuf buffer) {
 			boolean valid = buffer.readBoolean();
 			if (valid) {
-				EntityAbility<?> ability = (EntityAbility<?>) AbilityInputNetwork.decodeInput(buffer);
+				EntityAbility<?> ability = (EntityAbility<?>) AbilityInputNetwork.decodeInput(buffer).getAbility(null);
 				if (ability != null) {
 					EntityActionInstance action = ability.createEntityAction();
 					action.phasesLength = Util.makeEnumMap(ActionPhase.class, __ -> buffer.readVarInt());
