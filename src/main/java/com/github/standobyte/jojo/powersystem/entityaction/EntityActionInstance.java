@@ -15,6 +15,7 @@ import net.minecraft.world.entity.LivingEntity;
 // TODO (entity action) test the phase lengths stuff
 public class EntityActionInstance {
 	@Nonnull public final EntityAbility<?> ability;
+	// TODO (entity action 2) allow for phase length editing before synchronizing the action
 	protected Map<ActionPhase, Integer> phasesLength;
 	
 	@Nonnull protected ActionPhase phase;
