@@ -62,11 +62,15 @@ public class Moveset {
 		}
 		
 		
-		// convenience methods to work with the deferred registry entries
+		/**
+		 * @deprecated Prefer using the methods that explicitly take an abilityName parameter, this method is only here if you're feeling lazy to type ability ids.
+		 */
+		@Deprecated
 		public Builder addAbility(DeferredHolder<AbilityType<?>, ? extends AbilityType<? extends Ability>> abilityType) {
 			return addAbility(getLocalId(abilityType), abilityType.get(), null);
 		}
 		
+		@Deprecated
 		public <A extends Ability> Builder addAbility(DeferredHolder<AbilityType<?>, ? extends AbilityType<A>> abilityType, @Nullable AbilityConfig<A> setParameters) {
 			return addAbility(getLocalId(abilityType), abilityType.get(), setParameters);
 		}
