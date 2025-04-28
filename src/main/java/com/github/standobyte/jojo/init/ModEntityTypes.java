@@ -1,6 +1,7 @@
 package com.github.standobyte.jojo.init;
 
 import com.github.standobyte.jojo.core.JojoMod;
+import com.github.standobyte.jojo.mechanics.clothes.mannequin.MannequinEntity;
 import com.github.standobyte.jojo.powersystem.standpower.entity.StandEntity;
 
 import net.minecraft.core.registries.Registries;
@@ -8,6 +9,7 @@ import net.minecraft.resources.ResourceKey;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.MobCategory;
+import net.minecraft.world.entity.decoration.ArmorStand;
 import net.minecraft.world.entity.player.Player;
 import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.fml.common.EventBusSubscriber;
@@ -22,6 +24,7 @@ public final class ModEntityTypes {
 	@SubscribeEvent
 	public static void registerAttributes(EntityAttributeCreationEvent event) {
 		event.put(HUMANOID_STAND.get(), StandEntity.createAttributes().build());
+		event.put(MANNEQUIN.get(), ArmorStand.createAttributes().build());
 	}
 	
 	
@@ -34,6 +37,13 @@ public final class ModEntityTypes {
 			.vehicleAttachment(Player.DEFAULT_VEHICLE_ATTACHMENT)
 			.clientTrackingRange(32)
 			.updateInterval(2)
+			.build(createIDFor(key)));
+	
+	public static final DeferredHolder<EntityType<?>, EntityType<MannequinEntity>> MANNEQUIN = ENTITY_TYPES.register("mannequin", key -> 
+			EntityType.Builder.<MannequinEntity>of(MannequinEntity::new, MobCategory.MISC)
+			.sized(0.5F, 1.975F)
+			.eyeHeight(1.7775F)
+			.clientTrackingRange(10)
 			.build(createIDFor(key)));
 	
 	

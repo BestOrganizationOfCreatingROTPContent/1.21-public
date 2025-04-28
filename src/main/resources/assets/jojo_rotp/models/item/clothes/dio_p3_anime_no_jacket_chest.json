@@ -1,0 +1,6 @@
+{
+  "parent": "item/generated",
+  "textures": {
+    "layer0": "jojo_rotp:item/clothes/dio_p3_anime_no_jacket_chest"
+  }
+}

@@ -3,6 +3,7 @@ package com.github.standobyte.jojo.init;
 import java.util.function.Supplier;
 
 import com.github.standobyte.jojo.mc.item.component.StandWrittenOnDisc;
+import com.github.standobyte.jojo.mechanics.clothes.itemdata.ClothesDataComponent;
 
 import net.minecraft.core.component.DataComponentType;
 import net.minecraft.core.registries.Registries;
@@ -15,5 +16,11 @@ public class ModItemDataComponents {
 			builder -> builder
 			.persistent(StandWrittenOnDisc.CODEC)
 			.networkSynchronized(StandWrittenOnDisc.STREAM_CODEC)
+			.cacheEncoding());
+
+	public static final Supplier<DataComponentType<ClothesDataComponent>> CLOTHES_PIECE = DATA_COMPONENT_TYPES.registerComponentType("clothes", 
+			builder -> builder
+			.persistent(ClothesDataComponent.CODEC)
+			.networkSynchronized(ClothesDataComponent.STREAM_CODEC)
 			.cacheEncoding());
 }

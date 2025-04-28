@@ -1,11 +1,21 @@
 package com.github.standobyte.jojo.init;
 
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Optional;
 import java.util.stream.Stream;
 
 import com.github.standobyte.jojo.core.JojoMod;
 import com.github.standobyte.jojo.mc.item.DebugItem;
 import com.github.standobyte.jojo.mc.item.StandDiscItem;
 import com.github.standobyte.jojo.mc.item.component.StandWrittenOnDisc;
+import com.github.standobyte.jojo.core.JojoRegistries;
+import com.github.standobyte.jojo.mechanics.clothes.ClothesItem;
+import com.github.standobyte.jojo.mechanics.clothes.itemdata.ClothesDataComponent;
+import com.github.standobyte.jojo.mechanics.clothes.itemdata.ClothesPiece;
+import com.github.standobyte.jojo.mechanics.clothes.itemdata.ClothesSet;
+import com.github.standobyte.jojo.mechanics.clothes.itemdata.ClothesSlotType;
+import com.github.standobyte.jojo.mechanics.clothes.mannequin.MannequinItem;
 import com.github.standobyte.jojo.powersystem.standpower.StandInstance;
 import com.github.standobyte.jojo.powersystem.standpower.type.StandType;
 
@@ -27,6 +37,12 @@ public final class ModItems {
 	
 	public static final DeferredItem<Item> STAND_DISC = ITEMS.registerItem("stand_disc", StandDiscItem::new, new Item.Properties().stacksTo(1));
 	
+	public static final DeferredItem<Item> MANNEQUIN = ITEMS.registerItem("mannequin", props -> new MannequinItem(props, false), new Item.Properties().stacksTo(16));
+	
+	public static final DeferredItem<Item> MANNEQUIN_SLIM = ITEMS.registerItem("mannequin_slim", props -> new MannequinItem(props, true), new Item.Properties().stacksTo(16));
+	
+	public static final DeferredItem<ClothesItem> CLOTHES_BASE_ITEM = ITEMS.registerItem("clothes", props -> new ClothesItem(props));
+	
 	
 	public static final DeferredHolder<CreativeModeTab, CreativeModeTab> MAIN_TAB = CREATIVE_MODE_TABS.register("jojo_rotp_main", () -> CreativeModeTab.builder()
 			.title(Component.translatable("itemGroup.jojo_rotp.main"))
@@ -41,6 +57,36 @@ public final class ModItems {
 				})
 				.forEach(item -> output.accept(item, CreativeModeTab.TabVisibility.PARENT_AND_SEARCH_TABS));
 			}).build());
+	
+	public static final DeferredHolder<CreativeModeTab, CreativeModeTab> CLOTHES_TAB = CREATIVE_MODE_TABS.register("jojo_rotp_clothes", () -> CreativeModeTab.builder()
+			.title(Component.translatable("itemGroup.jojo_rotp.clothes"))
+			.icon(() -> new ItemStack(CLOTHES_BASE_ITEM.get()))
+			.displayItems((parameters, output) -> {
+				output.accept(MANNEQUIN.get());
+				output.accept(MANNEQUIN_SLIM.get());
+				
+				ClothesItem clothesFactory = CLOTHES_BASE_ITEM.get();
+				
+				parameters.holders()
+				.lookup(JojoRegistries.CLOTHES_SET_REG_KEY)
+				.ifPresent(
+						clothesSets -> clothesSets.listElements()
+						.flatMap(setHolder -> {
+							List<ClothesDataComponent> components = new ArrayList<>(ClothesSlotType.values().length);
+							ClothesSet set = setHolder.value();
+							for (ClothesSlotType slot : ClothesSlotType.values()) {
+								ClothesPiece piece = set.getPiece(slot);
+								if (piece != null) {
+									components.add(new ClothesDataComponent(setHolder, slot, Optional.empty()));
+								}
+							}
+							return components.stream();
+						})
+						.map(clothesFactory::makeClothesPieceStack)
+						.forEach(item -> output.accept(item, CreativeModeTab.TabVisibility.PARENT_AND_SEARCH_TABS))
+						);
+			}).build());
+	
 	
 	
 	

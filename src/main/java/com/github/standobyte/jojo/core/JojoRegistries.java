@@ -2,6 +2,8 @@ package com.github.standobyte.jojo.core;
 
 import com.github.standobyte.jojo.jojoimpl.hamon.HamonSkill;
 import com.github.standobyte.jojo.jojoimpl.hamon.HamonTechnique;
+import com.github.standobyte.jojo.mechanics.clothes.itemdata.ClothesSet;
+import com.github.standobyte.jojo.mechanics.clothes.itemdata.StoryCharacter;
 import com.github.standobyte.jojo.powersystem.ability.AbilityType;
 import com.github.standobyte.jojo.powersystem.playerpower.PlayerPowerType;
 import com.github.standobyte.jojo.powersystem.standpower.StandEffectType;
@@ -9,8 +11,10 @@ import com.github.standobyte.jojo.powersystem.standpower.type.StandType;
 
 import net.minecraft.core.Registry;
 import net.minecraft.resources.ResourceKey;
+import net.minecraft.resources.ResourceLocation;
 import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.fml.common.EventBusSubscriber;
+import net.neoforged.neoforge.registries.DataPackRegistryEvent;
 import net.neoforged.neoforge.registries.DeferredRegister;
 import net.neoforged.neoforge.registries.NewRegistryEvent;
 import net.neoforged.neoforge.registries.RegistryBuilder;
@@ -63,6 +67,15 @@ public final class JojoRegistries {
 			.create();
 	
 	
+	public static final ResourceKey<Registry<StoryCharacter>> STORY_CHARACTERS_REG_KEY = ResourceKey.createRegistryKey(
+			ResourceLocation.fromNamespaceAndPath("rotp_clothes", "character"));
+	
+	
+	public static final ResourceKey<Registry<ClothesSet>> CLOTHES_SET_REG_KEY = ResourceKey.createRegistryKey(
+			ResourceLocation.fromNamespaceAndPath("rotp_clothes", "clothes"));
+	
+	
+	
 	public static final DeferredRegister<AbilityType<?>> ABILITY_TYPES = DeferredRegister.create(JojoRegistries.ABILITY_TYPES_REG, JojoMod.MOD_ID);
 	
 	@SubscribeEvent
@@ -75,8 +88,19 @@ public final class JojoRegistries {
 		event.register(DEFAULT_STANDS_REG);
 	}
 	
-//	@SubscribeEvent
-//	public static void registerDataPackRegistries(DataPackRegistryEvent.NewRegistry event) {
-//	}
+	@SubscribeEvent
+	public static void registerDataPackRegistries(DataPackRegistryEvent.NewRegistry event) {
+		event.dataPackRegistry(STORY_CHARACTERS_REG_KEY,
+				StoryCharacter.DIRECT_CODEC,
+				StoryCharacter.DIRECT_CODEC,
+				builder -> {}
+		);
+		
+		event.dataPackRegistry(CLOTHES_SET_REG_KEY,
+				ClothesSet.DIRECT_CODEC,
+				ClothesSet.DIRECT_CODEC,
+				builder -> {}
+		);
+	}
 	
 }

@@ -6,6 +6,7 @@ Top-level packages:
 	mc - Various Minecraft objects of the mod - items, blocks, block entities, etc.
 	init - The initialization of all the gameplay-relevant objects from the mod. Classes in `init.power` initialize JoJo Stands and player powers.
 	jojoimpl - The implementation of each specific power/Stand, groups all that's relevant to a specific power type (abilities, projectile entities, Stand effects, etc.) together.
+	mechanics - Common code related to the specific medium-sized mechanics (which aren't just one or two classes).
 	mixin - All the mixin classes (they need to all be in the same top-level package).
 
 Terminology:
