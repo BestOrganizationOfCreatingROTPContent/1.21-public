@@ -48,8 +48,8 @@ public class PlayerPower extends Power<PlayerPower> {
 	}
 	
 	@SuppressWarnings("unchecked")
-	public <T extends PlayerPowerType<D>, D extends PowerData> Optional<D> getTypeSpecificData(@Nullable T requiredType) {
-		return (Optional<D>) powerData.filter(data -> requiredType == null || requiredType == data.getType());
+	public <T extends PlayerPowerType<D>, D extends PowerData> Optional<D> getData(@Nullable T specificType) {
+		return (Optional<D>) powerData.filter(data -> specificType == null || specificType == data.getType());
 	}
 	
 	@Override
@@ -107,6 +107,11 @@ public class PlayerPower extends Power<PlayerPower> {
 	
 	public static Optional<PlayerPower> getOptional(LivingEntity entity) {
 		return PowerClass.PLAYER_POWER.getOptional(entity);
+	}
+
+	public static <T extends PlayerPowerType<D>, D extends PowerData> Optional<D> getPowerData(LivingEntity user, @Nullable T specificType) {
+		PlayerPower playerPower = get(user);
+		return playerPower != null ? playerPower.getData(specificType) : Optional.empty();
 	}
 
 }

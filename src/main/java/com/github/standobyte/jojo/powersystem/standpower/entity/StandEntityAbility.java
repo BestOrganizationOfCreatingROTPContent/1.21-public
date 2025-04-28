@@ -6,12 +6,12 @@ import java.util.stream.Stream;
 
 import com.github.standobyte.jojo.core.molang.MolangValue;
 import com.github.standobyte.jojo.powersystem.PowerClass;
+import com.github.standobyte.jojo.powersystem.ability.Ability;
 import com.github.standobyte.jojo.powersystem.ability.AbilityId;
 import com.github.standobyte.jojo.powersystem.entityaction.ActionAnimIdentifier;
 import com.github.standobyte.jojo.powersystem.entityaction.ActionPhase;
 import com.github.standobyte.jojo.powersystem.entityaction.EntityAbility;
 import com.github.standobyte.jojo.powersystem.entityaction.EntityActionInstance;
-import com.github.standobyte.jojo.powersystem.standpower.StandAbility;
 import com.github.standobyte.jojo.powersystem.standpower.StandPower;
 import com.github.standobyte.jojo.util.network.NetworkUtil;
 
@@ -20,7 +20,7 @@ import net.minecraft.server.network.ServerPlayerConnection;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.level.Level;
 
-public class StandEntityAbility<A extends EntityActionInstance> extends StandAbility implements EntityAbility<A> {
+public class StandEntityAbility<A extends EntityActionInstance> extends Ability implements EntityAbility<A> {
 	protected ActionAnimIdentifier standAnim;
 
 	public StandEntityAbility(AbilityId abilityId) {
