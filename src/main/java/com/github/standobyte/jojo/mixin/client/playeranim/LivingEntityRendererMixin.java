@@ -26,10 +26,10 @@ public class LivingEntityRendererMixin {
 	    				+ "Lnet/minecraft/client/renderer/entity/state/EntityRenderState;"
 	    				+ ")V",
 				shift = Shift.AFTER))
-	public void jojoROAAfterVanillaAnimSetup(LivingEntityRenderState renderState, 
+	public void jojo_ripples$afterVanillaAnimSetup(LivingEntityRenderState renderState, 
 			PoseStack poseStack, MultiBufferSource bufferSource, int light, CallbackInfo ci) {
 		if (model instanceof IHumanoidAnimModel humanoidModel && renderState instanceof HumanoidRenderState humanoidRS) {
-			humanoidModel.jojoROASetupHumanoidAnim(humanoidRS);
+			humanoidModel.jojo_ripples$setupHumanoidAnim(humanoidRS);
 		}
 	}
 }

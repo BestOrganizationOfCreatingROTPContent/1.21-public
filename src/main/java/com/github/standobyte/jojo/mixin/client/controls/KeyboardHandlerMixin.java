@@ -16,7 +16,7 @@ public class KeyboardHandlerMixin {
 	@Inject(method = "keyPress", at = @At(value = "FIELD", target = 
 			"Lnet/minecraft/client/Minecraft;screen:Lnet/minecraft/client/gui/screens/Screen;", opcode = Opcodes.GETFIELD, ordinal = 0), 
 			cancellable = true)
-	public void jojoROAOnKeyPressPre(long windowPointer, int key, int scanCode, int action, int modifiers, CallbackInfo ci) {
+	public void jojo_ripples$onKeyPressPre(long windowPointer, int key, int scanCode, int action, int modifiers, CallbackInfo ci) {
 		if (ModClientEventHooks.onKeyboardInputPre(key, scanCode, action, modifiers)) {
 			ci.cancel();
 		}

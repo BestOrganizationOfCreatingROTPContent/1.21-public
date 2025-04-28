@@ -25,22 +25,22 @@ public class ModelPartMixin implements IPlayerLimbBend {
 	@Shadow @Final private Map<String, ModelPart> children;
 	@Shadow PartPose initialPose;
 	@Shadow private boolean skipDraw;
-	private ModelPart jojoROABendBone;
-	private float jojoROABendOffsetX;
-	private float jojoROABendOffsetY;
-	private float jojoROABendOffsetZ;
-	private boolean jojoROAInvertBend = false;
+	private ModelPart jojo_ripples$bendBone;
+	private float jojo_ripples$bendOffsetX;
+	private float jojo_ripples$bendOffsetY;
+	private float jojo_ripples$bendOffsetZ;
+	private boolean jojo_ripples$invertBend = false;
 	
 	
 	@Inject(method = "render(Lcom/mojang/blaze3d/vertex/PoseStack;Lcom/mojang/blaze3d/vertex/VertexConsumer;III)V", 
 			at = @At(value = "INVOKE", target = "translateAndRotate", shift = Shift.AFTER), 
 			cancellable = true)
-	private void jojoROACubesCompile(PoseStack poseStack, VertexConsumer buffer, 
+	private void jojo_ripples$cubesCompile(PoseStack poseStack, VertexConsumer buffer, 
 			int packedLight, int packedOverlay, int color, CallbackInfo ci) {
-		if (jojoROABendBone != null && (jojoROABendBone.xRot != 0.0F || jojoROABendBone.yRot != 0.0F || jojoROABendBone.zRot != 0.0F)) {
+		if (jojo_ripples$bendBone != null && (jojo_ripples$bendBone.xRot != 0.0F || jojo_ripples$bendBone.yRot != 0.0F || jojo_ripples$bendBone.zRot != 0.0F)) {
 			ModelPart asModelPart = (ModelPart) (Object) this;
-			PlayerModelBends.drawBentCubes(asModelPart, jojoROABendBone, jojoROAInvertBend, 
-					jojoROABendOffsetX, jojoROABendOffsetY, jojoROABendOffsetZ,
+			PlayerModelBends.drawBentCubes(asModelPart, jojo_ripples$bendBone, jojo_ripples$invertBend, 
+					jojo_ripples$bendOffsetX, jojo_ripples$bendOffsetY, jojo_ripples$bendOffsetZ,
 					skipDraw, poseStack, 
 					buffer, packedLight, packedOverlay, color);
 			poseStack.popPose();
@@ -49,18 +49,18 @@ public class ModelPartMixin implements IPlayerLimbBend {
 	}
 	
 	@Override
-	public void jojoROASetBendBone(ModelPart bendBone, boolean invertBend) {
-		jojoROASetBendBone(bendBone, 0, 0, 0, invertBend);
+	public void jojo_ripples$setBendBone(ModelPart bendBone, boolean invertBend) {
+		jojo_ripples$setBendBone(bendBone, 0, 0, 0, invertBend);
 	}
 	
-	public void jojoROASetBendBone(ModelPart bendBone, float bendOffsetX, float bendOffsetY, float bendOffsetZ, boolean invertBend) {
-		this.jojoROABendBone = bendBone;
-		this.jojoROABendOffsetX = bendOffsetX;
-		this.jojoROABendOffsetY = bendOffsetY;
-		this.jojoROABendOffsetZ = bendOffsetZ;
-		this.jojoROAInvertBend = invertBend;
+	public void jojo_ripples$setBendBone(ModelPart bendBone, float bendOffsetX, float bendOffsetY, float bendOffsetZ, boolean invertBend) {
+		this.jojo_ripples$bendBone = bendBone;
+		this.jojo_ripples$bendOffsetX = bendOffsetX;
+		this.jojo_ripples$bendOffsetY = bendOffsetY;
+		this.jojo_ripples$bendOffsetZ = bendOffsetZ;
+		this.jojo_ripples$invertBend = invertBend;
 		for (ModelPart modelPart : children.values()) {
-			((ModelPartMixin) (Object) modelPart).jojoROASetBendBone(bendBone, 
+			((ModelPartMixin) (Object) modelPart).jojo_ripples$setBendBone(bendBone, 
 					bendOffsetX - this.initialPose.x(), 
 					bendOffsetY - this.initialPose.y(), 
 					bendOffsetZ - this.initialPose.z(), 
@@ -69,23 +69,23 @@ public class ModelPartMixin implements IPlayerLimbBend {
 	}
 	
 	@Override
-	public ModelPart jojoROAGetBendBone() {
-		return jojoROABendBone;
+	public ModelPart jojo_ripples$getBendBone() {
+		return jojo_ripples$bendBone;
 	}
 
 	@Inject(method = "resetPose", at = @At("TAIL"))
-	public void jojoROAOnResetPose(CallbackInfo ci) {
-		if (this.jojoROABendBone != null) {
-			this.jojoROABendBone.resetPose();
+	public void jojo_ripples$onResetPose(CallbackInfo ci) {
+		if (this.jojo_ripples$bendBone != null) {
+			this.jojo_ripples$bendBone.resetPose();
 		}
 	}
 	
 	@Inject(method = "copyFrom", at = @At("TAIL"))
-	public void jojoROAOnCopyPose(ModelPart modelPart, CallbackInfo ci) {
-		if (this.jojoROABendBone != null) {
-			ModelPart bend = ((ModelPartMixin) (Object) modelPart).jojoROABendBone;
+	public void jojo_ripples$onCopyPose(ModelPart modelPart, CallbackInfo ci) {
+		if (this.jojo_ripples$bendBone != null) {
+			ModelPart bend = ((ModelPartMixin) (Object) modelPart).jojo_ripples$bendBone;
 			if (bend != null) {
-				this.jojoROABendBone.copyFrom(bend);
+				this.jojo_ripples$bendBone.copyFrom(bend);
 			}
 		}
 	}

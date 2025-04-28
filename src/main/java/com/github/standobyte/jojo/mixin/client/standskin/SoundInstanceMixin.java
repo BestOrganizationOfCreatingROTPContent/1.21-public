@@ -24,27 +24,27 @@ import net.minecraft.resources.ResourceLocation;
 public class SoundInstanceMixin implements SoundInstanceWithStandSkin {
 	@Shadow protected Sound sound;
 	@Shadow @Final protected ResourceLocation location;
-	private ResourceLocation jojoROAStandId;
-	private Optional<ResourceLocation> jojoROASelectedStandSkin;
-	private StandSkin jojoROAStandSkin;
-	private StandSkin jojoROADefaultStandSkin;
+	private ResourceLocation jojo_ripples$standId;
+	private Optional<ResourceLocation> jojo_ripples$selectedStandSkin;
+	private StandSkin jojo_ripples$standSkin;
+	private StandSkin jojo_ripples$defaultStandSkin;
 	
 	@Override
-	public void jojoROASetStandSkin(ResourceLocation standId, Optional<ResourceLocation> standSkin) {
-		this.jojoROAStandId = standId;
-		this.jojoROASelectedStandSkin = standSkin;
+	public void jojo_ripples$setStandSkin(ResourceLocation standId, Optional<ResourceLocation> standSkin) {
+		this.jojo_ripples$standId = standId;
+		this.jojo_ripples$selectedStandSkin = standSkin;
 	}
 
 	@ModifyVariable(method = "resolve", at = @At("STORE"), ordinal = 0)
-	public WeighedSoundEvents jojoROAOverrideJsonSound(WeighedSoundEvents soundEvent) {
-		if (jojoROAStandId != null) {
+	public WeighedSoundEvents jojo_ripples$overrideJsonSound(WeighedSoundEvents soundEvent) {
+		if (jojo_ripples$standId != null) {
 			StandSkinsLoader standSkinsLoader = StandSkinsLoader.getInstance();
-			jojoROAStandSkin = standSkinsLoader.getSkinFromId(jojoROAStandId, jojoROASelectedStandSkin);
-			jojoROADefaultStandSkin = standSkinsLoader.getDefaultSkin(jojoROAStandId);
-			if (jojoROAStandSkin == null) {
-				jojoROAStandSkin = jojoROADefaultStandSkin;
+			jojo_ripples$standSkin = standSkinsLoader.getSkinFromId(jojo_ripples$standId, jojo_ripples$selectedStandSkin);
+			jojo_ripples$defaultStandSkin = standSkinsLoader.getDefaultSkin(jojo_ripples$standId);
+			if (jojo_ripples$standSkin == null) {
+				jojo_ripples$standSkin = jojo_ripples$defaultStandSkin;
 			}
-			WeighedSoundEvents standSkinSoundEvent = jojoROAStandSkin.getSoundEvent(location, jojoROADefaultStandSkin);
+			WeighedSoundEvents standSkinSoundEvent = jojo_ripples$standSkin.getSoundEvent(location, jojo_ripples$defaultStandSkin);
 			if (standSkinSoundEvent != null) {
 				return standSkinSoundEvent;
 			}
@@ -54,9 +54,9 @@ public class SoundInstanceMixin implements SoundInstanceWithStandSkin {
 	}
 	
 	@Inject(method = "resolve", at = @At("TAIL"))
-	public void jojoROAOverrideSoundFile(SoundManager handler, CallbackInfoReturnable<WeighedSoundEvents> ci) {
-		if (jojoROAStandSkin != null && this.sound != SoundManager.INTENTIONALLY_EMPTY_SOUND) {
-			Sound standSkinSound = jojoROAStandSkin.overrideSound(sound, jojoROADefaultStandSkin);
+	public void jojo_ripples$overrideSoundFile(SoundManager handler, CallbackInfoReturnable<WeighedSoundEvents> ci) {
+		if (jojo_ripples$standSkin != null && this.sound != SoundManager.INTENTIONALLY_EMPTY_SOUND) {
+			Sound standSkinSound = jojo_ripples$standSkin.overrideSound(sound, jojo_ripples$defaultStandSkin);
 			if (standSkinSound != null) {
 				this.sound = standSkinSound;
 			}

@@ -5,5 +5,5 @@ import java.util.Optional;
 import net.minecraft.resources.ResourceLocation;
 
 public interface SoundInstanceWithStandSkin {
-	void jojoROASetStandSkin(ResourceLocation standId, Optional<ResourceLocation> standSkin);
+	void jojo_ripples$setStandSkin(ResourceLocation standId, Optional<ResourceLocation> standSkin);
 }

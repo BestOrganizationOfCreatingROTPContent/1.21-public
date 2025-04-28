@@ -9,11 +9,11 @@ import net.minecraft.client.renderer.entity.state.HumanoidRenderState;
 
 @Mixin(HumanoidRenderState.class)
 public class HumanoidRenderStateMixin implements RipplesRenderStateExtensionMixin {
-	private final RipplesPlayerRenderState jojoROARenderState = new RipplesPlayerRenderState();
+	private final RipplesPlayerRenderState jojo_ripples$renderState = new RipplesPlayerRenderState();
 
 	@Override
 	public RipplesPlayerRenderState get() {
-		return jojoROARenderState;
+		return jojo_ripples$renderState;
 	}
 	
 }

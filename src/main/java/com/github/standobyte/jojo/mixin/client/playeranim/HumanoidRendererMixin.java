@@ -17,7 +17,7 @@ import net.minecraft.world.entity.LivingEntity;
 public class HumanoidRendererMixin {
 
 	@Inject(method = "extractHumanoidRenderState", at = @At("TAIL"))
-	private static void jojoROAAddHumanoidRenderState(LivingEntity entity, HumanoidRenderState reusedState, 
+	private static void jojo_ripples$addHumanoidRenderState(LivingEntity entity, HumanoidRenderState reusedState, 
 			float partialTick, ItemModelResolver itemModelResolver, CallbackInfo ci) {
 		RipplesPlayerRenderState.extract(entity, reusedState, ((RipplesRenderStateExtensionMixin) reusedState).get(), partialTick, itemModelResolver);
 	}
