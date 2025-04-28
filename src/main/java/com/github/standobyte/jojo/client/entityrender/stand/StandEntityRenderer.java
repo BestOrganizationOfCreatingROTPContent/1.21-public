@@ -102,4 +102,9 @@ public class StandEntityRenderer<
 		super.render(renderState, poseStack, bufferSource, light);
 	}
 
+	@Override
+	protected boolean shouldShowName(T entity, double distSqr) {
+		return false;
+	}
+
 }
