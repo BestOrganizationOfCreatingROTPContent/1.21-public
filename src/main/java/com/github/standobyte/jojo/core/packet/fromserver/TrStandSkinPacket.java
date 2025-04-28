@@ -5,7 +5,6 @@ import java.util.Optional;
 import com.github.standobyte.jojo.client.ClientProxy;
 import com.github.standobyte.jojo.core.PacketsRegister;
 import com.github.standobyte.jojo.powersystem.standpower.StandPower;
-import com.github.standobyte.jojo.util.network.NetworkUtil;
 
 import net.minecraft.network.RegistryFriendlyByteBuf;
 import net.minecraft.network.codec.ByteBufCodecs;
@@ -38,7 +37,7 @@ public record TrStandSkinPacket(int userId, Optional<ResourceLocation> skinId) i
 		
 		public static final StreamCodec<RegistryFriendlyByteBuf, TrStandSkinPacket> STREAM_CODEC = StreamCodec.composite(
 				ByteBufCodecs.INT, TrStandSkinPacket::userId,
-				NetworkUtil.optionalCodec(ResourceLocation.STREAM_CODEC), TrStandSkinPacket::skinId,
+				ResourceLocation.STREAM_CODEC.apply(ByteBufCodecs::optional), TrStandSkinPacket::skinId,
 				TrStandSkinPacket::new);
 
 		@Override

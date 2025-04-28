@@ -72,6 +72,7 @@ public class ModEntityRenderers {
 	
 	public static final ContextKey<HumanoidClothesRSExtension> CLOTHES_CONTEXT = new ContextKey<>(JojoMod.resLoc("clothes"));
 
+	@SuppressWarnings("serial")
 	@SubscribeEvent
 	public static void registerRSModifiers(RegisterRenderStateModifiersEvent event) {
 		event.registerEntityModifier(

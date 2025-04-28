@@ -4,7 +4,6 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
-import java.util.Optional;
 import java.util.function.BiConsumer;
 import java.util.function.Supplier;
 import java.util.stream.Stream;
@@ -20,6 +19,7 @@ import net.minecraft.server.level.ChunkMap;
 import net.minecraft.server.level.ServerChunkCache;
 import net.minecraft.server.network.ServerPlayerConnection;
 import net.minecraft.world.entity.Entity;
+import net.neoforged.neoforge.network.codec.NeoForgeStreamCodecs;
 
 public class NetworkUtil {
 	
@@ -37,28 +37,6 @@ public class NetworkUtil {
 	}
 	
 	// StreamCodec stuff below
-	
-	/**
-	 * @deprecated {@link StreamCodec#apply(net.minecraft.network.codec.StreamCodec.CodecOperation)} (ByteBufCodecs::optional)
-	 */
-	@Deprecated
-	public static <B extends ByteBuf, T> StreamCodec<B, Optional<T>> optionalCodec(StreamCodec<? super B, T> codec) {
-		return new StreamCodec<>() {
-			@Override
-			public Optional<T> decode(B buffer) {
-				boolean isPresent = ByteBufCodecs.BOOL.decode(buffer);
-				return isPresent ? Optional.of(codec.decode(buffer)) : Optional.empty();
-			}
-
-			@Override
-			public void encode(B buffer, Optional<T> value) {
-				ByteBufCodecs.BOOL.encode(buffer, value.isPresent());
-				if (value.isPresent()) {
-					codec.encode(buffer, value.get());
-				}
-			}
-		};
-	}
 	
 	public static <B extends ByteBuf, T> StreamCodec<B, T> nullableCodec(StreamCodec<? super B, T> codec) {
 		return new StreamCodec<>() {

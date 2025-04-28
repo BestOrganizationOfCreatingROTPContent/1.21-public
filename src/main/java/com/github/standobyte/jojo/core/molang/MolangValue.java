@@ -69,6 +69,11 @@ public sealed interface MolangValue extends DoubleSupplier, IntSupplier, Boolean
 		public boolean isNumericLiteral() {
 			return true;
 		}
+		
+		@Override
+		public String toString() {
+			return String.valueOf(value);
+		}
 	}
 	
 	public static final class Molang implements MolangValue {
@@ -104,6 +109,11 @@ public sealed interface MolangValue extends DoubleSupplier, IntSupplier, Boolean
 		@Override
 		public boolean isNumericLiteral() {
 			return false;
+		}
+		
+		@Override
+		public String toString() {
+			return "Molang {" + expression + "}";
 		}
 	}
 }

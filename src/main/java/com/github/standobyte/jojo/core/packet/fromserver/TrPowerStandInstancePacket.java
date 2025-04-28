@@ -6,7 +6,6 @@ import com.github.standobyte.jojo.client.ClientProxy;
 import com.github.standobyte.jojo.core.PacketsRegister;
 import com.github.standobyte.jojo.powersystem.standpower.StandInstance;
 import com.github.standobyte.jojo.powersystem.standpower.StandPower;
-import com.github.standobyte.jojo.util.network.NetworkUtil;
 
 import net.minecraft.network.RegistryFriendlyByteBuf;
 import net.minecraft.network.codec.ByteBufCodecs;
@@ -39,7 +38,7 @@ public record TrPowerStandInstancePacket(int entityId, Optional<StandInstance> s
 		
 		public static final StreamCodec<RegistryFriendlyByteBuf, TrPowerStandInstancePacket> STREAM_CODEC = StreamCodec.composite(
 				ByteBufCodecs.INT, TrPowerStandInstancePacket::entityId,
-				NetworkUtil.optionalCodec(StandInstance.NETWORK_CODEC), TrPowerStandInstancePacket::standInstance,
+				StandInstance.NETWORK_CODEC.apply(ByteBufCodecs::optional), TrPowerStandInstancePacket::standInstance,
 				TrPowerStandInstancePacket::new);
 
 		@Override

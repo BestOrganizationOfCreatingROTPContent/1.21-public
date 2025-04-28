@@ -10,14 +10,13 @@ import javax.annotation.Nullable;
 import org.jetbrains.annotations.ApiStatus;
 
 import com.github.standobyte.jojo.powersystem.standpower.type.StandType;
-import com.github.standobyte.jojo.util.NBTUtil;
-import com.github.standobyte.jojo.util.network.NetworkUtil;
 import com.mojang.datafixers.util.Either;
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.network.chat.Component;
+import net.minecraft.network.codec.ByteBufCodecs;
 import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.resources.ResourceLocation;
 
@@ -108,7 +107,7 @@ public class StandInstance {
 	
 	public static final StreamCodec<FriendlyByteBuf, StandInstance> NETWORK_CODEC = StreamCodec.composite(
 			ResourceLocation.STREAM_CODEC, instance -> instance.getStandId(),
-			NetworkUtil.optionalCodec(ResourceLocation.STREAM_CODEC), StandInstance::getSelectedSkin,
+			ResourceLocation.STREAM_CODEC.apply(ByteBufCodecs::optional), StandInstance::getSelectedSkin,
 			(ResourceLocation standId, Optional<ResourceLocation> skin) -> {
 				StandInstance stand = fromStandId(standId);
 				stand.setCustomSkin(skin);
