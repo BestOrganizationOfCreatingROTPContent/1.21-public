@@ -1,14 +1,20 @@
 package com.github.standobyte.jojo.client.entityanim.gecko;
 
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.Comparator;
+import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.Optional;
 import java.util.function.IntFunction;
+import java.util.stream.Collectors;
 import java.util.stream.StreamSupport;
 
 import com.github.standobyte.jojo.client.entityanim.AnimWithExtras;
+import com.github.standobyte.jojo.client.entityanim.action.AnimActionPhase;
 import com.github.standobyte.jojo.client.entityanim.molang.KeyframeQuery;
+import com.github.standobyte.jojo.powersystem.entityaction.ActionPhase;
+import com.google.common.collect.Streams;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
@@ -24,6 +30,9 @@ public class ParseGeckoAnims {
 	
 	// "geckolib_format_version": 2
 	public static AnimWithExtras parseAnim(JsonObject animJson) {
+		
+		// Animation metadata
+		
 		float lengthSecs = animJson.has("animation_length") ? animJson.get("animation_length").getAsFloat() : 0;
 		AnimWithExtras.Builder builder = new AnimWithExtras.Builder(AnimationDefinition.Builder.withLength(lengthSecs));
 
@@ -43,6 +52,8 @@ public class ParseGeckoAnims {
 			builder.anim().looping();
 		}
 		
+		// Keyframes
+		
 		JsonObject boneAnims = animJson.getAsJsonObject("bones");
 		if (boneAnims != null) {
 			for (Map.Entry<String, JsonElement> bone : boneAnims.entrySet()) {
@@ -54,36 +65,47 @@ public class ParseGeckoAnims {
 			}
 		}
 
-		// TODO (!) (entity anims) parse instructions
-//		JsonObject instructionsJson = animJson.getAsJsonObject("timeline");
-//		if (instructionsJson != null) {
-//			for (Map.Entry<String, JsonElement> keyframeEntry : instructionsJson.entrySet()) {
-//				float time = Float.parseFloat(keyframeEntry.getKey());
-//				JsonElement value = keyframeEntry.getValue();
-//				Iterable<JsonElement> instructions = value.isJsonArray() ? value.getAsJsonArray() : Collections.singleton(value);
-//				Map<String, String> assignmentMap = Streams.stream(instructions)
-//						.filter(JSONUtils::isStringValue)
-//						.map(JsonElement::getAsString)
-//						.map(instruction -> instruction.split("[ ]*=[ ]*"))
-//						.filter(assignment -> assignment.length == 2)
-//						.peek(assignment -> {
-//							if (assignment[1].endsWith(";")) {
-//								assignment[1] = assignment[1].substring(0, assignment[1].length() - 1);
-//							}
-//						})
-//						.collect(Collectors.toMap(assignment -> assignment[0], assignment -> assignment[1], 
-//								(u, v) -> { throw new IllegalStateException(String.format("Duplicate key %s", u)); }, LinkedHashMap::new));
-//				while (!assignmentMap.isEmpty()) {
-//					Map.Entry<String, String> assignment = assignmentMap.entrySet().iterator().next();
-//					standAnim.parseAssignmentInstruction(assignment.getKey(), assignment.getValue(), time, assignmentMap);
-//					assignmentMap.remove(assignment.getKey());
-//				}
-//			}
-//		}
+		// Effects -> Instructions
 		
-//		standAnim.onFinishedParsing();
+		JsonObject instructionsJson = animJson.getAsJsonObject("timeline");
+		if (instructionsJson != null) {
+			for (Map.Entry<String, JsonElement> keyframeEntry : instructionsJson.entrySet()) {
+				float time = Float.parseFloat(keyframeEntry.getKey());
+				JsonElement value = keyframeEntry.getValue();
+				Iterable<JsonElement> instructions = value.isJsonArray() ? value.getAsJsonArray() : Collections.singleton(value);
+				Map<String, String> assignmentMap = Streams.stream(instructions)
+						.filter(json -> json.isJsonPrimitive() && json.getAsJsonPrimitive().isString())
+						.map(JsonElement::getAsString)
+						.map(instruction -> instruction.split("[ ]*=[ ]*"))
+						.filter(assignment -> assignment.length == 2)
+						.peek(assignment -> {
+							if (assignment[1].endsWith(";")) {
+								assignment[1] = assignment[1].substring(0, assignment[1].length() - 1);
+							}
+						})
+						.collect(Collectors.toMap(assignment -> assignment[0], assignment -> assignment[1], 
+								(u, v) -> { throw new IllegalStateException(String.format("Duplicate key %s", u)); }, LinkedHashMap::new));
+				while (!assignmentMap.isEmpty()) {
+					Map.Entry<String, String> assignment = assignmentMap.entrySet().iterator().next();
+					String field = assignment.getKey();
+					String assignmentValue = assignment.getValue();
+					
+					switch (field) {
+						case "phase" -> {
+							ActionPhase phase = ActionPhase.valueOf(assignmentValue);
+							AnimActionPhase animPhase = parseAnimPhase(phase, assignmentMap);
+							builder.addActionPhaseKeyframe(animPhase, time);
+						}
+						default -> builder.addFieldValueKeyframe(field, assignmentValue, time);
+					}
+					
+					assignmentMap.remove(assignment.getKey());
+				}
+			}
+		}
 		
-		return builder.build();
+		AnimWithExtras anim = builder.build();
+		return anim;
 	}
 	
 	private static void parseKeyframes(AnimWithExtras.Builder anim, JsonObject boneTfJson, 
@@ -159,6 +181,19 @@ public class ParseGeckoAnims {
 				.sorted(Comparator.comparingDouble(e -> e.getFloatKey()))
 				.map(e -> e.getValue())
 				.toArray(arrayConstructor);
+	}
+	
+	
+	private static AnimActionPhase parseAnimPhase(ActionPhase phase, Map<String, String> assignmentMap) {
+		if (assignmentMap.containsKey("phase.loopBack")) {
+			try {
+				float loopBackTo = Float.parseFloat(assignmentMap.get("phase.loopBack"));
+				assignmentMap.remove("phase.loopBack");
+				return AnimActionPhase.loopBack(phase, loopBackTo);
+			}
+			catch (NumberFormatException e) {}
+		}
+		return new AnimActionPhase(phase, AnimActionPhase.Mode.FIT_PHASE_LENGTH);
 	}
 
 }

@@ -20,7 +20,7 @@ public class StandEntityModel<T extends StandEntityRenderState> extends EntityMo
 			if (renderState.skin != null) {
 				AnimWithExtras anim = renderState.skin.getStandAnimation(anims -> anims.getNamedAnim(action.anim), renderState.defaultSkin);
 				if (anim != null) {
-					anim.animate(this, renderState, renderState.action.phaseTime, 1);
+					anim.animate(this, renderState, renderState.action, 1);
 				}
 			}
 		}

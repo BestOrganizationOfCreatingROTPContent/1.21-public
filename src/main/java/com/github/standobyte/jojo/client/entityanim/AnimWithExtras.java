@@ -5,17 +5,21 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import javax.annotation.Nullable;
+import javax.annotation.Nonnull;
 
 import org.joml.Vector3f;
 
 import com.github.standobyte.jojo.client.entityanim.action.AnimActionPhase;
+import com.github.standobyte.jojo.client.entityanim.action.AnimInstructionTimelines;
 import com.github.standobyte.jojo.client.entityanim.action.AnimObjTimeline;
 import com.github.standobyte.jojo.client.entityanim.molang.AnimMolangQuery;
 import com.github.standobyte.jojo.client.entityanim.molang.KeyframeQuery;
 import com.github.standobyte.jojo.client.entityanim.playerbend.PlayerModelBends;
+import com.github.standobyte.jojo.client.entityrender.EntityActionRenderState;
+import com.github.standobyte.jojo.powersystem.entityaction.ActionPhase;
 import com.github.standobyte.jojo.util.MathUtil;
 
+import it.unimi.dsi.fastutil.floats.Float2ObjectMap;
 import net.minecraft.client.animation.AnimationChannel;
 import net.minecraft.client.animation.AnimationDefinition;
 import net.minecraft.client.animation.Keyframe;
@@ -29,25 +33,30 @@ import net.minecraft.util.Mth;
 public class AnimWithExtras {
 	protected final AnimationDefinition animation;
 	protected final Map<Keyframe, KeyframeQuery> queries;
-	
-	@Nullable protected AnimObjTimeline<AnimActionPhase> phasesTimeline;
-	@Nullable protected Map<String, AnimObjTimeline<String>> stringValTimelines = new HashMap<>();
-	@Nullable protected Map<String, AnimObjTimeline<Double>> numericValTimelines = new HashMap<>();
+	protected final AnimInstructionTimelines instructionTimelines;
 	
 //	public float animTime;
 	
-	public AnimWithExtras(AnimationDefinition anim, Map<Keyframe, KeyframeQuery> queries) {
+	public AnimWithExtras(AnimationDefinition anim, Map<Keyframe, KeyframeQuery> queries, AnimInstructionTimelines instructionTimelines) {
 		this.animation = anim;
 		this.queries = queries != null ? queries : Collections.emptyMap();
+		this.instructionTimelines = instructionTimelines;
 	}
 
 	
-	protected static final Vector3f TEMP = new Vector3f();
-	
 	public void animate(Model model, LivingEntityRenderState renderState, float ticks, float animSpeed) {
 		evaluateQueries(renderState);
-		float seconds = animation.looping() ? (ticks / 20.0f) % animation.lengthInSeconds() : ticks / 20.0f;
-		
+		float seconds = getAnimTime(renderState, ticks);
+		for (Map.Entry<String, List<AnimationChannel>> entry : animation.boneAnimations().entrySet()) {
+			model.getAnyDescendantWithName(entry.getKey()).ifPresent(modelPart -> {
+				animateModelPart(this, modelPart, entry.getValue(), seconds, animSpeed);
+			});
+		}
+	}
+	
+	public void animate(Model model, LivingEntityRenderState renderState, EntityActionRenderState entityAction, float animSpeed) {
+		evaluateQueries(renderState);
+		float seconds = getAnimTime(renderState, entityAction);
 		for (Map.Entry<String, List<AnimationChannel>> entry : animation.boneAnimations().entrySet()) {
 			model.getAnyDescendantWithName(entry.getKey()).ifPresent(modelPart -> {
 				animateModelPart(this, modelPart, entry.getValue(), seconds, animSpeed);
@@ -55,16 +64,91 @@ public class AnimWithExtras {
 		}
 	}
 
-	public void animatePlayer(HumanoidModel<?> humanoidModel, LivingEntityRenderState renderState, float ticks, float animSpeed) {
+	public void animateVanillaPlayer(HumanoidModel<?> humanoidModel, LivingEntityRenderState renderState, float ticks, float animSpeed) {
 		evaluateQueries(renderState);
-		float seconds = animation.looping() ? (ticks / 20.0f) % animation.lengthInSeconds() : ticks / 20.0f;
-
+		float seconds = getAnimTime(renderState, ticks);
 		for (Map.Entry<String, List<AnimationChannel>> entry : animation.boneAnimations().entrySet()) {
 			ModelPart modelPart = PlayerModelBends.getModelPartForPlayerAnim(humanoidModel, entry.getKey());
 			if (modelPart != null) {
 				animateModelPart(this, modelPart, entry.getValue(), seconds, animSpeed);
 			}
 		}
+	}
+
+	public void animateVanillaPlayer(HumanoidModel<?> humanoidModel, LivingEntityRenderState renderState, EntityActionRenderState entityAction, float animSpeed) {
+		evaluateQueries(renderState);
+		float seconds = getAnimTime(renderState, entityAction);
+		for (Map.Entry<String, List<AnimationChannel>> entry : animation.boneAnimations().entrySet()) {
+			ModelPart modelPart = PlayerModelBends.getModelPartForPlayerAnim(humanoidModel, entry.getKey());
+			if (modelPart != null) {
+				animateModelPart(this, modelPart, entry.getValue(), seconds, animSpeed);
+			}
+		}
+	}
+	
+	
+	/**
+	 * @return action anim time in seconds
+	 */
+	public float getAnimTime(LivingEntityRenderState renderState, EntityActionRenderState entityAction) {
+		float animSeconds = 0;
+
+		boolean appliedPhaseAnim = false;
+		if (entityAction.actionPhase != null && this.instructionTimelines.phases != null) {
+			ActionPhase taskPhase = entityAction.actionPhase;
+
+			Float2ObjectMap.Entry<AnimActionPhase> curPhase = null;
+			Float2ObjectMap.Entry<AnimActionPhase> nextPhase = null;
+
+			@Nonnull Float2ObjectMap.Entry<AnimActionPhase> iterPrevPhase = null;
+			for (Float2ObjectMap.Entry<AnimActionPhase> animPhase : this.instructionTimelines.phases.getEntries()) {
+				if (taskPhase.ordinal() < animPhase.getValue().phase.ordinal()) {
+					curPhase = iterPrevPhase;
+					nextPhase = animPhase;
+					break;
+				}
+				iterPrevPhase = animPhase;
+			}
+			if (curPhase == null) {
+				if (taskPhase == iterPrevPhase.getValue().phase) {
+					curPhase = iterPrevPhase;
+				}
+			}
+			if (curPhase != null) {
+				float curPhaseTime = curPhase.getFloatKey();
+				float nextPhaseTime = nextPhase != null ? nextPhase.getFloatKey() : this.animation.lengthInSeconds();
+				switch (curPhase.getValue().timeAnimMode) {
+					case FIT_PHASE_LENGTH -> {
+						animSeconds = Mth.lerp(entityAction.phaseCompletion, curPhaseTime, nextPhaseTime);
+						appliedPhaseAnim = true;
+					}
+					case PRESERVE_PHASE_LENGTH -> {
+						animSeconds = curPhaseTime + entityAction.phaseTime / 20f;
+//						if (entity != null && animSeconds >= this.animation.lengthInSeconds()) {
+//							entity.onSetPoseAnimEnded();
+//						}
+						appliedPhaseAnim = true;
+					}
+					case LOOP_BACK -> {
+						float loopLen = nextPhaseTime - curPhase.getValue().loopBackTo;
+						animSeconds = curPhaseTime + (entityAction.phaseTime / 20f) % loopLen;
+						appliedPhaseAnim = true;
+					}
+				}
+			}
+		}
+
+		if (!appliedPhaseAnim) {
+			animSeconds = this.animation.looping() ? (entityAction.phaseTime / 20f) % this.animation.lengthInSeconds() : entityAction.phaseTime / 20f;
+		}
+		return animSeconds;
+	}
+	
+	/**
+	 * @return anim time in seconds
+	 */
+	public float getAnimTime(LivingEntityRenderState renderState, float ticks) {
+		return animation.looping() ? (ticks / 20.0f) % animation.lengthInSeconds() : ticks / 20.0f;
 	}
 	
 	
@@ -75,6 +159,8 @@ public class AnimWithExtras {
 			setTargetValue(modelPart, vec, tf.target());
 		}
 	}
+
+	protected static final Vector3f TEMP = new Vector3f();
 	
 	public static Vector3f calcVec(AnimWithExtras anim, AnimationChannel tf, float seconds, float animSpeed) {
 		Keyframe[] keyframes = tf.keyframes();
@@ -130,14 +216,16 @@ public class AnimWithExtras {
 		queries.values().forEach(KeyframeQuery::evaluate);
 	}
 	
+
+	public static class TimelineKeys {
+		public static final String BARRAGE = "barrage";
+	}
 	
-	// TODO (!) (entity anims) phases stuff (EntityActionRenderStateExtension)
 	
-	
-	// TODO (!) (entity anims) parse instructions
 	public static class Builder {
 		protected final AnimationDefinition.Builder vanillaAnimBuilder;
 		protected final Map<Keyframe, KeyframeQuery> queries = new HashMap<>();
+		protected final AnimInstructionTimelines instructions = new AnimInstructionTimelines();
 		
 		public Builder(AnimationDefinition.Builder vanillaAnimBuilder) {
 			this.vanillaAnimBuilder = vanillaAnimBuilder;
@@ -153,178 +241,26 @@ public class AnimWithExtras {
 			}
 		}
 		
+		public void addActionPhaseKeyframe(AnimActionPhase value, float time) {
+			if (instructions.phases == null) {
+				instructions.phases = new AnimObjTimeline<>();
+			}
+			instructions.phases.add(time, value);
+		}
+		
+		public void addFieldValueKeyframe(String field, String value, float time) {
+			if (instructions.stringVals == null) {
+				instructions.stringVals = new HashMap<>();
+			}
+			AnimObjTimeline<String> timeline = instructions.stringVals.computeIfAbsent(field, __ -> new AnimObjTimeline<>());
+			timeline.add(time, value);
+		}
+		
 		public AnimWithExtras build() {
-			return new AnimWithExtras(vanillaAnimBuilder.build(), queries);
+			instructions.onFinishedParsing();
+			AnimWithExtras anim = new AnimWithExtras(vanillaAnimBuilder.build(), queries, instructions);
+			return anim;
 		}
 	}
-	
-	
-
-//	public void poseStand(@Nullable StandEntity entity, StandEntityModel<?> model, 
-//			float yRotOffsetDeg, float xRotDeg, StandPoseData poseData) {
-//		boolean appliedPhaseAnim = false;
-//		if (poseData.actionPhase.isPresent() && phasesTimeline != null) {
-//			Phase taskPhase = poseData.actionPhase.get();
-//			
-//			Float2ObjectMap.Entry<AnimActionPhase> curPhase = null;
-//			Float2ObjectMap.Entry<AnimActionPhase> nextPhase = null;
-//			
-//			@Nonnull Float2ObjectMap.Entry<AnimActionPhase> iterPrevPhase = null;
-//			for (Float2ObjectMap.Entry<AnimActionPhase> animPhase : phasesTimeline.getEntries()) {
-//				if (taskPhase.ordinal() < animPhase.getValue().phase.ordinal()) {
-//					curPhase = iterPrevPhase;
-//					nextPhase = animPhase;
-//					break;
-//				}
-//				iterPrevPhase = animPhase;
-//			}
-//			if (curPhase == null) {
-//				if (taskPhase == iterPrevPhase.getValue().phase) {
-//					curPhase = iterPrevPhase;
-//				}
-//			}
-//			if (curPhase != null) {
-//				float curPhaseTime = curPhase.getFloatKey();
-//				float nextPhaseTime = nextPhase != null ? nextPhase.getFloatKey() : animation.lengthInSeconds();
-//				switch (curPhase.getValue().timeAnimMode) {
-//				case FIT_PHASE_LENGTH:
-//					animTime = MathHelper.lerp(poseData.phaseCompletion, curPhaseTime, nextPhaseTime);
-//					break;
-//				case PRESERVE_PHASE_LENGTH:
-//					animTime = curPhaseTime + poseData.animTime / 20f;
-//					if (entity != null && animTime >= animation.lengthInSeconds()) {
-//						entity.onSetPoseAnimEnded();
-//					}
-//					break;
-//				case LOOP_BACK:
-//					float loopLen = nextPhaseTime - curPhase.getValue().loopBackTo;
-//					animTime = curPhaseTime + (poseData.animTime / 20f) % loopLen;
-//					break;
-//				default:
-//					break;
-//				}
-//				appliedPhaseAnim = true;
-//			}
-//		}
-//		
-//		if (!appliedPhaseAnim) {
-//			animTime = animation.looping() ? (poseData.animTime / 20f) % animation.lengthInSeconds() : poseData.animTime / 20f;
-//		}
-//		
-//		AnimContext animContext = AnimContext.fillContext(entity, yRotOffsetDeg, xRotDeg);
-//		GeckoStandAnimator.animateSecs(model, animation, animTime, ANIM_SPEED, animContext);
-//	}
-//	
-//	
-//	public void parseAssignmentInstruction(String field, String value, float keyframeTime, Map<String, String> assignmentMap) {
-//		switch (field) {
-//		case "phase":
-//			Phase phase = Phase.valueOf(value);
-//			if (phasesTimeline == null) {
-//				phasesTimeline = new AnimObjTimeline<>();
-//			}
-//			AnimActionPhase animPhase = parseAnimPhase(phase, assignmentMap);
-//			phasesTimeline.add(keyframeTime, animPhase);
-//			break;
-//		default:
-//			if (stringValTimelines == null) {
-//				stringValTimelines = new HashMap<>();
-//			}
-//			AnimObjTimeline<String> timeline = stringValTimelines.computeIfAbsent(field, __ -> new AnimObjTimeline<>());
-//			timeline.add(keyframeTime, value);
-//			break;
-//		}
-//	}
-//	
-//	protected AnimActionPhase parseAnimPhase(Phase phase, Map<String, String> assignmentMap) {
-//		if (assignmentMap.containsKey("phase.loopBack")) {
-//			try {
-//				float loopBackTo = Float.parseFloat(assignmentMap.get("phase.loopBack"));
-//				assignmentMap.remove("phase.loopBack");
-//				return AnimActionPhase.loopBack(phase, loopBackTo);
-//			}
-//			catch (NumberFormatException e) {}
-//		}
-//		return new AnimActionPhase(phase, AnimActionPhase.Mode.FIT_PHASE_LENGTH);
-//	}
-//	
-//	public void onFinishedParsing() {
-//		if (stringValTimelines != null) {
-//			Iterator<Map.Entry<String, AnimObjTimeline<String>>> iter = stringValTimelines.entrySet().iterator();
-//			while (iter.hasNext()) {
-//				Map.Entry<String, AnimObjTimeline<String>> entry = iter.next();
-//				timelineToNumeric(entry.getValue()).ifPresent(numericTimeline -> {
-//					if (numericValTimelines == null) {
-//						numericValTimelines = new HashMap<>();
-//					}
-//					numericValTimelines.put(entry.getKey(), numericTimeline);
-//					iter.remove();
-//				});
-//			}
-//		}
-//		
-//		if (phasesTimeline != null) phasesTimeline.sort();
-//		if (stringValTimelines != null) stringValTimelines.values().forEach(AnimObjTimeline::sort);
-//		if (numericValTimelines != null) numericValTimelines.values().forEach(AnimObjTimeline::sort);
-//	}
-//	
-//	private static Optional<AnimObjTimeline<Double>> timelineToNumeric(AnimObjTimeline<String> stringTimeline) {
-//		AnimObjTimeline<Double> timeline = new AnimObjTimeline<>();
-//		for (Float2ObjectMap.Entry<String> entry : stringTimeline.getEntries()) {
-//			try {
-//				double numericVal = Double.parseDouble(entry.getValue());
-//				timeline.add(entry.getFloatKey(), numericVal);
-//			}
-//			catch (NumberFormatException notNumeric) {
-//				return Optional.empty();
-//			}
-//		}
-//		return Optional.of(timeline);
-//	}
-//	
-//	@Nullable
-//	public String getStringTimelineVal(String key, float animTime) {
-//		if (stringValTimelines == null) {
-//			return null;
-//		}
-//		AnimObjTimeline<String> timeline = stringValTimelines.get(key);
-//		if (timeline == null) {
-//			return null;
-//		}
-//		return timeline.getCurValue(animTime);
-//	}
-//	
-//	@Nullable
-//	public Double getNumericTimelineVal(String key, float animTime) {
-//		if (numericValTimelines == null) {
-//			return null;
-//		}
-//		AnimObjTimeline<Double> timeline = numericValTimelines.get(key);
-//		if (timeline == null) {
-//			return null;
-//		}
-//		return timeline.getCurValue(animTime);
-//	}
-//	
-//	public static class TimelineKeys {
-//		public static final String BARRAGE = "barrage";
-//	}
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
 	
 }

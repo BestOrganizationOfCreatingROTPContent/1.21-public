@@ -4,10 +4,13 @@ import java.util.Comparator;
 
 import javax.annotation.Nullable;
 
+import org.jetbrains.annotations.ApiStatus;
+
+import it.unimi.dsi.fastutil.floats.Float2DoubleArrayMap;
+import it.unimi.dsi.fastutil.floats.Float2DoubleMap;
 import it.unimi.dsi.fastutil.floats.Float2ObjectArrayMap;
 import it.unimi.dsi.fastutil.floats.Float2ObjectMap;
 
-// TODO (!) (entity anims) parse instructions
 public class AnimObjTimeline<V> {
 	private Float2ObjectMap<V> timeline = new Float2ObjectArrayMap<>();
 	
@@ -15,6 +18,7 @@ public class AnimObjTimeline<V> {
 		timeline.put(keyframeTimeInSeconds, value);
 	}
 	
+	@ApiStatus.Internal
 	public void sort() {
 		if (!timeline.isEmpty()) {
 			timeline = timeline.float2ObjectEntrySet().stream()
@@ -37,5 +41,35 @@ public class AnimObjTimeline<V> {
 	
 	public Iterable<Float2ObjectMap.Entry<V>> getEntries() {
 		return timeline.float2ObjectEntrySet();
+	}
+	
+	
+	public static class Double {
+		Float2DoubleMap timeline = new Float2DoubleArrayMap();
+		
+		public void add(float keyframeTimeInSeconds, double value) {
+			timeline.put(keyframeTimeInSeconds, value);
+		}
+		
+		@ApiStatus.Internal
+		public void sort() {
+			if (!timeline.isEmpty()) {
+				timeline = timeline.float2DoubleEntrySet().stream()
+						.sorted(Comparator.comparingDouble(Float2DoubleMap.Entry::getFloatKey))
+						.collect(Float2DoubleArrayMap::new, 
+								(map, entry) -> map.put(entry.getFloatKey(), entry.getDoubleValue()), 
+								(map1, map2) -> map1.putAll(map2));
+			}
+		}
+		
+		@Nullable
+		public double getCurValue(float timeInSeconds) {
+			for (Float2DoubleMap.Entry entry : timeline.float2DoubleEntrySet()) {
+				if (entry.getFloatKey() <= timeInSeconds) {
+					return entry.getDoubleValue();
+				}
+			}
+			return 0;
+		}
 	}
 }

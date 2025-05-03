@@ -31,7 +31,7 @@ public class RipplesPlayerRenderState {
 //		JojoMod.LOGGER.debug("player_anim {} {} {} {}", action.anim.name, action.actionPhase, action.phaseTime, action.phaseCompletion);
 		AnimWithExtras anim = AnimationLoader.getInstance().getAnim(JojoMod.resLoc("example_anim"), ActionAnimIdentifier.getOrCreate("dio_p3_wry"));
 		if (anim == null) return false;
-//		anim.animatePlayer(model, action.phaseTime, 1);
+//		anim.animateVanillaPlayer(model, vanillaRenderState, action, 1);
 		return true;
 	}
 	
