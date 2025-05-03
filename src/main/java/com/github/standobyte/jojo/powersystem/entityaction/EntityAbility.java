@@ -36,13 +36,12 @@ public interface EntityAbility<A extends EntityActionInstance> {
 	@ApiStatus.Internal
 	default void onEntityActionTick(A action, LivingEntity performer, LivingEntity user) {
 		tickEntityAction(action, performer, user);
-		if (action.phase == ActionPhase.PERFORM && action.getTicksLeft() == 1) {
+		if (action.phase == ActionPhase.PERFORM && action.getPhaseTick() < 1) {
 			entityPerform(action, performer, user);
 		}
 	}
 	
 	
-	// TODO (!) (entity action) partial tick for consecutive actions
 	default float getPhaseLength(ActionPhase phase) {
 		return phase == ActionPhase.PERFORM ? 1 : 0;
 	}

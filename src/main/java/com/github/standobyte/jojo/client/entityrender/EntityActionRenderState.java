@@ -16,7 +16,7 @@ public class EntityActionRenderState {
 		if (action != null) {
 			renderState.anim = action.ability.getEntityAnim(action);
 			renderState.actionPhase = action.getPhase();
-			renderState.phaseTime = action.getTick() + partialTick;
+			renderState.phaseTime = action.getPhaseTick() + partialTick;
 			renderState.phaseCompletion = action.getPhaseRatio(partialTick);
 		}
 		else {
