@@ -13,10 +13,10 @@ import net.minecraft.world.level.Level;
 
 // XXX tick the unlocked abilities (passives are also abilities that aren't in the HUD)
 public class Ability {
-	public final AbilityId _abilityId;
+	public final AbilityId abilityId;
 
 	public Ability(AbilityId abilityId) {
-		this._abilityId = abilityId;
+		this.abilityId = abilityId;
 	}
 	
 	

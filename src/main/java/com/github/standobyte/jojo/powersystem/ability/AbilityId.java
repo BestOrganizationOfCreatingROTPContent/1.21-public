@@ -41,7 +41,7 @@ public record AbilityId(PowerClass<?> powerClass, ResourceLocation powerTypeId, 
 
 
 		public static void encodeInput(FriendlyByteBuf buffer, @Nullable Ability ability, @Nullable Power<?> userPower) {
-			encodeInput(buffer, ability != null ? ability._abilityId : null, userPower);
+			encodeInput(buffer, ability != null ? ability.abilityId : null, userPower);
 		}
 
 		public static void encodeInput(FriendlyByteBuf buffer, @Nullable AbilityId abilityId, @Nullable Power<?> userPower) {

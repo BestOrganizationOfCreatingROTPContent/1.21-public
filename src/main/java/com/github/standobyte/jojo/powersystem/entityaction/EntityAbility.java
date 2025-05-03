@@ -48,6 +48,6 @@ public interface EntityAbility<A extends EntityActionInstance> {
 	}
 	
 	
-	ActionAnimIdentifier getEntityAnim();
+	ActionAnimIdentifier getEntityAnim(EntityActionInstance action);
 	
 }

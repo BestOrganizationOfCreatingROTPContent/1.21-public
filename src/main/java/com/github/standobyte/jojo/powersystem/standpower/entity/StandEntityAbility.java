@@ -83,7 +83,7 @@ public class StandEntityAbility<A extends EntityActionInstance> extends Ability 
 	}
 
 	@Override
-	public ActionAnimIdentifier getEntityAnim() {
+	public ActionAnimIdentifier getEntityAnim(EntityActionInstance action) {
 		return standAnim;
 	}
 	

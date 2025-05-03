@@ -14,7 +14,7 @@ public class EntityActionRenderState {
 	
 	public static void extract(EntityActionRenderState renderState, @Nullable EntityActionInstance action, float partialTick) {
 		if (action != null) {
-			renderState.anim = action.ability.getEntityAnim();
+			renderState.anim = action.ability.getEntityAnim(action);
 			renderState.actionPhase = action.getPhase();
 			renderState.phaseTime = action.getTick() + partialTick;
 			renderState.phaseCompletion = action.getPhaseRatio(partialTick);

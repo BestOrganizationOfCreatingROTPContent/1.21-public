@@ -4,7 +4,6 @@ import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Optional;
 import java.util.OptionalInt;
 import java.util.stream.Collectors;
 
@@ -20,27 +19,19 @@ import it.unimi.dsi.fastutil.ints.Int2ObjectMap;
  * Has some stuff specific to Stands, but it can be used for other entities as well.
  */
 public class AnimationSet {
-	protected final Map<ActionAnimIdentifier, List<AnimWithExtras>> namedAnimations;
+	protected final Map<String, List<AnimWithExtras>> namedAnimations;
 	protected AnimWithExtras idleAnim;
 //	@Nullable protected AnimWithExtras curAnim;
 	
-	protected AnimationSet(Map<ActionAnimIdentifier, List<AnimWithExtras>> namedAnimations) {
+	protected AnimationSet(Map<String, List<AnimWithExtras>> namedAnimations) {
 		this.namedAnimations = namedAnimations;
-		this.idleAnim = Optional.ofNullable(namedAnimations.get(StandEntityRenderer.IDLE_ANIM))
-				.map(list -> list.isEmpty() ? null : list.get(0)).orElse(null);
+		this.idleAnim = getNamedAnim(StandEntityRenderer.IDLE_ANIM);
 	}
-	
-	public AnimWithExtras getNamedAnim(ActionAnimIdentifier name) {
-		return getNamedAnim(name, 0);
-	}
-	
-	public AnimWithExtras getNamedAnim(ActionAnimIdentifier name, int numberWrapped) {
-		if (name == StandEntityRenderer.IDLE_ANIM) {
-			return idleAnim;
-		}
-		List<AnimWithExtras> anims = namedAnimations.get(name);
+
+	public AnimWithExtras getNamedAnim(ActionAnimIdentifier animId) {
+		List<AnimWithExtras> anims = namedAnimations.get(animId.name);
 		if (anims == null || anims.isEmpty()) return null;
-		return anims.get(numberWrapped % anims.size());
+		return anims.get(animId.index % anims.size());
 	}
 	
 	public AnimWithExtras getStandIdleAnim() {
@@ -63,9 +54,9 @@ public class AnimationSet {
 		}
 		
 		public AnimationSet build() {
-			Map<ActionAnimIdentifier, List<AnimWithExtras>> anims = this.namedAnimations.entrySet().stream()
+			Map<String, List<AnimWithExtras>> anims = this.namedAnimations.entrySet().stream()
 					.collect(Collectors.toMap(
-							entry -> ActionAnimIdentifier.getOrCreate(entry.getKey()), 
+							Map.Entry::getKey, 
 							entry -> entry.getValue()
 								.int2ObjectEntrySet().stream()
 								.sorted(Comparator.comparingInt(Int2ObjectMap.Entry::getIntKey))
