@@ -10,6 +10,7 @@ import com.github.standobyte.jojo.powersystem.ability.AbilityId.AbilityInputNetw
 import net.minecraft.Util;
 import net.minecraft.network.RegistryFriendlyByteBuf;
 import net.minecraft.network.codec.StreamCodec;
+import net.minecraft.util.Mth;
 import net.minecraft.world.entity.LivingEntity;
 
 // TODO (entity action) test the phase lengths stuff
@@ -56,7 +57,7 @@ public class EntityActionInstance {
 		this.curPhaseTick = tick;
 		this.curPhaseLength = phase != null ? phasesLength.get(phase) : -1;
 		
-		this.phasePartialTick = prevPhaseTick - prevTickLength;
+		this.phasePartialTick = Mth.clamp(prevPhaseTick - prevTickLength, 0, 1);
 		
 		checkNextPhase();
 	}
