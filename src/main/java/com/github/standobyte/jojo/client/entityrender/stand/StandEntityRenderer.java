@@ -61,7 +61,7 @@ public class StandEntityRenderer<
 		renderState.skin = standSkins.getSkinFromId(renderState.standId, selectedSkin);
 		if (renderState.skin == null) renderState.skin = renderState.defaultSkin;
 		
-		EntityActionInstance action = entity.getStandAction();
+		EntityActionInstance action = entity.getCurStandAction();
 		EntityActionRenderState.extract(renderState.action, action, partialTick);
 		if (renderState.action.anim == null) {
 			renderState.action.anim = IDLE_ANIM;

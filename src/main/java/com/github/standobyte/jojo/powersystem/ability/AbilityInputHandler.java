@@ -6,7 +6,7 @@ import org.jetbrains.annotations.ApiStatus;
 
 import com.github.standobyte.jojo.core.packet.fromserver.TrAbilityUsePacket;
 import com.github.standobyte.jojo.init.ModDataAttachmentTypes;
-import com.github.standobyte.jojo.powersystem.entityaction.EntityActionInstance;
+import com.github.standobyte.jojo.powersystem.entityaction.HeldInput;
 
 import it.unimi.dsi.fastutil.ints.Int2ObjectArrayMap;
 import it.unimi.dsi.fastutil.ints.Int2ObjectMap;
@@ -22,13 +22,14 @@ public class AbilityInputHandler {
 	private Int2ObjectMap<EntityActionHeld> heldButtonActions = new Int2ObjectArrayMap<>();
 	
 	public static void click(Ability ability, LivingEntity user, RegistryFriendlyByteBuf extraData, float timeTookToResolve) {
-		if (ability != null && user != null) {
-			Level level = user.level();
-			ability.onClick(level, user);
-			if (!level.isClientSide()) {
-				PacketDistributor.sendToPlayersTrackingEntity(user, 
-						TrAbilityUsePacket.click(user.getId(), ability, timeTookToResolve));
-			}
+		if (ability == null || user == null) return;
+		
+		ability = Ability.resolveSubAbility(ability, user);
+		Level level = user.level();
+		ability.onClick(level, user);
+		if (!level.isClientSide()) {
+			PacketDistributor.sendToPlayersTrackingEntity(user, 
+					TrAbilityUsePacket.click(user.getId(), ability, timeTookToResolve));
 		}
 	}
 	
@@ -39,17 +40,18 @@ public class AbilityInputHandler {
 	 */
 	public static void startHolding(short keyId, Ability ability, 
 			LivingEntity user, RegistryFriendlyByteBuf extraData, float timeTookToResolve) {
-		if (ability != null) {
-			AbilityInputHandler holder = get(user);
-			if (holder != null) {
-				Level level = user.level();
-				EntityActionInstance action = ability.onButtonStartHold(level, user);
-				if (!level.isClientSide()) {
-					PacketDistributor.sendToPlayersTrackingEntity(user, 
-							TrAbilityUsePacket.startHold(user.getId(), keyId, ability, timeTookToResolve));
-				}
-				holder.heldButtonActions.put(keyId, new EntityActionHeld(ability, action));
+		if (ability == null || user == null) return;
+
+		ability = Ability.resolveSubAbility(ability, user);
+		AbilityInputHandler holder = get(user);
+		if (holder != null) {
+			Level level = user.level();
+			HeldInput action = ability.onButtonStartHold(level, user);
+			if (!level.isClientSide()) {
+				PacketDistributor.sendToPlayersTrackingEntity(user, 
+						TrAbilityUsePacket.startHold(user.getId(), keyId, ability, timeTookToResolve));
 			}
+			holder.heldButtonActions.put(keyId, new EntityActionHeld(ability, action));
 		}
 	}
 	
@@ -58,15 +60,11 @@ public class AbilityInputHandler {
 		if (holder != null) {
 			EntityActionHeld heldAction = holder.heldButtonActions.remove(keyId);
 			if (heldAction != null) {
-				Ability ability = heldAction.ability;
-				EntityActionInstance action = heldAction.action;
+				HeldInput action = heldAction.action;
 				Level level = user.level();
 
-				if (action != null && action.isOver()) {
-					action = null;
-				}
 				if (action != null) {
-					ability.onButtonStopHold(level, user, action);
+					action.onStopHeld(user);
 				}
 				if (!level.isClientSide()) {
 					PacketDistributor.sendToPlayersTrackingEntity(user, 
@@ -94,9 +92,9 @@ public class AbilityInputHandler {
 	@ApiStatus.Internal
 	public static class EntityActionHeld {
 		private final Ability ability;
-		private final EntityActionInstance action;
+		private final HeldInput action;
 		
-		public EntityActionHeld(Ability ability, EntityActionInstance action) {
+		public EntityActionHeld(Ability ability, HeldInput action) {
 			this.ability = ability;
 			this.action = action;
 		}

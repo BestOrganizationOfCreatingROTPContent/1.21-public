@@ -46,6 +46,14 @@ public interface EntityAbility<A extends EntityActionInstance> {
 		return phase == ActionPhase.PERFORM ? 1 : 0;
 	}
 	
+	default LivingEntity getPerformer(LivingEntity user) {
+		return user;
+	}
+	
+	default boolean canBeCancelledInto(A curAction, EntityAbility<?> cancellingAbility) {
+		return curAction.getPhase() != ActionPhase.RECOVERY;
+	}
+	
 	
 	ActionAnimIdentifier getEntityAnim(EntityActionInstance action);
 	

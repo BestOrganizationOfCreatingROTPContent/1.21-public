@@ -6,6 +6,7 @@ import org.jetbrains.annotations.ApiStatus;
 
 import com.github.standobyte.jojo.powersystem.entityaction.ActionPhase;
 import com.github.standobyte.jojo.powersystem.entityaction.EntityActionInstance;
+import com.github.standobyte.jojo.powersystem.entityaction.HeldInput;
 
 import net.minecraft.network.RegistryFriendlyByteBuf;
 import net.minecraft.world.entity.LivingEntity;
@@ -19,6 +20,21 @@ public class Ability {
 		this.abilityId = abilityId;
 	}
 	
+	@ApiStatus.OverrideOnly
+	@Nullable
+	public Ability replaceWithSubAbility(LivingEntity user) {
+		return null;
+	}
+	
+	@ApiStatus.Internal
+	public static Ability resolveSubAbility(Ability baseAbility, LivingEntity user) {
+		if (baseAbility != null) {
+			Ability subAbility = baseAbility.replaceWithSubAbility(user);
+			return subAbility != null ? subAbility : baseAbility;
+		}
+		return null;
+	}
+	
 	
 	public void writeExtraInput(RegistryFriendlyByteBuf serverboundBuf) {}
 	
@@ -27,7 +43,7 @@ public class Ability {
 	
 	@ApiStatus.OverrideOnly
 	@Nullable
-	public EntityActionInstance onButtonStartHold(Level level, LivingEntity user) {
+	public HeldInput onButtonStartHold(Level level, LivingEntity user) {
 		return null;
 	}
 

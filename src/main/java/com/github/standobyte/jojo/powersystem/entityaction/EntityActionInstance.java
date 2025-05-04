@@ -14,7 +14,7 @@ import net.minecraft.util.Mth;
 import net.minecraft.world.entity.LivingEntity;
 
 // TODO (entity action) test the phase lengths stuff
-public class EntityActionInstance {
+public class EntityActionInstance implements HeldInput {
 	@Nonnull public final EntityAbility<?> ability;
 	// TODO (entity action 2) allow for phase length editing before synchronizing the action
 	protected Map<ActionPhase, Float> phasesLength;
@@ -146,6 +146,18 @@ public class EntityActionInstance {
 	public float getPhaseRatio(float renderPartialTick) {
 		if (curPhaseLength == 0) throw new IllegalStateException();
 		return (getPhaseTick() + renderPartialTick) / curPhaseLength;
+	}
+	
+	
+	public boolean canBeCancelledInto(EntityAbility<?> cancellingAbility) {
+		return phase == ActionPhase.RECOVERY;
+	}
+
+	@Override
+	public void onStopHeld(LivingEntity user) {
+		if (!this.isOver()) {
+			((Ability) ability).onButtonStopHold(user.level(), user, this);
+		}
 	}
 	
 	

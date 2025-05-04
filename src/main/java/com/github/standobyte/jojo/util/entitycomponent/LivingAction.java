@@ -4,6 +4,8 @@ import javax.annotation.Nullable;
 
 import com.github.standobyte.jojo.core.packet.fromserver.TrEntityActionInstancePacket;
 import com.github.standobyte.jojo.init.ModDataAttachmentTypes;
+import com.github.standobyte.jojo.powersystem.ability.Ability;
+import com.github.standobyte.jojo.powersystem.entityaction.EntityAbility;
 import com.github.standobyte.jojo.powersystem.entityaction.EntityActionInstance;
 import com.github.standobyte.jojo.util.entitycomponent.helpers.SynchronizablePlayerData;
 import com.github.standobyte.jojo.util.entitycomponent.helpers.TickingEntityData;
@@ -21,6 +23,7 @@ import net.neoforged.neoforge.network.PacketDistributor;
 public class LivingAction implements SynchronizablePlayerData, TickingEntityData, INBTSerializable<CompoundTag> {
 	private final LivingEntity entity;
 	@Nullable private EntityActionInstance action;
+	@Nullable private Ability inputBuffer;
 	
 	public LivingAction(LivingEntity entity) {
 		this.entity = entity;
@@ -42,7 +45,7 @@ public class LivingAction implements SynchronizablePlayerData, TickingEntityData
 		
 		if (sync && !entity.level().isClientSide()) {
 			PacketDistributor.sendToPlayersTrackingEntityAndSelf(entity, new TrEntityActionInstancePacket(
-					entity.getId(), action, false));
+					entity.getId(), action));
 		}
 	}
 	
@@ -58,6 +61,31 @@ public class LivingAction implements SynchronizablePlayerData, TickingEntityData
 		if (action.tickAction()) {
 			setAction(null, false);
 		}
+		if (inputBuffer != null) {
+			Ability newAbility = inputBuffer;
+			if (newAbility instanceof EntityAbility actionAbility && (action == null || action.canBeCancelledInto(actionAbility))) {
+				EntityActionInstance newAction = actionAbility.createEntityAction();
+				inputBuffer = null;
+				setAction(newAction, true);
+			}
+		}
+	}
+	
+	
+	public void putInputBuffer(Ability inputBuffer) {
+		this.inputBuffer = inputBuffer;
+	}
+	
+	@Nullable
+	public Ability peekInputBuffer() {
+		return inputBuffer;
+	}
+	
+	@Nullable
+	public Ability popInputBuffer() {
+		Ability ability = this.inputBuffer;
+		this.inputBuffer = null;
+		return ability;
 	}
 	
 

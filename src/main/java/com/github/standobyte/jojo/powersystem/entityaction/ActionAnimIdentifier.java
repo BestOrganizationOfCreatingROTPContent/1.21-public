@@ -28,17 +28,13 @@ public class ActionAnimIdentifier {
 	 */
 	public static ActionAnimIdentifier getOrCreate(String animName) {
 		Pair<String, OptionalInt> enumeratedName = StringUtil.splitIntAtTheEnd(animName);
-		return ANIM_IDS.computeIfAbsent(animName, n -> new ActionAnimIdentifier(enumeratedName.getFirst(), enumeratedName.getSecond().orElse(0)));
+		return ANIM_IDS.computeIfAbsent(animName, n -> new ActionAnimIdentifier(
+				enumeratedName.getFirst(), 
+				enumeratedName.getSecond().orElse(1) - 1 /* 1-based indexing in anims */));
 	}
 	
 	public static ActionAnimIdentifier getOrCreate(AbilityId abilityId) {
-		return getOrCreate(abilityId, 0);
-	}
-	
-	public static ActionAnimIdentifier getOrCreate(AbilityId abilityId, int animIndex) {
-		String abilityName = abilityId.nameInMoveset();
-		String name = animIndex > 0 ? abilityName + animIndex : abilityName;
-		return ANIM_IDS.computeIfAbsent(name, __ -> new ActionAnimIdentifier(abilityName, animIndex));
+		return getOrCreate(abilityId.nameInMoveset());
 	}
 	
 	@Override

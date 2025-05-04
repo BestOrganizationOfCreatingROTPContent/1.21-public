@@ -5,6 +5,7 @@ import java.util.Collections;
 import java.util.Optional;
 import java.util.stream.Stream;
 
+import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 
 import org.jetbrains.annotations.ApiStatus;
@@ -15,6 +16,7 @@ import com.github.standobyte.jojo.powersystem.entityaction.EntityActionInstance;
 import com.github.standobyte.jojo.powersystem.standpower.StandPower;
 import com.github.standobyte.jojo.powersystem.standpower.type.SummonedStand;
 import com.github.standobyte.jojo.util.MathUtil;
+import com.github.standobyte.jojo.util.entitycomponent.LivingAction;
 import com.github.standobyte.jojo.util.network.PacketDistributor2;
 
 import net.minecraft.network.RegistryFriendlyByteBuf;
@@ -41,14 +43,15 @@ import net.neoforged.neoforge.entity.IEntityWithComplexSpawn;
 import net.neoforged.neoforge.network.PacketDistributor;
 
 public class StandEntity extends LivingEntity implements SummonedStand, IEntityWithComplexSpawn {
-	private ResourceLocation standId;
+	protected ResourceLocation standId;
 	private static final EntityDataAccessor<Integer> USER_ID = SynchedEntityData.defineId(StandEntity.class, EntityDataSerializers.INT);
 	private WeakReference<LivingEntity> userRef = new WeakReference<LivingEntity>(null);
-	private StandPower userPower;
-	private EntityActionInstance curAction;
+	protected StandPower userPower;
+	protected final LivingAction standAction;
 
 	public StandEntity(EntityType<? extends StandEntity> type, Level level) {
 		super(type, level);
+		this.standAction = LivingAction.getComponent(this);
 	}
 	
 	public StandEntity withStandId(ResourceLocation standId) {
@@ -72,11 +75,7 @@ public class StandEntity extends LivingEntity implements SummonedStand, IEntityW
 		if (user != null) {
 			updatePosition(user);
 		}
-		if (curAction != null && userPower != null) {
-			if (tickAction(curAction)) {
-				setStandAction(null, false);
-			}
-		}
+		tickAction();
 		
 		// TODO stand entity sounds
 		// this below was just me testing sounds in stand skins
@@ -230,22 +229,17 @@ public class StandEntity extends LivingEntity implements SummonedStand, IEntityW
 	
 	
 	@Nullable
-	public EntityActionInstance getStandAction() {
-		return curAction;
+	public EntityActionInstance getCurStandAction() {
+		return standAction.getAction();
+	}
+	
+	@Nonnull
+	public LivingAction getStandActionComponent() {
+		return standAction;
 	}
 	
 	public void setStandAction(@Nullable EntityActionInstance action, boolean sync) {
-		if (this.curAction != null) {
-			this.curAction.onActionCleared();
-		}
-		this.curAction = action;
-		if (action != null) {
-			action.onActionSet(this, getUser());
-		}
-		
-		if (sync && !level().isClientSide()) {
-			PacketDistributor.sendToPlayersTrackingEntity(this, new TrEntityActionInstancePacket(this.getId(), action, true));
-		}
+		standAction.setAction(action, sync);
 	}
 
 	@ApiStatus.Internal // called in StandEntityAbility
@@ -253,12 +247,12 @@ public class StandEntity extends LivingEntity implements SummonedStand, IEntityW
 		setStandAction(action, false);
 		
 		if (!level().isClientSide()) {
-			PacketDistributor2.sendToPlayers(this, syncTo, false, new TrEntityActionInstancePacket(this.getId(), action, true));
+			PacketDistributor2.sendToPlayers(this, syncTo, false, new TrEntityActionInstancePacket(this.getId(), action));
 		}
 	}
 	
-	protected boolean tickAction(EntityActionInstance action) {
-		return action.tickAction();
+	protected void tickAction() {
+		standAction.tick();
 	}
 	// TODO (entity action 2) sync on load
 	// TODO (entity action 2) sync already existing action with tracking

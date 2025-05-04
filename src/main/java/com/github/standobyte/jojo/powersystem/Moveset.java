@@ -20,7 +20,6 @@ import com.mojang.serialization.Codec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 
 import net.minecraft.resources.ResourceLocation;
-import net.neoforged.neoforge.registries.DeferredHolder;
 
 @ApiStatus.NonExtendable
 public class Moveset {
@@ -39,54 +38,37 @@ public class Moveset {
 	public static class Builder {
 		protected final Map<String, ConfigAbilityFactory<?>> allAbilities = new HashMap<>();
 		
+		
 		public <A extends Ability> Builder addAbility(String abilityName, AbilityType<A> abilityType) {
-			return addAbility(abilityName, abilityType, null);
+			return addAbility(abilityName, abilityType, true, null);
 		}
 		
-		public <A extends Ability> Builder addAbility(String abilityName, AbilityType<A> abilityType, @Nullable AbilityConfig<A> setParameters) {
+		public <A extends Ability> Builder addAbility(String abilityName, AbilityType<A> abilityType, boolean isBaseMove) {
+			return addAbility(abilityName, abilityType, isBaseMove, null);
+		}
+		
+		public <A extends Ability> Builder addAbility(String abilityName, AbilityType<A> abilityType, boolean isBaseMove, @Nullable AbilityConfig<A> setParameters) {
 			allAbilities.put(abilityName, new ConfigAbilityFactory<>(abilityType, setParameters));
 			return this;
 		}
+		
 		
 		public <A extends Ability> Builder addAbility(String abilityName, Supplier<? extends AbilityType<A>> abilityType) {
 			return addAbility(abilityName, abilityType.get());
 		}
 		
-		public <A extends Ability> Builder addAbility(String abilityName, Supplier<? extends AbilityType<A>> abilityType, @Nullable AbilityConfig<A> setParameters) {
-			return addAbility(abilityName, abilityType.get(), setParameters);
+		public <A extends Ability> Builder addAbility(String abilityName, Supplier<? extends AbilityType<A>> abilityType, boolean isBaseMove) {
+			return addAbility(abilityName, abilityType.get(), isBaseMove);
 		}
+		
+		public <A extends Ability> Builder addAbility(String abilityName, Supplier<? extends AbilityType<A>> abilityType, boolean isBaseMove, @Nullable AbilityConfig<A> setParameters) {
+			return addAbility(abilityName, abilityType.get(), isBaseMove, setParameters);
+		}
+		
 		
 		public Builder removeAbility(String abilityName) {
 			allAbilities.remove(abilityName);
 			return this;
-		}
-		
-		
-		/**
-		 * @deprecated Prefer using the methods that explicitly take an abilityName parameter, this method is only here if you're feeling lazy to type ability ids.
-		 */
-		@Deprecated
-		public Builder addAbility(DeferredHolder<AbilityType<?>, ? extends AbilityType<? extends Ability>> abilityType) {
-			return addAbility(getLocalId(abilityType), abilityType.get(), null);
-		}
-		
-		@Deprecated
-		public <A extends Ability> Builder addAbility(DeferredHolder<AbilityType<?>, ? extends AbilityType<A>> abilityType, @Nullable AbilityConfig<A> setParameters) {
-			return addAbility(getLocalId(abilityType), abilityType.get(), setParameters);
-		}
-		
-		@SafeVarargs
-		public final Builder addAbilities(DeferredHolder<AbilityType<?>, ? extends AbilityType<? extends Ability>>... abilityTypes) {
-			for (var abilityType : abilityTypes) {
-				addAbility(getLocalId(abilityType), abilityType.get());
-			}
-			return this;
-		}
-		
-		private static String getLocalId(DeferredHolder<AbilityType<?>, ? extends AbilityType<?>> abilityType) {
-			String path = abilityType.getKey().location().getPath();
-			if (path.startsWith("stand_")) path = path.substring(6);
-			return path;
 		}
 		
 		

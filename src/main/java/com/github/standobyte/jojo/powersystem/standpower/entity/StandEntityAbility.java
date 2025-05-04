@@ -4,6 +4,8 @@ import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
+import javax.annotation.Nullable;
+
 import com.github.standobyte.jojo.core.molang.MolangValue;
 import com.github.standobyte.jojo.powersystem.PowerClass;
 import com.github.standobyte.jojo.powersystem.ability.Ability;
@@ -12,6 +14,7 @@ import com.github.standobyte.jojo.powersystem.entityaction.ActionAnimIdentifier;
 import com.github.standobyte.jojo.powersystem.entityaction.ActionPhase;
 import com.github.standobyte.jojo.powersystem.entityaction.EntityAbility;
 import com.github.standobyte.jojo.powersystem.entityaction.EntityActionInstance;
+import com.github.standobyte.jojo.powersystem.entityaction.HeldInput;
 import com.github.standobyte.jojo.powersystem.standpower.StandPower;
 import com.github.standobyte.jojo.util.network.NetworkUtil;
 
@@ -53,18 +56,19 @@ public class StandEntityAbility<A extends EntityActionInstance> extends Ability 
 	
 	@Override
 	public void onClick(Level level, LivingEntity user) {
-		setStandAction(level, user);
+		StandPower power = PowerClass.STAND.get(user); if (power == null) return;
+		StandEntity standEntity = power.getSummonedStandEntity(); if (standEntity == null) return;
+		setStandAction(level, user, power, standEntity);
 	}
 	
 	@Override
-	public A onButtonStartHold(Level level, LivingEntity user) {
-		return setStandAction(level, user);
-	}
-	
-	public A setStandAction(Level level, LivingEntity user) {
+	public HeldInput onButtonStartHold(Level level, LivingEntity user) {
 		StandPower power = PowerClass.STAND.get(user); if (power == null) return null;
 		StandEntity standEntity = power.getSummonedStandEntity(); if (standEntity == null) return null;
-		
+		return setStandAction(level, user, power, standEntity);
+	}
+	
+	public A setStandAction(Level level, LivingEntity user, StandPower power, StandEntity standEntity) {
 		A action = createEntityAction();
 		// onClick() and onButtonStartHold() calls are already sent to other clients, 
 		// the only case where we need to actually sync the StandEntity's EntityActionInstance as it is
@@ -80,6 +84,14 @@ public class StandEntityAbility<A extends EntityActionInstance> extends Ability 
 			standEntity.setStandAction(action, false);
 		}
 		return action;
+	}
+
+	
+	@Override
+	@Nullable
+	public LivingEntity getPerformer(LivingEntity user) {
+		StandPower power = PowerClass.STAND.get(user);
+		return power != null ? power.getSummonedStandEntity() : null;
 	}
 
 	@Override

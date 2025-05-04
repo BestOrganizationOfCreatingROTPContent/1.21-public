@@ -8,6 +8,8 @@ import java.util.function.BiConsumer;
 import java.util.function.Supplier;
 import java.util.stream.Stream;
 
+import javax.annotation.Nullable;
+
 import com.github.standobyte.jojo.util.JSONUtil;
 import com.google.gson.JsonObject;
 
@@ -15,6 +17,7 @@ import io.netty.buffer.ByteBuf;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.network.codec.ByteBufCodecs;
 import net.minecraft.network.codec.StreamCodec;
+import net.minecraft.network.codec.StreamEncoder;
 import net.minecraft.server.level.ChunkMap;
 import net.minecraft.server.level.ServerChunkCache;
 import net.minecraft.server.network.ServerPlayerConnection;
@@ -134,4 +137,15 @@ public class NetworkUtil {
 		};
 	}
 	
+	// FriendlyByteBuf stuff
+	
+	public static <T> void writeOptionally(@Nullable T value, FriendlyByteBuf buf, StreamEncoder<? super FriendlyByteBuf, T> writer) {
+		if (value != null) {
+			buf.writeBoolean(true);
+			writer.encode(buf, value);
+		} else {
+			buf.writeBoolean(false);
+		}
+	}
+
 }
