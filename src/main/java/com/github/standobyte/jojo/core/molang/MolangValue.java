@@ -89,6 +89,7 @@ public sealed interface MolangValue extends DoubleSupplier, IntSupplier, Boolean
 			if (tryCompile) {
 				try {
 					// TODO test jar-in-jar in build (javassist might not work with Java 21 Sadge)
+					// TODO test if Molang compilation works
 					MochaFunction function = molangEngine.compile(molangExpr);
 					return function;
 				}
