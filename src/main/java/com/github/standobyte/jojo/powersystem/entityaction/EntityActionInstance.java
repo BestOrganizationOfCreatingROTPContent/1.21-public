@@ -4,6 +4,8 @@ import java.util.Map;
 
 import javax.annotation.Nonnull;
 
+import org.jetbrains.annotations.ApiStatus;
+
 import com.github.standobyte.jojo.powersystem.ability.Ability;
 import com.github.standobyte.jojo.powersystem.ability.AbilityId.AbilityInputNetwork;
 
@@ -15,35 +17,115 @@ import net.minecraft.world.entity.LivingEntity;
 
 // TODO (entity action) test the phase lengths stuff
 public class EntityActionInstance implements HeldInput {
-	@Nonnull public final EntityAbility<?> ability;
-	// TODO (entity action 2) allow for phase length editing before synchronizing the action
-	protected Map<ActionPhase, Float> phasesLength;
+	@Nonnull public final EntityActionAbility ability;
+	public Map<ActionPhase, Float> phasesLength;
 	
 	@Nonnull protected ActionPhase phase;
 	protected int curPhaseTick;
 	protected float curPhaseLength;
 	protected float phasePartialTick;
 	
-	public EntityActionInstance(EntityAbility<?> ability) {
+	protected LivingEntity performer;
+	protected LivingEntity powerUser;
+	
+	public EntityActionInstance(EntityActionAbility ability) {
 		this.ability = ability;
-		this.phasesLength = Util.makeEnumMap(ActionPhase.class, phase -> {
-			float length = ability.getPhaseLength(phase);
-			return (phase == ActionPhase.PERFORM ? Math.max(length, 1) : Math.max(length, 0));
-		});
+		this.phasesLength = Util.makeEnumMap(ActionPhase.class, phase -> phase == ActionPhase.PERFORM ? 1f : 0f);
+	}
+	
+	public void initPhase() {
 		setPhase(ActionPhase.values()[0]);
 	}
+	
+
+	@ApiStatus.OverrideOnly
+	public void onActionSet() {
+		
+	}
+
+	@ApiStatus.OverrideOnly
+	public void actionTick() {
+		
+	}
+
+	@ApiStatus.OverrideOnly
+	public void actionPerform() {
+		
+	}
+
+	@ApiStatus.OverrideOnly
+	public void onActionCleared() {
+		
+	}
+	
+	@ApiStatus.OverrideOnly
+	public void onButtonStopHold() {
+		
+		
+	}
+	
+	@ApiStatus.OverrideOnly
+	public boolean canBeCancelledInto(Ability cancellingAbility) {
+		return phase == ActionPhase.RECOVERY;
+	}
+	
+	
+
+	@ApiStatus.NonExtendable
+	public float getPhaseTick() {
+		return curPhaseTick + phasePartialTick;
+	}
+
+	@ApiStatus.NonExtendable
+	public float getPhaseTicksLeft() {
+		return curPhaseLength - getPhaseTick();
+	}
+
+	@ApiStatus.NonExtendable
+	public ActionPhase getPhase() {
+		return phase;
+	}
+
+	@ApiStatus.NonExtendable
+	public float getPhaseRatio(float renderPartialTick) {
+		if (curPhaseLength == 0) throw new IllegalStateException();
+		return (getPhaseTick() + renderPartialTick) / curPhaseLength;
+	}
+	
+
+	@ApiStatus.NonExtendable
+	public void forceStop() {
+		setPhase(null);
+	}
+
+	@ApiStatus.NonExtendable
+	public boolean isOver() {
+		return phase == null;
+	}
+	
+	
+	@ApiStatus.OverrideOnly
+	public void toBuf(RegistryFriendlyByteBuf buf) {}
+
+	@ApiStatus.OverrideOnly
+	public void fromBuf(RegistryFriendlyByteBuf buf) {}
+	
+	
+	
 
 	// TODO (!) (entity action) partial tick for consecutive actions
+	@ApiStatus.Internal
 	public void setPartialTick(float partialTick) {
 		if (partialTick >= 1) throw new IllegalArgumentException();
 		this.phasePartialTick = partialTick;
 	}
 	
-	
+	@ApiStatus.Internal
 	public void setPhase(ActionPhase phase) {
 		setPhase(phase, 0);
 	}
-	
+
+	@ApiStatus.Internal
 	public void setPhase(ActionPhase phase, int tick) {
 		if (phase == null) {
 			this.phase = null;
@@ -61,7 +143,8 @@ public class EntityActionInstance implements HeldInput {
 		
 		checkNextPhase();
 	}
-	
+
+	@ApiStatus.Internal
 	protected void checkNextPhase() {
 		if (isOver()) return;
 		ActionPhase[] phases = ActionPhase.values();
@@ -73,25 +156,19 @@ public class EntityActionInstance implements HeldInput {
 		}
 	}
 
-	@SuppressWarnings("unchecked")
-	protected <A extends EntityActionInstance> void tickSkippedNonZeroPhase() {
+	@ApiStatus.Internal
+	protected void tickSkippedNonZeroPhase() {
 		if (curPhaseTick == 0 && curPhaseLength > 0) {
-			A action = (A) this;
-			EntityAbility<A> ability = (EntityAbility<A>) action.ability;
-			ability.onEntityActionTick(action, performer, powerUser);
+			_onTick();
 		}
 	}
 	
 	
-	protected LivingEntity performer;
-	protected LivingEntity powerUser;
-	@SuppressWarnings("unchecked")
-	public <A extends EntityActionInstance> void onActionSet(LivingEntity performer, LivingEntity user) {
+	@ApiStatus.Internal
+	public void _onActionSet(LivingEntity performer, LivingEntity user) {
 		this.performer = performer;
-		A action = (A) this;
-		EntityAbility<A> ability = (EntityAbility<A>) action.ability;
 		this.powerUser = user;
-		ability.onActionSet(action, performer, user);
+		onActionSet();
 	}
 	
 	/**
@@ -99,73 +176,35 @@ public class EntityActionInstance implements HeldInput {
 	 * @param power The power object of the matching PowerClass attached to the user.
 	 * @return true if the action is over and should be set to null.
 	 */
-	@SuppressWarnings("unchecked")
-	public <A extends EntityActionInstance> boolean tickAction() {
+	@ApiStatus.Internal
+	public boolean _tickAction() {
 		if (isOver()) return true;
-		A action = (A) this;
-		EntityAbility<A> ability = (EntityAbility<A>) action.ability;
-		ability.onEntityActionTick(action, performer, powerUser);
-		this.postTickTimer();
-		return isOver();
-	}
-
-	@SuppressWarnings("unchecked")
-	public <A extends EntityActionInstance> void onActionCleared() {
-		A action = (A) this;
-		EntityAbility<A> ability = (EntityAbility<A>) action.ability;
-		ability.onActionCleared(action, performer, powerUser);
-	}
-	
-	
-	public void forceStop() {
-		setPhase(null);
-	}
-	
-	private void postTickTimer() {
+		_onTick();
 		++curPhaseTick;
 		checkNextPhase();
+		return isOver();
 	}
 	
-	public boolean isOver() {
-		return phase == null;
+	@ApiStatus.Internal
+	protected void _onTick() {
+		actionTick();
+		if (phase == ActionPhase.PERFORM && getPhaseTick() < 1) {
+			actionPerform();
+		}
 	}
-	
-	
-	public float getPhaseTick() {
-		return curPhaseTick + phasePartialTick;
-	}
-	
-	public float getPhaseTicksLeft() {
-		return curPhaseLength - getPhaseTick();
-	}
-	
-	public ActionPhase getPhase() {
-		return phase;
-	}
-	
-	public float getPhaseRatio(float renderPartialTick) {
-		if (curPhaseLength == 0) throw new IllegalStateException();
-		return (getPhaseTick() + renderPartialTick) / curPhaseLength;
-	}
-	
-	
-	public boolean canBeCancelledInto(EntityAbility<?> cancellingAbility) {
-		return phase == ActionPhase.RECOVERY;
+
+	@ApiStatus.Internal
+	public void _onActionCleared() {
+		onActionCleared();
 	}
 
 	@Override
+	@ApiStatus.Internal
 	public void onStopHeld(LivingEntity user) {
 		if (!this.isOver()) {
-			((Ability) ability).onButtonStopHold(user.level(), user, this);
+			onButtonStopHold();
 		}
 	}
-	
-	
-	public void toBuf(RegistryFriendlyByteBuf buf) {}
-	
-	public void fromBuf(RegistryFriendlyByteBuf buf) {}
-	
-	// TODO (entity action 2) nbt save/load (both stand and living)
 	
 	
 	public static final StreamCodec<RegistryFriendlyByteBuf, EntityActionInstance> NETWORK_CODEC = new StreamCodec<>() {
@@ -174,9 +213,9 @@ public class EntityActionInstance implements HeldInput {
 		public EntityActionInstance decode(RegistryFriendlyByteBuf buffer) {
 			boolean valid = buffer.readBoolean();
 			if (valid) {
-				EntityAbility<?> ability = (EntityAbility<?>) AbilityInputNetwork.decodeInput(buffer).getAbility(null);
-				if (ability != null) {
-					EntityActionInstance action = ability.createEntityAction();
+				Ability ability = AbilityInputNetwork.decodeInput(buffer).getAbility(null);
+				if (ability instanceof EntityActionAbility actionConstructor) {
+					EntityActionInstance action = actionConstructor.createActionObj();
 					action.phasesLength = Util.makeEnumMap(ActionPhase.class, __ -> buffer.readFloat());
 					action.phase = ActionPhase.values()[buffer.readVarInt()];
 					action.curPhaseTick = buffer.readVarInt();
@@ -205,5 +244,7 @@ public class EntityActionInstance implements HeldInput {
 		}
 		
 	};
+	
+	// TODO (entity action 2) nbt save/load (both stand and living)
 	
 }

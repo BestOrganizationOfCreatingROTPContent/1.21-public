@@ -61,9 +61,8 @@ public class ModStands {
 					
 					.addAbility("heavy_charged", 		ModStandAbilities.HEAVY_CHARGED, true)
 					
-					.addAbility("block", 				ModStandAbilities.BLOCK, true)
-					.addAbility("quickstep", 			ModStandAbilities.QUICKSTEP, true)
-					
+//					.addAbility("block", 				ModStandAbilities.BLOCK, true)
+//					.addAbility("quickstep", 			ModStandAbilities.QUICKSTEP, true)
 //					.addAbility("grab_terrain", 		ModStandAbilities.GRAB_TERRAIN)
 //					.addAbility("grab_release", 		ModStandAbilities.GRAB_RELEASE)
 //					.addAbility("dodge", 				ModStandAbilities.DODGE)

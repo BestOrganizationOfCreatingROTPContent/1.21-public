@@ -20,7 +20,7 @@ import com.github.standobyte.jojo.powersystem.PowerClass;
 import com.github.standobyte.jojo.powersystem.ability.Ability;
 import com.github.standobyte.jojo.powersystem.ability.AbilityInputHandler;
 import com.github.standobyte.jojo.powersystem.ability.AbilityInputHandler.ClickInputType;
-import com.github.standobyte.jojo.powersystem.entityaction.EntityAbility;
+import com.github.standobyte.jojo.powersystem.entityaction.EntityActionAbility;
 import com.github.standobyte.jojo.powersystem.entityaction.EntityActionInstance;
 import com.github.standobyte.jojo.powersystem.standpower.StandPower;
 import com.github.standobyte.jojo.util.CommonEnums.DiagonalDirection2D;
@@ -224,13 +224,13 @@ public class InputHandler {
 				if (ability == null || player == null) return;
 				
 				if (checkToBuffer) {
-					if (ability instanceof EntityAbility entityAbility) {
+					if (ability instanceof EntityActionAbility entityAbility) {
 						LivingEntity performer = entityAbility.getPerformer(player);
 						if (performer != null) {
 							LivingAction actionComponent = LivingAction.getExistingComponent(performer);
-							if (!canStartActionNow(actionComponent, entityAbility)) {
+							if (!canStartActionNow(actionComponent, ability)) {
 								_inputBuffer.bufferPerPerformer.put(performer, new InputBuffer.InputBufferEntry(
-										actionComponent, power, ability, entityAbility, type, keyId));
+										actionComponent, power, ability, type, keyId));
 								return;
 							}
 						}
@@ -410,15 +410,15 @@ public class InputHandler {
 			}
 			
 			InputBufferEntry bufferEntry = entry.getValue();
-			if (canStartActionNow(bufferEntry.performerAction(), bufferEntry.asEntityAbility())) {
+			if (canStartActionNow(bufferEntry.performerAction(), bufferEntry.entityAbility())) {
 				// TODO held action (barrage) input buffer
-				doInput(bufferEntry.inputType(), bufferEntry.heldKeyId(), bufferEntry.userPower(), bufferEntry.ability(), 0, false);
+				doInput(bufferEntry.inputType(), bufferEntry.heldKeyId(), bufferEntry.userPower(), bufferEntry.entityAbility(), 0, false);
 				entryIter.remove();
 			}
 		}
 	}
 	
-	public static boolean canStartActionNow(LivingAction performerAction, EntityAbility<?> entityAbility) {
+	public static boolean canStartActionNow(LivingAction performerAction, Ability entityAbility) {
 		EntityActionInstance curAction = performerAction.getAction();
 		return curAction == null || curAction.canBeCancelledInto(entityAbility);
 	}

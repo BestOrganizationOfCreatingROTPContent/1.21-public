@@ -9,6 +9,7 @@ import com.github.standobyte.jojo.powersystem.PowerClass;
 import com.github.standobyte.jojo.powersystem.ability.Ability;
 import com.github.standobyte.jojo.powersystem.ability.AbilityId;
 import com.github.standobyte.jojo.powersystem.entityaction.ActionPhase;
+import com.github.standobyte.jojo.powersystem.entityaction.EntityActionAbility;
 import com.github.standobyte.jojo.powersystem.entityaction.EntityActionInstance;
 import com.github.standobyte.jojo.powersystem.standpower.StandPower;
 import com.github.standobyte.jojo.powersystem.standpower.entity.StandEntity;
@@ -16,14 +17,14 @@ import com.github.standobyte.jojo.powersystem.standpower.entity.StandEntityAbili
 
 import net.minecraft.world.entity.LivingEntity;
 
-public class StandEntityPunchAbility extends StandEntityAbility<EntityActionInstance> {
+public class StandEntityPunchAbility extends StandEntityAbility {
 	public List<String> punchNames;
 
 	public StandEntityPunchAbility(AbilityId abilityId) {
 		super(abilityId);
-		initPhaseLength(ActionPhase.WINDUP, 4);
-		initPhaseLength(ActionPhase.PERFORM, 2);
-		initPhaseLength(ActionPhase.RECOVERY, 10);
+		setDefaultPhaseLength(ActionPhase.WINDUP, 4);
+		setDefaultPhaseLength(ActionPhase.PERFORM, 2);
+		setDefaultPhaseLength(ActionPhase.RECOVERY, 10);
 		punchNames = new ArrayList<>();
 	}
 	
@@ -62,9 +63,23 @@ public class StandEntityPunchAbility extends StandEntityAbility<EntityActionInst
 		return super.replaceWithSubAbility(user);
 	}
 	
+	
 	@Override
-	public void entityPerform(EntityActionInstance action, LivingEntity performer, LivingEntity user) {
-		JojoMod.LOGGER.debug("ORA {}", this.abilityId.nameInMoveset());
+	public EntityActionInstance createActionObj() {
+		return new StandEntityPunch(this);
+	}
+	
+	public static class StandEntityPunch extends EntityActionInstance {
+
+		public StandEntityPunch(EntityActionAbility ability) {
+			super(ability);
+		}
+		
+		@Override
+		public void actionPerform() {
+			JojoMod.LOGGER.debug("ORA {}", ((Ability) ability).abilityId.nameInMoveset());
+		}
+		
 	}
 
 }

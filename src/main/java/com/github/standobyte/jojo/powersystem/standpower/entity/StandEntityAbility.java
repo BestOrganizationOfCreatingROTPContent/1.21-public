@@ -6,24 +6,27 @@ import java.util.stream.Stream;
 
 import javax.annotation.Nullable;
 
+import org.jetbrains.annotations.ApiStatus;
+
 import com.github.standobyte.jojo.core.molang.MolangValue;
 import com.github.standobyte.jojo.powersystem.PowerClass;
 import com.github.standobyte.jojo.powersystem.ability.Ability;
 import com.github.standobyte.jojo.powersystem.ability.AbilityId;
 import com.github.standobyte.jojo.powersystem.entityaction.ActionAnimIdentifier;
 import com.github.standobyte.jojo.powersystem.entityaction.ActionPhase;
-import com.github.standobyte.jojo.powersystem.entityaction.EntityAbility;
+import com.github.standobyte.jojo.powersystem.entityaction.EntityActionAbility;
 import com.github.standobyte.jojo.powersystem.entityaction.EntityActionInstance;
 import com.github.standobyte.jojo.powersystem.entityaction.HeldInput;
 import com.github.standobyte.jojo.powersystem.standpower.StandPower;
 import com.github.standobyte.jojo.util.network.NetworkUtil;
 
+import net.minecraft.Util;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.server.network.ServerPlayerConnection;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.level.Level;
 
-public class StandEntityAbility<A extends EntityActionInstance> extends Ability implements EntityAbility<A> {
+public class StandEntityAbility extends Ability implements EntityActionAbility {
 	protected ActionAnimIdentifier standAnim;
 
 	public StandEntityAbility(AbilityId abilityId) {
@@ -32,20 +35,21 @@ public class StandEntityAbility<A extends EntityActionInstance> extends Ability 
 	}
 	
 	
+	@ApiStatus.OverrideOnly
+	protected void onActionInit(EntityActionInstance action, Level level, LivingEntity user, StandPower power, StandEntity standEntity) {
+		action.phasesLength = Util.makeEnumMap(ActionPhase.class, 
+				phase -> switch (phase) {
+					case WINDUP -> windupLength.getAsFloat();
+					case PERFORM -> performLength.getAsFloat();
+					case RECOVERY -> recoveryLength.getAsFloat();
+				});
+	}
+	
 	protected MolangValue windupLength = new MolangValue.Literal(0);
 	protected MolangValue performLength = new MolangValue.Literal(1);
 	protected MolangValue recoveryLength = new MolangValue.Literal(0);
 	
-	@Override
-	public float getPhaseLength(ActionPhase phase) {
-		return switch (phase) {
-			case WINDUP -> windupLength.getAsFloat();
-			case PERFORM -> performLength.getAsFloat();
-			case RECOVERY -> recoveryLength.getAsFloat();
-		};
-	}
-	
-	protected void initPhaseLength(ActionPhase phase, float length) {
+	protected void setDefaultPhaseLength(ActionPhase phase, float length) {
 		switch (phase) {
 			case WINDUP -> windupLength = new MolangValue.Literal(length);
 			case PERFORM -> performLength = new MolangValue.Literal(length);
@@ -68,8 +72,8 @@ public class StandEntityAbility<A extends EntityActionInstance> extends Ability 
 		return setStandAction(level, user, power, standEntity);
 	}
 	
-	public A setStandAction(Level level, LivingEntity user, StandPower power, StandEntity standEntity) {
-		A action = createEntityAction();
+	public EntityActionInstance setStandAction(Level level, LivingEntity user, StandPower power, StandEntity standEntity) {
+		EntityActionInstance action = createStandAction(level, user, power, standEntity);
 		// onClick() and onButtonStartHold() calls are already sent to other clients, 
 		// the only case where we need to actually sync the StandEntity's EntityActionInstance as it is
 		// is when the user's entity is too far away for the client to call either of the methods above
@@ -83,6 +87,13 @@ public class StandEntityAbility<A extends EntityActionInstance> extends Ability 
 		else {
 			standEntity.setStandAction(action, false);
 		}
+		return action;
+	}
+	
+	public EntityActionInstance createStandAction(Level level, LivingEntity user, StandPower power, StandEntity standEntity) {
+		EntityActionInstance action = createActionObj();
+		onActionInit(action, level, user, power, standEntity);
+		action.initPhase();
 		return action;
 	}
 
