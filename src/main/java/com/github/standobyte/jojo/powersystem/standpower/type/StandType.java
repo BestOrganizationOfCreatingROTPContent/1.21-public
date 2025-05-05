@@ -7,7 +7,7 @@ import java.util.stream.Stream;
 import javax.annotation.Nullable;
 
 import com.github.standobyte.jojo.core.JojoRegistries;
-import com.github.standobyte.jojo.powersystem.Moveset;
+import com.github.standobyte.jojo.powersystem.MovesetBuilder;
 import com.github.standobyte.jojo.powersystem.PowerClass;
 import com.github.standobyte.jojo.powersystem.PowerType;
 import com.github.standobyte.jojo.powersystem.standpower.StandPower;
@@ -26,7 +26,7 @@ public class StandType extends PowerType {
 	protected StandStats stats;
 	protected boolean isEnabled;
 	
-	public StandType(StandStats stats, Moveset.Builder moveset, 
+	public StandType(StandStats stats, MovesetBuilder moveset, 
 			ResourceLocation id) {
 		super(moveset);
 		this.standTypeId = id;

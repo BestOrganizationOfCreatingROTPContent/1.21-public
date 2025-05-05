@@ -3,7 +3,7 @@ package com.github.standobyte.jojo.jojoimpl.hamon;
 import static com.github.standobyte.jojo.core.JojoRegistries.ABILITY_TYPES;
 import static com.github.standobyte.jojo.init.power.ModPlayerPowers.PLAYER_POWERS;
 
-import com.github.standobyte.jojo.powersystem.Moveset;
+import com.github.standobyte.jojo.powersystem.MovesetBuilder;
 import com.github.standobyte.jojo.powersystem.ability.Ability;
 import com.github.standobyte.jojo.powersystem.ability.AbilityType;
 import com.github.standobyte.jojo.powersystem.playerpower.PlayerPowerType;
@@ -17,11 +17,11 @@ public class HamonPowerType extends PlayerPowerType<HamonData> {
 			"hamon_overdrive", key -> new AbilityType<>(key, Ability::new));
 
 	public static final DeferredHolder<PlayerPowerType<?>, HamonPowerType> HAMON = PLAYER_POWERS.register(
-			"hamon", key -> new HamonPowerType(key, new Moveset.Builder()
+			"hamon", key -> new HamonPowerType(key, new MovesetBuilder()
 					.addAbility("overdrive", HAMON_OVERDRIVE)));
 
 	
-	protected HamonPowerType(ResourceLocation registryKey, Moveset.Builder abilitySet) {
+	protected HamonPowerType(ResourceLocation registryKey, MovesetBuilder abilitySet) {
 		super(registryKey, abilitySet);
 	}
 	

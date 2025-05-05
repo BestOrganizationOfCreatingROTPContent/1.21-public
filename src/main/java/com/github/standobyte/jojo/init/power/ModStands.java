@@ -4,7 +4,7 @@ import java.util.Collections;
 
 import com.github.standobyte.jojo.core.JojoMod;
 import com.github.standobyte.jojo.core.JojoRegistries;
-import com.github.standobyte.jojo.powersystem.Moveset;
+import com.github.standobyte.jojo.powersystem.MovesetBuilder;
 import com.github.standobyte.jojo.powersystem.standpower.StandStats;
 import com.github.standobyte.jojo.powersystem.standpower.entity.EntityStandType;
 import com.github.standobyte.jojo.powersystem.standpower.type.StandType;
@@ -29,10 +29,10 @@ public class ModStands {
 					.build(),
 
 					// XXX addPowerTypeStandAbilities(Moveset.Builder<StandPower>)
-					new Moveset.Builder()
-					.addAbility("punch", 				ModStandAbilities.PUNCH, true, punch -> {
-						Collections.addAll(punch.punchNames, "punch1", "punch2", "punch3", "punch4", "low_kick");
-					})
+					new MovesetBuilder()
+					.addAbility("punch", 				ModStandAbilities.PUNCH, true, 
+							punch -> Collections.addAll(punch.punchNames, "punch1", "punch2", "punch3", "punch4", "low_kick")
+					)
 					.addAbility("punch1", 				ModStandAbilities.PUNCH, false)
 					.addAbility("punch2", 				ModStandAbilities.PUNCH, false)
 					.addAbility("punch3", 				ModStandAbilities.PUNCH, false)

@@ -8,7 +8,7 @@ import java.util.Map;
 import org.jetbrains.annotations.ApiStatus;
 
 import com.github.standobyte.jojo.core.JojoMod;
-import com.github.standobyte.jojo.powersystem.Moveset;
+import com.github.standobyte.jojo.powersystem.MovesetBuilder;
 import com.github.standobyte.jojo.powersystem.standpower.StandStats;
 import com.github.standobyte.jojo.powersystem.standpower.type.StandType;
 import com.google.gson.JsonElement;
@@ -63,7 +63,7 @@ public class StandTypeClass<T extends StandType> {
 			try {
 				@SuppressWarnings("unchecked")
 				Class<T> standTypeJavaClass = (Class<T>) Class.forName(name);
-				Constructor<T> c = standTypeJavaClass.getConstructor(StandStats.class, Moveset.Builder.class, ResourceLocation.class);
+				Constructor<T> c = standTypeJavaClass.getConstructor(StandStats.class, MovesetBuilder.class, ResourceLocation.class);
 				StandTypeFactory<T> constructor = new StandTypeFactory.FromConstructor<>(c);
 				standClass = registerStandClass(standTypeJavaClass, name, constructor);
 			}
@@ -83,7 +83,7 @@ public class StandTypeClass<T extends StandType> {
 		if (standClass == null) {
 			try {
 				String className = standTypeClass.getName();
-				Constructor<T> c = standTypeClass.getConstructor(StandStats.class, Moveset.Builder.class, ResourceLocation.class);
+				Constructor<T> c = standTypeClass.getConstructor(StandStats.class, MovesetBuilder.class, ResourceLocation.class);
 				StandTypeFactory<T> constructor = new StandTypeFactory.FromConstructor<>(c);
 				standClass = registerStandClass(standTypeClass, className, constructor);
 			}
@@ -94,13 +94,13 @@ public class StandTypeClass<T extends StandType> {
 		return standClass;
 	}
 	
-	public T createStand(StandStats stats, Moveset.Builder moveset, ResourceLocation id) {
+	public T createStand(StandStats stats, MovesetBuilder moveset, ResourceLocation id) {
 		return constructor.create(stats, moveset, id);
 	}
 	
 	@FunctionalInterface
 	public static interface StandTypeFactory<T extends StandType> {
-		T create(StandStats stats, Moveset.Builder moveset, ResourceLocation id);
+		T create(StandStats stats, MovesetBuilder moveset, ResourceLocation id);
 		
 		@ApiStatus.Internal
 		public static class FromConstructor<T extends StandType> implements StandTypeFactory<T> {
@@ -111,7 +111,7 @@ public class StandTypeClass<T extends StandType> {
 			}
 			
 			@Override
-			public T create(StandStats stats, Moveset.Builder moveset, ResourceLocation id) {
+			public T create(StandStats stats, MovesetBuilder moveset, ResourceLocation id) {
 				try {
 					return c.newInstance(stats, moveset, id);
 				} catch (InstantiationException | IllegalAccessException | IllegalArgumentException | InvocationTargetException e) {

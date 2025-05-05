@@ -16,7 +16,7 @@ import org.jetbrains.annotations.ApiStatus;
 import com.github.standobyte.jojo.core.JojoMod;
 import com.github.standobyte.jojo.core.JojoRegistries;
 import com.github.standobyte.jojo.core.packet.fromserver.DatapackStandsPacket;
-import com.github.standobyte.jojo.powersystem.Moveset;
+import com.github.standobyte.jojo.powersystem.MovesetBuilder;
 import com.github.standobyte.jojo.powersystem.standpower.StandStats;
 import com.github.standobyte.jojo.powersystem.standpower.type.StandType;
 import com.github.standobyte.jojo.util.JSONUtil;
@@ -141,8 +141,8 @@ public class DataDrivenStandsLoader {
 				stand.applyConfig(json);
 			}
 			else {
-				// Create a new data-driven Stand
-				StandType newDatapackStand = null;
+				// Create a data-driven Stand.
+				StandTypeClass<?> standTypeClass = null;
 				ResourceLocation baseStandId = Optional.ofNullable(json.get("baseStand")).map(JsonElement::getAsString).map(ResourceLocation::parse).orElse(null);
 				if (baseStandId != null) {
 					// Use one of the existing Stands as a base.
@@ -150,10 +150,7 @@ public class DataDrivenStandsLoader {
 					StandType baseStand = hardcodedStands.getValue(baseStandId);
 					if (baseStand != null) {
 						try {
-							StandTypeClass<?> standTypeClass = StandTypeClass.byClass(baseStand.getClass());
-							StandStats stats = baseStand.getStandStats().defaultToBuilder().build();
-							Moveset.Builder moveset = baseStand.copyDefaultMoveset();
-							newDatapackStand = standTypeClass.createStand(stats, moveset, standId);
+							standTypeClass = StandTypeClass.byClass(baseStand.getClass());
 						} catch (Exception e) {
 							JojoMod.getLogger().error("Failed to create Stand {} from data pack (Stand {} can't be used as a base)", standId, baseStandId);
 							continue;
@@ -166,35 +163,40 @@ public class DataDrivenStandsLoader {
 						JojoMod.getLogger().error("Failed to create Stand {} from data pack (base Stand {} is not present)", standId, baseStandId);
 					}
 				}
-				else {
-					// Create the new Stand from scratch using all the JSON data.
-					StandStats stats = Optional.ofNullable(json.getAsJsonObject("stats"))
-							.map(StandStats::fromJson)
-							.orElseGet(() -> new StandStats(0, 0, 0, 0, 0, 0));
-					
-					Moveset.Builder moveset = Optional.ofNullable(json.getAsJsonObject("moveset"))
-							.flatMap(movesetJson -> Moveset.builderCodec().decode(JsonOps.INSTANCE, movesetJson).result())
-							.map(Pair::getFirst)
-							.orElseGet(Moveset.Builder::new);
-					
-					String standClassAlias = StandTypeClass.getStandClassAlias(json);
-					try {
-						StandTypeClass<?> standTypeClass = standClassAlias != null ? StandTypeClass.byName(standClassAlias) : StandTypeClass.DEFAULT_CLASS;
-						newDatapackStand = standTypeClass.createStand(stats, moveset, standId);
-					} catch (Exception e) {
-						JojoMod.getLogger().error("Failed to create Stand {} from data pack (Stand class {} does not exist or can't be instantiated)", standId, standClassAlias);
-						continue;
-					}
-				}
 				
-				if (newDatapackStand != null) {
+				String standClassAlias = StandTypeClass.getStandClassAlias(json);
+				try {
+					if (standTypeClass == null) {
+						standTypeClass = standClassAlias != null ? StandTypeClass.byName(standClassAlias) : StandTypeClass.DEFAULT_CLASS;
+					}
+				} catch (Exception e) {
+					JojoMod.getLogger().error("Failed to create Stand {} from data pack (Stand class {} does not exist or can't be instantiated)", standId, standClassAlias);
+					continue;
+				}
+
+				// Create the new Stand using all the JSON data.
+				if (standTypeClass != null) {
 					StandType oldDatapackStand = datapackStands.get(standId);
-					if (oldDatapackStand != null && oldDatapackStand.getClass() == newDatapackStand.getClass()) {
+					if (oldDatapackStand != null && oldDatapackStand.getClass() == standTypeClass.standTypeJavaClass) {
 						oldDatapackStand.setEnabled(true);
 						oldDatapackStand.restoreDefaults();
 						oldDatapackStand.applyConfig(json);
 					}
 					else {
+						StandStats stats = Optional.ofNullable(json.getAsJsonObject("stats"))
+								.map(StandStats::fromJson)
+								.orElseGet(() -> new StandStats(0, 0, 0, 0, 0, 0));
+						
+						MovesetBuilder moveset = Optional.ofNullable(json.getAsJsonObject("moveset"))
+								.map(movesetJson -> MovesetBuilder.codec().decode(JsonOps.INSTANCE, movesetJson))
+								.flatMap(result -> {
+									result.ifError(error -> JojoMod.getLogger().error("{}", error));
+									return result.resultOrPartial();
+								})
+								.map(Pair::getFirst)
+								.orElseGet(MovesetBuilder::new);
+						
+						StandType newDatapackStand = standTypeClass.createStand(stats, moveset, standId);
 						newDatapackStand.applyConfig(json);
 						datapackStands.put(standId, newDatapackStand);
 					}

@@ -7,7 +7,7 @@ import java.util.function.Consumer;
 import com.github.standobyte.jojo.core.config.DefaultedValue;
 import com.github.standobyte.jojo.core.packet.fromserver.TrSetStandEntityPacket;
 import com.github.standobyte.jojo.init.ModEntityTypes;
-import com.github.standobyte.jojo.powersystem.Moveset;
+import com.github.standobyte.jojo.powersystem.MovesetBuilder;
 import com.github.standobyte.jojo.powersystem.standpower.StandPower;
 import com.github.standobyte.jojo.powersystem.standpower.StandStats;
 import com.github.standobyte.jojo.powersystem.standpower.datapack.StandTypeClass;
@@ -31,12 +31,12 @@ public class EntityStandType extends StandType {
 	
 	protected DefaultedValue<EntityType<? extends StandEntity>> entityType;
 	
-	public EntityStandType(StandStats stats, Moveset.Builder moveset, 
+	public EntityStandType(StandStats stats, MovesetBuilder moveset, 
 			ResourceLocation id) {
 		this(stats, moveset, ModEntityTypes.HUMANOID_STAND.get(), id);
 	}
 	
-	public EntityStandType(StandStats stats, Moveset.Builder moveset, 
+	public EntityStandType(StandStats stats, MovesetBuilder moveset, 
 			EntityType<? extends StandEntity> standEntityType, 
 			ResourceLocation id) {
 		super(stats, moveset, id);

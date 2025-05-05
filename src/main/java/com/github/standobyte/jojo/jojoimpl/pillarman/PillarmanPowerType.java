@@ -3,7 +3,7 @@ package com.github.standobyte.jojo.jojoimpl.pillarman;
 import static com.github.standobyte.jojo.core.JojoRegistries.ABILITY_TYPES;
 import static com.github.standobyte.jojo.init.power.ModPlayerPowers.PLAYER_POWERS;
 
-import com.github.standobyte.jojo.powersystem.Moveset;
+import com.github.standobyte.jojo.powersystem.MovesetBuilder;
 import com.github.standobyte.jojo.powersystem.ability.Ability;
 import com.github.standobyte.jojo.powersystem.ability.AbilityType;
 import com.github.standobyte.jojo.powersystem.playerpower.PlayerPowerType;
@@ -17,11 +17,11 @@ public class PillarmanPowerType extends PlayerPowerType<PillarmanData> {
 			"pillar_man_absorption", key -> new AbilityType<>(key, Ability::new));
 
 	public static final DeferredHolder<PlayerPowerType<?>, PillarmanPowerType> PILLAR_MAN = PLAYER_POWERS.register(
-			"pillar_man", key -> new PillarmanPowerType(key, new Moveset.Builder()
+			"pillar_man", key -> new PillarmanPowerType(key, new MovesetBuilder()
 					.addAbility("absorb", PILLAR_MAN_ABSORPTION)));
 
 	
-	protected PillarmanPowerType(ResourceLocation registryKey, Moveset.Builder abilitySet) {
+	protected PillarmanPowerType(ResourceLocation registryKey, MovesetBuilder abilitySet) {
 		super(registryKey, abilitySet);
 	}
 	

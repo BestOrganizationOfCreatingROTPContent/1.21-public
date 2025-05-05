@@ -7,7 +7,7 @@
 		"precision": 12
 	},
 	"moveset": {
-		"remove": [
+		"disable": [
 			"star_finger", "star_finger_swipe", "inhale"
 		],
 		"abilities": {
@@ -17,10 +17,11 @@
 			"time_breaker": {
 				"type": "jojo_ripples:time_breaker"
 			},
-			
 			"time_stop": {
-				"ticksToFire": 20,
-				"heldWalkSpeed": 0.5
+				"config": {
+					"ticksToFire": 20,
+					"heldWalkSpeed": 0.5
+				}
 			}
 		}
 	}

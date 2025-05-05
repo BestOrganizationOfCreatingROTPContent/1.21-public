@@ -2,20 +2,25 @@ package com.github.standobyte.jojo.powersystem;
 
 import java.util.Optional;
 
+import org.jetbrains.annotations.ApiStatus;
+
 import com.github.standobyte.jojo.core.config.DefaultedValue;
 import com.github.standobyte.jojo.core.config.JsonConfigurable;
+import com.github.standobyte.jojo.util.JSONUtil;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
+import com.mojang.datafixers.util.Pair;
 import com.mojang.serialization.Codec;
+import com.mojang.serialization.DataResult;
 import com.mojang.serialization.JsonOps;
 
 import net.minecraft.resources.ResourceLocation;
 
 public abstract class PowerType implements JsonConfigurable {
-	protected final DefaultedValue<Moveset.Builder> moveset;
+	protected final DefaultedValue<MovesetBuilder> moveset;
 	protected transient Moveset movesetLazyInit;
 	
-	public PowerType(Moveset.Builder movesetBuilder) {
+	public PowerType(MovesetBuilder movesetBuilder) {
 		this.moveset = new DefaultedValue<>(movesetBuilder);
 	}
 	
@@ -26,8 +31,9 @@ public abstract class PowerType implements JsonConfigurable {
 		return movesetLazyInit;
 	}
 	
-	public Moveset.Builder copyDefaultMoveset() {
-		return this.moveset.defaultValue.copy();
+	@ApiStatus.Internal
+	public MovesetBuilder getDefaultMoveset() {
+		return this.moveset.defaultValue;
 	}
 	
 	public abstract ResourceLocation getId();
@@ -43,7 +49,7 @@ public abstract class PowerType implements JsonConfigurable {
 	@Override
 	public JsonObject makeConfigTemplate() {
 		JsonObject json = new JsonObject();
-		Codec<Moveset.Builder> movesetCodec = Moveset.builderCodec();
+		Codec<MovesetBuilder> movesetCodec = MovesetBuilder.codec();
 		movesetCodec.encodeStart(JsonOps.INSTANCE, moveset.defaultValue).result().ifPresent(movesetJson -> json.add("moveset", movesetJson));
 		return json;
 	}
@@ -51,19 +57,18 @@ public abstract class PowerType implements JsonConfigurable {
 	@Override
 	public void applyConfig(JsonElement json) {
 		JsonObject config = json.getAsJsonObject();
-		Codec<Moveset.Builder> movesetCodec = Moveset.builderCodec();
-		Optional.ofNullable(config.getAsJsonObject("moveset")).ifPresent(movesetJson -> {
-			movesetCodec.decode(JsonOps.INSTANCE, movesetJson).result().ifPresent(movesetEdits -> {
-				Moveset.Builder moveset = this.moveset.defaultValue.copy();
-				Optional.ofNullable(movesetJson.getAsJsonArray("remove")).ifPresent(toRemove -> {
-					for (JsonElement nameToRemove : toRemove) {
-						moveset.removeAbility(nameToRemove.getAsString());
-					}
-				});
-				moveset.merge(movesetEdits.getFirst());
-				this.moveset.value = moveset;
-				movesetLazyInit = null;
-			});
+		Codec<MovesetBuilder> movesetCodec = MovesetBuilder.codec();
+		
+		Optional.ofNullable(config.getAsJsonObject("moveset")).ifPresent(movesetEditsJson -> {
+			DataResult<Pair<MovesetBuilder, JsonElement>> newMoveset = movesetCodec.encodeStart(JsonOps.INSTANCE, this.moveset.defaultValue)
+					.map(JsonElement::getAsJsonObject)
+					.flatMap(movesetJson -> {
+						JSONUtil.merge(movesetJson, config);
+						return movesetCodec.decode(JsonOps.INSTANCE, movesetJson);
+					});
+			
+			this.moveset.value = newMoveset.result().get().getFirst();
+			movesetLazyInit = null;
 		});
 	}
 	
