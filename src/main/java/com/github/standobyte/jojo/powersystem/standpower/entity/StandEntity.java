@@ -3,21 +3,16 @@ package com.github.standobyte.jojo.powersystem.standpower.entity;
 import java.lang.ref.WeakReference;
 import java.util.Collections;
 import java.util.Optional;
-import java.util.stream.Stream;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 
-import org.jetbrains.annotations.ApiStatus;
-
-import com.github.standobyte.jojo.core.packet.fromserver.TrEntityActionInstancePacket;
 import com.github.standobyte.jojo.core.packet.fromserver.TrSetStandEntityPacket;
 import com.github.standobyte.jojo.powersystem.entityaction.EntityActionInstance;
 import com.github.standobyte.jojo.powersystem.standpower.StandPower;
 import com.github.standobyte.jojo.powersystem.standpower.type.SummonedStand;
 import com.github.standobyte.jojo.util.MathUtil;
 import com.github.standobyte.jojo.util.entitycomponent.LivingAction;
-import com.github.standobyte.jojo.util.network.PacketDistributor2;
 
 import net.minecraft.network.RegistryFriendlyByteBuf;
 import net.minecraft.network.protocol.Packet;
@@ -28,7 +23,6 @@ import net.minecraft.network.syncher.EntityDataSerializers;
 import net.minecraft.network.syncher.SynchedEntityData;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerEntity;
-import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.EquipmentSlot;
@@ -42,16 +36,21 @@ import net.minecraft.world.phys.Vec3;
 import net.neoforged.neoforge.entity.IEntityWithComplexSpawn;
 import net.neoforged.neoforge.network.PacketDistributor;
 
-public class StandEntity extends LivingEntity implements SummonedStand, IEntityWithComplexSpawn {
+public class StandEntity extends LivingEntity implements SummonedStand, IEntityWithComplexSpawn, LivingReactToNewAction {
 	protected ResourceLocation standId;
 	private static final EntityDataAccessor<Integer> USER_ID = SynchedEntityData.defineId(StandEntity.class, EntityDataSerializers.INT);
 	private WeakReference<LivingEntity> userRef = new WeakReference<LivingEntity>(null);
 	protected StandPower userPower;
 	protected final LivingAction standAction;
+	
+	public static final double Y_OFFSET = 0.2;
+	protected static final Vec3 DEFAULT_USER_OFFSET = new Vec3(0.75, Y_OFFSET, -0.75);
+	public StandOffsetFromUser offsetFromUser;
 
 	public StandEntity(EntityType<? extends StandEntity> type, Level level) {
 		super(type, level);
 		this.standAction = LivingAction.getComponent(this);
+		this.offsetFromUser = new StandOffsetFromUser(this, DEFAULT_USER_OFFSET);
 	}
 	
 	public StandEntity withStandId(ResourceLocation standId) {
@@ -111,11 +110,15 @@ public class StandEntity extends LivingEntity implements SummonedStand, IEntityW
 	public void updatePosition(LivingEntity user) {
 		if (user == null) return;
 		
-		Vec3 relativeOffset = new Vec3(-0.75, 0.2, -0.75);
+		Vec3 relativeOffset = level().isClientSide() ? offsetFromUser.getOffsetLerp(this) : offsetFromUser.getOffset();
 		Vec3 offset = relativeOffset.yRot(-user.yBodyRot * MathUtil.DEG_TO_RAD);
 		Vec3 pos = user.position().add(offset);
 		setPos(pos.x, pos.y, pos.z);
 		copyStandUserRotation(user);
+	}
+	
+	public void setOffsetFromUser(Vec3 relativeVec) {
+		offsetFromUser.setOffset(relativeVec, this);
 	}
 	
 	public void copyStandUserRotation(LivingEntity user) {
@@ -238,21 +241,16 @@ public class StandEntity extends LivingEntity implements SummonedStand, IEntityW
 		return standAction;
 	}
 	
-	public void setStandAction(@Nullable EntityActionInstance action, boolean sync) {
-		standAction.setAction(action, sync);
-	}
-
-	@ApiStatus.Internal // called in StandEntityAbility
-	public void setStandAction(@Nullable EntityActionInstance action, Stream<ServerPlayer> syncTo /* in case it's a long-ranged stand, the user might actually be outside of render distance for some players */) {
-		setStandAction(action, false);
-		
-		if (!level().isClientSide()) {
-			PacketDistributor2.sendToPlayers(this, syncTo, false, new TrEntityActionInstancePacket(this.getId(), action));
-		}
-	}
-	
 	protected void tickAction() {
 		standAction.tick();
+	}
+	
+	@Override
+	public boolean onActionSet(EntityActionInstance action) {
+		if (action == null) {
+			offsetFromUser.resetToIdle(this);
+		}
+		return false;
 	}
 	// TODO (entity action 2) sync on load
 	// TODO (entity action 2) sync already existing action with tracking
@@ -304,6 +302,7 @@ public class StandEntity extends LivingEntity implements SummonedStand, IEntityW
 	public void writeSpawnData(RegistryFriendlyByteBuf buffer) {
 		ResourceLocation.STREAM_CODEC.encode(buffer, standId);
 		buffer.writeFloat(yBodyRot);
+		buffer.writeVarInt(tickCount);
 	}
 
 	@Override
@@ -311,6 +310,7 @@ public class StandEntity extends LivingEntity implements SummonedStand, IEntityW
 		standId = ResourceLocation.STREAM_CODEC.decode(additionalData);
 		yBodyRot = additionalData.readFloat();
 		yBodyRotO = yBodyRot;
+		tickCount = additionalData.readVarInt();
 	}
 	
 	

@@ -5,6 +5,7 @@ import javax.annotation.Nullable;
 import com.github.standobyte.jojo.core.packet.fromserver.TrEntityActionInstancePacket;
 import com.github.standobyte.jojo.init.ModDataAttachmentTypes;
 import com.github.standobyte.jojo.powersystem.entityaction.EntityActionInstance;
+import com.github.standobyte.jojo.powersystem.standpower.entity.LivingReactToNewAction;
 import com.github.standobyte.jojo.util.entitycomponent.helpers.SynchronizablePlayerData;
 import com.github.standobyte.jojo.util.entitycomponent.helpers.TickingEntityData;
 
@@ -20,10 +21,12 @@ import net.neoforged.neoforge.network.PacketDistributor;
 
 public class LivingAction implements SynchronizablePlayerData, TickingEntityData, INBTSerializable<CompoundTag> {
 	private final LivingEntity entity;
+	private final LivingReactToNewAction actionSetCallback;
 	@Nullable private EntityActionInstance action;
 	
 	public LivingAction(LivingEntity entity) {
 		this.entity = entity;
+		this.actionSetCallback = (entity instanceof LivingReactToNewAction standEntity) ? standEntity : null;
 		addSynchronization(entity);
 	}
 	
@@ -32,6 +35,10 @@ public class LivingAction implements SynchronizablePlayerData, TickingEntityData
 	}
 	
 	public void setAction(EntityActionInstance action, boolean sync) {
+		if (actionSetCallback != null && actionSetCallback.onActionSet(action)) {
+			return;
+		}
+		
 		if (this.action != null) {
 			this.action._onActionCleared();
 		}
