@@ -1,51 +1,139 @@
 package com.github.standobyte.jojo.powersystem.standpower.entity;
 
-import javax.annotation.Nullable;
+import com.github.standobyte.jojo.util.MathUtil;
 
 import net.minecraft.util.Mth;
+import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.phys.Vec3;
 
 public class StandOffsetFromUser {
-	private Vec3 idleOffset;
+	private LivingEntity standEntity;
+	
+	public final Vec3 idleOffset;
+	public final OffsetMode idleOffsetMode;
+	
 	private Vec3 relativeOffset;
-	private Vec3 prevOffset;
+	private OffsetMode offsetMode;
+	
+	private Vec3 prevAbsoluteOffset;
+	private OffsetMode prevOffsetMode;
+	private float prevBodyRotDiff;
 	private int changedTimestamp;
 	
-	public StandOffsetFromUser(StandEntity standEntity, Vec3 idleOffset) {
+	public StandOffsetFromUser(LivingEntity standEntity, Vec3 idleOffset, OffsetMode idleOffsetMode) {
+		this.standEntity = standEntity;
 		this.idleOffset = idleOffset;
-		this.relativeOffset = this.idleOffset;
-		this.prevOffset = this.relativeOffset;
-		this.changedTimestamp = standEntity.tickCount;
+		this.idleOffsetMode = idleOffsetMode;
+		setOffset(idleOffset, idleOffsetMode, null);
 	}
 	
-	public void setOffset(@Nullable Vec3 offset, StandEntity standEntity) {
-		if (offset == null) offset = idleOffset;
-		if (offset.x != this.relativeOffset.x || offset.y != this.relativeOffset.y || offset.z != this.relativeOffset.z) {
-			this.prevOffset = this.relativeOffset;
+	public void setOffset(Vec3 offset, OffsetMode offsetMode, LivingEntity userEntity) {
+		if (this.relativeOffset == null || this.offsetMode == null || 
+				offset.x != this.relativeOffset.x || offset.y != this.relativeOffset.y || offset.z != this.relativeOffset.z || 
+				offsetMode != this.offsetMode) {
+			if (userEntity != null) {
+				this.prevAbsoluteOffset = getAbsoluteOffset(userEntity, false);
+				this.prevBodyRotDiff = userEntity.yBodyRot - userEntity.getYRot();
+			}
+			else {
+				this.prevAbsoluteOffset = null;
+			}
+			this.prevOffsetMode = this.offsetMode != null ? this.offsetMode : offsetMode;
+			
 			this.relativeOffset = offset;
+			this.offsetMode = offsetMode;
 			this.changedTimestamp = standEntity.tickCount;
 		}
 	}
 	
-	public void resetToIdle(StandEntity standEntity) {
-		setOffset(null, standEntity);
+	public void setOffset(Vec3 offset, LivingEntity userEntity) {
+		setOffset(offset, OffsetMode.HEAD, userEntity);
 	}
 	
-	public Vec3 getOffset() {
-		return relativeOffset;
+	public void resetToIdle(LivingEntity userEntity) {
+		setOffset(idleOffset, idleOffsetMode, userEntity);
+	}
+	
+	public boolean isIdle() {
+		return offsetMode == idleOffsetMode && relativeOffset.equals(idleOffset);
+	}
+	
+	public Vec3 getPosition(LivingEntity userEntity) {
+		Vec3 offset = getAbsoluteOffset(userEntity, standEntity.level().isClientSide());
+		Vec3 pos = userEntity.position().add(offset);
+		return pos;
+	}
+	
+	public Vec3 getAbsoluteOffset(LivingEntity userEntity, boolean lerp) {
+		if (lerp && prevAbsoluteOffset == null) {
+			prevAbsoluteOffset = getAbsoluteOffset(userEntity, false);
+		}
+		
+		Vec3 absoluteOffset = relativeOffset;
+		if (offsetMode == OffsetMode.HEAD_XY) {
+			absoluteOffset = relativeOffset.xRot(-userEntity.getXRot() * MathUtil.DEG_TO_RAD);
+		}
+		float userYRot = offsetMode == OffsetMode.BODY ? userEntity.yBodyRot : userEntity.getYRot();
+		absoluteOffset = absoluteOffset.yRot(-userYRot * MathUtil.DEG_TO_RAD);
+		
+		if (lerp) {
+			double lerpAmount = getLerpAmount();
+			absoluteOffset = new Vec3(
+					Mth.lerp(lerpAmount, prevAbsoluteOffset.x, absoluteOffset.x),
+					Mth.lerp(lerpAmount, prevAbsoluteOffset.y, absoluteOffset.y),
+					Mth.lerp(lerpAmount, prevAbsoluteOffset.z, absoluteOffset.z));
+		}
+		
+		return absoluteOffset;
+	}
+	
+	public void copyRotation(LivingEntity userEntity, boolean lerp) {
+		standEntity.setYRot(userEntity.getYRot());
+		standEntity.setXRot(userEntity.getXRot());
+		standEntity.yRotO = userEntity.yRotO;
+		standEntity.yHeadRot = userEntity.yHeadRot;
+		standEntity.yHeadRotO = userEntity.yHeadRotO;
+		
+		// this shit so ass
+		boolean isBodyRot = offsetMode == OffsetMode.BODY;
+		float bodyRotAmount = isBodyRot ? 1 : 0;
+		if (lerp) {
+			boolean wasBodyRot = prevOffsetMode == OffsetMode.BODY;
+			if (isBodyRot != wasBodyRot) {
+				float lerpAmount = getLerpAmount();
+				bodyRotAmount = isBodyRot ? lerpAmount : (1 - lerpAmount);
+			}
+		}
+		
+		if (bodyRotAmount == 1) {
+			standEntity.yBodyRot = userEntity.yBodyRot;
+			standEntity.yBodyRotO = userEntity.yBodyRotO;
+		}
+		else if (bodyRotAmount == 0) {
+			standEntity.yBodyRot = userEntity.getYRot();
+			standEntity.yBodyRotO = userEntity.yRotO;
+		}
+		else {
+			standEntity.yBodyRot = Mth.lerp(bodyRotAmount, userEntity.getYRot(), userEntity.yBodyRot);
+			standEntity.yBodyRotO = standEntity.yBodyRot + prevBodyRotDiff / (isBodyRot ? -LERP_TIME : LERP_TIME);
+		}
+	}
+	
+	protected float getLerpAmount() {
+		return getLerpAmount(0);
+	}
+	
+	protected float getLerpAmount(int tickOffset) {
+		int timeDiff = (standEntity.tickCount + tickOffset) - changedTimestamp;
+		return Mth.clamp((float) timeDiff / LERP_TIME, 0, 1);
 	}
 	
 	public static final int LERP_TIME = 4;
-	public Vec3 getOffsetLerp(StandEntity standEntity) {
-		int timeDiff = standEntity.tickCount - changedTimestamp;
-		
-		if (timeDiff >= LERP_TIME) return relativeOffset;
-		if (timeDiff <= 0) return prevOffset;
-		
-		double lerp = (double) timeDiff / LERP_TIME;
-		return new Vec3(
-				Mth.lerp(lerp, prevOffset.x, relativeOffset.x),
-				Mth.lerp(lerp, prevOffset.y, relativeOffset.y),
-				Mth.lerp(lerp, prevOffset.z, relativeOffset.z));
+	
+	
+	public enum OffsetMode {
+		HEAD,
+		BODY,
+		HEAD_XY
 	}
 }

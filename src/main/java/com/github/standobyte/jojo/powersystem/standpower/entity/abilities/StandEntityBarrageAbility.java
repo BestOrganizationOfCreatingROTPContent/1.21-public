@@ -5,7 +5,11 @@ import com.github.standobyte.jojo.powersystem.ability.AbilityId;
 import com.github.standobyte.jojo.powersystem.entityaction.ActionPhase;
 import com.github.standobyte.jojo.powersystem.entityaction.EntityActionAbility;
 import com.github.standobyte.jojo.powersystem.entityaction.EntityActionInstance;
+import com.github.standobyte.jojo.powersystem.standpower.entity.StandEntity;
 import com.github.standobyte.jojo.powersystem.standpower.entity.StandEntityAbility;
+import com.github.standobyte.jojo.powersystem.standpower.entity.StandOffsetFromUser;
+
+import net.minecraft.world.phys.Vec3;
 
 public class StandEntityBarrageAbility extends StandEntityAbility {
 
@@ -26,6 +30,13 @@ public class StandEntityBarrageAbility extends StandEntityAbility {
 
 		public StandEntityBarrage(EntityActionAbility ability) {
 			super(ability);
+		}
+		
+		@Override
+		public void onActionSet() {
+			if (performer instanceof StandEntity standEntity) {
+				standEntity.offsetFromUser.setOffset(new Vec3(0, StandEntity.Y_OFFSET, 2), StandOffsetFromUser.OffsetMode.HEAD_XY, powerUser);
+			}
 		}
 
 		@Override

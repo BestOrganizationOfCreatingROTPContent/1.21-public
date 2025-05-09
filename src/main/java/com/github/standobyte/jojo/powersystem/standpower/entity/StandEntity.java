@@ -11,7 +11,6 @@ import com.github.standobyte.jojo.core.packet.fromserver.TrSetStandEntityPacket;
 import com.github.standobyte.jojo.powersystem.entityaction.EntityActionInstance;
 import com.github.standobyte.jojo.powersystem.standpower.StandPower;
 import com.github.standobyte.jojo.powersystem.standpower.type.SummonedStand;
-import com.github.standobyte.jojo.util.MathUtil;
 import com.github.standobyte.jojo.util.entitycomponent.LivingAction;
 
 import net.minecraft.network.RegistryFriendlyByteBuf;
@@ -50,7 +49,7 @@ public class StandEntity extends LivingEntity implements SummonedStand, IEntityW
 	public StandEntity(EntityType<? extends StandEntity> type, Level level) {
 		super(type, level);
 		this.standAction = LivingAction.getComponent(this);
-		this.offsetFromUser = new StandOffsetFromUser(this, DEFAULT_USER_OFFSET);
+		this.offsetFromUser = new StandOffsetFromUser(this, DEFAULT_USER_OFFSET, StandOffsetFromUser.OffsetMode.BODY);
 	}
 	
 	public StandEntity withStandId(ResourceLocation standId) {
@@ -110,25 +109,13 @@ public class StandEntity extends LivingEntity implements SummonedStand, IEntityW
 	public void updatePosition(LivingEntity user) {
 		if (user == null) return;
 		
-		Vec3 relativeOffset = level().isClientSide() ? offsetFromUser.getOffsetLerp(this) : offsetFromUser.getOffset();
-		Vec3 offset = relativeOffset.yRot(-user.yBodyRot * MathUtil.DEG_TO_RAD);
-		Vec3 pos = user.position().add(offset);
+		Vec3 pos = offsetFromUser.getPosition(user);
 		setPos(pos.x, pos.y, pos.z);
 		copyStandUserRotation(user);
 	}
 	
-	public void setOffsetFromUser(Vec3 relativeVec) {
-		offsetFromUser.setOffset(relativeVec, this);
-	}
-	
 	public void copyStandUserRotation(LivingEntity user) {
-		this.setYRot(user.getYRot());
-		this.setXRot(user.getXRot());
-		this.yRotO = user.yRotO;
-		this.yBodyRot = user.yBodyRot;
-		this.yBodyRotO = user.yBodyRotO;
-		this.yHeadRot = user.yHeadRot;
-		this.yHeadRotO = user.yHeadRotO;
+		offsetFromUser.copyRotation(user, level().isClientSide());
 	}
 	
 	public boolean isFollowingUser() {
@@ -248,7 +235,7 @@ public class StandEntity extends LivingEntity implements SummonedStand, IEntityW
 	@Override
 	public boolean onActionSet(EntityActionInstance action) {
 		if (action == null) {
-			offsetFromUser.resetToIdle(this);
+			offsetFromUser.resetToIdle(getUser());
 		}
 		return false;
 	}

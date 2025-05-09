@@ -14,6 +14,7 @@ import com.github.standobyte.jojo.powersystem.entityaction.EntityActionInstance;
 import com.github.standobyte.jojo.powersystem.standpower.StandPower;
 import com.github.standobyte.jojo.powersystem.standpower.entity.StandEntity;
 import com.github.standobyte.jojo.powersystem.standpower.entity.StandEntityAbility;
+import com.github.standobyte.jojo.powersystem.standpower.entity.StandOffsetFromUser;
 
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.phys.Vec3;
@@ -79,7 +80,7 @@ public class StandEntityPunchAbility extends StandEntityAbility {
 		@Override
 		public void onActionSet() {
 			if (performer instanceof StandEntity standEntity) {
-				standEntity.setOffsetFromUser(new Vec3(0, StandEntity.Y_OFFSET, 1));
+				standEntity.offsetFromUser.setOffset(new Vec3(0, StandEntity.Y_OFFSET, 1), StandOffsetFromUser.OffsetMode.HEAD, powerUser);
 			}
 		}
 		
