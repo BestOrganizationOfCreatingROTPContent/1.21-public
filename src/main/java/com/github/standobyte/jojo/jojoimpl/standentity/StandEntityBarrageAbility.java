@@ -1,4 +1,4 @@
-package com.github.standobyte.jojo.powersystem.standpower.entity.abilities;
+package com.github.standobyte.jojo.jojoimpl.standentity;
 
 import com.github.standobyte.jojo.core.JojoMod;
 import com.github.standobyte.jojo.powersystem.ability.AbilityId;

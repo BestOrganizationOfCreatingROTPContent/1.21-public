@@ -1,25 +1,25 @@
-package com.github.standobyte.jojo.powersystem.standpower.entity.abilities;
+package com.github.standobyte.jojo.jojoimpl.standentity;
 
 import com.github.standobyte.jojo.powersystem.ability.AbilityId;
 import com.github.standobyte.jojo.powersystem.entityaction.EntityActionAbility;
 import com.github.standobyte.jojo.powersystem.entityaction.EntityActionInstance;
 import com.github.standobyte.jojo.powersystem.standpower.entity.StandEntityAbility;
 
-public class StandEntityGrabThrowAbility extends StandEntityAbility {
+public class StandEntityGrabAbility extends StandEntityAbility {
 
-	public StandEntityGrabThrowAbility(AbilityId abilityId) {
+	public StandEntityGrabAbility(AbilityId abilityId) {
 		super(abilityId);
 	}
 	
 	
 	@Override
 	public EntityActionInstance createActionObj() {
-		return new StandEntityGrabThrow(this);
+		return new StandEntityGrab(this);
 	}
 	
-	public static class StandEntityGrabThrow extends EntityActionInstance {
+	public static class StandEntityGrab extends EntityActionInstance {
 
-		public StandEntityGrabThrow(EntityActionAbility ability) {
+		public StandEntityGrab(EntityActionAbility ability) {
 			super(ability);
 		}
 		

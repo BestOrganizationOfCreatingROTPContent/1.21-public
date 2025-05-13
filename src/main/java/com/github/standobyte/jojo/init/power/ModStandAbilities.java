@@ -2,17 +2,17 @@ package com.github.standobyte.jojo.init.power;
 
 import static com.github.standobyte.jojo.core.JojoRegistries.ABILITY_TYPES;
 
+import com.github.standobyte.jojo.jojoimpl.standentity.StandEntityBarrageAbility;
+import com.github.standobyte.jojo.jojoimpl.standentity.StandEntityGrabAbility;
+import com.github.standobyte.jojo.jojoimpl.standentity.StandEntityGrabThrowAbility;
+import com.github.standobyte.jojo.jojoimpl.standentity.StandEntityHeavyPunchAbility;
+import com.github.standobyte.jojo.jojoimpl.standentity.StandEntityHeavyPunchChargedAbility;
+import com.github.standobyte.jojo.jojoimpl.standentity.StandEntityPunchAbility;
 import com.github.standobyte.jojo.jojoimpl.stands.starplatinum.InhaleAbility;
 import com.github.standobyte.jojo.jojoimpl.stands.starplatinum.StarFingerAbility;
 import com.github.standobyte.jojo.jojoimpl.stands.starplatinum.StarFingerSwipeAbility;
 import com.github.standobyte.jojo.jojoimpl.stands.theworld.TimeStopAbility;
 import com.github.standobyte.jojo.powersystem.ability.AbilityType;
-import com.github.standobyte.jojo.powersystem.standpower.entity.abilities.StandEntityBarrageAbility;
-import com.github.standobyte.jojo.powersystem.standpower.entity.abilities.StandEntityGrabAbility;
-import com.github.standobyte.jojo.powersystem.standpower.entity.abilities.StandEntityGrabThrowAbility;
-import com.github.standobyte.jojo.powersystem.standpower.entity.abilities.StandEntityHeavyPunchAbility;
-import com.github.standobyte.jojo.powersystem.standpower.entity.abilities.StandEntityHeavyPunchChargedAbility;
-import com.github.standobyte.jojo.powersystem.standpower.entity.abilities.StandEntityPunchAbility;
 
 import net.neoforged.neoforge.registries.DeferredHolder;
 

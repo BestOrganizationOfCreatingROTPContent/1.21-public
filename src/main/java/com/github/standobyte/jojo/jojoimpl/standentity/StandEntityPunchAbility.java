@@ -1,4 +1,4 @@
-package com.github.standobyte.jojo.powersystem.standpower.entity.abilities;
+package com.github.standobyte.jojo.jojoimpl.standentity;
 
 import java.util.ArrayList;
 import java.util.List;
