@@ -5,6 +5,7 @@ import static com.github.standobyte.jojo.init.power.ModPlayerPowers.PLAYER_POWER
 
 import com.github.standobyte.jojo.jojoimpl.hamon.abilities.HamonOverdriveBeatAbility;
 import com.github.standobyte.jojo.jojoimpl.hamon.abilities.HamonRebuffOverdriveAbility;
+import com.github.standobyte.jojo.jojoimpl.hamon.abilities.HamonSunlightYellowOverdriveAbility;
 import com.github.standobyte.jojo.powersystem.MovesetBuilder;
 import com.github.standobyte.jojo.powersystem.ability.Ability;
 import com.github.standobyte.jojo.powersystem.ability.AbilityType;
@@ -18,12 +19,16 @@ public class HamonPowerType extends PlayerPowerType<HamonData> {
 	public static final DeferredHolder<AbilityType<?>, AbilityType<Ability>> HAMON_BEAT = ABILITY_TYPES.register(
 			"hamon_beat", key -> new AbilityType<>(key, HamonOverdriveBeatAbility::new));
 
+	public static final DeferredHolder<AbilityType<?>, AbilityType<Ability>> SUNLIGHT_YELLOW_OVERDRIVE = ABILITY_TYPES.register(
+			"sunlight_yellow_overdrive", key -> new AbilityType<>(key, HamonSunlightYellowOverdriveAbility::new));
+
 	public static final DeferredHolder<AbilityType<?>, AbilityType<Ability>> REBUFF_OVERDRIVE = ABILITY_TYPES.register(
 			"rebuff_overdrive", key -> new AbilityType<>(key, HamonRebuffOverdriveAbility::new));
 
 	public static final DeferredHolder<PlayerPowerType<?>, HamonPowerType> HAMON = PLAYER_POWERS.register(
 			"hamon", key -> new HamonPowerType(key, new MovesetBuilder()
 					.addAbility("hamon_beat", HAMON_BEAT)
+					.addAbility("sunlight_yellow_overdrive", SUNLIGHT_YELLOW_OVERDRIVE)
 					.addAbility("rebuff_overdrive", REBUFF_OVERDRIVE)));
 
 	

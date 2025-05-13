@@ -406,6 +406,9 @@ public class InputHandler {
 		if (power.getPowerClass() == PowerClass.STAND) {
 			return power.getMoveset().getAbility("barrage");
 		}
+		else if (power.getPowerType() == ModPlayerPowers.HAMON.get()) {
+			return power.getMoveset().getAbility("sunlight_yellow_overdrive");
+		}
 		return null;
 	}
 	
