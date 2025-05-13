@@ -4,6 +4,9 @@ import javax.annotation.Nullable;
 
 import org.jetbrains.annotations.ApiStatus;
 
+import com.github.standobyte.jojo.core.molang.MolangValue;
+import com.github.standobyte.jojo.powersystem.entityaction.ActionPhase;
+import com.github.standobyte.jojo.powersystem.entityaction.EntityActionInstance;
 import com.github.standobyte.jojo.powersystem.entityaction.HeldInput;
 
 import net.minecraft.network.RegistryFriendlyByteBuf;
@@ -43,6 +46,27 @@ public class Ability {
 	@Nullable
 	public HeldInput onButtonStartHold(Level level, LivingEntity user) {
 		return null;
+	}
+	
+	// Some entity ability stuff, for the sake of configs, is also here
+	
+	@ApiStatus.OverrideOnly
+	public void initActionFromConfig(EntityActionInstance action, Level level, LivingEntity user) {
+		action.phasesLength.put(ActionPhase.WINDUP, windupLength.getAsFloat());
+		action.phasesLength.put(ActionPhase.PERFORM, performLength.getAsFloat());
+		action.phasesLength.put(ActionPhase.RECOVERY, recoveryLength.getAsFloat());
+	}
+	
+	protected MolangValue windupLength = new MolangValue.Literal(0);
+	protected MolangValue performLength = new MolangValue.Literal(1);
+	protected MolangValue recoveryLength = new MolangValue.Literal(0);
+	
+	public void setDefaultPhaseLength(ActionPhase phase, float length) {
+		switch (phase) {
+			case WINDUP -> windupLength = new MolangValue.Literal(length);
+			case PERFORM -> performLength = new MolangValue.Literal(length);
+			case RECOVERY -> recoveryLength = new MolangValue.Literal(length);
+		}
 	}
 	
 }

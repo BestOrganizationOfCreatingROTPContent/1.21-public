@@ -7,7 +7,6 @@ import javax.annotation.Nonnull;
 import org.jetbrains.annotations.ApiStatus;
 
 import com.github.standobyte.jojo.powersystem.ability.Ability;
-import com.github.standobyte.jojo.powersystem.ability.AbilityId.AbilityInputNetwork;
 
 import net.minecraft.Util;
 import net.minecraft.network.RegistryFriendlyByteBuf;
@@ -33,7 +32,7 @@ public class EntityActionInstance implements HeldInput {
 		this.phasesLength = Util.makeEnumMap(ActionPhase.class, phase -> phase == ActionPhase.PERFORM ? 1f : 0f);
 	}
 	
-	public void initPhase() {
+	public void setToPhaseZero() {
 		setPhase(ActionPhase.values()[0]);
 	}
 	
@@ -213,9 +212,8 @@ public class EntityActionInstance implements HeldInput {
 		public EntityActionInstance decode(RegistryFriendlyByteBuf buffer) {
 			boolean valid = buffer.readBoolean();
 			if (valid) {
-				Ability ability = AbilityInputNetwork.decodeInput(buffer).getAbility(null);
-				if (ability instanceof EntityActionAbility actionConstructor) {
-					EntityActionInstance action = actionConstructor.createActionObj();
+				EntityActionInstance action = EntityActionAbility.decodeAbilityAction(buffer);
+				if (action != null) {
 					action.phasesLength = Util.makeEnumMap(ActionPhase.class, __ -> buffer.readFloat());
 					action.phase = ActionPhase.values()[buffer.readVarInt()];
 					action.curPhaseTick = buffer.readVarInt();
@@ -233,7 +231,7 @@ public class EntityActionInstance implements HeldInput {
 		public void encode(RegistryFriendlyByteBuf buffer, EntityActionInstance action) {
 			buffer.writeBoolean(action.phase != null);
 			if (action.phase != null) {
-				AbilityInputNetwork.encodeInput(buffer, (Ability) action.ability, null);
+				action.ability.encodeAbility(buffer);
 				action.phasesLength.values().forEach(buffer::writeFloat);
 				buffer.writeVarInt(action.phase.ordinal());
 				buffer.writeVarInt(action.curPhaseTick);
