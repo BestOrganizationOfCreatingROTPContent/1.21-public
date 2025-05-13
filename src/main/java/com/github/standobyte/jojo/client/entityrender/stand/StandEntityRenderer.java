@@ -62,10 +62,10 @@ public class StandEntityRenderer<
 		if (renderState.skin == null) renderState.skin = renderState.defaultSkin;
 		
 		EntityActionInstance action = entity.getCurStandAction();
-		EntityActionRenderState.extract(renderState.action, action, partialTick);
+		EntityActionRenderState.extract(renderState.action, entity, action, partialTick);
 		if (renderState.action.anim == null) {
 			renderState.action.anim = IDLE_ANIM;
-			renderState.action.phaseTime = entity.tickCount - entity.nonIdlePoseTimeStamp + partialTick;
+			renderState.action.time = entity.tickCount - entity.nonIdlePoseTimeStamp + partialTick;
 		}
 		if (renderState.action.anim != IDLE_ANIM) {
 			entity.nonIdlePoseTimeStamp = entity.tickCount;

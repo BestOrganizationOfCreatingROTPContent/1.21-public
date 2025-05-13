@@ -94,7 +94,8 @@ public class AnimWithExtras {
 		float animSeconds = 0;
 
 		boolean appliedPhaseAnim = false;
-		if (entityAction.actionPhase != null && this.instructionTimelines.phases != null) {
+		boolean usePhaseTime = entityAction.actionPhase != null && this.instructionTimelines.phases != null;
+		if (usePhaseTime) {
 			ActionPhase taskPhase = entityAction.actionPhase;
 
 			Float2ObjectMap.Entry<AnimActionPhase> curPhase = null;
@@ -109,15 +110,19 @@ public class AnimWithExtras {
 				}
 				iterPrevPhase = animPhase;
 			}
-			if (curPhase == null) {
-				if (taskPhase == iterPrevPhase.getValue().phase) {
-					curPhase = iterPrevPhase;
-				}
+			if (iterPrevPhase == null) {
+				usePhaseTime = false;
 			}
-			if (curPhase != null) {
-				float curPhaseTime = curPhase.getFloatKey();
-				float nextPhaseTime = nextPhase != null ? nextPhase.getFloatKey() : this.animation.lengthInSeconds();
-				switch (curPhase.getValue().timeAnimMode) {
+			else {
+				if (curPhase == null) {
+					if (taskPhase == iterPrevPhase.getValue().phase) {
+						curPhase = iterPrevPhase;
+					}
+				}
+				if (curPhase != null) {
+					float curPhaseTime = curPhase.getFloatKey();
+					float nextPhaseTime = nextPhase != null ? nextPhase.getFloatKey() : this.animation.lengthInSeconds();
+					switch (curPhase.getValue().timeAnimMode) {
 					case FIT_PHASE_LENGTH -> {
 						animSeconds = Mth.lerp(entityAction.phaseCompletion, curPhaseTime, nextPhaseTime);
 						appliedPhaseAnim = true;
@@ -134,12 +139,14 @@ public class AnimWithExtras {
 						animSeconds = curPhaseTime + (entityAction.phaseTime / 20f) % loopLen;
 						appliedPhaseAnim = true;
 					}
+					}
 				}
 			}
 		}
 
 		if (!appliedPhaseAnim) {
-			animSeconds = this.animation.looping() ? (entityAction.phaseTime / 20f) % this.animation.lengthInSeconds() : entityAction.phaseTime / 20f;
+			float time = usePhaseTime ? entityAction.phaseTime : entityAction.time;
+			animSeconds = this.animation.looping() ? (time / 20f) % this.animation.lengthInSeconds() : time / 20f;
 		}
 		return animSeconds;
 	}

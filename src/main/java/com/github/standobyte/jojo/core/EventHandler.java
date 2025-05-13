@@ -2,6 +2,7 @@ package com.github.standobyte.jojo.core;
 
 import javax.annotation.Nullable;
 
+import com.github.standobyte.jojo.core.command.JojoPowerCommand;
 import com.github.standobyte.jojo.core.command.StandCommand;
 import com.github.standobyte.jojo.init.ModDataAttachmentTypes;
 import com.github.standobyte.jojo.powersystem.PowerClass;
@@ -30,6 +31,7 @@ public class EventHandler {
 		CommandBuildContext context = event.getBuildContext();
 		
 		StandCommand.register(dispatcher, context);
+		JojoPowerCommand.register(dispatcher, context);
 	}
 
 	@SubscribeEvent
@@ -47,7 +49,7 @@ public class EventHandler {
 	}
 	
 	@SubscribeEvent
-	public static void onEntityTick(EntityTickEvent.Pre event) {
+	public static void onEntityTick(EntityTickEvent.Post event) {
 		DataEventListeners data = entityEventListeners(event.getEntity());
 		if (data != null) {
 			data.onTick();

@@ -27,27 +27,29 @@ public class StandCommand {
 
 	public static void register(CommandDispatcher<CommandSourceStack> dispatcher, CommandBuildContext context) {
 		dispatcher.register(
-		Commands.literal("stand")
-			.requires(src -> src.hasPermission(2))
-			.then(
-			Commands.literal("clear")
-				.executes(src -> clearStand(src.getSource(), ImmutableList.of(src.getSource().getEntityOrException())))
+		Commands.literal("jojo_ripples").then(
+			Commands.literal("stand")
+				.requires(src -> src.hasPermission(2))
 				.then(
-				Commands.argument("targets", EntityArgument.entities())
-					.executes(src -> clearStand(src.getSource(), EntityArgument.getEntities(src, "targets")))
-				)
-			)
-			.then(
-			Commands.literal("give")
-				.then(
-				Commands.argument("targets", EntityArgument.entities())
+				Commands.literal("clear")
+					.executes(src -> clearStand(src.getSource(), ImmutableList.of(src.getSource().getEntityOrException())))
 					.then(
-					Commands.argument("stand", StandArgument.stand(context))
-						.executes(
-						src -> setStand(
-							src.getSource(),
-							EntityArgument.getEntities(src, "targets"),
-							StandArgument.getStand(src, "stand")
+					Commands.argument("targets", EntityArgument.entities())
+						.executes(src -> clearStand(src.getSource(), EntityArgument.getEntities(src, "targets")))
+					)
+				)
+				.then(
+				Commands.literal("give")
+					.then(
+					Commands.argument("targets", EntityArgument.entities())
+						.then(
+						Commands.argument("stand", StandArgument.stand(context))
+							.executes(
+							src -> setStand(
+								src.getSource(),
+								EntityArgument.getEntities(src, "targets"),
+								StandArgument.getStand(src, "stand")
+								)
 							)
 						)
 					)

@@ -32,7 +32,7 @@ public class EntityActionInstance implements HeldInput {
 		this.phasesLength = Util.makeEnumMap(ActionPhase.class, phase -> phase == ActionPhase.PERFORM ? 1f : 0f);
 	}
 	
-	public void setToPhaseZero() {
+	public void setPhaseZero() {
 		setPhase(ActionPhase.values()[0]);
 	}
 	
@@ -89,6 +89,20 @@ public class EntityActionInstance implements HeldInput {
 	public float getPhaseRatio(float renderPartialTick) {
 		if (curPhaseLength == 0) throw new IllegalStateException();
 		return (getPhaseTick() + renderPartialTick) / curPhaseLength;
+	}
+	
+	public float getFullTicksPassed() {
+		float sum = 0;
+		for (ActionPhase phase : ActionPhase.values()) {
+			if (phase != this.phase) {
+				sum += phasesLength.get(phase);
+			}
+			else {
+				sum += getPhaseTick();
+				break;
+			}
+		}
+		return sum;
 	}
 	
 

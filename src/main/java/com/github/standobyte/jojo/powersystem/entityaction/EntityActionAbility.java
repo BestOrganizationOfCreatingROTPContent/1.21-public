@@ -40,7 +40,7 @@ public interface EntityActionAbility {
 	default EntityActionInstance initActionOnAbilityUse(Level level, LivingEntity user) {
 		EntityActionInstance action = createActionObj();
 		initActionFromConfig(action, level, user);
-		action.setToPhaseZero();
+		action.setPhaseZero();
 		return action;
 	}
 

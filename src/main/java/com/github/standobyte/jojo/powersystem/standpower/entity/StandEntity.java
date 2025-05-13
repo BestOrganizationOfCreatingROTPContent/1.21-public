@@ -50,6 +50,7 @@ public class StandEntity extends LivingEntity implements SummonedStand, IEntityW
 		super(type, level);
 		this.standAction = LivingAction.getComponent(this);
 		this.offsetFromUser = new StandOffsetFromUser(this, DEFAULT_USER_OFFSET, StandOffsetFromUser.OffsetMode.BODY);
+		this.noPhysics = true;
 	}
 	
 	public StandEntity withStandId(ResourceLocation standId) {
@@ -73,7 +74,6 @@ public class StandEntity extends LivingEntity implements SummonedStand, IEntityW
 		if (user != null) {
 			updatePosition(user);
 		}
-		tickAction();
 		
 		// TODO stand entity sounds
 		// this below was just me testing sounds in stand skins
@@ -226,10 +226,6 @@ public class StandEntity extends LivingEntity implements SummonedStand, IEntityW
 	@Nonnull
 	public LivingAction getStandActionComponent() {
 		return standAction;
-	}
-	
-	protected void tickAction() {
-		standAction.tick();
 	}
 	
 	@Override

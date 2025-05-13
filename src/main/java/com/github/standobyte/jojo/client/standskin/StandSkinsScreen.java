@@ -495,7 +495,7 @@ public class StandSkinsScreen extends Screen implements IJojoMenuScreen {
 			renderState.skin = standSkin;
 			renderState.standId = standType.getId();
 			renderState.action.anim = StandEntityRenderer.IDLE_ANIM;
-			renderState.action.phaseTime = ticks;
+			renderState.action.time = ticks;
 		}, gui.pose(), bufferSource, 0xF000F0));
 		gui.flush();
 		renderManager.setRenderShadow(true);

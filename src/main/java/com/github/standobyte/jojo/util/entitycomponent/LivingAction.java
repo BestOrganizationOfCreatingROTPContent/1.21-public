@@ -28,6 +28,7 @@ public class LivingAction implements SynchronizablePlayerData, TickingEntityData
 		this.entity = entity;
 		this.actionSetCallback = (entity instanceof LivingReactToNewAction standEntity) ? standEntity : null;
 		addSynchronization(entity);
+		addTicking(entity);
 	}
 	
 	public EntityActionInstance getAction() {

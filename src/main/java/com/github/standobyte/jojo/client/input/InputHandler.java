@@ -15,6 +15,7 @@ import com.github.standobyte.jojo.client.jojomenu.IJojoMenuScreen;
 import com.github.standobyte.jojo.core.JojoMod;
 import com.github.standobyte.jojo.core.packet.fromclient.ClAbilityInputPacket;
 import com.github.standobyte.jojo.core.packet.fromclient.ClSummonStandPacket;
+import com.github.standobyte.jojo.init.power.ModPlayerPowers;
 import com.github.standobyte.jojo.powersystem.Power;
 import com.github.standobyte.jojo.powersystem.PowerClass;
 import com.github.standobyte.jojo.powersystem.ability.Ability;
@@ -22,6 +23,7 @@ import com.github.standobyte.jojo.powersystem.ability.AbilityInputHandler;
 import com.github.standobyte.jojo.powersystem.ability.AbilityInputHandler.ClickInputType;
 import com.github.standobyte.jojo.powersystem.entityaction.EntityActionAbility;
 import com.github.standobyte.jojo.powersystem.entityaction.EntityActionInstance;
+import com.github.standobyte.jojo.powersystem.playerpower.PlayerPower;
 import com.github.standobyte.jojo.powersystem.standpower.StandPower;
 import com.github.standobyte.jojo.util.CommonEnums.DiagonalDirection2D;
 import com.github.standobyte.jojo.util.CommonEnums.Direction2D;
@@ -146,6 +148,21 @@ public class InputHandler {
 
 	// XXX use separate input buffer on client
 	private RegistryFriendlyByteBuf inputBuf;
+	
+	public Power<?> getCurPower() {
+		if (mc.player != null) {
+			StandPower standPower = PowerClass.STAND.get(mc.player);
+			if (standPower != null && standPower.hasPower() && standPower.isSummoned()) {
+				return standPower;
+			}
+			
+			PlayerPower power = PowerClass.PLAYER_POWER.get(mc.player);
+			if (power != null && power.hasPower()) {
+				return power;
+			}
+		}
+		return null;
+	}
 
 	// TODO (!!!) input queue (make it possible to queue a barrage midway through a jab combo)
 	/**
@@ -156,15 +173,12 @@ public class InputHandler {
 		boolean cancelVanilla = false;
 		heldAbility = null;
 		clickAbility = null;
-		
-		Player player = mc.player;
-		Power<?> power = player != null ? PowerClass.STAND.get(player) : null;
+		Power<?> power = getCurPower();
 		
 		switch (inputType) {
 			case InputConstants.PRESS -> {
 				// TODO ability HUD
-				if (player == null || power == null || !power.hasPower() || !((StandPower) power).isSummoned()) return false;
-				if (mc.screen != null || heldKeys.containsKey(lAlt)) return false;
+				if (power == null || inputsDisabled()) return false;
 				
 				KeyModifier keyModifier = getCurModifier();
 				
@@ -253,6 +267,10 @@ public class InputHandler {
 				PacketDistributor.sendToServer(ClAbilityInputPacket.releaseHold(keyId));
 			}
 		}
+	}
+	
+	public boolean inputsDisabled() {
+		return mc.screen != null || heldKeys.containsKey(lAlt);
 	}
 	
 	public static short keyId(Key key) {
@@ -375,25 +393,43 @@ public class InputHandler {
 	}
 	
 	public Ability getLMBClickAbility(Power<?> power, KeyModifier keyModifier) {
-		return power.getMoveset().getAbility("punch");
+		if (power.getPowerClass() == PowerClass.STAND) {
+			return power.getMoveset().getAbility("punch");
+		}
+		else if (power.getPowerType() == ModPlayerPowers.HAMON.get()) {
+			return power.getMoveset().getAbility("hamon_beat");
+		}
+		return null;
 	}
 	
 	public Ability getLMBHeldAbility(Power<?> power, KeyModifier keyModifier) {
-		return power.getMoveset().getAbility("barrage");
+		if (power.getPowerClass() == PowerClass.STAND) {
+			return power.getMoveset().getAbility("barrage");
+		}
+		return null;
 	}
 	
 	public Ability getRMBClickAbility(Power<?> power, KeyModifier keyModifier) {
-		return switch (keyModifier) {
-			case CONTROL -> power.getMoveset().getAbility("grab");
-			default -> power.getMoveset().getAbility("heavy_punch");
-		};
+		if (power.getPowerClass() == PowerClass.STAND) {
+			return switch (keyModifier) {
+				case CONTROL -> power.getMoveset().getAbility("grab");
+				default -> power.getMoveset().getAbility("heavy_punch");
+			};
+		}
+		else if (power.getPowerType() == ModPlayerPowers.HAMON.get()) {
+			return power.getMoveset().getAbility("rebuff_overdrive");
+		}
+		return null;
 	}
 	
 	public Ability getRMBHeldAbility(Power<?> power, KeyModifier keyModifier) {
-		return switch (keyModifier) {
-			case CONTROL -> null;
-			default -> power.getMoveset().getAbility("heavy_charged");
-		};
+		if (power.getPowerClass() == PowerClass.STAND) {
+			return switch (keyModifier) {
+				case CONTROL -> null;
+				default -> power.getMoveset().getAbility("heavy_charged");
+			};
+		}
+		return null;
 	}
 	
 	// Input buffer stuff
@@ -419,6 +455,7 @@ public class InputHandler {
 	}
 	
 	public static boolean canStartActionNow(LivingAction performerAction, Ability entityAbility) {
+		if (performerAction == null) return true;
 		EntityActionInstance curAction = performerAction.getAction();
 		return curAction == null || curAction.canBeCancelledInto(entityAbility);
 	}

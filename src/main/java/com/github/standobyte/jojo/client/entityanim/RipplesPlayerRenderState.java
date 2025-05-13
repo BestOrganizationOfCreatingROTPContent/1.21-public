@@ -1,37 +1,43 @@
 package com.github.standobyte.jojo.client.entityanim;
 
+import javax.annotation.Nullable;
+
 import com.github.standobyte.jojo.client.entityrender.EntityActionRenderState;
-import com.github.standobyte.jojo.core.JojoMod;
-import com.github.standobyte.jojo.powersystem.entityaction.ActionAnimIdentifier;
 import com.github.standobyte.jojo.powersystem.entityaction.EntityActionInstance;
+import com.github.standobyte.jojo.powersystem.playerpower.PlayerPower;
 import com.github.standobyte.jojo.util.entitycomponent.LivingAction;
 
 import net.minecraft.client.model.HumanoidModel;
 import net.minecraft.client.renderer.entity.state.HumanoidRenderState;
 import net.minecraft.client.renderer.item.ItemModelResolver;
+import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.LivingEntity;
 
-//TODO (entity anims) player non-action animation (ActionAnimIdentifier and tick timestamp)
 public class RipplesPlayerRenderState {
+	@Nullable public ResourceLocation animSet;
 	public EntityActionRenderState entityAction = new EntityActionRenderState();
 
 	public static void extract(LivingEntity entity, HumanoidRenderState vanillaRenderState, RipplesPlayerRenderState modRenderState, 
 			float partialTick, ItemModelResolver itemModelResolver) {
 		EntityActionInstance action = LivingAction.getUserAction(entity);
-		EntityActionRenderState.extract(modRenderState.entityAction, action, partialTick);
-//		modRenderState.entityAction.phaseTime = (entity.tickCount % 60) + partialTick;
-		// TODO (entity anims) disable crouch
-//		vanillaRenderState.isCrouching = false;
+		EntityActionRenderState.extract(modRenderState.entityAction, entity, action, partialTick);
+		
+		modRenderState.animSet = null;
+		if (action != null) {
+			PlayerPower power = PlayerPower.get(entity);
+			if (power != null && power.hasPower()) {
+				modRenderState.animSet = power.getPowerType().getId();
+			}
+		}
+		
+		if (modRenderState.entityAction.disableCrouch) vanillaRenderState.isCrouching = false;
 	}
 
-	// TODO (entity anims) player action animation
 	public static boolean setupAnim(HumanoidModel<?> model, HumanoidRenderState vanillaRenderState, RipplesPlayerRenderState modRenderState) {
-		EntityActionRenderState action = modRenderState.entityAction;
-//		if (action.anim == null) return false;
-//		JojoMod.LOGGER.debug("player_anim {} {} {} {}", action.anim.name, action.actionPhase, action.phaseTime, action.phaseCompletion);
-		AnimWithExtras anim = AnimationLoader.getInstance().getAnim(JojoMod.resLoc("example_anim"), ActionAnimIdentifier.getOrCreate("dio_p3_wry"));
-		if (anim == null) return false;
-//		anim.animateVanillaPlayer(model, vanillaRenderState, action, 1);
+		EntityActionRenderState action = modRenderState.entityAction; 								if (action.anim == null || modRenderState.animSet == null) return false;
+		AnimationSet animSet = AnimationLoader.getInstance().getAnimSet(modRenderState.animSet); 	if (animSet == null) return false;
+		AnimWithExtras anim = animSet.getNamedAnim(action.anim); 									if (anim == null) return false;
+		anim.animateVanillaPlayer(model, vanillaRenderState, action, 1);
 		return true;
 	}
 	

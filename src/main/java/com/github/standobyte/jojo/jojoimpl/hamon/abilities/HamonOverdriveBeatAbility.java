@@ -12,14 +12,14 @@ import com.github.standobyte.jojo.util.entitycomponent.LivingAction;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.level.Level;
 
-public class HamonRebuffOverdriveAbility extends Ability implements EntityActionAbility {
+public class HamonOverdriveBeatAbility extends Ability implements EntityActionAbility {
 	protected ActionAnimIdentifier anim;
 
-	public HamonRebuffOverdriveAbility(AbilityId abilityId) {
+	public HamonOverdriveBeatAbility(AbilityId abilityId) {
 		super(abilityId);
-		setDefaultPhaseLength(ActionPhase.WINDUP, 12);
-		setDefaultPhaseLength(ActionPhase.PERFORM, 8);
-		setDefaultPhaseLength(ActionPhase.RECOVERY, 5);
+		setDefaultPhaseLength(ActionPhase.WINDUP, 5);
+		setDefaultPhaseLength(ActionPhase.PERFORM, 3);
+		setDefaultPhaseLength(ActionPhase.RECOVERY, 2);
 		anim = ActionAnimIdentifier.getOrCreate(abilityId.nameInMoveset());
 	}
 
@@ -36,18 +36,18 @@ public class HamonRebuffOverdriveAbility extends Ability implements EntityAction
 	
 	@Override
 	public EntityActionInstance createActionObj() {
-		return new HamonRebuffOverdrive(this);
+		return new HamonOverdriveBeat(this);
 	}
 
-	public static class HamonRebuffOverdrive extends EntityActionInstance {
+	public static class HamonOverdriveBeat extends EntityActionInstance {
 		
-		public HamonRebuffOverdrive(EntityActionAbility ability) {
+		public HamonOverdriveBeat(EntityActionAbility ability) {
 			super(ability);
 		}
 
 		@Override
 		public void actionPerform() {
-			JojoMod.LOGGER.debug("REBUFF OVERDRIVE");
+			JojoMod.LOGGER.debug("НЫА");
 		}
 	}
 	

@@ -4,12 +4,13 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import javax.annotation.Nullable;
+
 import org.jetbrains.annotations.ApiStatus;
 
 import com.github.standobyte.jojo.client.entityanim.gecko.ParseGeckoAnims;
 import com.github.standobyte.jojo.client.entityanim.molang.KeyframesMolangEngine;
 import com.github.standobyte.jojo.core.JojoMod;
-import com.github.standobyte.jojo.powersystem.entityaction.ActionAnimIdentifier;
 import com.github.standobyte.jojo.util.JSONUtil;
 import com.github.standobyte.jojo.util.StringUtil;
 import com.google.gson.JsonElement;
@@ -42,9 +43,9 @@ public class AnimationLoader extends SimplePreparableReloadListener<Map<Resource
 	
 	private Map<ResourceLocation, AnimationSet> anims = new HashMap<>();
 	
-	public AnimWithExtras getAnim(ResourceLocation animPath, ActionAnimIdentifier animName) {
-		AnimationSet animSet = this.anims.get(animPath);
-		return animSet != null ? animSet.getNamedAnim(animName) : null;
+	@Nullable
+	public AnimationSet getAnimSet(ResourceLocation geckoAnimFilePath) {
+		return anims.get(geckoAnimFilePath);
 	}
 	
 
