@@ -16,7 +16,7 @@ import net.minecraft.world.entity.LivingEntity;
 
 // TODO (entity action) test the phase lengths stuff
 public class EntityActionInstance implements HeldInput {
-	@Nonnull public final EntityActionAbility ability;
+	@Nonnull public final EntityActionType ability;
 	public Map<ActionPhase, Float> phasesLength;
 	
 	@Nonnull protected ActionPhase phase;
@@ -27,7 +27,7 @@ public class EntityActionInstance implements HeldInput {
 	protected LivingEntity performer;
 	protected LivingEntity powerUser;
 	
-	public EntityActionInstance(EntityActionAbility ability) {
+	public EntityActionInstance(EntityActionType ability) {
 		this.ability = ability;
 		this.phasesLength = Util.makeEnumMap(ActionPhase.class, phase -> phase == ActionPhase.PERFORM ? 1f : 0f);
 	}
@@ -226,7 +226,7 @@ public class EntityActionInstance implements HeldInput {
 		public EntityActionInstance decode(RegistryFriendlyByteBuf buffer) {
 			boolean valid = buffer.readBoolean();
 			if (valid) {
-				EntityActionInstance action = EntityActionAbility.decodeAbilityAction(buffer);
+				EntityActionInstance action = EntityActionType.decodeAbilityAction(buffer);
 				if (action != null) {
 					action.phasesLength = Util.makeEnumMap(ActionPhase.class, __ -> buffer.readFloat());
 					action.phase = ActionPhase.values()[buffer.readVarInt()];

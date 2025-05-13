@@ -21,7 +21,7 @@ import com.github.standobyte.jojo.powersystem.PowerClass;
 import com.github.standobyte.jojo.powersystem.ability.Ability;
 import com.github.standobyte.jojo.powersystem.ability.AbilityInputHandler;
 import com.github.standobyte.jojo.powersystem.ability.AbilityInputHandler.ClickInputType;
-import com.github.standobyte.jojo.powersystem.entityaction.EntityActionAbility;
+import com.github.standobyte.jojo.powersystem.entityaction.EntityActionType;
 import com.github.standobyte.jojo.powersystem.entityaction.EntityActionInstance;
 import com.github.standobyte.jojo.powersystem.playerpower.PlayerPower;
 import com.github.standobyte.jojo.powersystem.standpower.StandPower;
@@ -238,7 +238,7 @@ public class InputHandler {
 				if (ability == null || player == null) return;
 				
 				if (checkToBuffer) {
-					if (ability instanceof EntityActionAbility entityAbility) {
+					if (ability instanceof EntityActionType entityAbility) {
 						LivingEntity performer = entityAbility.getPerformer(player);
 						if (performer != null) {
 							LivingAction actionComponent = LivingAction.getExistingComponent(performer);

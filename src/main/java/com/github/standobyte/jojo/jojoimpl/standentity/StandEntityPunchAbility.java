@@ -9,7 +9,7 @@ import com.github.standobyte.jojo.powersystem.PowerClass;
 import com.github.standobyte.jojo.powersystem.ability.Ability;
 import com.github.standobyte.jojo.powersystem.ability.AbilityId;
 import com.github.standobyte.jojo.powersystem.entityaction.ActionPhase;
-import com.github.standobyte.jojo.powersystem.entityaction.EntityActionAbility;
+import com.github.standobyte.jojo.powersystem.entityaction.EntityActionType;
 import com.github.standobyte.jojo.powersystem.entityaction.EntityActionInstance;
 import com.github.standobyte.jojo.powersystem.standpower.StandPower;
 import com.github.standobyte.jojo.powersystem.standpower.entity.StandEntity;
@@ -73,7 +73,7 @@ public class StandEntityPunchAbility extends StandEntityAbility {
 	
 	public static class StandEntityPunch extends EntityActionInstance {
 
-		public StandEntityPunch(EntityActionAbility ability) {
+		public StandEntityPunch(EntityActionType ability) {
 			super(ability);
 		}
 		

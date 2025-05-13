@@ -8,10 +8,8 @@ import javax.annotation.Nullable;
 
 import com.github.standobyte.jojo.core.packet.fromserver.TrEntityActionInstancePacket;
 import com.github.standobyte.jojo.powersystem.PowerClass;
-import com.github.standobyte.jojo.powersystem.ability.Ability;
 import com.github.standobyte.jojo.powersystem.ability.AbilityId;
-import com.github.standobyte.jojo.powersystem.entityaction.ActionAnimIdentifier;
-import com.github.standobyte.jojo.powersystem.entityaction.EntityActionAbility;
+import com.github.standobyte.jojo.powersystem.ability.EntityActionAbility;
 import com.github.standobyte.jojo.powersystem.entityaction.EntityActionInstance;
 import com.github.standobyte.jojo.powersystem.entityaction.HeldInput;
 import com.github.standobyte.jojo.powersystem.standpower.StandPower;
@@ -23,12 +21,10 @@ import net.minecraft.server.network.ServerPlayerConnection;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.level.Level;
 
-public class StandEntityAbility extends Ability implements EntityActionAbility {
-	protected ActionAnimIdentifier standAnim;
+public class StandEntityAbility extends EntityActionAbility {
 
 	public StandEntityAbility(AbilityId abilityId) {
 		super(abilityId);
-		this.standAnim = ActionAnimIdentifier.getOrCreate(abilityId);
 	}
 	
 	
@@ -79,11 +75,6 @@ public class StandEntityAbility extends Ability implements EntityActionAbility {
 	public LivingEntity getPerformer(LivingEntity user) {
 		StandPower power = PowerClass.STAND.get(user);
 		return power != null ? power.getSummonedStandEntity() : null;
-	}
-
-	@Override
-	public ActionAnimIdentifier getEntityAnim(EntityActionInstance action) {
-		return standAnim;
 	}
 	
 }

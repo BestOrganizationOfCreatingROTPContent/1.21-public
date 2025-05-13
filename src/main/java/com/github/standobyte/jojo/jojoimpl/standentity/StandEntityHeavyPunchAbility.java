@@ -3,7 +3,7 @@ package com.github.standobyte.jojo.jojoimpl.standentity;
 import com.github.standobyte.jojo.core.JojoMod;
 import com.github.standobyte.jojo.powersystem.ability.AbilityId;
 import com.github.standobyte.jojo.powersystem.entityaction.ActionPhase;
-import com.github.standobyte.jojo.powersystem.entityaction.EntityActionAbility;
+import com.github.standobyte.jojo.powersystem.entityaction.EntityActionType;
 import com.github.standobyte.jojo.powersystem.entityaction.EntityActionInstance;
 import com.github.standobyte.jojo.powersystem.standpower.entity.StandEntityAbility;
 
@@ -23,7 +23,7 @@ public class StandEntityHeavyPunchAbility extends StandEntityAbility {
 	
 	public static class StandEntityChargedHeavy extends EntityActionInstance {
 
-		public StandEntityChargedHeavy(EntityActionAbility ability) {
+		public StandEntityChargedHeavy(EntityActionType ability) {
 			super(ability);
 		}
 

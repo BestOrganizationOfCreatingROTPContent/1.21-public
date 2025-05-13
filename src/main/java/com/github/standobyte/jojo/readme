@@ -20,7 +20,9 @@ Terminology:
 	Ability (previously Action) - a singleton object, a component part of a PowerType's moveset. Each class extending Ability contains the logic of a specific ability. 
 	AbilityType - a singleton object that is registered in a NeoForge registry, allows to create multiple different objects of a specific Ability sub-class with different configs (kind of like a relation between EntityType and Entity - each EntityType corresponds to a subclass of Entity, and can create instances of their entity on demand).
 	EntityActionInstance (previously ContinuousActionInstance/StandEntityTask) - a data object describing the current "entity action" (most commonly an attack) that an entity is doing for multiple ticks.
-	EntityAbility (previously IStandPhasedAbility) - an interface that can implemented by subclasses of Ability, to describe the logic of a multi-tick entity action (e.g. a Stand punch).
+	EntityActionType (previously IStandPhasedAbility) - an interface that can implemented by subclasses of Ability, to describe the logic of a multi-tick entity action (e.g. a Stand punch).
+		EntityActionAbility is a convenience class that creates an action and sets it to the player, and also handles configs for the action phases length.
+		StandEntityAbility subclasses it, reusing the phase length config fields, but overriding other methods to set the action to the Stand entity rather than the user.
 	ActionAnimIdentifier (previously StandPose) - a singleton object that links together an entity action and the model animation.
 	ConditionCheck (previously ActionConditionResult) - describes if an ability can be used currently - a boolean result of the check, and a message to send to the player if the check failed.
 	

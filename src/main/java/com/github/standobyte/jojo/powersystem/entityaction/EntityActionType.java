@@ -9,7 +9,7 @@ import net.minecraft.network.RegistryFriendlyByteBuf;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.level.Level;
 
-public interface EntityActionAbility {
+public interface EntityActionType {
 	/**
 	 * Is used for synchronization as well, so it only needs to create the object itself.
 	 */
@@ -26,7 +26,7 @@ public interface EntityActionAbility {
 
 	public static EntityActionInstance decodeAbilityAction(RegistryFriendlyByteBuf buffer) {
 		Ability ability = AbilityInputNetwork.decodeInput(buffer).getAbility(null);
-		EntityActionAbility actionSupplier = ability instanceof EntityActionAbility entityAbility ? entityAbility : null;
+		EntityActionType actionSupplier = ability instanceof EntityActionType entityAbility ? entityAbility : null;
 		return actionSupplier != null ? actionSupplier.createActionObj() : null;
 	}
 
@@ -44,10 +44,6 @@ public interface EntityActionAbility {
 		return action;
 	}
 
-	/**
-	 * Is implicitly overriden by {@link com.github.standobyte.jojo.powersystem.ability.Ability#initActionFromConfig(EntityActionInstance, Level, LivingEntity)}.
-	 * Yes, that is cursed, but... but... but configs...
-	 */
 	void initActionFromConfig(EntityActionInstance action, Level level, LivingEntity user);
 
 

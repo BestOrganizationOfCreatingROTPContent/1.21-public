@@ -1,7 +1,7 @@
 package com.github.standobyte.jojo.jojoimpl.standentity;
 
 import com.github.standobyte.jojo.powersystem.ability.AbilityId;
-import com.github.standobyte.jojo.powersystem.entityaction.EntityActionAbility;
+import com.github.standobyte.jojo.powersystem.entityaction.EntityActionType;
 import com.github.standobyte.jojo.powersystem.entityaction.EntityActionInstance;
 import com.github.standobyte.jojo.powersystem.standpower.entity.StandEntityAbility;
 
@@ -19,7 +19,7 @@ public class StandEntityGrabThrowAbility extends StandEntityAbility {
 	
 	public static class StandEntityGrabThrow extends EntityActionInstance {
 
-		public StandEntityGrabThrow(EntityActionAbility ability) {
+		public StandEntityGrabThrow(EntityActionType ability) {
 			super(ability);
 		}
 		
