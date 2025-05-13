@@ -6,8 +6,8 @@ import com.github.standobyte.jojo.core.molang.MolangValue;
 import com.github.standobyte.jojo.powersystem.entityaction.ActionAnimIdentifier;
 import com.github.standobyte.jojo.powersystem.entityaction.ActionPhase;
 import com.github.standobyte.jojo.powersystem.entityaction.EntityActionInstance;
-import com.github.standobyte.jojo.powersystem.entityaction.EntityActionType;
 import com.github.standobyte.jojo.powersystem.entityaction.HeldInput;
+import com.github.standobyte.jojo.powersystem.entityaction.type.EntityActionType;
 import com.github.standobyte.jojo.util.entitycomponent.LivingAction;
 
 import net.minecraft.world.entity.LivingEntity;

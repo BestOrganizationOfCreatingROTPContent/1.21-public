@@ -4,7 +4,6 @@ import javax.annotation.Nullable;
 
 import com.github.standobyte.jojo.client.entityrender.EntityActionRenderState;
 import com.github.standobyte.jojo.powersystem.entityaction.EntityActionInstance;
-import com.github.standobyte.jojo.powersystem.playerpower.PlayerPower;
 import com.github.standobyte.jojo.util.entitycomponent.LivingAction;
 
 import net.minecraft.client.model.HumanoidModel;
@@ -24,10 +23,7 @@ public class RipplesPlayerRenderState {
 		
 		modRenderState.animSet = null;
 		if (action != null) {
-			PlayerPower power = PlayerPower.get(entity);
-			if (power != null && power.hasPower()) {
-				modRenderState.animSet = power.getPowerType().getId();
-			}
+			modRenderState.animSet = action.ability.getEntityAnimSet(entity);
 		}
 		
 		if (modRenderState.entityAction.disableCrouch) vanillaRenderState.isCrouching = false;

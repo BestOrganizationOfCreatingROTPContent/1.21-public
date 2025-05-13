@@ -9,6 +9,7 @@ import com.github.standobyte.jojo.init.ModEntityTypes;
 import com.github.standobyte.jojo.init.ModItemDataComponents;
 import com.github.standobyte.jojo.init.ModItems;
 import com.github.standobyte.jojo.init.ModSoundEvents;
+import com.github.standobyte.jojo.init.ModSpecialActions;
 import com.github.standobyte.jojo.init.power.ModPlayerPowers;
 import com.github.standobyte.jojo.init.power.ModStandAbilities;
 import com.github.standobyte.jojo.init.power.ModStandEffects;
@@ -62,6 +63,7 @@ public class JojoMod {
 		ModHamonSkills.HAMON_CHARACTER_TECHNIQUES.register(modEventBus);
 		ModStandEffects.STAND_EFFECT_TYPES.register(modEventBus);
 		ModStands.DEFAULT_STANDS.register(modEventBus);
+		ModSpecialActions.ACTIONS.register(modEventBus);
 	}
 	
 	public static ResourceLocation resLoc(String path) {

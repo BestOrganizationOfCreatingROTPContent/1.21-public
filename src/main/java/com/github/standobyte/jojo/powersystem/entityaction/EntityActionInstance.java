@@ -7,6 +7,7 @@ import javax.annotation.Nonnull;
 import org.jetbrains.annotations.ApiStatus;
 
 import com.github.standobyte.jojo.powersystem.ability.Ability;
+import com.github.standobyte.jojo.powersystem.entityaction.type.EntityActionType;
 
 import net.minecraft.Util;
 import net.minecraft.network.RegistryFriendlyByteBuf;

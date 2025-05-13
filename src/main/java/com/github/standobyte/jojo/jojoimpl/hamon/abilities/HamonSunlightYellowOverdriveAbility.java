@@ -5,7 +5,7 @@ import com.github.standobyte.jojo.powersystem.ability.AbilityId;
 import com.github.standobyte.jojo.powersystem.ability.EntityActionAbility;
 import com.github.standobyte.jojo.powersystem.entityaction.ActionPhase;
 import com.github.standobyte.jojo.powersystem.entityaction.EntityActionInstance;
-import com.github.standobyte.jojo.powersystem.entityaction.EntityActionType;
+import com.github.standobyte.jojo.powersystem.entityaction.type.EntityActionType;
 
 public class HamonSunlightYellowOverdriveAbility extends EntityActionAbility {
 

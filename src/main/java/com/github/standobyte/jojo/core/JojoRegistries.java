@@ -5,6 +5,7 @@ import com.github.standobyte.jojo.jojoimpl.hamon.HamonTechnique;
 import com.github.standobyte.jojo.mechanics.clothes.itemdata.ClothesSet;
 import com.github.standobyte.jojo.mechanics.clothes.itemdata.StoryCharacter;
 import com.github.standobyte.jojo.powersystem.ability.AbilityType;
+import com.github.standobyte.jojo.powersystem.entityaction.type.SpecialEntityActionType;
 import com.github.standobyte.jojo.powersystem.playerpower.PlayerPowerType;
 import com.github.standobyte.jojo.powersystem.standpower.StandEffectType;
 import com.github.standobyte.jojo.powersystem.standpower.type.StandType;
@@ -67,6 +68,14 @@ public final class JojoRegistries {
 			.create();
 	
 	
+	public static final ResourceKey<Registry<SpecialEntityActionType>> NON_POWER_ACTIONS = ResourceKey.createRegistryKey(
+			JojoMod.resLoc("special_action"));
+	
+	public static final Registry<SpecialEntityActionType> NON_POWER_ACTIONS_REG = new RegistryBuilder<>(NON_POWER_ACTIONS)
+			.sync(true)
+			.create();
+	
+	
 	public static final ResourceKey<Registry<StoryCharacter>> STORY_CHARACTERS_REG_KEY = ResourceKey.createRegistryKey(
 			ResourceLocation.fromNamespaceAndPath("ripples_clothes", "character"));
 	
@@ -86,6 +95,7 @@ public final class JojoRegistries {
 		event.register(HAMON_TECHNIQUES_REG);
 		event.register(STAND_EFFECTS_REG);
 		event.register(DEFAULT_STANDS_REG);
+		event.register(NON_POWER_ACTIONS_REG);
 	}
 	
 	@SubscribeEvent
