@@ -11,4 +11,5 @@ public class StandEntityRenderState extends HumanoidRenderState {
 	public StandSkin defaultSkin;
 	public StandSkin skin;
 	public final EntityActionRenderState action = new EntityActionRenderState();
+	public boolean mayObstructView;
 }

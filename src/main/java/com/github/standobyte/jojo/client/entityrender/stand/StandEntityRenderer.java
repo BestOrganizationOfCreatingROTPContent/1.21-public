@@ -6,6 +6,7 @@ import java.util.function.Consumer;
 import com.github.standobyte.jojo.client.ClientGlobals;
 import com.github.standobyte.jojo.client.entityanim.AnimWithExtras;
 import com.github.standobyte.jojo.client.entityrender.EntityActionRenderState;
+import com.github.standobyte.jojo.client.shader.FirstPersonStandTranslucentShader;
 import com.github.standobyte.jojo.client.standskin.StandSkin;
 import com.github.standobyte.jojo.client.standskin.StandSkinsLoader;
 import com.github.standobyte.jojo.core.JojoMod;
@@ -14,8 +15,10 @@ import com.github.standobyte.jojo.powersystem.entityaction.EntityActionInstance;
 import com.github.standobyte.jojo.powersystem.standpower.entity.StandEntity;
 import com.mojang.blaze3d.vertex.PoseStack;
 
+import net.minecraft.client.Minecraft;
 import net.minecraft.client.model.HumanoidModel;
 import net.minecraft.client.renderer.MultiBufferSource;
+import net.minecraft.client.renderer.RenderType;
 import net.minecraft.client.renderer.entity.EntityRendererProvider.Context;
 import net.minecraft.client.renderer.entity.LivingEntityRenderer;
 import net.minecraft.client.renderer.entity.state.ArmedEntityRenderState;
@@ -79,6 +82,9 @@ public class StandEntityRenderer<
 			renderState.isInvisible |= !ClientGlobals.canSeeStands;
 			renderState.isInvisibleToPlayer |= !ClientGlobals.canSeeStands;
 		}
+		
+		Minecraft mc = Minecraft.getInstance();
+		renderState.mayObstructView = mc.options.getCameraType().isFirstPerson() && mc.player != null && entity.getUser() == mc.player;
 	}
 	
 	public AnimWithExtras getStandAnim(S renderState) {
@@ -120,8 +126,20 @@ public class StandEntityRenderer<
 		setModelFrom(renderState);
 		if (this.model == null) return;
 		this.model.setAllVisible(true);
+		if (renderState.mayObstructView) {
+			bufferSource = FirstPersonStandTranslucentShader.standTranslucencyBufferSource;
+			FirstPersonStandTranslucentShader.usedThisFrame = true;
+		}
 		super.render(renderState, poseStack, bufferSource, light);
 	}
+	
+	@Override
+    protected RenderType getRenderType(S renderState, boolean isVisible, boolean renderTranslucent, boolean appearsGlowing) {
+    	if (renderState.mayObstructView) {
+    		return FirstPersonStandTranslucentShader.ENTITY_TRANSLUCENT_RENDER_TYPE.apply(getTextureLocation(renderState), appearsGlowing);
+    	}
+    	return super.getRenderType(renderState, isVisible, renderTranslucent, appearsGlowing);
+    }
 
 	@Override
 	protected boolean shouldShowName(T entity, double distSqr) {
