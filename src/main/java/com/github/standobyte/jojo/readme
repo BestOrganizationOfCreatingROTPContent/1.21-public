@@ -1,7 +1,7 @@
 Top-level packages:
 	client - Everything client-side, that does not physically exist on a dedicated server. Meant to only be called on the logical client side. Classes like ClientProxy exist to call client-side functions in common code methods (on the logical client side only) without trying to load client-only classes (which would cause dedicated servers to crash).
 	core - Stuff that exists on the background and barely, if ever, needs to be manually called or edited to add new content (main mod file, console commands, configs, etc.).
-	util - Helper functions and classes that go from helpful to very much needed to add new content (also includes entity components, like LivingAction).
+	util - Helper functions and classes that go from helpful to very much needed to add new content.
 	powersystem - Power, ability and action systems of the mod. Also contains the logic for Stand entities.
 	mc - Various Minecraft objects of the mod - items, blocks, block entities, etc.
 	init - The initialization of all the gameplay-relevant objects from the mod. Classes in `init.power` initialize JoJo Stands and player powers.

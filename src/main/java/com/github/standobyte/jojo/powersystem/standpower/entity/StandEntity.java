@@ -8,10 +8,10 @@ import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 
 import com.github.standobyte.jojo.core.packet.fromserver.TrSetStandEntityPacket;
+import com.github.standobyte.jojo.powersystem.entityaction.LivingComponentAction;
 import com.github.standobyte.jojo.powersystem.entityaction.EntityActionInstance;
 import com.github.standobyte.jojo.powersystem.standpower.StandPower;
 import com.github.standobyte.jojo.powersystem.standpower.type.SummonedStand;
-import com.github.standobyte.jojo.util.entitycomponent.LivingAction;
 
 import net.minecraft.network.RegistryFriendlyByteBuf;
 import net.minecraft.network.protocol.Packet;
@@ -40,7 +40,7 @@ public class StandEntity extends LivingEntity implements SummonedStand, IEntityW
 	private static final EntityDataAccessor<Integer> USER_ID = SynchedEntityData.defineId(StandEntity.class, EntityDataSerializers.INT);
 	private WeakReference<LivingEntity> userRef = new WeakReference<LivingEntity>(null);
 	protected StandPower userPower;
-	protected final LivingAction standAction;
+	protected final LivingComponentAction standAction;
 	
 	public static final double Y_OFFSET = 0.2;
 	protected static final Vec3 DEFAULT_USER_OFFSET = new Vec3(0.75, Y_OFFSET, -0.75);
@@ -48,7 +48,7 @@ public class StandEntity extends LivingEntity implements SummonedStand, IEntityW
 
 	public StandEntity(EntityType<? extends StandEntity> type, Level level) {
 		super(type, level);
-		this.standAction = LivingAction.getComponent(this);
+		this.standAction = LivingComponentAction.getComponent(this);
 		this.offsetFromUser = new StandOffsetFromUser(this, DEFAULT_USER_OFFSET, StandOffsetFromUser.OffsetMode.BODY);
 		this.noPhysics = true;
 	}
@@ -224,7 +224,7 @@ public class StandEntity extends LivingEntity implements SummonedStand, IEntityW
 	}
 	
 	@Nonnull
-	public LivingAction getStandActionComponent() {
+	public LivingComponentAction getStandActionComponent() {
 		return standAction;
 	}
 	

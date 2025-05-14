@@ -1,13 +1,12 @@
-package com.github.standobyte.jojo.util.entitycomponent;
+package com.github.standobyte.jojo.powersystem.entityaction;
 
 import javax.annotation.Nullable;
 
 import com.github.standobyte.jojo.core.packet.fromserver.TrEntityActionInstancePacket;
 import com.github.standobyte.jojo.init.ModDataAttachmentTypes;
-import com.github.standobyte.jojo.powersystem.entityaction.EntityActionInstance;
 import com.github.standobyte.jojo.powersystem.standpower.entity.LivingReactToNewAction;
-import com.github.standobyte.jojo.util.entitycomponent.helpers.SynchronizablePlayerData;
-import com.github.standobyte.jojo.util.entitycomponent.helpers.TickingEntityData;
+import com.github.standobyte.jojo.util.entitycomponent.SynchronizablePlayerData;
+import com.github.standobyte.jojo.util.entitycomponent.TickingEntityData;
 
 import net.minecraft.core.HolderLookup.Provider;
 import net.minecraft.nbt.CompoundTag;
@@ -19,12 +18,12 @@ import net.neoforged.neoforge.attachment.IAttachmentHolder;
 import net.neoforged.neoforge.common.util.INBTSerializable;
 import net.neoforged.neoforge.network.PacketDistributor;
 
-public class LivingAction implements SynchronizablePlayerData, TickingEntityData, INBTSerializable<CompoundTag> {
+public class LivingComponentAction implements SynchronizablePlayerData, TickingEntityData, INBTSerializable<CompoundTag> {
 	private final LivingEntity entity;
 	private final LivingReactToNewAction actionSetCallback;
 	@Nullable private EntityActionInstance action;
 	
-	public LivingAction(LivingEntity entity) {
+	public LivingComponentAction(LivingEntity entity) {
 		this.entity = entity;
 		this.actionSetCallback = (entity instanceof LivingReactToNewAction standEntity) ? standEntity : null;
 		addSynchronization(entity);
@@ -96,26 +95,26 @@ public class LivingAction implements SynchronizablePlayerData, TickingEntityData
 	}
 	
 	
-	public static LivingAction create(IAttachmentHolder obj) {
+	public static LivingComponentAction create(IAttachmentHolder obj) {
 		if (obj instanceof LivingEntity entity) {
-			return new LivingAction(entity);
+			return new LivingComponentAction(entity);
 		}
 		throw new IllegalArgumentException();
 	}
 	
-	public static LivingAction getComponent(LivingEntity entity) {
+	public static LivingComponentAction getComponent(LivingEntity entity) {
 		return entity.getData(ModDataAttachmentTypes.LIVING_ACTION.get());
 	}
 	
 	@Nullable
-	public static LivingAction getExistingComponent(LivingEntity entity) {
-		AttachmentType<LivingAction> t = ModDataAttachmentTypes.LIVING_ACTION.get();
+	public static LivingComponentAction getExistingComponent(LivingEntity entity) {
+		AttachmentType<LivingComponentAction> t = ModDataAttachmentTypes.LIVING_ACTION.get();
 		return entity.hasData(t) ? entity.getData(t) : null;
 	}
 	
 	@Nullable
 	public static EntityActionInstance getUserAction(LivingEntity entity) {
-		LivingAction existingData = getExistingComponent(entity);
+		LivingComponentAction existingData = getExistingComponent(entity);
 		return existingData != null ? existingData.getAction() : null;
 	}
 

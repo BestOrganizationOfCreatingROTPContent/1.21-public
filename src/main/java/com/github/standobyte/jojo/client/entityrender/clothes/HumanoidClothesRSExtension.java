@@ -3,9 +3,9 @@ package com.github.standobyte.jojo.client.entityrender.clothes;
 import java.util.Map;
 
 import com.github.standobyte.jojo.core.utils.EnumUtil;
+import com.github.standobyte.jojo.mechanics.clothes.EntityClothesInventory;
 import com.github.standobyte.jojo.mechanics.clothes.itemdata.ClothesSlotType;
 import com.github.standobyte.jojo.mechanics.clothes.mannequin.MannequinEntity;
-import com.github.standobyte.jojo.util.entitycomponent.EntityClothesInventory;
 
 import net.minecraft.client.player.AbstractClientPlayer;
 import net.minecraft.client.resources.PlayerSkin;

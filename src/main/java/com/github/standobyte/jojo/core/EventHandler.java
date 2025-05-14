@@ -6,7 +6,7 @@ import com.github.standobyte.jojo.core.command.JojoPowerCommand;
 import com.github.standobyte.jojo.core.command.StandCommand;
 import com.github.standobyte.jojo.init.ModDataAttachmentTypes;
 import com.github.standobyte.jojo.powersystem.PowerClass;
-import com.github.standobyte.jojo.util.entitycomponent.helpers.DataEventListeners;
+import com.github.standobyte.jojo.util.entitycomponent.DataEventListeners;
 import com.mojang.brigadier.CommandDispatcher;
 
 import net.minecraft.commands.CommandBuildContext;

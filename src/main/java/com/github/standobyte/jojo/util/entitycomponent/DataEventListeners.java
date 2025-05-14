@@ -1,4 +1,4 @@
-package com.github.standobyte.jojo.util.entitycomponent.helpers;
+package com.github.standobyte.jojo.util.entitycomponent;
 
 import java.util.ArrayList;
 import java.util.List;

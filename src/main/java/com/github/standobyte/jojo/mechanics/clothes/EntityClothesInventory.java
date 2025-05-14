@@ -1,4 +1,4 @@
-package com.github.standobyte.jojo.util.entitycomponent;
+package com.github.standobyte.jojo.mechanics.clothes;
 
 import java.util.Map;
 

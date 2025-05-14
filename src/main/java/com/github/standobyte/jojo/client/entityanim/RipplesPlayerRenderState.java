@@ -3,8 +3,8 @@ package com.github.standobyte.jojo.client.entityanim;
 import javax.annotation.Nullable;
 
 import com.github.standobyte.jojo.client.entityrender.EntityActionRenderState;
+import com.github.standobyte.jojo.powersystem.entityaction.LivingComponentAction;
 import com.github.standobyte.jojo.powersystem.entityaction.EntityActionInstance;
-import com.github.standobyte.jojo.util.entitycomponent.LivingAction;
 
 import net.minecraft.client.model.HumanoidModel;
 import net.minecraft.client.renderer.entity.state.HumanoidRenderState;
@@ -18,7 +18,7 @@ public class RipplesPlayerRenderState {
 
 	public static void extract(LivingEntity entity, HumanoidRenderState vanillaRenderState, RipplesPlayerRenderState modRenderState, 
 			float partialTick, ItemModelResolver itemModelResolver) {
-		EntityActionInstance action = LivingAction.getUserAction(entity);
+		EntityActionInstance action = LivingComponentAction.getUserAction(entity);
 		EntityActionRenderState.extract(modRenderState.entityAction, entity, action, partialTick);
 		
 		modRenderState.animSet = null;

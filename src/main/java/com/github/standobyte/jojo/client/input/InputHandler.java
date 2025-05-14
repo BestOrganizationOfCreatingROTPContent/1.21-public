@@ -21,13 +21,13 @@ import com.github.standobyte.jojo.powersystem.PowerClass;
 import com.github.standobyte.jojo.powersystem.ability.Ability;
 import com.github.standobyte.jojo.powersystem.ability.AbilityInputHandler;
 import com.github.standobyte.jojo.powersystem.ability.AbilityInputHandler.ClickInputType;
+import com.github.standobyte.jojo.powersystem.entityaction.LivingComponentAction;
 import com.github.standobyte.jojo.powersystem.entityaction.EntityActionInstance;
 import com.github.standobyte.jojo.powersystem.entityaction.type.EntityActionType;
 import com.github.standobyte.jojo.powersystem.playerpower.PlayerPower;
 import com.github.standobyte.jojo.powersystem.standpower.StandPower;
 import com.github.standobyte.jojo.util.CommonEnums.DiagonalDirection2D;
 import com.github.standobyte.jojo.util.CommonEnums.Direction2D;
-import com.github.standobyte.jojo.util.entitycomponent.LivingAction;
 import com.mojang.blaze3d.platform.InputConstants;
 import com.mojang.blaze3d.platform.InputConstants.Key;
 
@@ -241,7 +241,7 @@ public class InputHandler {
 					if (ability instanceof EntityActionType entityAbility) {
 						LivingEntity performer = entityAbility.getPerformer(player);
 						if (performer != null) {
-							LivingAction actionComponent = LivingAction.getExistingComponent(performer);
+							LivingComponentAction actionComponent = LivingComponentAction.getExistingComponent(performer);
 							if (!canStartActionNow(actionComponent, ability)) {
 								_inputBuffer.bufferPerPerformer.put(performer, new InputBuffer.InputBufferEntry(
 										actionComponent, power, ability, type, keyId));
@@ -457,7 +457,7 @@ public class InputHandler {
 		}
 	}
 	
-	public static boolean canStartActionNow(LivingAction performerAction, Ability entityAbility) {
+	public static boolean canStartActionNow(LivingComponentAction performerAction, Ability entityAbility) {
 		if (performerAction == null) return true;
 		EntityActionInstance curAction = performerAction.getAction();
 		return curAction == null || curAction.canBeCancelledInto(entityAbility);

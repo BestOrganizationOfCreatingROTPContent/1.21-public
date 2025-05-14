@@ -7,8 +7,8 @@ import javax.annotation.Nullable;
 
 import com.github.standobyte.jojo.core.JojoMod;
 import com.github.standobyte.jojo.powersystem.ability.Ability;
-import com.github.standobyte.jojo.util.entitycomponent.helpers.SynchronizablePlayerData;
-import com.github.standobyte.jojo.util.entitycomponent.helpers.TickingEntityData;
+import com.github.standobyte.jojo.util.entitycomponent.SynchronizablePlayerData;
+import com.github.standobyte.jojo.util.entitycomponent.TickingEntityData;
 
 import net.minecraft.core.HolderLookup;
 import net.minecraft.nbt.CompoundTag;
