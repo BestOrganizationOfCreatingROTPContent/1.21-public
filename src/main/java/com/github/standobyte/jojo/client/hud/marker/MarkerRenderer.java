@@ -28,7 +28,7 @@ public abstract class MarkerRenderer {
 //	protected ResourceLocation iconTexture;
 //	protected Ability iconAbility;
 	private final List<MarkerInstance> positions = new ArrayList<>();
-	protected boolean renderThroughBlocks = true; // XXX (marker) does not, in fact, render through blocks
+	protected boolean renderThroughBlocks = true; // FIXME (marker) does not render through blocks (though it always renders through blocks in fabulous mode)
 	protected final Minecraft mc = Minecraft.getInstance();
 	
 	public static void registerMarkerRenderer(MarkerRenderer markerRenderer) {
