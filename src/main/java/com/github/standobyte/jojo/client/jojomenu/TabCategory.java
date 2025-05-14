@@ -6,7 +6,7 @@ import java.util.function.Supplier;
 
 import javax.annotation.Nullable;
 
-import com.github.standobyte.jojo.client.utils.GuiIcon;
+import com.github.standobyte.jojo.client.utils.ui.GuiIcon;
 import com.github.standobyte.jojo.powersystem.Power;
 import com.github.standobyte.jojo.powersystem.PowerClass;
 import com.github.standobyte.jojo.powersystem.PowerType;

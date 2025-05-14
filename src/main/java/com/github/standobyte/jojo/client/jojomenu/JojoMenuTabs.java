@@ -2,7 +2,7 @@ package com.github.standobyte.jojo.client.jojomenu;
 
 import com.github.standobyte.jojo.client.ClientProxy;
 import com.github.standobyte.jojo.client.standskin.StandSkinsScreen;
-import com.github.standobyte.jojo.client.utils.GuiIcon;
+import com.github.standobyte.jojo.client.utils.ui.GuiIcon;
 import com.github.standobyte.jojo.core.JojoMod;
 import com.github.standobyte.jojo.init.power.ModPlayerPowers;
 import com.github.standobyte.jojo.powersystem.PowerClass;

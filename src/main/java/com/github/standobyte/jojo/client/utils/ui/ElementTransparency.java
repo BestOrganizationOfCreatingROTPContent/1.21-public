@@ -1,4 +1,4 @@
-package com.github.standobyte.jojo.client.hud;
+package com.github.standobyte.jojo.client.utils.ui;
 
 import com.github.standobyte.jojo.client.utils.RGBUtil;
 

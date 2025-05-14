@@ -22,6 +22,11 @@ public class ClientSetup {
 	@SubscribeEvent
 	public static void onClientSetup(FMLClientSetupEvent event) {
 //		Minecraft mc = Minecraft.getInstance();
+		registerMarkers();
+	}
+	
+	private static void registerMarkers() {
+//		MarkerRenderer.registerMarkerRenderer(new MarkerRendererSubclass());
 	}
 	
 	@SubscribeEvent

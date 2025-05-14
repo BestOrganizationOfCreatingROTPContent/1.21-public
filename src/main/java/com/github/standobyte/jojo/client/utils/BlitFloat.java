@@ -70,11 +70,12 @@ public class BlitFloat {
 //				-1);
 //	}
 	
-	public static void innerBlitFloat(GuiGraphics guiGraphics, Minecraft mc, Function<ResourceLocation, RenderType> renderTypeGetter, ResourceLocation texture, 
+	public static void innerBlitFloat(GuiGraphics guiGraphics, Minecraft mc, 
+			Function<ResourceLocation, RenderType> renderTypeGetter, ResourceLocation texture, 
 			float pX1, float pX2, float pY1, float pY2, 
 			float pUWidth, float pVHeight, float pUOffset, float pVOffset, float pTextureWidth, float pTextureHeight, 
 			int color) {
-		innerBlitFloat(guiGraphics, mc, renderTypeGetter, texture, 
+		innerBlitFloat(guiGraphics, mc, renderTypeGetter.apply(texture), 
 				pX1, pX2, pY1, pY2, 
 				(pUOffset + 0.0F) / pTextureWidth, 
 				(pUOffset + pUWidth) / pTextureWidth, 
@@ -83,11 +84,10 @@ public class BlitFloat {
 				-1);
 	}
 	
-	public static void innerBlitFloat(GuiGraphics guiGraphics, Minecraft mc, Function<ResourceLocation, RenderType> renderTypeGetter, ResourceLocation texture, 
+	public static void innerBlitFloat(GuiGraphics guiGraphics, Minecraft mc, RenderType renderType, 
 			float x1, float x2, float y1, float y2, 
 			float minU, float maxU, float minV, float maxV, 
 			int color) {
-		RenderType renderType = renderTypeGetter.apply(texture);
 		Matrix4f matrix4f = guiGraphics.pose().last().pose();
 		MultiBufferSource.BufferSource bufferSource = mc.renderBuffers().bufferSource();
 		VertexConsumer vertexconsumer = bufferSource.getBuffer(renderType);
