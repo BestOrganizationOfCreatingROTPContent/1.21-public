@@ -13,13 +13,13 @@ import net.minecraft.client.renderer.RenderType;
 import net.minecraft.resources.ResourceLocation;
 
 public class GuiIcon {
-	private final ResourceLocation file;
-	private final float width;
-	private final float height;
-	private final float minU;
-	private final float maxU;
-	private final float minV;
-	private final float maxV;
+	public final ResourceLocation file;
+	public final float width;
+	public final float height;
+	public final float minU;
+	public final float maxU;
+	public final float minV;
+	public final float maxV;
 
 	public GuiIcon(ResourceLocation file, 
 			float offsetU, float offsetV, 

@@ -1,5 +1,7 @@
 package com.github.standobyte.jojo.client;
 
+import com.github.standobyte.jojo.client.hud.marker.MarkerRenderer;
+import com.github.standobyte.jojo.client.hud.marker.StandAimMarker;
 import com.github.standobyte.jojo.client.input.InputHandler;
 import com.github.standobyte.jojo.client.jojomenu.JojoMenuTabs;
 import com.github.standobyte.jojo.core.JojoMod;
@@ -26,7 +28,7 @@ public class ClientSetup {
 	}
 	
 	private static void registerMarkers() {
-//		MarkerRenderer.registerMarkerRenderer(new MarkerRendererSubclass());
+		MarkerRenderer.registerMarkerRenderer(new StandAimMarker());
 	}
 	
 	@SubscribeEvent

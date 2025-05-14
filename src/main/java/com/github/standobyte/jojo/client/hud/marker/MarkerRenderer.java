@@ -72,7 +72,11 @@ public abstract class MarkerRenderer {
 					} else {
 						RenderSystem.enableDepthTest();
 					}
-					renderAt(poseStack, marker, camera, partialTick, argb);
+					Vec3 diff = marker.pos.subtract(camera.getPosition())
+							.yRot(camera.getYRot() * MathUtil.DEG_TO_RAD)
+							.xRot(camera.getXRot() * MathUtil.DEG_TO_RAD)
+							.zRot(camera.getRoll() * MathUtil.DEG_TO_RAD);
+					renderAt(poseStack, marker, camera, diff, partialTick, argb);
 				});
 				RenderSystem.enableDepthTest();
 
@@ -81,12 +85,8 @@ public abstract class MarkerRenderer {
 		}
 	}
 
-	protected void renderAt(PoseStack poseStack, MarkerInstance marker, Camera camera, float partialTick, int[] argb) {
+	protected void renderAt(PoseStack poseStack, MarkerInstance marker, Camera camera, Vec3 diff, float partialTick, int[] argb) {
 		poseStack.pushPose();
-		Vec3 diff = marker.pos.subtract(camera.getPosition())
-				.yRot(camera.getYRot() * MathUtil.DEG_TO_RAD)
-				.xRot(camera.getXRot() * MathUtil.DEG_TO_RAD)
-				.zRot(camera.getRoll() * MathUtil.DEG_TO_RAD);
 
 		double distance = diff.length();
 		if (distance > 256) return;
@@ -173,6 +173,10 @@ public abstract class MarkerRenderer {
 		protected Vec3 pos;
 		protected boolean outlined;
 		protected final Optional<StandEffectInstance> standEffect;
+
+		public MarkerInstance(Vec3 pos) {
+			this(pos, false);
+		}
 
 		public MarkerInstance(Vec3 pos, boolean outlined) {
 			this(pos, outlined, Optional.empty());

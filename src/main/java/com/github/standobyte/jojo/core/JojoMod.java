@@ -23,6 +23,7 @@ import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.fml.ModContainer;
 import net.neoforged.fml.common.Mod;
 import net.neoforged.fml.event.lifecycle.FMLCommonSetupEvent;
+import net.neoforged.fml.loading.FMLLoader;
 import net.neoforged.neoforge.network.event.RegisterPayloadHandlersEvent;
 
 // XXX allow PowerType to override controls/HUD rendering
@@ -81,6 +82,12 @@ public class JojoMod {
 	
 	public static Logger getLogger() {
 		return LOGGER;
+	}
+	
+	
+	@Deprecated
+	public static boolean disableDevStuff() {
+		return FMLLoader.isProduction();
 	}
 
 }

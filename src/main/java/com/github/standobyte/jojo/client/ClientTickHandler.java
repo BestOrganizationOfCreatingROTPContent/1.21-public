@@ -1,7 +1,9 @@
 package com.github.standobyte.jojo.client;
 
+import com.github.standobyte.jojo.client.input.AimTarget;
 import com.github.standobyte.jojo.core.JojoMod;
 
+import net.minecraft.client.Minecraft;
 import net.neoforged.api.distmarker.Dist;
 import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.fml.common.EventBusSubscriber;
@@ -13,5 +15,11 @@ public class ClientTickHandler {
 	@SubscribeEvent
 	public static void onClientTick(ClientTickEvent.Pre event) {
 //		Minecraft mc = Minecraft.getInstance();
+	}
+
+	@SubscribeEvent
+	public static void onClientTickPost(ClientTickEvent.Pre event) {
+		Minecraft mc = Minecraft.getInstance();
+		AimTarget.updateTarget(mc);
 	}
 }
