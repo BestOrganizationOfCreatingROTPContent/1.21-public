@@ -18,7 +18,7 @@ import net.minecraft.network.chat.Component;
 import net.minecraft.world.entity.player.Player;
 
 public class TabCategory implements IJojoMenuTab {
-	protected static final List<TabCategory> ALL_CATEGORIES = new ArrayList<>();
+	public static final List<TabCategory> ALL_CATEGORIES = new ArrayList<>();
 	
 	public TabCategory() {
 		this(null, null);

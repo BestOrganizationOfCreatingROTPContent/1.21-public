@@ -26,6 +26,12 @@ public class JojoMenuTabs {
 	}
 			.withName(Component.translatable("jojo.ui.player_menu"));
 	
+	static {
+		if (JojoMod.disableDevStuff()) {
+			TabCategory.ALL_CATEGORIES.remove(CATEGORY_PLAYER_MENU);
+		}
+	}
+	
 	public static final Tab PLAYER_PROFILE = new Tab(CATEGORY_PLAYER_MENU) {
 		@Override
 		public void renderIcon(GuiGraphics guiGraphics, int x, int y) {
