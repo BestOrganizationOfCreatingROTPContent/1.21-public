@@ -24,6 +24,7 @@ import net.minecraft.world.level.Level;
 import net.neoforged.neoforge.network.PacketDistributor;
 
 // XXX EntityStandType stuff (arms-only summon, etc.)
+// XXX stand hitbox size parameter (+the size to stretch the model to)
 public class EntityStandType extends StandType {
 	static {
 		StandTypeClass.registerStandClass(EntityStandType.class, "entity", EntityStandType::new);
