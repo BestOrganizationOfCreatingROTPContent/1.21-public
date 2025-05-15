@@ -2,12 +2,12 @@ package com.github.standobyte.jojo.init.power;
 
 import static com.github.standobyte.jojo.core.JojoRegistries.ABILITY_TYPES;
 
-import com.github.standobyte.jojo.jojoimpl.standentity.StandEntityBarrageAbility;
-import com.github.standobyte.jojo.jojoimpl.standentity.StandEntityGrabAbility;
-import com.github.standobyte.jojo.jojoimpl.standentity.StandEntityGrabThrowAbility;
-import com.github.standobyte.jojo.jojoimpl.standentity.StandEntityHeavyPunchAbility;
-import com.github.standobyte.jojo.jojoimpl.standentity.StandEntityHeavyPunchChargedAbility;
-import com.github.standobyte.jojo.jojoimpl.standentity.StandEntityPunchAbility;
+import com.github.standobyte.jojo.jojoimpl.stands._entitybase.StandEntityBarrageAbility;
+import com.github.standobyte.jojo.jojoimpl.stands._entitybase.StandEntityGrabAbility;
+import com.github.standobyte.jojo.jojoimpl.stands._entitybase.StandEntityGrabThrowAbility;
+import com.github.standobyte.jojo.jojoimpl.stands._entitybase.StandEntityHeavyPunchAbility;
+import com.github.standobyte.jojo.jojoimpl.stands._entitybase.StandEntityHeavyPunchChargedAbility;
+import com.github.standobyte.jojo.jojoimpl.stands._entitybase.StandEntityPunchAbility;
 import com.github.standobyte.jojo.jojoimpl.stands.starplatinum.InhaleAbility;
 import com.github.standobyte.jojo.jojoimpl.stands.starplatinum.StarFingerAbility;
 import com.github.standobyte.jojo.jojoimpl.stands.starplatinum.StarFingerSwipeAbility;

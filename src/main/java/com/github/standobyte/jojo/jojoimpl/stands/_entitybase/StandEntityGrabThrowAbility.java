@@ -1,4 +1,4 @@
-package com.github.standobyte.jojo.jojoimpl.standentity;
+package com.github.standobyte.jojo.jojoimpl.stands._entitybase;
 
 import com.github.standobyte.jojo.powersystem.ability.AbilityId;
 import com.github.standobyte.jojo.powersystem.entityaction.EntityActionInstance;

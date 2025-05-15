@@ -1,4 +1,4 @@
-package com.github.standobyte.jojo.jojoimpl.standentity;
+package com.github.standobyte.jojo.jojoimpl.stands._entitybase;
 
 import java.util.ArrayList;
 import java.util.List;
