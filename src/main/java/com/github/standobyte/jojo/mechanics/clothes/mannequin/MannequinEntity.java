@@ -11,10 +11,13 @@ import com.github.standobyte.jojo.mechanics.clothes.itemdata.ClothesDataComponen
 import com.github.standobyte.jojo.mechanics.clothes.itemdata.ClothesSlotType;
 
 import net.minecraft.core.Rotations;
+import net.minecraft.core.component.DataComponents;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.syncher.SynchedEntityData;
+import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
+import net.minecraft.world.damagesource.DamageSource;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.decoration.ArmorStand;
 import net.minecraft.world.entity.player.Player;
@@ -22,6 +25,7 @@ import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.level.Level;
+import net.minecraft.world.level.block.Block;
 import net.minecraft.world.phys.Vec3;
 
 public class MannequinEntity extends ArmorStand {
@@ -178,27 +182,26 @@ public class MannequinEntity extends ArmorStand {
 		return isSlim() ? ModItems.MANNEQUIN_SLIM.get() : ModItems.MANNEQUIN.get();
 	}
 
- // FIXME (clothes) fucking ATs refuse to work
-//	@Override
-//	public void brokenByPlayer(ServerLevel level, DamageSource pDamageSource) {
-//		ItemStack itemstack = new ItemStack(getItem());
-//		itemstack.set(DataComponents.CUSTOM_NAME, this.getCustomName());
-//		Block.popResource(this.level(), this.blockPosition(), itemstack);
-//		this.brokenByAnything(level, pDamageSource);
-//	}
-//
-//	@Override
-//	public void brokenByAnything(ServerLevel level, DamageSource pDamageSource) {
-//		super.brokenByAnything(level, pDamageSource);
-//		// TODO (clothes) drop clothes when mannequin breaks
-//		
-////		for (int j = 0; j < this.armorItems.size(); j++) {
-////			ItemStack itemstack1 = this.armorItems.get(j);
-////			if (!itemstack1.isEmpty()) {
-////				Block.popResource(this.level(), this.blockPosition().above(), itemstack1);
-////				this.armorItems.set(j, ItemStack.EMPTY);
-////			}
-////		}
-//	}
+	@Override
+	public void brokenByPlayer(ServerLevel level, DamageSource pDamageSource) {
+		ItemStack itemstack = new ItemStack(getItem());
+		itemstack.set(DataComponents.CUSTOM_NAME, this.getCustomName());
+		Block.popResource(this.level(), this.blockPosition(), itemstack);
+		this.brokenByAnything(level, pDamageSource);
+	}
+
+	@Override
+	public void brokenByAnything(ServerLevel level, DamageSource pDamageSource) {
+		super.brokenByAnything(level, pDamageSource);
+
+		var clothes = clothesLazyInit();
+		for (ClothesSlotType slot : ClothesSlotType.values()) {
+			ItemStack item = clothes.getClothingPiece(slot);
+			if (!item.isEmpty()) {
+				Block.popResource(this.level(), this.blockPosition().above(), item);
+				clothes.setItemSlot(slot, ItemStack.EMPTY);
+			}
+		}
+	}
 
 }
