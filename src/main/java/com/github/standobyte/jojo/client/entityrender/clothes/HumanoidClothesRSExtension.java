@@ -17,7 +17,7 @@ public class HumanoidClothesRSExtension {
 	public boolean slimModel;
 	
 	public final boolean extract(LivingEntity entity) {
-		EntityClothesInventory entityClothes = EntityClothesInventory.get(entity);
+		EntityClothesInventory entityClothes = EntityClothesInventory.getExisting(entity);
 		if (entityClothes == null) return false;
 		for (ClothesSlotType slot : ClothesSlotType.values()) {
 			items.put(slot, entityClothes != null ? entityClothes.getClothingPiece(slot) : ItemStack.EMPTY);

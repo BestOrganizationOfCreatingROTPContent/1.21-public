@@ -2,13 +2,13 @@ package com.github.standobyte.jojo.mechanics.clothes.mannequin;
 
 import javax.annotation.Nullable;
 
+import com.github.standobyte.jojo.init.ModDataAttachmentTypes;
 import com.github.standobyte.jojo.init.ModEntityTypes;
 import com.github.standobyte.jojo.init.ModItemDataComponents;
 import com.github.standobyte.jojo.init.ModItems;
 import com.github.standobyte.jojo.mechanics.clothes.EntityClothesInventory;
 import com.github.standobyte.jojo.mechanics.clothes.itemdata.ClothesDataComponent;
 import com.github.standobyte.jojo.mechanics.clothes.itemdata.ClothesSlotType;
-import com.github.standobyte.jojo.util.NBTUtil;
 
 import net.minecraft.core.Rotations;
 import net.minecraft.nbt.CompoundTag;
@@ -26,11 +26,10 @@ import net.minecraft.world.phys.Vec3;
 
 public class MannequinEntity extends ArmorStand {
 	private static final Rotations ZERO_ROTATIONS = new Rotations(0, 0, 0);
-	private final EntityClothesInventory clothes;
+	private EntityClothesInventory clothes;
 
 	public MannequinEntity(EntityType<? extends MannequinEntity> type, Level level) {
 		super(type, level);
-		this.clothes = new EntityClothesInventory(this);
 		entityData.set(DATA_CLIENT_FLAGS, this.setBit(this.entityData.get(DATA_CLIENT_FLAGS), 4, true)); // setShowArms();
 		setHeadPose(ZERO_ROTATIONS);
 		setBodyPose(ZERO_ROTATIONS);
@@ -56,16 +55,20 @@ public class MannequinEntity extends ArmorStand {
 	public boolean isSlim() {
 		return (this.entityData.get(DATA_CLIENT_FLAGS) & 64) != 0;
 	}
-
-
-	public EntityClothesInventory getClothes() {
+	
+	
+	protected EntityClothesInventory clothesLazyInit() {
+		if (clothes == null) {
+			clothes = this.getData(ModDataAttachmentTypes.HUMANOID_CLOTHES.get());
+		}
 		return clothes;
 	}
 
 	@Override
 	public InteractionResult interactAt(Player player, Vec3 vec, InteractionHand hand) {
 		ItemStack heldItem = player.getItemInHand(hand);
-		if (!this.isMarker() && heldItem.getItem() != Items.NAME_TAG && !player.isSpectator()/* && !player.level().isClientSide()*/) { // TODO (!) (clothes) save & sync clothes on the mannequin entity
+		if (!this.isMarker() && heldItem.getItem() != Items.NAME_TAG && !player.isSpectator() && !player.level().isClientSide()) {
+			clothesLazyInit();
 			if (heldItem.isEmpty()) {
 				ClothesSlotType clickedSlot = getClothesSlotAt(vec);
 				if (clickedSlot != null) {
@@ -73,7 +76,7 @@ public class MannequinEntity extends ArmorStand {
 					if (!wornClothes.isEmpty()) {
 						clothes.setItemSlot(clickedSlot, ItemStack.EMPTY);
 						player.setItemInHand(hand, wornClothes);
-						return InteractionResult.SUCCESS; 
+						return InteractionResult.SUCCESS_SERVER; 
 					}
 				}
 			}
@@ -90,7 +93,7 @@ public class MannequinEntity extends ArmorStand {
 						ItemStack clothesCopy = heldItem.copy();
 						clothesCopy.setCount(1);
 						clothes.setItemSlot(clothesSlot, clothesCopy);
-						return InteractionResult.SUCCESS;
+						return InteractionResult.SUCCESS_SERVER;
 					}
 					else if (!heldItem.isEmpty() && heldItem.getCount() > 1) {
 						if (!wornClothes.isEmpty()) {
@@ -101,13 +104,13 @@ public class MannequinEntity extends ArmorStand {
 							clothesCopy.setCount(1);
 							clothes.setItemSlot(clothesSlot, clothesCopy);
 							heldItem.shrink(1);
-							return InteractionResult.SUCCESS;
+							return InteractionResult.SUCCESS_SERVER;
 						}
 					}
 					else {
 						clothes.setItemSlot(clothesSlot, heldItem);
 						player.setItemInHand(hand, wornClothes);
-						return InteractionResult.SUCCESS;
+						return InteractionResult.SUCCESS_SERVER;
 					}
 				}
 			}
@@ -142,14 +145,12 @@ public class MannequinEntity extends ArmorStand {
 	public void addAdditionalSaveData(CompoundTag nbt) {
 		super.addAdditionalSaveData(nbt);
 		nbt.putBoolean("Slim", isSlim());
-		nbt.put("Clothes", clothes.serializeNBT());
 	}
 
 	@Override
 	public void readAdditionalSaveData(CompoundTag nbt) {
 		super.readAdditionalSaveData(nbt);
 		setSlim(nbt.getBoolean("Slim"));
-		NBTUtil.getCompoundOptional(nbt, "Clothes").ifPresent(clothes::deserializeNBT);
 	}
 
 	protected byte setBit(byte pOldBit, int pOffset, boolean pValue) {
