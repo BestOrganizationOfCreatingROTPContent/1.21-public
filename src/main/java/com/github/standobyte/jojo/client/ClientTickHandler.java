@@ -14,7 +14,8 @@ public class ClientTickHandler {
 
 	@SubscribeEvent
 	public static void onClientTick(ClientTickEvent.Pre event) {
-//		Minecraft mc = Minecraft.getInstance();
+		Minecraft mc = Minecraft.getInstance();
+		ClientGlobals.tick(mc);
 	}
 
 	@SubscribeEvent

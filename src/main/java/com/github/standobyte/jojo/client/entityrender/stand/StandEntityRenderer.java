@@ -3,6 +3,7 @@ package com.github.standobyte.jojo.client.entityrender.stand;
 import java.util.Optional;
 import java.util.function.Consumer;
 
+import com.github.standobyte.jojo.client.ClientGlobals;
 import com.github.standobyte.jojo.client.entityrender.EntityActionRenderState;
 import com.github.standobyte.jojo.client.standskin.StandSkin;
 import com.github.standobyte.jojo.client.standskin.StandSkinsLoader;
@@ -70,6 +71,9 @@ public class StandEntityRenderer<
 		if (renderState.action.anim != IDLE_ANIM) {
 			entity.nonIdlePoseTimeStamp = entity.tickCount;
 		}
+		
+		renderState.isInvisible |= !ClientGlobals.canSeeStands;
+		renderState.isInvisibleToPlayer |= !ClientGlobals.canSeeStands;
 	}
 	
 	

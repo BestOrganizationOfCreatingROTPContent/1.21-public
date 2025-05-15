@@ -281,6 +281,11 @@ public class StandEntity extends LivingEntity implements SummonedStand, IEntityW
 	}
 	
 	
+	public boolean onlyVisibleToStandUsers() {
+		return true;
+	}
+	
+	
 	/**
 	 * Apparently we have to do this to make sure the user's id is read before the EntityJoinLevelEvent fires on client side.
 	 */
