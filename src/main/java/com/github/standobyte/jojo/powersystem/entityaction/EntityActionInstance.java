@@ -230,6 +230,23 @@ public class EntityActionInstance implements HeldInput {
 	public static final StreamCodec<RegistryFriendlyByteBuf, EntityActionInstance> NETWORK_CODEC = new StreamCodec<>() {
 
 		@Override
+		public void encode(RegistryFriendlyByteBuf buffer, EntityActionInstance action) {
+			buffer.writeBoolean(action.phase != null);
+			if (action.phase != null) {
+				action.ability.encodeAbility(buffer);
+
+				buffer.writeVarInt(action.id);
+				action.phasesLength.values().forEach(buffer::writeFloat);
+				buffer.writeVarInt(action.phase.ordinal());
+				buffer.writeVarInt(action.curPhaseTick);
+				buffer.writeFloat(action.phasePartialTick);
+				buffer.writeFloat(action.curPhaseLength);
+				action.powerUser.writeNetwork(buffer);
+				action.toBuf(buffer);
+			}
+		}
+
+		@Override
 		public EntityActionInstance decode(RegistryFriendlyByteBuf buffer) {
 			boolean valid = buffer.readBoolean();
 			if (valid) {
@@ -248,23 +265,6 @@ public class EntityActionInstance implements HeldInput {
 			}
 			
 			return null;
-		}
-
-		@Override
-		public void encode(RegistryFriendlyByteBuf buffer, EntityActionInstance action) {
-			buffer.writeBoolean(action.phase != null);
-			if (action.phase != null) {
-				action.ability.encodeAbility(buffer);
-				
-				buffer.writeVarInt(action.id);
-				action.phasesLength.values().forEach(buffer::writeFloat);
-				buffer.writeVarInt(action.phase.ordinal());
-				buffer.writeVarInt(action.curPhaseTick);
-				buffer.writeFloat(action.phasePartialTick);
-				buffer.writeFloat(action.curPhaseLength);
-				action.powerUser.writeNetwork(buffer);
-				action.toBuf(buffer);
-			}
 		}
 		
 	};

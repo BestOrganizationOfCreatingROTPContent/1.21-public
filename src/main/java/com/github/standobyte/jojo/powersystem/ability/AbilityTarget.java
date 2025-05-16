@@ -126,16 +126,6 @@ public class AbilityTarget {
 	public static final StreamCodec<FriendlyByteBuf, AbilityTarget> NETWORK_CODEC = new StreamCodec<>() {
 
 		@Override
-		public AbilityTarget decode(FriendlyByteBuf buffer) {
-			TargetType type = buffer.readEnum(TargetType.class);
-			return switch (type) {
-				case ENTITY -> new AbilityTarget(buffer.readInt());
-				case BLOCK -> new AbilityTarget(buffer.readBlockPos(), buffer.readEnum(Direction.class));
-				default -> AbilityTarget.EMPTY;
-			};
-		}
-
-		@Override
 		public void encode(FriendlyByteBuf buffer, AbilityTarget value) {
 			TargetType type = value.getType();
 			buffer.writeEnum(type);
@@ -149,6 +139,16 @@ public class AbilityTarget {
 				}
 				default -> {}
 			}
+		}
+
+		@Override
+		public AbilityTarget decode(FriendlyByteBuf buffer) {
+			TargetType type = buffer.readEnum(TargetType.class);
+			return switch (type) {
+				case ENTITY -> new AbilityTarget(buffer.readInt());
+				case BLOCK -> new AbilityTarget(buffer.readBlockPos(), buffer.readEnum(Direction.class));
+				default -> AbilityTarget.EMPTY;
+			};
 		}
 	
 	};

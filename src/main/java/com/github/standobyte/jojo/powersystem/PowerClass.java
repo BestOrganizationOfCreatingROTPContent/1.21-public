@@ -94,14 +94,14 @@ public abstract class PowerClass<P extends Power<P>> {
 	public static final StreamCodec<ByteBuf, PowerClass<?>> NETWORK_CODEC = new StreamCodec<>() {
 
 		@Override
-		public PowerClass<?> decode(ByteBuf buffer) {
-			int id = ByteBufCodecs.VAR_INT.decode(buffer);
-			return id >= 0 && id < VALUES.length ? VALUES[id] : null;
+		public void encode(ByteBuf buffer, PowerClass<?> value) {
+			ByteBufCodecs.VAR_INT.encode(buffer, value.id);
 		}
 
 		@Override
-		public void encode(ByteBuf buffer, PowerClass<?> value) {
-			ByteBufCodecs.VAR_INT.encode(buffer, value.id);
+		public PowerClass<?> decode(ByteBuf buffer) {
+			int id = ByteBufCodecs.VAR_INT.decode(buffer);
+			return id >= 0 && id < VALUES.length ? VALUES[id] : null;
 		}
 		
 	};

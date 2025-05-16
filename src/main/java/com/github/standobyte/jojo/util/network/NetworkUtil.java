@@ -22,7 +22,6 @@ import net.minecraft.server.level.ChunkMap;
 import net.minecraft.server.level.ServerChunkCache;
 import net.minecraft.server.network.ServerPlayerConnection;
 import net.minecraft.world.entity.Entity;
-import net.neoforged.neoforge.network.codec.NeoForgeStreamCodecs;
 
 public class NetworkUtil {
 	
@@ -44,37 +43,18 @@ public class NetworkUtil {
 	public static <B extends ByteBuf, T> StreamCodec<B, T> nullableCodec(StreamCodec<? super B, T> codec) {
 		return new StreamCodec<>() {
 			@Override
-			public T decode(B buffer) {
-				boolean isPresent = ByteBufCodecs.BOOL.decode(buffer);
-				return isPresent ? codec.decode(buffer) : null;
-			}
-
-			@Override
 			public void encode(B buffer, T value) {
 				ByteBufCodecs.BOOL.encode(buffer, value != null);
 				if (value != null) {
 					codec.encode(buffer, value);
 				}
 			}
-		};
-	}
-	
-	/**
-	 * @deprecated {@link NeoForgeStreamCodecs#enumCodec} exists
-	 */
-	@Deprecated
-	public static <B extends FriendlyByteBuf, T extends Enum<T>> StreamCodec<B, T> enumCodec(Class<T> enumClass) {
-		return new StreamCodec<>() {
-			@Override
-			public T decode(B buffer) {
-				return buffer.readEnum(enumClass);
-			}
 
 			@Override
-			public void encode(B buffer, T value) {
-				buffer.writeEnum(value);
+			public T decode(B buffer) {
+				boolean isPresent = ByteBufCodecs.BOOL.decode(buffer);
+				return isPresent ? codec.decode(buffer) : null;
 			}
-			
 		};
 	}
 	
@@ -83,6 +63,14 @@ public class NetworkUtil {
 	
 	public static <B extends ByteBuf, T> StreamCodec<B, Collection<T>> collectionCodec(StreamCodec<? super B, T> elementCodec) {
 		return new StreamCodec<>() {
+			@Override
+			public void encode(B buffer, Collection<T> collection) {
+				ByteBufCodecs.VAR_INT.encode(buffer, collection.size());
+				for (T element : collection) {
+					elementCodec.encode(buffer, element);
+				}
+			}
+
 			@Override
 			public List<T> decode(B buffer) {
 				int size = ByteBufCodecs.VAR_INT.decode(buffer);
@@ -93,45 +81,35 @@ public class NetworkUtil {
 				}
 				return list;
 			}
-
-			@Override
-			public void encode(B buffer, Collection<T> collection) {
-				ByteBufCodecs.VAR_INT.encode(buffer, collection.size());
-				for (T element : collection) {
-					elementCodec.encode(buffer, element);
-				}
-			}
 		};
 	}
 	
 	public static <B extends ByteBuf, T> StreamCodec<B, T> emptyObjectCodec(Supplier<T> constructor) {
 		return new StreamCodec<>() {
+			@Override
+			public void encode(B buffer, T value) {}
 
 			@Override
 			public T decode(B buffer) {
 				return constructor.get();
 			}
-
-			@Override
-			public void encode(B buffer, T value) {}
 			
 		};
 	}
 	
 	public static <B extends ByteBuf, T> StreamCodec<B, T> extraDynamicData(StreamCodec<B, T> codec, BiConsumer<T, B> encodeExtra, BiConsumer<B, T> decodeExtra) {
 		return new StreamCodec<>() {
+			@Override
+			public void encode(B buffer, T value) {
+				codec.encode(buffer, value);
+				encodeExtra.accept(value, buffer);
+			}
 
 			@Override
 			public T decode(B buffer) {
 				T value = codec.decode(buffer);
 				decodeExtra.accept(buffer, value);
 				return value;
-			}
-
-			@Override
-			public void encode(B buffer, T value) {
-				codec.encode(buffer, value);
-				encodeExtra.accept(value, buffer);
 			}
 			
 		};
