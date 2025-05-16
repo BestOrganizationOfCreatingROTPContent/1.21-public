@@ -8,6 +8,7 @@ import org.jetbrains.annotations.ApiStatus;
 
 import com.github.standobyte.jojo.powersystem.entityaction.netcode.TrEntityActionPhaseTimePacket;
 import com.github.standobyte.jojo.powersystem.entityaction.type.EntityActionType;
+import com.github.standobyte.jojo.util.mc.EntityResolver;
 
 import net.minecraft.Util;
 import net.minecraft.network.RegistryFriendlyByteBuf;
@@ -27,9 +28,10 @@ public class EntityActionInstance implements HeldInput {
 	protected int curPhaseTick;
 	protected float curPhaseLength;
 	protected float phasePartialTick;
+	protected boolean _calledPerform = false;
 	
 	protected LivingEntity performer;
-	protected LivingEntity powerUser;
+	protected EntityResolver powerUser = new EntityResolver();
 	
 	public EntityActionInstance(EntityActionType ability) {
 		this.ability = ability;
@@ -121,6 +123,18 @@ public class EntityActionInstance implements HeldInput {
 	}
 	
 	
+	public LivingEntity getPerformer() {
+		return performer;
+	}
+	
+	public LivingEntity getPowerUser() {
+		if (performer != null) {
+			return powerUser.getEntityLiving(performer.level());
+		}
+		return null;
+	}
+	
+	
 	@ApiStatus.OverrideOnly
 	public void toBuf(RegistryFriendlyByteBuf buf) {}
 
@@ -187,37 +201,21 @@ public class EntityActionInstance implements HeldInput {
 	
 	
 	@ApiStatus.Internal
-	public void _onActionSet(LivingEntity performer, LivingEntity user) {
-		this.performer = performer;
-		this.powerUser = user;
-		onActionSet();
-	}
-	
-	/**
-	 * @param performer The entity that is performing the action (in case of Stand abilities like punches, that would be the summoned StandEntity, not the user).
-	 * @param power The power object of the matching PowerClass attached to the user.
-	 * @return true if the action is over and should be set to null.
-	 */
-	@ApiStatus.Internal
-	public boolean _tickAction() {
-		if (isOver()) return true;
-		_onTick();
-		++curPhaseTick;
-		checkNextPhase();
-		return isOver();
+	public void _tickAction() {
+		if (!isOver()) {
+			_onTick();
+			++curPhaseTick;
+			checkNextPhase();
+		}
 	}
 	
 	@ApiStatus.Internal
 	protected void _onTick() {
 		actionTick();
-		if (phase == ActionPhase.PERFORM && getPhaseTick() < 1) {
+		if (phase == ActionPhase.PERFORM && getPhaseTick() < 1 && !_calledPerform) {
 			actionPerform();
+			_calledPerform = true;
 		}
-	}
-
-	@ApiStatus.Internal
-	public void _onActionCleared() {
-		onActionCleared();
 	}
 
 	@Override
@@ -243,6 +241,7 @@ public class EntityActionInstance implements HeldInput {
 					action.curPhaseTick = buffer.readVarInt();
 					action.phasePartialTick = buffer.readFloat();
 					action.curPhaseLength = buffer.readFloat();
+					action.powerUser.readNetwork(buffer);
 					action.fromBuf(buffer);
 					return action;
 				}
@@ -263,12 +262,11 @@ public class EntityActionInstance implements HeldInput {
 				buffer.writeVarInt(action.curPhaseTick);
 				buffer.writeFloat(action.phasePartialTick);
 				buffer.writeFloat(action.curPhaseLength);
+				action.powerUser.writeNetwork(buffer);
 				action.toBuf(buffer);
 			}
 		}
 		
 	};
-	
-	// TODO (entity action 2) nbt save/load (both stand and living)
 	
 }

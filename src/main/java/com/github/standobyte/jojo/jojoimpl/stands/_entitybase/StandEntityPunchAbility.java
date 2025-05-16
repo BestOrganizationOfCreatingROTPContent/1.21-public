@@ -80,7 +80,9 @@ public class StandEntityPunchAbility extends StandEntityAbility {
 		@Override
 		public void onActionSet() {
 			if (performer instanceof StandEntity standEntity) {
-				standEntity.offsetFromUser.setOffset(new Vec3(0, StandEntity.Y_OFFSET, 1), StandOffsetFromUser.OffsetMode.HEAD, powerUser);
+				LivingEntity user = getPowerUser();
+				if (user != null) standEntity.offsetFromUser.setOffset(
+						new Vec3(0, StandEntity.Y_OFFSET, 1), StandOffsetFromUser.OffsetMode.HEAD, user);
 			}
 		}
 		

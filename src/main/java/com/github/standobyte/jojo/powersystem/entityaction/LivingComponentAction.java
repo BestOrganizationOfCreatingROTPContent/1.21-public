@@ -4,6 +4,8 @@ import java.util.concurrent.atomic.AtomicInteger;
 
 import javax.annotation.Nullable;
 
+import org.jetbrains.annotations.ApiStatus;
+
 import com.github.standobyte.jojo.init.ModDataAttachmentTypes;
 import com.github.standobyte.jojo.powersystem.ability.AbilityInput.InputType;
 import com.github.standobyte.jojo.powersystem.entityaction.netcode.SyncType;
@@ -39,6 +41,7 @@ public class LivingComponentAction implements SynchronizablePlayerData, TickingE
 		return action;
 	}
 	
+	
 	public HeldInput bufferOrSetAction(EntityActionInstance action, LivingEntity user, InputType inputType) {
 		return bufferOrSetAction(action, user, inputType, SyncType.TRACKING_AND_SELF);
 	}
@@ -59,7 +62,15 @@ public class LivingComponentAction implements SynchronizablePlayerData, TickingE
 		return setAction(action, user, sync);
 	}
 	
-	public HeldInput setAction(EntityActionInstance action, LivingEntity actionPowerUser, SyncType sync) {
+	public HeldInput setAction(EntityActionInstance action, LivingEntity powerUser, SyncType sync) {
+		if (action != null) {
+			action.powerUser.setEntity(powerUser);
+		}
+		return setAction(action, sync);
+	}
+	
+	@ApiStatus.Internal
+	public HeldInput setAction(EntityActionInstance action, SyncType sync) {
 		// A way for the performer entity to the changed action, i.e. for a Stand entity to reset offset to idle
 		
 		if (setActionCallback != null && setActionCallback.onActionSet(action)) {
@@ -69,11 +80,11 @@ public class LivingComponentAction implements SynchronizablePlayerData, TickingE
 		// Action callbacks that may be overriden by specific abilities
 		
 		if (this.action != null) {
-			this.action._onActionCleared();
+			this.action.onActionCleared();
 		}
 		assignAction(action);
 		if (action != null) {
-			action._onActionSet(entity, actionPowerUser);
+			action.onActionSet();
 		}
 		
 		// Sync to players
@@ -81,9 +92,9 @@ public class LivingComponentAction implements SynchronizablePlayerData, TickingE
 		if (!entity.level().isClientSide()) {
 			switch (sync) {
 				case TRACKING -> PacketDistributor.sendToPlayersTrackingEntity(entity, new TrEntityActionInstancePacket(
-						entity.getId(), actionPowerUser != null ? actionPowerUser.getId() : -1, action));
+						entity.getId(), action));
 				case TRACKING_AND_SELF -> PacketDistributor.sendToPlayersTrackingEntityAndSelf(entity, new TrEntityActionInstancePacket(
-						entity.getId(), actionPowerUser != null ? actionPowerUser.getId() : -1, action));
+						entity.getId(), action));
 				default -> {}
 			}
 		}
@@ -93,7 +104,10 @@ public class LivingComponentAction implements SynchronizablePlayerData, TickingE
 	
 	private void assignAction(EntityActionInstance action) {
 		if (action != null) {
-			action.id = actionIdCounter.incrementAndGet() & 127;
+			action.performer = entity;
+			if (!entity.level().isClientSide()) {
+				action.id = actionIdCounter.incrementAndGet() & 127;
+			}
 		}
 		this.action = action;
 	}
@@ -107,26 +121,30 @@ public class LivingComponentAction implements SynchronizablePlayerData, TickingE
 	}
 	
 	protected void tickAction() {
-		if (action._tickAction()) {
+		action._tickAction();
+		if (action.isOver()) {
 			setAction(null, null, SyncType.NO_SYNC);
 		}
 	}
 	
 	
-	// TODO (entity action 2) sync on load
 	@Override
 	public void syncToPlayer(ServerPlayer player) {
+		PacketDistributor.sendToPlayer(player, new TrEntityActionInstancePacket(
+				entity.getId(), action));
 	}
 
-	// TODO (entity action 2) sync already existing action with tracking
 	@Override
 	public void syncToTracking(ServerPlayer player) {
+		PacketDistributor.sendToPlayer(player, new TrEntityActionInstancePacket(
+				entity.getId(), action));
 	}
 	
 	@Override
 	public void onPlayerClone(Player newPlayer, boolean wasDeath) {}
 
 
+	// TODO (entity action 2) nbt save/load
 	@Override
 	public CompoundTag serializeNBT(Provider provider) {
 		CompoundTag nbt = new CompoundTag();
