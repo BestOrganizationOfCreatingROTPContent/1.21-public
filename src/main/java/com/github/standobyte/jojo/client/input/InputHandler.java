@@ -10,7 +10,6 @@ import javax.annotation.Nullable;
 import org.lwjgl.glfw.GLFW;
 
 import com.github.standobyte.jojo.client.event.PreKeyInputEvent;
-import com.github.standobyte.jojo.client.input.InputBuffer.InputBufferEntry;
 import com.github.standobyte.jojo.client.jojomenu.IJojoMenuScreen;
 import com.github.standobyte.jojo.core.JojoMod;
 import com.github.standobyte.jojo.core.packet.fromclient.ClAbilityInputPacket;
@@ -19,11 +18,8 @@ import com.github.standobyte.jojo.init.power.ModPlayerPowers;
 import com.github.standobyte.jojo.powersystem.Power;
 import com.github.standobyte.jojo.powersystem.PowerClass;
 import com.github.standobyte.jojo.powersystem.ability.Ability;
-import com.github.standobyte.jojo.powersystem.ability.AbilityInputHandler;
-import com.github.standobyte.jojo.powersystem.ability.AbilityInputHandler.ClickInputType;
-import com.github.standobyte.jojo.powersystem.entityaction.LivingComponentAction;
-import com.github.standobyte.jojo.powersystem.entityaction.EntityActionInstance;
-import com.github.standobyte.jojo.powersystem.entityaction.type.EntityActionType;
+import com.github.standobyte.jojo.powersystem.ability.AbilityInput;
+import com.github.standobyte.jojo.powersystem.ability.AbilityInput.InputEventType;
 import com.github.standobyte.jojo.powersystem.playerpower.PlayerPower;
 import com.github.standobyte.jojo.powersystem.standpower.StandPower;
 import com.github.standobyte.jojo.util.CommonEnums.DiagonalDirection2D;
@@ -37,7 +33,6 @@ import net.minecraft.Util;
 import net.minecraft.client.KeyMapping;
 import net.minecraft.client.Minecraft;
 import net.minecraft.network.RegistryFriendlyByteBuf;
-import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.player.Player;
 import net.neoforged.bus.api.EventPriority;
 import net.neoforged.bus.api.SubscribeEvent;
@@ -109,8 +104,6 @@ public class InputHandler {
 		for (var heldKey : heldKeys.values()) {
 			heldKey.incTicks();
 		}
-		
-		tickInputBuffer();
 	}
 	
 	@SubscribeEvent
@@ -194,10 +187,10 @@ public class InputHandler {
 				}
 				else {
 					if (heldAbility != null) {
-						doInput(ClickInputType.PRESS_HOLD, keyId, power, heldAbility, 0, true);
+						doInput(InputEventType.PRESS_HOLD, keyId, power, heldAbility, 0);
 					}
 					else if (clickAbility != null) {
-						doInput(ClickInputType.PRESS_CLICK, keyId, power, clickAbility, 0, true);
+						doInput(InputEventType.PRESS_CLICK, keyId, power, clickAbility, 0);
 					}
 				}
 				
@@ -213,11 +206,11 @@ public class InputHandler {
 						var wasItClick = keyResolution.keyReleased();
 						if (wasItClick != null && wasItClick.input() == ClickHoldResolve.InputState.CLICK) {
 							JojoMod.LOGGER.debug("aight, it is click (took {} ticks)", wasItClick.timeTook());
-							doInput(ClickInputType.PRESS_CLICK, keyId, keyResolution.power, keyResolution.clickAbility, wasItClick.timeTook(), true);
+							doInput(InputEventType.PRESS_CLICK, keyId, keyResolution.power, keyResolution.clickAbility, wasItClick.timeTook());
 						}
 					}
 					else {
-						doInput(ClickInputType.RELEASE, keyId, null, null, 0, true);
+						doInput(InputEventType.RELEASE, keyId, null, null, 0);
 					}
 				}
 				
@@ -231,39 +224,23 @@ public class InputHandler {
 		return cancelVanilla;
 	}
 	
-	private void doInput(ClickInputType type, short keyId, Power<?> power, Ability ability, float timeTookToResolve, boolean checkToBuffer) {
+	private void doInput(InputEventType type, short keyId, Power<?> power, Ability ability, float timeTookToResolve) {
 		Player player = mc.player;
 		switch (type) {
 			case PRESS_CLICK -> {
 				if (ability == null || player == null) return;
-				
-				if (checkToBuffer) {
-					if (ability instanceof EntityActionType entityAbility) {
-						LivingEntity performer = entityAbility.getPerformer(player);
-						if (performer != null) {
-							LivingComponentAction actionComponent = LivingComponentAction.getExistingComponent(performer);
-							if (!canStartActionNow(actionComponent, ability)) {
-								_inputBuffer.bufferPerPerformer.put(performer, new InputBuffer.InputBufferEntry(
-										actionComponent, power, ability, type, keyId));
-								return;
-							}
-						}
-					}
-				}
 
-				AbilityInputHandler.click(ability, player, inputBuf, timeTookToResolve);
+				AbilityInput.click(ability, player, inputBuf, timeTookToResolve);
 				PacketDistributor.sendToServer(ClAbilityInputPacket.click(power, ability, timeTookToResolve));
 			}
 			case PRESS_HOLD -> {
 				if (ability == null || player == null) return;
 				
-				// TODO held action (barrage) input buffer
-				
-				AbilityInputHandler.startHolding(keyId, ability, player, inputBuf, timeTookToResolve);
+				AbilityInput.startHolding(keyId, ability, player, inputBuf, timeTookToResolve);
 				PacketDistributor.sendToServer(ClAbilityInputPacket.startHold(keyId, power, ability, timeTookToResolve));
 			}
 			case RELEASE -> {
-				AbilityInputHandler.releaseHolding(keyId, player);
+				AbilityInput.releaseHolding(keyId, player);
 				PacketDistributor.sendToServer(ClAbilityInputPacket.releaseHold(keyId));
 			}
 		}
@@ -300,7 +277,7 @@ public class InputHandler {
 						case ASSUME_HOLD -> {}
 						case HOLD -> {
 							JojoMod.LOGGER.debug("aight, it is hold (took {} ticks)", changedState.timeTook());
-							doInput(ClickInputType.PRESS_HOLD, timer.keyId, timer.clickHoldResolve.power, timer.clickHoldResolve.heldAbility, changedState.timeTook(), true);
+							doInput(InputEventType.PRESS_HOLD, timer.keyId, timer.clickHoldResolve.power, timer.clickHoldResolve.heldAbility, changedState.timeTook());
 							timer.clickHoldResolve = null;
 						}
 						default -> {}
@@ -433,34 +410,6 @@ public class InputHandler {
 			};
 		}
 		return null;
-	}
-	
-	// Input buffer stuff
-
-	public InputBuffer _inputBuffer = new InputBuffer();
-	
-	protected void tickInputBuffer() {
-		var entryIter = _inputBuffer.bufferPerPerformer.entrySet().iterator();
-		while (entryIter.hasNext()) {
-			var entry = entryIter.next();
-			LivingEntity performer = entry.getKey();
-			if (performer == null || performer.isRemoved()) {
-				entryIter.remove();
-			}
-			
-			InputBufferEntry bufferEntry = entry.getValue();
-			if (canStartActionNow(bufferEntry.performerAction(), bufferEntry.entityAbility())) {
-				// TODO held action (barrage) input buffer
-				doInput(bufferEntry.inputType(), bufferEntry.heldKeyId(), bufferEntry.userPower(), bufferEntry.entityAbility(), 0, false);
-				entryIter.remove();
-			}
-		}
-	}
-	
-	public static boolean canStartActionNow(LivingComponentAction performerAction, Ability entityAbility) {
-		if (performerAction == null) return true;
-		EntityActionInstance curAction = performerAction.getAction();
-		return curAction == null || curAction.canBeCancelledInto(entityAbility);
 	}
 	
 	

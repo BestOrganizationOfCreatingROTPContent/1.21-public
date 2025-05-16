@@ -3,6 +3,7 @@ package com.github.standobyte.jojo.powersystem.ability;
 import org.jetbrains.annotations.ApiStatus;
 
 import com.github.standobyte.jojo.core.molang.MolangValue;
+import com.github.standobyte.jojo.powersystem.ability.AbilityInput.InputType;
 import com.github.standobyte.jojo.powersystem.entityaction.ActionAnimIdentifier;
 import com.github.standobyte.jojo.powersystem.entityaction.LivingComponentAction;
 import com.github.standobyte.jojo.powersystem.entityaction.ActionPhase;
@@ -21,18 +22,21 @@ public class EntityActionAbility extends Ability implements EntityActionType {
 		anim = ActionAnimIdentifier.getOrCreate(abilityId);
 	}
 	
-	
+
 	@Override
 	public void onClick(Level level, LivingEntity user) {
+		if (level.isClientSide()) return;
+		
 		EntityActionInstance action = initActionOnAbilityUse(level, user);
-		LivingComponentAction.getComponent(user).setAction(action, false);
+		LivingComponentAction.getComponent(user).bufferOrSetAction(action, user, InputType.CLICK);
 	}
 	
 	@Override
 	public HeldInput onButtonStartHold(Level level, LivingEntity user) {
+		if (level.isClientSide()) return null;
+
 		EntityActionInstance action = initActionOnAbilityUse(level, user);
-		LivingComponentAction.getComponent(user).setAction(action, false);
-		return action;
+		return LivingComponentAction.getComponent(user).bufferOrSetAction(action, user, InputType.HOLD);
 	}
 	
 	

@@ -35,6 +35,8 @@ public class Ability {
 	
 	
 	public void writeExtraInput(RegistryFriendlyByteBuf serverboundBuf) {}
+
+	// Input stuff below is called in AbilityInput
 	
 	@ApiStatus.OverrideOnly
 	public void onClick(Level level, LivingEntity user) {}

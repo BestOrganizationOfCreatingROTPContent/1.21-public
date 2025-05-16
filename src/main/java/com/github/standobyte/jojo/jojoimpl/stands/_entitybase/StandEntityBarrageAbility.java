@@ -15,7 +15,6 @@ public class StandEntityBarrageAbility extends StandEntityAbility {
 
 	public StandEntityBarrageAbility(AbilityId abilityId) {
 		super(abilityId);
-		setDefaultPhaseLength(ActionPhase.WINDUP, 4);
 		setDefaultPhaseLength(ActionPhase.PERFORM, 100);
 		setDefaultPhaseLength(ActionPhase.RECOVERY, 10);
 	}
@@ -50,6 +49,7 @@ public class StandEntityBarrageAbility extends StandEntityAbility {
 		public void onButtonStopHold() {
 			if (getPhase() != ActionPhase.RECOVERY) {
 				setPhase(ActionPhase.RECOVERY);
+				syncPhaseChanges();
 			}
 		}
 		

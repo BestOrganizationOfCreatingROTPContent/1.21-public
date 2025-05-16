@@ -1,4 +1,4 @@
-package com.github.standobyte.jojo.core.packet.fromserver;
+package com.github.standobyte.jojo.powersystem.entityaction.netcode;
 
 import javax.annotation.Nullable;
 
@@ -17,7 +17,7 @@ import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.LivingEntity;
 import net.neoforged.neoforge.network.handling.IPayloadContext;
 
-public record TrEntityActionInstancePacket(int entityId, @Nullable EntityActionInstance action) implements CustomPacketPayload {
+public record TrEntityActionInstancePacket(int performerId, int powerUserId, @Nullable EntityActionInstance action) implements CustomPacketPayload {
 	private static CustomPacketPayload.Type<TrEntityActionInstancePacket> type;
 	
 	public static class Handler implements PacketsRegister.PacketCodecHandler<TrEntityActionInstancePacket> {
@@ -38,15 +38,17 @@ public record TrEntityActionInstancePacket(int entityId, @Nullable EntityActionI
 		
 		
 		public static final StreamCodec<RegistryFriendlyByteBuf, TrEntityActionInstancePacket> STREAM_CODEC = StreamCodec.composite(
-				ByteBufCodecs.INT, TrEntityActionInstancePacket::entityId,
+				ByteBufCodecs.INT, TrEntityActionInstancePacket::performerId,
+				ByteBufCodecs.INT, TrEntityActionInstancePacket::powerUserId,
 				NetworkUtil.nullableCodec(EntityActionInstance.NETWORK_CODEC), TrEntityActionInstancePacket::action,
 				TrEntityActionInstancePacket::new);
 
 		@Override
 		public void handle(TrEntityActionInstancePacket payload, IPayloadContext context) {
-			Entity entity = ClientProxy.getEntityById(payload.entityId);
+			Entity entity = ClientProxy.getEntityById(payload.performerId);
 			if (entity instanceof LivingEntity living) {
-				LivingComponentAction.getComponent(living).setAction(payload.action, false);
+				LivingEntity user = ClientProxy.getEntityById(payload.powerUserId) instanceof LivingEntity living2 ? living2 : null;
+				LivingComponentAction.getComponent(living).setAction(payload.action, user, SyncType.NO_SYNC);
 			}
 		}
 		

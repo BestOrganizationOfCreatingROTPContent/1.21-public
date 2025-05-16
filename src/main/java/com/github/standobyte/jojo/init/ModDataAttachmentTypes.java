@@ -7,7 +7,7 @@ import org.jetbrains.annotations.ApiStatus;
 import com.github.standobyte.jojo.core.JojoMod;
 import com.github.standobyte.jojo.mechanics.clothes.EntityClothesInventory;
 import com.github.standobyte.jojo.powersystem.PowerClass;
-import com.github.standobyte.jojo.powersystem.ability.AbilityInputHandler;
+import com.github.standobyte.jojo.powersystem.entityaction.EntityActionInputState;
 import com.github.standobyte.jojo.powersystem.entityaction.LivingComponentAction;
 import com.github.standobyte.jojo.powersystem.playerpower.PlayerPower;
 import com.github.standobyte.jojo.powersystem.standpower.StandPower;
@@ -34,9 +34,10 @@ public final class ModDataAttachmentTypes {
 	
 	public static final Supplier<AttachmentType<LivingComponentAction>> LIVING_ACTION = ATTACHMENT_TYPES.register("living_action", 
 			() -> AttachmentType.serializable(LivingComponentAction::create).build());
-	
-	public static final Supplier<AttachmentType<AbilityInputHandler>> PLAYER_HELD_ACTION = ATTACHMENT_TYPES.register("player_held_action", 
-			() -> AttachmentType.builder(AbilityInputHandler::create).build());
+
+	@ApiStatus.Internal
+	public static final Supplier<AttachmentType<EntityActionInputState>> ENTITY_ABILITY_INPUT = ATTACHMENT_TYPES.register("player_ability_input", 
+			() -> AttachmentType.builder(obj -> obj instanceof LivingEntity living ? new EntityActionInputState(living) : null).build());
 	
 	public static final Supplier<AttachmentType<EntityClothesInventory>> HUMANOID_CLOTHES = ATTACHMENT_TYPES.register("humanoid_clothes", 
 			() -> AttachmentType.serializable(obj -> obj instanceof LivingEntity living ? new EntityClothesInventory(living) : null).build());

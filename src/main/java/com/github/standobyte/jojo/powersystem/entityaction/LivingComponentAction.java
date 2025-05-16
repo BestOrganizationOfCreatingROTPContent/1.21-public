@@ -1,9 +1,13 @@
 package com.github.standobyte.jojo.powersystem.entityaction;
 
+import java.util.concurrent.atomic.AtomicInteger;
+
 import javax.annotation.Nullable;
 
-import com.github.standobyte.jojo.core.packet.fromserver.TrEntityActionInstancePacket;
 import com.github.standobyte.jojo.init.ModDataAttachmentTypes;
+import com.github.standobyte.jojo.powersystem.ability.AbilityInput.InputType;
+import com.github.standobyte.jojo.powersystem.entityaction.netcode.SyncType;
+import com.github.standobyte.jojo.powersystem.entityaction.netcode.TrEntityActionInstancePacket;
 import com.github.standobyte.jojo.powersystem.standpower.entity.LivingReactToNewAction;
 import com.github.standobyte.jojo.util.entitycomponent.SynchronizablePlayerData;
 import com.github.standobyte.jojo.util.entitycomponent.TickingEntityData;
@@ -20,12 +24,13 @@ import net.neoforged.neoforge.network.PacketDistributor;
 
 public class LivingComponentAction implements SynchronizablePlayerData, TickingEntityData, INBTSerializable<CompoundTag> {
 	private final LivingEntity entity;
-	private final LivingReactToNewAction actionSetCallback;
+	private final LivingReactToNewAction setActionCallback;
+	private final AtomicInteger actionIdCounter = new AtomicInteger();
 	@Nullable private EntityActionInstance action;
 	
 	public LivingComponentAction(LivingEntity entity) {
 		this.entity = entity;
-		this.actionSetCallback = (entity instanceof LivingReactToNewAction standEntity) ? standEntity : null;
+		this.setActionCallback = (entity instanceof LivingReactToNewAction standEntity) ? standEntity : null;
 		addSynchronization(entity);
 		addTicking(entity);
 	}
@@ -34,23 +39,63 @@ public class LivingComponentAction implements SynchronizablePlayerData, TickingE
 		return action;
 	}
 	
-	public void setAction(EntityActionInstance action, boolean sync) {
-		if (actionSetCallback != null && actionSetCallback.onActionSet(action)) {
-			return;
+	public HeldInput bufferOrSetAction(EntityActionInstance action, LivingEntity user, InputType inputType) {
+		return bufferOrSetAction(action, user, inputType, SyncType.TRACKING_AND_SELF);
+	}
+	
+	public HeldInput bufferOrSetAction(EntityActionInstance action, LivingEntity user, InputType inputType, SyncType sync) {
+		if (action != null && action.ability.shouldBufferInput(this) && user != null && inputType != null) {
+			HeldInput heldInputObj = null;
+			EntityActionInputState actionInput = user.getData(ModDataAttachmentTypes.ENTITY_ABILITY_INPUT.get());
+			if (actionInput != null) {
+				switch (inputType) {
+				case CLICK -> actionInput.bufferClickInput(entity, this, action.ability);
+				case HOLD -> heldInputObj = actionInput.bufferHeldInput(entity, this, action.ability);
+				}
+			}
+			return heldInputObj;
 		}
+		
+		return setAction(action, user, sync);
+	}
+	
+	public HeldInput setAction(EntityActionInstance action, LivingEntity actionPowerUser, SyncType sync) {
+		// A way for the performer entity to the changed action, i.e. for a Stand entity to reset offset to idle
+		
+		if (setActionCallback != null && setActionCallback.onActionSet(action)) {
+			return null;
+		}
+		
+		// Action callbacks that may be overriden by specific abilities
 		
 		if (this.action != null) {
 			this.action._onActionCleared();
 		}
-		this.action = action;
+		assignAction(action);
 		if (action != null) {
-			action._onActionSet(entity, entity);
+			action._onActionSet(entity, actionPowerUser);
 		}
 		
-		if (sync && !entity.level().isClientSide()) {
-			PacketDistributor.sendToPlayersTrackingEntityAndSelf(entity, new TrEntityActionInstancePacket(
-					entity.getId(), action));
+		// Sync to players
+		
+		if (!entity.level().isClientSide()) {
+			switch (sync) {
+				case TRACKING -> PacketDistributor.sendToPlayersTrackingEntity(entity, new TrEntityActionInstancePacket(
+						entity.getId(), actionPowerUser != null ? actionPowerUser.getId() : -1, action));
+				case TRACKING_AND_SELF -> PacketDistributor.sendToPlayersTrackingEntityAndSelf(entity, new TrEntityActionInstancePacket(
+						entity.getId(), actionPowerUser != null ? actionPowerUser.getId() : -1, action));
+				default -> {}
+			}
 		}
+		
+		return action;
+	}
+	
+	private void assignAction(EntityActionInstance action) {
+		if (action != null) {
+			action.id = actionIdCounter.incrementAndGet() & 127;
+		}
+		this.action = action;
 	}
 	
 	
@@ -63,7 +108,7 @@ public class LivingComponentAction implements SynchronizablePlayerData, TickingE
 	
 	protected void tickAction() {
 		if (action._tickAction()) {
-			setAction(null, false);
+			setAction(null, null, SyncType.NO_SYNC);
 		}
 	}
 	
@@ -108,6 +153,7 @@ public class LivingComponentAction implements SynchronizablePlayerData, TickingE
 	
 	@Nullable
 	public static LivingComponentAction getExistingComponent(LivingEntity entity) {
+		if (entity == null) return null;
 		AttachmentType<LivingComponentAction> t = ModDataAttachmentTypes.LIVING_ACTION.get();
 		return entity.hasData(t) ? entity.getData(t) : null;
 	}

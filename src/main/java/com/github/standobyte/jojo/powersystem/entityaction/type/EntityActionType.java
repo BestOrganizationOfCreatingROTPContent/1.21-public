@@ -7,6 +7,7 @@ import com.github.standobyte.jojo.powersystem.ability.Ability;
 import com.github.standobyte.jojo.powersystem.ability.AbilityId.AbilityInputNetwork;
 import com.github.standobyte.jojo.powersystem.entityaction.ActionAnimIdentifier;
 import com.github.standobyte.jojo.powersystem.entityaction.EntityActionInstance;
+import com.github.standobyte.jojo.powersystem.entityaction.LivingComponentAction;
 import com.github.standobyte.jojo.powersystem.playerpower.PlayerPower;
 
 import net.minecraft.network.RegistryFriendlyByteBuf;
@@ -63,8 +64,10 @@ public interface EntityActionType {
 	}
 
 
-	default LivingEntity getPerformer(LivingEntity user) {
-		return user;
+	@ApiStatus.OverrideOnly
+	default boolean shouldBufferInput(LivingComponentAction performerAction) {
+		EntityActionInstance curAction = performerAction.getAction();
+		return curAction != null && !curAction.canBeCancelledInto(this);
 	}
 	
 	

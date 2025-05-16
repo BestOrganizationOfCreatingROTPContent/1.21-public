@@ -6,7 +6,7 @@ import javax.annotation.Nonnull;
 
 import org.jetbrains.annotations.ApiStatus;
 
-import com.github.standobyte.jojo.powersystem.ability.Ability;
+import com.github.standobyte.jojo.powersystem.entityaction.netcode.TrEntityActionPhaseTimePacket;
 import com.github.standobyte.jojo.powersystem.entityaction.type.EntityActionType;
 
 import net.minecraft.Util;
@@ -14,9 +14,12 @@ import net.minecraft.network.RegistryFriendlyByteBuf;
 import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.util.Mth;
 import net.minecraft.world.entity.LivingEntity;
+import net.neoforged.neoforge.network.PacketDistributor;
 
 // TODO (entity action) test the phase lengths stuff
 public class EntityActionInstance implements HeldInput {
+	/** Is used in network code, to make sure server and client are on the same page when sending changes to the action's phases from server */
+	@ApiStatus.Internal public int id;
 	@Nonnull public final EntityActionType ability;
 	public Map<ActionPhase, Float> phasesLength;
 	
@@ -65,7 +68,7 @@ public class EntityActionInstance implements HeldInput {
 	}
 	
 	@ApiStatus.OverrideOnly
-	public boolean canBeCancelledInto(Ability cancellingAbility) {
+	public boolean canBeCancelledInto(EntityActionType cancellingAbility) {
 		return phase == ActionPhase.RECOVERY;
 	}
 	
@@ -134,12 +137,10 @@ public class EntityActionInstance implements HeldInput {
 		this.phasePartialTick = partialTick;
 	}
 	
-	@ApiStatus.Internal
 	public void setPhase(ActionPhase phase) {
 		setPhase(phase, 0);
 	}
 
-	@ApiStatus.Internal
 	public void setPhase(ActionPhase phase, int tick) {
 		if (phase == null) {
 			this.phase = null;
@@ -156,6 +157,13 @@ public class EntityActionInstance implements HeldInput {
 		this.phasePartialTick = Mth.clamp(prevPhaseTick - prevTickLength, 0, 1);
 		
 		checkNextPhase();
+	}
+	
+	public void syncPhaseChanges() {
+		if (performer != null && !performer.level().isClientSide()) {
+			PacketDistributor.sendToPlayersTrackingEntityAndSelf(performer, new TrEntityActionPhaseTimePacket(performer.getId(), 
+					id, phasesLength, phase, curPhaseTick));
+		}
 	}
 
 	@ApiStatus.Internal
@@ -229,6 +237,7 @@ public class EntityActionInstance implements HeldInput {
 			if (valid) {
 				EntityActionInstance action = EntityActionType.decodeAbilityAction(buffer);
 				if (action != null) {
+					action.id = buffer.readVarInt();
 					action.phasesLength = Util.makeEnumMap(ActionPhase.class, __ -> buffer.readFloat());
 					action.phase = ActionPhase.values()[buffer.readVarInt()];
 					action.curPhaseTick = buffer.readVarInt();
@@ -247,6 +256,8 @@ public class EntityActionInstance implements HeldInput {
 			buffer.writeBoolean(action.phase != null);
 			if (action.phase != null) {
 				action.ability.encodeAbility(buffer);
+				
+				buffer.writeVarInt(action.id);
 				action.phasesLength.values().forEach(buffer::writeFloat);
 				buffer.writeVarInt(action.phase.ordinal());
 				buffer.writeVarInt(action.curPhaseTick);

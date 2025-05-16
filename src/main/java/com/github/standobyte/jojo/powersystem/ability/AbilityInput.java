@@ -6,24 +6,21 @@ import org.jetbrains.annotations.ApiStatus;
 
 import com.github.standobyte.jojo.core.packet.fromserver.TrAbilityUsePacket;
 import com.github.standobyte.jojo.init.ModDataAttachmentTypes;
+import com.github.standobyte.jojo.powersystem.entityaction.EntityActionInputState;
+import com.github.standobyte.jojo.powersystem.entityaction.EntityActionInputState.HeldInputContainer;
 import com.github.standobyte.jojo.powersystem.entityaction.HeldInput;
 
-import it.unimi.dsi.fastutil.ints.Int2ObjectArrayMap;
-import it.unimi.dsi.fastutil.ints.Int2ObjectMap;
 import net.minecraft.network.RegistryFriendlyByteBuf;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.level.Level;
-import net.neoforged.neoforge.attachment.IAttachmentHolder;
 import net.neoforged.neoforge.network.PacketDistributor;
 
-public class AbilityInputHandler {
-	// TODO if the player logs out and the action gets saved in NBT, after relog they won't be able to stop the action - fix that
-	// TODO should held actions maybe be synced with newly tracking entities?
-	private Int2ObjectMap<EntityActionHeld> heldButtonActions = new Int2ObjectArrayMap<>();
-	
+public class AbilityInput {
+
+	@ApiStatus.Internal
 	public static void click(Ability ability, LivingEntity user, RegistryFriendlyByteBuf extraData, float timeTookToResolve) {
 		if (ability == null || user == null) return;
-		
+
 		ability = Ability.resolveSubAbility(ability, user);
 		Level level = user.level();
 		ability.onClick(level, user);
@@ -32,33 +29,36 @@ public class AbilityInputHandler {
 					TrAbilityUsePacket.click(user.getId(), ability, timeTookToResolve));
 		}
 	}
-	
+
 	/* 
 	 * FIXME ability inputs that are currently controlled purely by the client
 	 * 	barrage can refresh its duration via a client-sent packet
 	 * 	the client can use abilities from other movesets
 	 */
+	@ApiStatus.Internal
 	public static void startHolding(short keyId, Ability ability, 
 			LivingEntity user, RegistryFriendlyByteBuf extraData, float timeTookToResolve) {
 		if (ability == null || user == null) return;
 
 		ability = Ability.resolveSubAbility(ability, user);
-		AbilityInputHandler holder = get(user);
-		if (holder != null) {
+		EntityActionInputState inputHandler = user.getData(ModDataAttachmentTypes.ENTITY_ABILITY_INPUT.get());
+		if (inputHandler != null) {
 			Level level = user.level();
 			HeldInput action = ability.onButtonStartHold(level, user);
 			if (!level.isClientSide()) {
 				PacketDistributor.sendToPlayersTrackingEntity(user, 
 						TrAbilityUsePacket.startHold(user.getId(), keyId, ability, timeTookToResolve));
 			}
-			holder.heldButtonActions.put(keyId, new EntityActionHeld(ability, action));
+			
+			inputHandler.heldKeys.put(keyId, new HeldInputContainer(ability, action));
 		}
 	}
-	
+
+	@ApiStatus.Internal
 	public static void releaseHolding(short keyId, LivingEntity user) {
-		AbilityInputHandler holder = get(user);
-		if (holder != null) {
-			EntityActionHeld heldAction = holder.heldButtonActions.remove(keyId);
+		EntityActionInputState inputHandler = user.getData(ModDataAttachmentTypes.ENTITY_ABILITY_INPUT.get());
+		if (inputHandler != null) {
+			HeldInputContainer heldAction = inputHandler.heldKeys.remove(keyId);
 			if (heldAction != null) {
 				HeldInput action = heldAction.action;
 				Level level = user.level();
@@ -75,37 +75,22 @@ public class AbilityInputHandler {
 	}
 	
 	
-	private final AtomicInteger pseudoKey = new AtomicInteger();
-	public short makeMobFakeKeyId(Ability ability) {
+	private static final AtomicInteger pseudoKey = new AtomicInteger();
+	public static short makeMobFakeKeyId(Ability ability) {
 		pseudoKey.incrementAndGet();
 		return pseudoKey.shortValue();
 	}
-	
-	
-	public enum ClickInputType {
+
+
+	public enum InputEventType {
 		PRESS_CLICK,
 		PRESS_HOLD,
-		RELEASE;
+		RELEASE
 	}
 	
-	
-	@ApiStatus.Internal
-	public static class EntityActionHeld {
-		private final Ability ability;
-		private final HeldInput action;
-		
-		public EntityActionHeld(Ability ability, HeldInput action) {
-			this.ability = ability;
-			this.action = action;
-		}
+	public enum InputType {
+		CLICK,
+		HOLD
 	}
-	
-	
-	public static AbilityInputHandler create(IAttachmentHolder obj) {
-		return new AbilityInputHandler();
-	}
-	
-	private static AbilityInputHandler get(LivingEntity entity) {
-		return entity.getData(ModDataAttachmentTypes.PLAYER_HELD_ACTION.get());
-	}
+
 }
