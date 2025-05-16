@@ -86,7 +86,8 @@ public class ClAbilityInputPacket implements CustomPacketPayload {
 					float timeTookToResolve = ability != null ? buf.readFloat() : 0;
 					
 					ClAbilityInputPacket packet = new ClAbilityInputPacket(key, inputType, null, null, ability, timeTookToResolve);
-					// TODO WAIT A FUCKING SECOND - it if disconnects a player because it "found extra bytes", does this mean i can't do it like this anymore??
+					// TODO send the extra data buf as parameter
+					// WAIT A FUCKING SECOND - it if disconnects a player because it "found extra bytes", does this mean i can't do it like this anymore??
 					packet.extraData = buf;
 					yield packet;
 				}

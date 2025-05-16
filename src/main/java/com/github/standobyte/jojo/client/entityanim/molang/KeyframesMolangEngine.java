@@ -2,7 +2,7 @@ package com.github.standobyte.jojo.client.entityanim.molang;
 
 import team.unnamed.mocha.MochaEngine;
 
-// TODO test jar-in-jar in build
+// FIXME test jar-in-jar in build
 // TODO (!!) Mocha license/copyright
 public class KeyframesMolangEngine {
 	private static MochaEngine<?> mochaInstance;

@@ -68,6 +68,11 @@ public class AnimationSet {
 	}
 
 	// TODO (!) (entity anims) all the stand animation stuff
+	/*
+	 * summon anims
+	 * barrage swings
+	 * arms only mode
+	 */
 //	@Override
 //	public <T extends StandEntity> boolean poseStand(@Nullable T entity, StandEntityModel<T> model, StandPoseData poseData, 
 //			float ticks, float yRotOffsetDeg, float xRotDeg) {

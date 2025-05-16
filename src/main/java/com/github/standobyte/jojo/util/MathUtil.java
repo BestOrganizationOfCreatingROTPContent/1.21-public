@@ -16,7 +16,7 @@ public final class MathUtil {
 	
 	private static float[] SIN;
 	private static final float[] TAN = Util.make(new float[65536], arr -> {
-		// TODO test a built mod (can i really use the MojMap names now Pog ?)
+		// FIXME test a built mod (can i really use the MojMap names now Pog ?)
 		Field SIN_FIELD = ObfuscationReflectionHelper.findField(Mth.class, "SIN");
 		SIN = ReflectionUtil.getFieldValue(SIN_FIELD, null);
 		for (int i = 0; i < arr.length; i++) {

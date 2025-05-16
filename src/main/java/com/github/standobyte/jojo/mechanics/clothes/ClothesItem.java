@@ -9,14 +9,9 @@ import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 
-// TODO (clothes) mannequin humanoid animations (with the clothes layer bends)
-
 // TODO (clothes) putting on clothes via right click
 // TODO (clothes) clothes inventory & UI
-
 // TODO (clothes) callbacks when the clothes items are put on and taken off (similarly to the armor attributes)
-// TODO (clothes) passive ticking abilities
-// TODO (clothes) active abilities
 public class ClothesItem extends Item {
 	
 	public ClothesItem(Item.Properties properties) {

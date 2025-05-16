@@ -9,7 +9,6 @@ import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.entity.player.Player;
 import net.neoforged.neoforge.attachment.IAttachmentHolder;
 
-// TODO test if this works
 public class DataEventListeners {
 	private List<SynchronizableEntityData> entityDataSync = new ArrayList<>();
 	private List<SynchronizablePlayerData> playerDataSync = new ArrayList<>();
