@@ -36,8 +36,12 @@ public class StandEntityBarrageAbility extends StandEntityAbility {
 		public void onActionSet() {
 			if (performer instanceof StandEntity standEntity) {
 				LivingEntity user = getPowerUser();
-				if (user != null) standEntity.offsetFromUser.setOffset(
-						new Vec3(0, StandEntity.Y_OFFSET, 2), StandOffsetFromUser.OffsetMode.HEAD_XY, user);
+				if (user != null && standEntity.offsetFromUser.isIdle()) {
+					standEntity.offsetFromUser.setOffset(
+							new Vec3(0, StandEntity.Y_OFFSET, 1.5), 
+							StandOffsetFromUser.OffsetMode.HEAD_XY, 
+							user);
+				}
 			}
 		}
 

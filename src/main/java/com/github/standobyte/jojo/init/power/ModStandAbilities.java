@@ -13,6 +13,7 @@ import com.github.standobyte.jojo.jojoimpl.stands.starplatinum.StarFingerAbility
 import com.github.standobyte.jojo.jojoimpl.stands.starplatinum.StarFingerSwipeAbility;
 import com.github.standobyte.jojo.jojoimpl.stands.theworld.TimeStopAbility;
 import com.github.standobyte.jojo.powersystem.ability.AbilityType;
+import com.github.standobyte.jojo.powersystem.standpower.entity.StandEntityAbility;
 
 import net.neoforged.neoforge.registries.DeferredHolder;
 
@@ -31,6 +32,9 @@ public final class ModStandAbilities {
 	
 	public static final DeferredHolder<AbilityType<?>, AbilityType<StandEntityGrabAbility>> GRAB = ABILITY_TYPES.register(
 			"stand_grab", key -> new AbilityType<>(key, StandEntityGrabAbility::new));
+	
+	public static final DeferredHolder<AbilityType<?>, AbilityType<StandEntityAbility>> GRAB_RELEASE = ABILITY_TYPES.register(
+			"stand_grab_release", key -> new AbilityType<>(key, StandEntityAbility::new));
 	
 	public static final DeferredHolder<AbilityType<?>, AbilityType<StandEntityGrabThrowAbility>> GRAB_THROW = ABILITY_TYPES.register(
 			"stand_grab_throw", key -> new AbilityType<>(key, StandEntityGrabThrowAbility::new));
