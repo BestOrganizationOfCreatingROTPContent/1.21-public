@@ -8,7 +8,6 @@ import javax.annotation.Nullable;
 
 import org.jetbrains.annotations.ApiStatus;
 
-import com.github.standobyte.jojo.core.JojoMod;
 import com.github.standobyte.jojo.core.utils.EnumUtil;
 import com.github.standobyte.jojo.init.ModDataAttachmentTypes;
 import com.github.standobyte.jojo.mechanics.clothes.itemdata.ClothesSlotType;
@@ -38,6 +37,7 @@ public class EntityClothesInventory implements SynchronizableEntityData, Ticking
 		this.items = EnumUtil.makeEnumMap(ClothesSlotType.class, () -> ItemStack.EMPTY);
 		this.lastItems = EnumUtil.makeEnumMap(ClothesSlotType.class, () -> ItemStack.EMPTY);
 		addTicking(entity);
+		addSynchronization(entity);
 	}
 
 	public void setItemSlot(ClothesSlotType clothesSlot, ItemStack clothesCopy) {
@@ -137,7 +137,6 @@ public class EntityClothesInventory implements SynchronizableEntityData, Ticking
 			CompoundTag itemNbt = itemsNbt.getCompound(slot.ordinal());
 			items.put(slot, ItemStack.parseOptional(provider, itemNbt));
 		}
-		JojoMod.LOGGER.debug("loaded");
 	}
 
 	@Override
