@@ -62,14 +62,14 @@ public class ClothesItem extends Item {
 		
 		var splitPieces = clothes.splitInto(null);
 		if (splitPieces != null) {
-			tooltipComponents.add(Component.translatable("Right click to split into %s and %s", 
+			tooltipComponents.add(Component.translatable("ripples_clothes_split", 
 					splitPieces.getFirst().getStyledHoverName(), splitPieces.getSecond().getStyledHoverName())
 					.withStyle(ChatFormatting.DARK_GRAY));
 		}
 		
 		var canCombinePieces = clothes.combineWithOtherPieceToGetFull(null, null);
 		if (canCombinePieces != null) {
-			tooltipComponents.add(Component.translatable("Left click on a %s to combine into %s", 
+			tooltipComponents.add(Component.translatable("ripples_clothes_combine", 
 					canCombinePieces.getSecond().itemName, canCombinePieces.getFirst().getStyledHoverName())
 					.withStyle(ChatFormatting.DARK_GRAY));
 		}
