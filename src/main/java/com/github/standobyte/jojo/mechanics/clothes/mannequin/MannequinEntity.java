@@ -6,6 +6,7 @@ import com.github.standobyte.jojo.init.ModDataAttachmentTypes;
 import com.github.standobyte.jojo.init.ModEntityTypes;
 import com.github.standobyte.jojo.init.ModItemDataComponents;
 import com.github.standobyte.jojo.init.ModItems;
+import com.github.standobyte.jojo.mechanics.clothes.ClothesItem;
 import com.github.standobyte.jojo.mechanics.clothes.EntityClothesInventory;
 import com.github.standobyte.jojo.mechanics.clothes.itemdata.ClothesDataComponent;
 import com.github.standobyte.jojo.mechanics.clothes.itemdata.ClothesSlotType;
@@ -73,6 +74,7 @@ public class MannequinEntity extends ArmorStand {
 		ItemStack heldItem = player.getItemInHand(hand);
 		if (!this.isMarker() && heldItem.getItem() != Items.NAME_TAG && !player.isSpectator() && !player.level().isClientSide()) {
 			clothesLazyInit();
+			// Take off a hovered item from the mannequin
 			if (heldItem.isEmpty()) {
 				ClothesSlotType clickedSlot = getClothesSlotAt(vec);
 				if (clickedSlot != null) {
@@ -86,36 +88,28 @@ public class MannequinEntity extends ArmorStand {
 			}
 
 			else {
-				ClothesDataComponent clothesPiece = heldItem.get(ModItemDataComponents.CLOTHES_PIECE.get());
-				if (clothesPiece != null) {
-					ClothesSlotType clothesSlot = clothesPiece.getSlot();
+				ClothesDataComponent heldClothesPiece = heldItem.get(ModItemDataComponents.CLOTHES_PIECE.get());
+				if (heldClothesPiece != null) {
+					ClothesSlotType clothesSlot = heldClothesPiece.getSlot();
 					if (clothesSlot == null) {
 						return InteractionResult.FAIL;
 					}
 					ItemStack wornClothes = clothes.getClothingPiece(clothesSlot);
-					if (player.hasInfiniteMaterials() && wornClothes.isEmpty() && !heldItem.isEmpty()) {
-						ItemStack clothesCopy = heldItem.copy();
-						clothesCopy.setCount(1);
-						clothes.setItemSlot(clothesSlot, clothesCopy);
-						return InteractionResult.SUCCESS_SERVER;
-					}
-					else if (!heldItem.isEmpty() && heldItem.getCount() > 1) {
-						if (!wornClothes.isEmpty()) {
-							return InteractionResult.FAIL;
-						}
-						else {
-							ItemStack clothesCopy = heldItem.copy();
-							clothesCopy.setCount(1);
-							clothes.setItemSlot(clothesSlot, clothesCopy);
-							heldItem.shrink(1);
+
+					// Combine the item in hand and the item worn on the mannequin
+					if (!heldItem.isEmpty() && !wornClothes.isEmpty()) {
+						ItemStack fullItem = ClothesItem.combineIntoFullPiece(heldItem, wornClothes);
+						if (fullItem != null) {
+							clothes.setItemSlot(clothesSlot, fullItem);
+							player.setItemInHand(hand, ItemStack.EMPTY);
 							return InteractionResult.SUCCESS_SERVER;
 						}
 					}
-					else {
-						clothes.setItemSlot(clothesSlot, heldItem);
-						player.setItemInHand(hand, wornClothes);
-						return InteractionResult.SUCCESS_SERVER;
-					}
+					
+					// Swap the worn item and the item in hand
+					clothes.setItemSlot(clothesSlot, heldItem);
+					player.setItemInHand(hand, wornClothes);
+					return InteractionResult.SUCCESS_SERVER;
 				}
 			}
 		}

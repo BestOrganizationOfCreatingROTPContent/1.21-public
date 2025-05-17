@@ -35,7 +35,7 @@ public class ClothesPiece {
 	public final Holder<SoundEvent> equipSound;
 
 	private final Optional<Map<SubClothingPiece, ClothesPiece>> splitInto;
-	private final Optional<Map<SubClothingPiece, ClothesPiece>> allSplitPieces;
+	private Optional<Map<SubClothingPiece, ClothesPiece>> allSplitPieces;
 	private SubClothingPiece subPieceType;
 	
 	public ClothesPiece(ResourceKey<EquipmentAsset> assetId, 
@@ -48,13 +48,20 @@ public class ClothesPiece {
 		
 		this.subPieceType = SubClothingPiece.FULL;
 		this.splitInto = splitInto;
+		
 		if (splitInto.isPresent()) {
 			this.allSplitPieces = splitInto.map(subPiecesMap -> {
 				Map<SubClothingPiece, ClothesPiece> mutableMap = Util.make(new EnumMap<>(SubClothingPiece.class), map -> {
 					map.putAll(subPiecesMap);
-					map.get(SubClothingPiece.TOP).subPieceType = SubClothingPiece.TOP;
-					map.get(SubClothingPiece.BOTTOM).subPieceType = SubClothingPiece.BOTTOM;
 					map.put(SubClothingPiece.FULL, this);
+					
+					ClothesPiece topPiece = map.get(SubClothingPiece.TOP);
+					topPiece.subPieceType = SubClothingPiece.TOP;
+					topPiece.allSplitPieces = Optional.of(new EnumMap<>(map));
+					
+					ClothesPiece bottomPiece = map.get(SubClothingPiece.BOTTOM);
+					bottomPiece.subPieceType = SubClothingPiece.BOTTOM;
+					bottomPiece.allSplitPieces = Optional.of(new EnumMap<>(map));
 				});
 				return mutableMap;
 			});
@@ -62,6 +69,10 @@ public class ClothesPiece {
 		else {
 			this.allSplitPieces = Optional.empty();
 		}
+	}
+	
+	public boolean hasSubType() {
+		return allSplitPieces.isPresent();
 	}
 	
 	@Nullable

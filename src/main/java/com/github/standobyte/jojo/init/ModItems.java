@@ -77,7 +77,7 @@ public final class ModItems {
 							for (ClothesSlotType slot : ClothesSlotType.values()) {
 								ClothesPiece piece = set.getPiece(slot);
 								if (piece != null) {
-									components.add(new ClothesDataComponent(setHolder, slot, Optional.empty()));
+									components.add(new ClothesDataComponent(setHolder, slot, ClothesPiece.SubClothingPiece.FULL));
 								}
 							}
 							return components.stream();
