@@ -80,7 +80,7 @@ public class ClothesDataComponent {
 			.apply(builder, ClothesDataComponent::new));
 	
 	public static final StreamCodec<RegistryFriendlyByteBuf, ClothesDataComponent> STREAM_CODEC = StreamCodec.composite(
-			ByteBufCodecs.holderRegistry(JojoRegistries.CLOTHES_SET_REG_KEY), ClothesDataComponent::getClothesSet,
+			ByteBufCodecs.holderRegistry(JojoRegistries.CLOTHES_SETS_REG_KEY), ClothesDataComponent::getClothesSet,
 			ClothesSlotType.STREAM_CODEC, ClothesDataComponent::getSlot,
 			SubClothingPiece.STREAM_CODEC.apply(ByteBufCodecs::optional), component -> component.subPiece,
 			ClothesDataComponent::new);

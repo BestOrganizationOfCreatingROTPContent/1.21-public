@@ -2,6 +2,7 @@ package com.github.standobyte.jojo.core;
 
 import com.github.standobyte.jojo.jojoimpl.hamon.HamonSkill;
 import com.github.standobyte.jojo.jojoimpl.hamon.HamonTechnique;
+import com.github.standobyte.jojo.mechanics.StoryPart;
 import com.github.standobyte.jojo.mechanics.clothes.itemdata.ClothesSet;
 import com.github.standobyte.jojo.mechanics.clothes.itemdata.StoryCharacter;
 import com.github.standobyte.jojo.powersystem.ability.AbilityType;
@@ -80,8 +81,12 @@ public final class JojoRegistries {
 			ResourceLocation.fromNamespaceAndPath("ripples_clothes", "character"));
 	
 	
-	public static final ResourceKey<Registry<ClothesSet>> CLOTHES_SET_REG_KEY = ResourceKey.createRegistryKey(
+	public static final ResourceKey<Registry<ClothesSet>> CLOTHES_SETS_REG_KEY = ResourceKey.createRegistryKey(
 			ResourceLocation.fromNamespaceAndPath("ripples_clothes", "clothes"));
+	
+	
+	public static final ResourceKey<Registry<StoryPart>> STORY_PARTS_REG_KEY = ResourceKey.createRegistryKey(
+			ResourceLocation.fromNamespaceAndPath("ripples_clothes", "story_part"));
 	
 	
 	
@@ -106,9 +111,15 @@ public final class JojoRegistries {
 				builder -> {}
 		);
 		
-		event.dataPackRegistry(CLOTHES_SET_REG_KEY,
+		event.dataPackRegistry(CLOTHES_SETS_REG_KEY,
 				ClothesSet.DIRECT_CODEC,
 				ClothesSet.DIRECT_CODEC,
+				builder -> {}
+		);
+		
+		event.dataPackRegistry(STORY_PARTS_REG_KEY,
+				StoryPart.DIRECT_CODEC,
+				StoryPart.DIRECT_CODEC,
 				builder -> {}
 		);
 	}

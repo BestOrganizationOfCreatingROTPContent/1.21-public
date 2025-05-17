@@ -68,7 +68,7 @@ public final class ModItems {
 				ClothesItem clothesFactory = CLOTHES_BASE_ITEM.get();
 				
 				parameters.holders()
-				.lookup(JojoRegistries.CLOTHES_SET_REG_KEY)
+				.lookup(JojoRegistries.CLOTHES_SETS_REG_KEY)
 				.ifPresent(
 						clothesSets -> clothesSets.listElements()
 						.flatMap(setHolder -> {
