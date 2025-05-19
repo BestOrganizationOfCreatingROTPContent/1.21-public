@@ -63,14 +63,20 @@ public class ClothesItem extends Item {
 		var splitPieces = clothes.splitInto(null);
 		if (splitPieces != null) {
 			tooltipComponents.add(Component.translatable("ripples_clothes_split", 
-					splitPieces.getFirst().getStyledHoverName(), splitPieces.getSecond().getStyledHoverName())
+					splitPieces.getFirst().getStyledHoverName()
+							.copy().withStyle(style -> style.withColor(ChatFormatting.GRAY)), 
+					splitPieces.getSecond().getStyledHoverName()
+							.copy().withStyle(style -> style.withColor(ChatFormatting.GRAY)))
 					.withStyle(ChatFormatting.DARK_GRAY));
 		}
 		
 		var canCombinePieces = clothes.combineWithOtherPieceToGetFull(null, null);
 		if (canCombinePieces != null) {
 			tooltipComponents.add(Component.translatable("ripples_clothes_combine", 
-					canCombinePieces.getSecond().itemName, canCombinePieces.getFirst().getStyledHoverName())
+					canCombinePieces.getSecond().itemName
+							.copy().withStyle(style -> style.withColor(ChatFormatting.GRAY)), 
+					canCombinePieces.getFirst().getStyledHoverName()
+							.copy().withStyle(style -> style.withColor(ChatFormatting.GRAY)))
 					.withStyle(ChatFormatting.DARK_GRAY));
 		}
 	}
