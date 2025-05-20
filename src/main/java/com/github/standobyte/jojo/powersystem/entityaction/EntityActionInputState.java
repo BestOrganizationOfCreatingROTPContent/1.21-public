@@ -36,13 +36,14 @@ public class EntityActionInputState implements TickingEntityData {
 
 	// TODO (entity action 2) if the player logs out and the action gets saved in NBT, after relog they won't be able to stop the action - fix that
 	@ApiStatus.Internal
-	public final Int2ObjectMap<HeldInputContainer> heldKeys = new Int2ObjectArrayMap<>();
+	public final Int2ObjectMap<HeldInputEntry> heldKeys = new Int2ObjectArrayMap<>();
 
-	@ApiStatus.Internal
-	public static class HeldInputContainer {
+	public static class HeldInputEntry {
+		public final short keyId;
 		@Nullable public HeldInput action;
 
-		public HeldInputContainer(Ability ability, HeldInput action) {
+		public HeldInputEntry(short keyId, Ability ability, HeldInput action) {
+			this.keyId = keyId;
 			this.action = action;
 		}
 	}
