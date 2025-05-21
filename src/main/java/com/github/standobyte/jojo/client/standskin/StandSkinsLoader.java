@@ -51,8 +51,10 @@ import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.packs.resources.Resource;
 import net.minecraft.server.packs.resources.ResourceManager;
 import net.minecraft.server.packs.resources.SimplePreparableReloadListener;
+import net.minecraft.util.RandomSource;
 import net.minecraft.util.profiling.ProfilerFiller;
 import net.minecraft.util.profiling.Zone;
+import net.minecraft.util.valueproviders.MultipliedFloats;
 import net.neoforged.neoforge.client.event.AddClientReloadListenersEvent;
 import net.neoforged.neoforge.client.resources.VanillaClientListeners;
 
@@ -384,8 +386,43 @@ public class StandSkinsLoader extends SimplePreparableReloadListener<Map<Resourc
 						weighted = sound;
 						break;
 					case SOUND_EVENT:
-						JojoMod.getLogger().error("Stand skin sounds currently do not support \"event\" registration type (sound event {} from Stand skin {})", soundName, standSkin.skinId);
-						continue;
+						weighted = new Weighted<Sound>() {
+							
+							@Override
+							public int getWeight() {
+								WeighedSoundEvents delegate = getSoundEvent(soundLocation);
+								return delegate == null ? 0 : delegate.getWeight();
+							}
+
+							@Override
+							public Sound getSound(RandomSource random) {
+								WeighedSoundEvents delegate = getSoundEvent(soundLocation);
+								if (delegate == null) {
+									return SoundManager.EMPTY_SOUND;
+								} else {
+									Sound sound = delegate.getSound(random);
+									return new Sound(
+											sound.getLocation(),
+											new MultipliedFloats(sound.getVolume(), sound.getVolume()),
+											new MultipliedFloats(sound.getPitch(), sound.getPitch()),
+											sound.getWeight(),
+											Sound.Type.FILE,
+											sound.shouldStream() || sound.shouldStream(),
+											sound.shouldPreload(),
+											sound.getAttenuationDistance()
+											);
+								}
+							}
+
+							@Override
+							public void preloadIfRequired(SoundEngine engine) {
+								WeighedSoundEvents delegate = getSoundEvent(soundLocation);
+								if (delegate != null) {
+									delegate.preloadIfRequired(engine);
+								}
+							}
+						};
+						break;
 					default:
 						throw new IllegalStateException("Unknown SoundEventRegistration type: " + sound.getType());
 				}
@@ -393,6 +430,11 @@ public class StandSkinsLoader extends SimplePreparableReloadListener<Map<Resourc
 				soundEvent.addSound(weighted);
 			}
 		}
+	}
+	
+	@Nullable
+	public static WeighedSoundEvents getSoundEvent(ResourceLocation location) {
+		return Minecraft.getInstance().getSoundManager().getSoundEvent(location);
 	}
 	
 	
