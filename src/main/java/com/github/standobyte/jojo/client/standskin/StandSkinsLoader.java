@@ -68,7 +68,9 @@ public class StandSkinsLoader extends SimplePreparableReloadListener<Map<Resourc
 		event.addListener(id, instance);
 		// We need to add the sound resources from skins to SoundManager#soundCache, otherwise these sounds won't play.
 		// SoundManager#apply clears that map, so we need to apply the Stand skins after SoundManager does its logic.
-		// In case of 1.21.1 backport: move the Stand-specific sounds to the main mod's resources. Adding new sounds via Stand skins will not work.
+		// In case of 1.21.1 backport: 
+		//     the Stand-specific sounds will have to be in the main assets folder and have unique names; 
+		//     adding new sounds via Stand skins will require a sounds.json inside the skin.
 		event.addDependency(VanillaClientListeners.SOUNDS, id);
 	}
 	
