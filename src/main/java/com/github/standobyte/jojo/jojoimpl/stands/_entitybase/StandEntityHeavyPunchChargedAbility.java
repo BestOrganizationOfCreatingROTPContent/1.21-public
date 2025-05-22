@@ -12,9 +12,10 @@ public class StandEntityHeavyPunchChargedAbility extends StandEntityAbility {
 
 	public StandEntityHeavyPunchChargedAbility(AbilityId abilityId) {
 		super(abilityId);
-		setDefaultPhaseLength(ActionPhase.WINDUP, 16);
-		setDefaultPhaseLength(ActionPhase.PERFORM, 8);
-		setDefaultPhaseLength(ActionPhase.RECOVERY, 10);
+		setDefaultPhaseLength(ActionPhase.BUTTON_CHARGE, 16);
+		setDefaultPhaseLength(ActionPhase.WINDUP, 999999);
+		setDefaultPhaseLength(ActionPhase.PERFORM, 6);
+		setDefaultPhaseLength(ActionPhase.RECOVERY, 12);
 	}
 	
 	
@@ -30,12 +31,25 @@ public class StandEntityHeavyPunchChargedAbility extends StandEntityAbility {
 		}
 		
 		@Override
+		public void onButtonStopHold() {
+			switch (getPhase()) {
+				case BUTTON_CHARGE -> {
+					phasesLength.put(ActionPhase.WINDUP, 0f);
+					syncPhaseChanges();
+				}
+				case WINDUP -> {
+					startPhase(ActionPhase.PERFORM);
+					syncPhaseChanges();
+				}
+				default -> {}
+			}
+		}
+		
+		@Override
 		public void actionPerformStart() {
 			setStandOffset(0, 2, StandOffsetFromUser.OffsetMode.HEAD_XY, false);
 		}
 		
-		// TODO !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!! stop on the windup phase if the key hasn't been released
-
 		@Override
 		public void actionPerformEnd() {
 			JojoMod.LOGGER.debug("ORAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA");

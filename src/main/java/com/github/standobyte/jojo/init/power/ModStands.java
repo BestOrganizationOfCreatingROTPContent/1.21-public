@@ -38,14 +38,12 @@ public class ModStands {
 					.addAbility("punch4", 				ModStandAbilities.PUNCH, false, 
 							punch -> punch.setDefaultPhaseLength(ActionPhase.WINDUP, 5)
 					)
-//					.addAbility("low_kick", 			ModStandAbilities.PUNCH, false)
 
 					.addAbility("heavy_punch", 			ModStandAbilities.HEAVY_PUNCH, true)
 					.addAbility("heavy_punch2", 		ModStandAbilities.HEAVY_PUNCH, false)
 					.addAbility("uppercut", 			ModStandAbilities.HEAVY_PUNCH, false)
-//					.addAbility("heavy_kick", 			ModStandAbilities.HEAVY_PUNCH, false)
 					
-//					.addAbility("heavy_charged", 		ModStandAbilities.HEAVY_CHARGED, true)
+					.addAbility("heavy_charged", 		ModStandAbilities.HEAVY_CHARGED, true)
 					
 					.addAbility("barrage", 				ModStandAbilities.BARRAGE, true)
 					

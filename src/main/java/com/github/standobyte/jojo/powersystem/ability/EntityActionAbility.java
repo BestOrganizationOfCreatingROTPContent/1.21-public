@@ -42,20 +42,23 @@ public class EntityActionAbility extends Ability implements EntityActionType {
 	
 	@ApiStatus.OverrideOnly
 	public void initActionFromConfig(EntityActionInstance action, Level level, LivingEntity user) {
-		action.phasesLength.put(ActionPhase.WINDUP, windupLength.getAsFloat());
-		action.phasesLength.put(ActionPhase.PERFORM, performLength.getAsFloat());
-		action.phasesLength.put(ActionPhase.RECOVERY, recoveryLength.getAsFloat());
+		action.phasesLength.put(ActionPhase.BUTTON_CHARGE, buttonChargePhase.getAsFloat());
+		action.phasesLength.put(ActionPhase.WINDUP, windupPhase.getAsFloat());
+		action.phasesLength.put(ActionPhase.PERFORM, performPhase.getAsFloat());
+		action.phasesLength.put(ActionPhase.RECOVERY, recoveryPhase.getAsFloat());
 	}
-	
-	protected MolangValue windupLength = new MolangValue.Literal(0);
-	protected MolangValue performLength = new MolangValue.Literal(1);
-	protected MolangValue recoveryLength = new MolangValue.Literal(0);
+
+	protected MolangValue buttonChargePhase = new MolangValue.Literal(0);
+	protected MolangValue windupPhase = new MolangValue.Literal(0);
+	protected MolangValue performPhase = new MolangValue.Literal(1);
+	protected MolangValue recoveryPhase = new MolangValue.Literal(0);
 	
 	public void setDefaultPhaseLength(ActionPhase phase, float length) {
 		switch (phase) {
-			case WINDUP -> windupLength = new MolangValue.Literal(length);
-			case PERFORM -> performLength = new MolangValue.Literal(length);
-			case RECOVERY -> recoveryLength = new MolangValue.Literal(length);
+			case BUTTON_CHARGE -> buttonChargePhase = new MolangValue.Literal(length);
+			case WINDUP -> windupPhase = new MolangValue.Literal(length);
+			case PERFORM -> performPhase = new MolangValue.Literal(length);
+			case RECOVERY -> recoveryPhase = new MolangValue.Literal(length);
 		}
 	}
 
