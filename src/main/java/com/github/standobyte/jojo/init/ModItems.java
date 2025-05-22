@@ -2,14 +2,13 @@ package com.github.standobyte.jojo.init;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Optional;
 import java.util.stream.Stream;
 
 import com.github.standobyte.jojo.core.JojoMod;
+import com.github.standobyte.jojo.core.JojoRegistries;
 import com.github.standobyte.jojo.mc.item.DebugItem;
 import com.github.standobyte.jojo.mc.item.StandDiscItem;
 import com.github.standobyte.jojo.mc.item.component.StandWrittenOnDisc;
-import com.github.standobyte.jojo.core.JojoRegistries;
 import com.github.standobyte.jojo.mechanics.clothes.ClothesItem;
 import com.github.standobyte.jojo.mechanics.clothes.itemdata.ClothesDataComponent;
 import com.github.standobyte.jojo.mechanics.clothes.itemdata.ClothesPiece;
