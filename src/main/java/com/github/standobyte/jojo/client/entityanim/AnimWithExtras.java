@@ -127,7 +127,7 @@ public class AnimWithExtras {
 						animSeconds = Mth.lerp(entityAction.phaseCompletion, curPhaseTime, nextPhaseTime);
 						appliedPhaseAnim = true;
 					}
-					case PRESERVE_PHASE_LENGTH -> {
+					case CONSTANT_LENGTH -> {
 						animSeconds = curPhaseTime + entityAction.phaseTime / 20f;
 //						if (entity != null && animSeconds >= this.animation.lengthInSeconds()) {
 //							entity.onSetPoseAnimEnded();

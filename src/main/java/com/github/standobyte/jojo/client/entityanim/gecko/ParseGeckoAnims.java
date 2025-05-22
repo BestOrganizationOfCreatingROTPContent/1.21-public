@@ -193,7 +193,12 @@ public class ParseGeckoAnims {
 			}
 			catch (NumberFormatException e) {}
 		}
-		return new AnimActionPhase(phase, AnimActionPhase.Mode.FIT_PHASE_LENGTH);
+		
+		AnimActionPhase.Mode mode = AnimActionPhase.Mode.FIT_PHASE_LENGTH;
+		if ("true".equals(assignmentMap.get("phase.constantLength"))) {
+			mode = AnimActionPhase.Mode.CONSTANT_LENGTH;
+		}
+		return new AnimActionPhase(phase, mode);
 	}
 
 }

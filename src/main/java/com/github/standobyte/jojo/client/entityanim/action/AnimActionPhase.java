@@ -25,7 +25,7 @@ public class AnimActionPhase {
 	
 	public enum Mode {
 		FIT_PHASE_LENGTH,
-		PRESERVE_PHASE_LENGTH,
+		CONSTANT_LENGTH,
 		LOOP_BACK;
 	}
 }
