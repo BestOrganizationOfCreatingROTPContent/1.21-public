@@ -25,7 +25,7 @@ public class EntityActionInstance implements HeldInput {
 	/** Is used in network code, to make sure server and client are on the same page when sending changes to the action's phases from server */
 	@ApiStatus.Internal public int id;
 	@Nonnull public final EntityActionType ability;
-	public Map<ActionPhase, Float> phasesLength;
+	@ApiStatus.Internal public Map<ActionPhase, Float> phasesLength;
 	
 	@Nonnull protected ActionPhase phase;
 	protected int curPhaseTick;
@@ -220,7 +220,7 @@ public class EntityActionInstance implements HeldInput {
 			if (getPhaseTick() < 1) {
 				actionPerformStart();
 			}
-			if (getPhaseTick() == curPhaseLength) {
+			if (getPhaseTick() == curPhaseLength - 1) {
 				actionPerformEnd();
 			}
 		}
