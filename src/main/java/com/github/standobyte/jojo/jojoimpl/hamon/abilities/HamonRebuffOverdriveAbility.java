@@ -28,7 +28,7 @@ public class HamonRebuffOverdriveAbility extends EntityActionAbility {
 		}
 
 		@Override
-		public void actionPerform() {
+		public void actionPerformStart() {
 			JojoMod.LOGGER.debug("REBUFF OVERDRIVE");
 		}
 	}

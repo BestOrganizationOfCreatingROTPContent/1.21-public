@@ -6,14 +6,15 @@ import com.github.standobyte.jojo.powersystem.entityaction.ActionPhase;
 import com.github.standobyte.jojo.powersystem.entityaction.EntityActionInstance;
 import com.github.standobyte.jojo.powersystem.entityaction.type.EntityActionType;
 import com.github.standobyte.jojo.powersystem.standpower.entity.StandEntityAbility;
+import com.github.standobyte.jojo.powersystem.standpower.entity.StandOffsetFromUser;
 
 public class StandEntityHeavyPunchChargedAbility extends StandEntityAbility {
 
 	public StandEntityHeavyPunchChargedAbility(AbilityId abilityId) {
 		super(abilityId);
-		setDefaultPhaseLength(ActionPhase.WINDUP, 10);
-		setDefaultPhaseLength(ActionPhase.PERFORM, 10);
-		setDefaultPhaseLength(ActionPhase.RECOVERY, 20);
+		setDefaultPhaseLength(ActionPhase.WINDUP, 16);
+		setDefaultPhaseLength(ActionPhase.PERFORM, 8);
+		setDefaultPhaseLength(ActionPhase.RECOVERY, 10);
 	}
 	
 	
@@ -27,9 +28,16 @@ public class StandEntityHeavyPunchChargedAbility extends StandEntityAbility {
 		public StandEntityChargedHeavy(EntityActionType ability) {
 			super(ability);
 		}
+		
+		@Override
+		public void actionPerformStart() {
+			setStandOffset(0, 2, StandOffsetFromUser.OffsetMode.HEAD_XY, false);
+		}
+		
+		// TODO !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!! stop on the windup phase if the key hasn't been released
 
 		@Override
-		public void actionPerform() {
+		public void actionPerformEnd() {
 			JojoMod.LOGGER.debug("ORAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA");
 		}
 	}

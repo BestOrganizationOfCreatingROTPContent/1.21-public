@@ -31,7 +31,7 @@ public class HamonSunlightYellowOverdriveAbility extends EntityActionAbility {
 		public void onButtonStopHold() {
 			if (getPhase() == ActionPhase.WINDUP) {
 				if (getPhaseTick() >= 10) {
-					setPhase(ActionPhase.PERFORM);
+					startPhase(ActionPhase.PERFORM);
 					syncPhaseChanges();
 				}
 				else {
@@ -42,7 +42,7 @@ public class HamonSunlightYellowOverdriveAbility extends EntityActionAbility {
 		}
 
 		@Override
-		public void actionPerform() {
+		public void actionPerformStart() {
 			JojoMod.LOGGER.debug("НЫЫЫЫЫЫЫЫЫЫЫЫЫЫЫЫЫЫЫЫАААААААААА");
 		}
 	}

@@ -8,6 +8,8 @@ import org.jetbrains.annotations.ApiStatus;
 
 import com.github.standobyte.jojo.powersystem.entityaction.netcode.TrEntityActionPhaseTimePacket;
 import com.github.standobyte.jojo.powersystem.entityaction.type.EntityActionType;
+import com.github.standobyte.jojo.powersystem.standpower.entity.StandEntity;
+import com.github.standobyte.jojo.powersystem.standpower.entity.StandOffsetFromUser;
 import com.github.standobyte.jojo.util.mc.EntityResolver;
 
 import net.minecraft.Util;
@@ -15,9 +17,10 @@ import net.minecraft.network.RegistryFriendlyByteBuf;
 import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.util.Mth;
 import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.phys.Vec3;
 import net.neoforged.neoforge.network.PacketDistributor;
 
-// TODO (entity action) test the phase lengths stuff
+// TODO (entity action) test the phase lengths stuff (with partial lengths and lengths < 1)
 public class EntityActionInstance implements HeldInput {
 	/** Is used in network code, to make sure server and client are on the same page when sending changes to the action's phases from server */
 	@ApiStatus.Internal public int id;
@@ -28,10 +31,11 @@ public class EntityActionInstance implements HeldInput {
 	protected int curPhaseTick;
 	protected float curPhaseLength;
 	protected float phasePartialTick;
-	protected boolean _calledPerform = false;
 	
 	protected LivingEntity performer;
 	protected EntityResolver powerUser = new EntityResolver();
+	
+	protected boolean stoppedHolding = false;
 	
 	public EntityActionInstance(EntityActionType ability) {
 		this.ability = ability;
@@ -39,7 +43,7 @@ public class EntityActionInstance implements HeldInput {
 	}
 	
 	public void setPhaseZero() {
-		setPhase(ActionPhase.values()[0]);
+		startPhase(ActionPhase.values()[0]);
 	}
 	
 
@@ -54,7 +58,12 @@ public class EntityActionInstance implements HeldInput {
 	}
 
 	@ApiStatus.OverrideOnly
-	public void actionPerform() {
+	public void actionPerformStart() {
+		
+	}
+
+	@ApiStatus.OverrideOnly
+	public void actionPerformEnd() {
 		
 	}
 
@@ -66,12 +75,26 @@ public class EntityActionInstance implements HeldInput {
 	@ApiStatus.OverrideOnly
 	public void onButtonStopHold() {
 		
-		
 	}
 	
 	@ApiStatus.OverrideOnly
 	public boolean canBeCancelledInto(EntityActionType cancellingAbility) {
 		return phase == ActionPhase.RECOVERY;
+	}
+	
+	
+	// Some helper methods (one so far) to write less boilerplate in Stand abilities
+	
+	protected void setStandOffset(double left, double front, StandOffsetFromUser.OffsetMode offsetMode, boolean changeOnlyIfIdle) {
+		if (performer instanceof StandEntity standEntity) {
+			LivingEntity user = getPowerUser();
+			if (user != null && (!changeOnlyIfIdle || standEntity.offsetFromUser.isIdle())) {
+				standEntity.offsetFromUser.setOffset(
+						new Vec3(left, StandEntity.Y_OFFSET, front), 
+						offsetMode, 
+						user);
+			}
+		}
 	}
 	
 	
@@ -114,7 +137,7 @@ public class EntityActionInstance implements HeldInput {
 
 	@ApiStatus.NonExtendable
 	public void forceStop() {
-		setPhase(null);
+		startPhase(null);
 	}
 
 	@ApiStatus.NonExtendable
@@ -151,7 +174,7 @@ public class EntityActionInstance implements HeldInput {
 		this.phasePartialTick = partialTick;
 	}
 	
-	public void setPhase(ActionPhase phase) {
+	public void startPhase(ActionPhase phase) {
 		setPhase(phase, 0);
 	}
 
@@ -180,25 +203,6 @@ public class EntityActionInstance implements HeldInput {
 		}
 	}
 
-	@ApiStatus.Internal
-	protected void checkNextPhase() {
-		if (isOver()) return;
-		ActionPhase[] phases = ActionPhase.values();
-		if (phase != null && getPhaseTick() >= curPhaseLength) {
-			int ordinal = phase.ordinal() + 1;
-			ActionPhase nextPhase = ordinal < phases.length ? phases[ordinal] : null;
-			tickSkippedNonZeroPhase();
-			setPhase(nextPhase);
-		}
-	}
-
-	@ApiStatus.Internal
-	protected void tickSkippedNonZeroPhase() {
-		if (curPhaseTick == 0 && curPhaseLength > 0) {
-			_onTick();
-		}
-	}
-	
 	
 	@ApiStatus.Internal
 	public void _tickAction() {
@@ -212,12 +216,31 @@ public class EntityActionInstance implements HeldInput {
 	@ApiStatus.Internal
 	protected void _onTick() {
 		actionTick();
-		if (phase == ActionPhase.PERFORM && getPhaseTick() < 1 && !_calledPerform) {
-			actionPerform();
-			_calledPerform = true;
+		if (phase == ActionPhase.PERFORM) {
+			if (getPhaseTick() < 1) {
+				actionPerformStart();
+			}
+			if (getPhaseTick() == curPhaseLength) {
+				actionPerformEnd();
+			}
+		}
+	}
+	
+	@ApiStatus.Internal
+	protected void checkNextPhase() {
+		if (!isOver() && getPhaseTick() >= curPhaseLength) {
+			// tick a skipped non-zero phase
+			if (curPhaseTick == 0 && curPhaseLength > 0 && curPhaseLength <= 1) {
+				_onTick();
+			}
+			
+			int ordinal = phase.ordinal() + 1;
+			ActionPhase nextPhase = ordinal < ActionPhase.values().length ? ActionPhase.values()[ordinal] : null;
+			startPhase(nextPhase);
 		}
 	}
 
+	
 	@Override
 	@ApiStatus.Internal
 	public void onStopHeld(LivingEntity user) {

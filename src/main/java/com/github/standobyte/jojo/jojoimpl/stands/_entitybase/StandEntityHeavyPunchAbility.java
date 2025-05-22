@@ -6,29 +6,36 @@ import com.github.standobyte.jojo.powersystem.entityaction.ActionPhase;
 import com.github.standobyte.jojo.powersystem.entityaction.EntityActionInstance;
 import com.github.standobyte.jojo.powersystem.entityaction.type.EntityActionType;
 import com.github.standobyte.jojo.powersystem.standpower.entity.StandEntityAbility;
+import com.github.standobyte.jojo.powersystem.standpower.entity.StandOffsetFromUser;
 
 public class StandEntityHeavyPunchAbility extends StandEntityAbility {
 
 	public StandEntityHeavyPunchAbility(AbilityId abilityId) {
 		super(abilityId);
-		setDefaultPhaseLength(ActionPhase.WINDUP, 10);
-		setDefaultPhaseLength(ActionPhase.RECOVERY, 10);
+		setDefaultPhaseLength(ActionPhase.WINDUP, 8);
+		setDefaultPhaseLength(ActionPhase.PERFORM, 4);
+		setDefaultPhaseLength(ActionPhase.RECOVERY, 20);
 	}
 	
 	
 	@Override
 	public EntityActionInstance createActionObj() {
-		return new StandEntityChargedHeavy(this);
+		return new StandEntityHeavyPunch(this);
 	}
 	
-	public static class StandEntityChargedHeavy extends EntityActionInstance {
+	public static class StandEntityHeavyPunch extends EntityActionInstance {
 
-		public StandEntityChargedHeavy(EntityActionType ability) {
+		public StandEntityHeavyPunch(EntityActionType ability) {
 			super(ability);
+		}
+		
+		@Override
+		public void onActionSet() {
+			setStandOffset(0, 2, StandOffsetFromUser.OffsetMode.HEAD_XY, false);
 		}
 
 		@Override
-		public void actionPerform() {
+		public void actionPerformEnd() {
 			JojoMod.LOGGER.debug("ORAAAAA");
 		}
 	}

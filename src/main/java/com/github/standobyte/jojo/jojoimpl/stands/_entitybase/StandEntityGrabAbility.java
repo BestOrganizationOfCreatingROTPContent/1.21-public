@@ -24,7 +24,7 @@ public class StandEntityGrabAbility extends StandEntityAbility {
 		}
 		
 		@Override
-		public void actionPerform() {
+		public void actionPerformStart() {
 		}
 		
 	}

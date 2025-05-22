@@ -28,7 +28,7 @@ public class HamonOverdriveBeatAbility extends EntityActionAbility {
 		}
 
 		@Override
-		public void actionPerform() {
+		public void actionPerformStart() {
 			JojoMod.LOGGER.debug("НЫА");
 		}
 	}
