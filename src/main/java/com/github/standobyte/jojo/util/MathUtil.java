@@ -6,6 +6,7 @@ import com.github.standobyte.jojo.util.reflection.ReflectionUtil;
 
 import net.minecraft.Util;
 import net.minecraft.util.Mth;
+import net.minecraft.world.phys.AABB;
 import net.neoforged.fml.util.ObfuscationReflectionHelper;
 
 public final class MathUtil {
@@ -29,7 +30,20 @@ public final class MathUtil {
 	public static float tan(float angle) {
 		return TAN[(int)(angle * 10430.378F) & 65535];
 	}
+
 	
+	public static double getAABBDistance(AABB aabb1, AABB aabb2) {
+		double x1 = Math.min(aabb1.maxX, aabb2.maxX);
+		double x2 = Math.max(aabb1.minX, aabb2.minX);
+		double xDiff = Math.max(x2 - x1, 0);
+		double y1 = Math.min(aabb1.maxY, aabb2.maxY);
+		double y2 = Math.max(aabb1.minY, aabb2.minY);
+		double yDiff = Math.max(y2 - y1, 0);
+		double z1 = Math.min(aabb1.maxZ, aabb2.maxZ);
+		double z2 = Math.max(aabb1.minZ, aabb2.minZ);
+		double zDiff = Math.max(z2 - z1, 0);
+		return Math.sqrt(xDiff * xDiff + yDiff * yDiff + zDiff * zDiff);
+	}
 	
 	
 	public static int min(int num1, int num2, int... nums) {

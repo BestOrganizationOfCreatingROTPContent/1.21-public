@@ -60,7 +60,9 @@ public class StandOffsetFromUser {
 	
 	public Vec3 getPosition(LivingEntity userEntity) {
 		Vec3 offset = getAbsoluteOffset(userEntity, standEntity.level().isClientSide());
-		Vec3 pos = userEntity.position().add(offset);
+		Vec3 userCenter = userEntity.getBoundingBox().getCenter();
+		Vec3 standCenter = userCenter.add(offset);
+		Vec3 pos = standCenter.subtract(0, standEntity.getBoundingBox().getYsize() / 2, 0);
 		return pos;
 	}
 	
