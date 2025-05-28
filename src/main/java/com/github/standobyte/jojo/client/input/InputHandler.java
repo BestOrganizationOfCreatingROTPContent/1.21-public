@@ -1,9 +1,11 @@
 package com.github.standobyte.jojo.client.input;
 
+import java.util.ArrayDeque;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Queue;
 
 import javax.annotation.Nullable;
 
@@ -32,9 +34,11 @@ import it.unimi.dsi.fastutil.ints.Int2ObjectOpenHashMap;
 import net.minecraft.Util;
 import net.minecraft.client.KeyMapping;
 import net.minecraft.client.Minecraft;
+import net.minecraft.client.gui.screens.ChatScreen;
 import net.minecraft.network.RegistryFriendlyByteBuf;
 import net.minecraft.world.entity.player.Player;
 import net.neoforged.bus.api.EventPriority;
+import net.neoforged.bus.api.ICancellableEvent;
 import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.neoforge.client.event.ClientTickEvent;
 import net.neoforged.neoforge.client.event.InputEvent;
@@ -104,6 +108,7 @@ public class InputHandler {
 		for (var heldKey : heldKeys.values()) {
 			heldKey.incTicks();
 		}
+		tickReleaseEventQueue();
 	}
 	
 	@SubscribeEvent
@@ -112,27 +117,59 @@ public class InputHandler {
 		frameUpdateHeldKeys(tickDelta);
 	}
 
+
 	
+	public static record GeneralizedInput(InputConstants.Type keyType, int keyCode, int action, int modifiers) {
+		public Key getKey() { return keyType.getOrCreate(keyCode); }
+	}
 	
 	@SubscribeEvent(priority = EventPriority.LOW)
 	public void handleKeyInput(PreKeyInputEvent event) {
 		if (mc.getConnection() == null) return;
-		
-		Key key = InputConstants.getKey(event.getKey(), event.getScanCode());
-		if (input(keyId(key), key, key, event.getAction(), event.getModifiers())) {
-			event.setCanceled(true);
+
+		InputConstants.Type keyType;
+		int keyCode;
+		if (event.getKey() == -1) {
+			keyType = InputConstants.Type.SCANCODE;
+			keyCode = event.getScanCode();
 		}
+		else {
+			keyType = InputConstants.Type.KEYSYM;
+			keyCode = event.getKey();
+		}
+		GeneralizedInput input = new GeneralizedInput(keyType, keyCode, event.getAction(), event.getModifiers());
+		handleInputEvent(input, event);
 	}
 	
 	@SubscribeEvent(priority = EventPriority.LOW)
 	public void handleMouseInput(InputEvent.MouseButton.Pre event) {
 		if (mc.getConnection() == null) return;
 		
-		Key key = InputConstants.Type.MOUSE.getOrCreate(event.getButton());
-		if (input(keyId(key), key, key, event.getAction(), event.getModifiers())) {
+		GeneralizedInput input = new GeneralizedInput(InputConstants.Type.MOUSE, event.getButton(), event.getAction(), event.getModifiers());
+		handleInputEvent(input, event);
+	}
+	
+	public void handleInputEvent(GeneralizedInput input, ICancellableEvent event) {
+		if (input.action() == InputConstants.RELEASE && mc.screen instanceof ChatScreen) {
+			keyReleaseEventQueue.add(input);
+		}
+		else if (input(input)) {
 			event.setCanceled(true);
 		}
 	}
+	
+	protected void tickReleaseEventQueue() {
+		if (!keyReleaseEventQueue.isEmpty() && mc.getConnection() != null && mc.screen == null) {
+			for (GeneralizedInput keyRelease : keyReleaseEventQueue) {
+				input(keyRelease);
+			}
+			keyReleaseEventQueue.clear();
+		}
+	}
+	
+	private Queue<GeneralizedInput> keyReleaseEventQueue = new ArrayDeque<>();
+	
+	
 
 	private Key lAlt = InputConstants.Type.KEYSYM.getOrCreate(InputConstants.KEY_LALT);
 	private Key LMB = InputConstants.Type.MOUSE.getOrCreate(InputConstants.MOUSE_BUTTON_LEFT);
@@ -155,6 +192,11 @@ public class InputHandler {
 			}
 		}
 		return null;
+	}
+	
+	public boolean input(GeneralizedInput input) {
+		Key key = input.getKey();
+		return input(keyId(key), key, key, input.action(), input.modifiers());
 	}
 
 	// TODO (!!!) input queue (make it possible to queue a barrage midway through a jab combo)
