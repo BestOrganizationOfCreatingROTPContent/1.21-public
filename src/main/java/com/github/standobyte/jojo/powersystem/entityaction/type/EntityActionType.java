@@ -6,6 +6,7 @@ import com.github.standobyte.jojo.core.JojoRegistries;
 import com.github.standobyte.jojo.powersystem.ability.Ability;
 import com.github.standobyte.jojo.powersystem.ability.AbilityId.AbilityInputNetwork;
 import com.github.standobyte.jojo.powersystem.entityaction.ActionAnimIdentifier;
+import com.github.standobyte.jojo.powersystem.entityaction.ActionPhase;
 import com.github.standobyte.jojo.powersystem.entityaction.EntityActionInstance;
 import com.github.standobyte.jojo.powersystem.entityaction.LivingComponentAction;
 import com.github.standobyte.jojo.powersystem.playerpower.PlayerPower;
@@ -39,7 +40,11 @@ public interface EntityActionType {
 	}
 
 	@ApiStatus.OverrideOnly
-	void initActionFromConfig(EntityActionInstance action, Level level, LivingEntity user);
+	default void initActionFromConfig(EntityActionInstance action, Level level, LivingEntity user) {
+		for (ActionPhase phase : ActionPhase.values()) {
+			action.phasesLength.put(phase, phase == ActionPhase.PERFORM ? 1f : 0f);
+		}
+	}
 
 
 	@ApiStatus.Internal

@@ -40,12 +40,18 @@ public class EntityActionAbility extends Ability implements EntityActionType {
 	}
 	
 	
+	/**
+	 * Is used to initialize some EntityActionInstance values, 
+	 * that are either configurable (stuff like phases length), 
+	 * or are context-dependent.
+	 */
 	@ApiStatus.OverrideOnly
 	public void initActionFromConfig(EntityActionInstance action, Level level, LivingEntity user) {
-		action.phasesLength.put(ActionPhase.BUTTON_CHARGE, buttonChargePhase.getAsFloat());
-		action.phasesLength.put(ActionPhase.WINDUP, windupPhase.getAsFloat());
-		action.phasesLength.put(ActionPhase.PERFORM, performPhase.getAsFloat());
-		action.phasesLength.put(ActionPhase.RECOVERY, recoveryPhase.getAsFloat());
+		var map = action.phasesLength;
+		if (!map.containsKey(ActionPhase.BUTTON_CHARGE))	map.put(ActionPhase.BUTTON_CHARGE,	buttonChargePhase.getAsFloat());
+		if (!map.containsKey(ActionPhase.WINDUP))			map.put(ActionPhase.WINDUP,			windupPhase.getAsFloat());
+		if (!map.containsKey(ActionPhase.PERFORM))			map.put(ActionPhase.PERFORM,		performPhase.getAsFloat());
+		if (!map.containsKey(ActionPhase.RECOVERY))			map.put(ActionPhase.RECOVERY,		recoveryPhase.getAsFloat());
 	}
 
 	protected MolangValue buttonChargePhase = new MolangValue.Literal(0);

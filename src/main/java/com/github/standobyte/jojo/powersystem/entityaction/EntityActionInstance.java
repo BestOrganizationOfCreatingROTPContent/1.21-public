@@ -1,5 +1,6 @@
 package com.github.standobyte.jojo.powersystem.entityaction;
 
+import java.util.EnumMap;
 import java.util.Map;
 
 import javax.annotation.Nonnull;
@@ -39,7 +40,7 @@ public class EntityActionInstance implements HeldInput {
 	
 	public EntityActionInstance(EntityActionType ability) {
 		this.ability = ability;
-		this.phasesLength = Util.makeEnumMap(ActionPhase.class, phase -> phase == ActionPhase.PERFORM ? 1f : 0f);
+		this.phasesLength = new EnumMap<>(ActionPhase.class);
 	}
 	
 	public void setPhaseZero() {
