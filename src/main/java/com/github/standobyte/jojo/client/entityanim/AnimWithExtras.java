@@ -1,11 +1,13 @@
 package com.github.standobyte.jojo.client.entityanim;
 
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
 import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 
 import org.joml.Vector3f;
 
@@ -32,14 +34,14 @@ import net.minecraft.util.Mth;
 
 public class AnimWithExtras {
 	protected final AnimationDefinition animation;
-	protected final Map<Keyframe, KeyframeQuery> queries;
+	protected final List<KeyframeQuery> queries;
 	protected final AnimInstructionTimelines instructionTimelines;
 	
 //	public float animTime;
 	
-	public AnimWithExtras(AnimationDefinition anim, Map<Keyframe, KeyframeQuery> queries, AnimInstructionTimelines instructionTimelines) {
+	public AnimWithExtras(AnimationDefinition anim, @Nullable List<KeyframeQuery> queries, AnimInstructionTimelines instructionTimelines) {
 		this.animation = anim;
-		this.queries = queries != null ? queries : Collections.emptyMap();
+		this.queries = queries != null ? queries : Collections.emptyList();
 		this.instructionTimelines = instructionTimelines;
 	}
 
@@ -220,7 +222,7 @@ public class AnimWithExtras {
 	
 	private void evaluateQueries(LivingEntityRenderState renderState) {
 		AnimMolangQuery.instance.fillContext(renderState);
-		queries.values().forEach(KeyframeQuery::evaluate);
+		queries.forEach(KeyframeQuery::evaluate);
 	}
 	
 
@@ -231,7 +233,7 @@ public class AnimWithExtras {
 	
 	public static class Builder {
 		protected final AnimationDefinition.Builder vanillaAnimBuilder;
-		protected final Map<Keyframe, KeyframeQuery> queries = new HashMap<>();
+		protected List<KeyframeQuery> queries = null;
 		protected final AnimInstructionTimelines instructions = new AnimInstructionTimelines();
 		
 		public Builder(AnimationDefinition.Builder vanillaAnimBuilder) {
@@ -243,8 +245,9 @@ public class AnimWithExtras {
 		}
 		
 		public void addExpressionQuery(KeyframeQuery query) {
+			if (queries == null) queries = new ArrayList<>();
 			if (!query.isNumericLiteral()) {
-				queries.put(query.getKeyframe(), query);
+				queries.add(query);
 			}
 		}
 		
