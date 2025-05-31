@@ -8,6 +8,7 @@ import com.github.standobyte.jojo.core.PacketsRegister;
 import com.github.standobyte.jojo.powersystem.entityaction.ActionPhase;
 import com.github.standobyte.jojo.powersystem.entityaction.EntityActionInstance;
 import com.github.standobyte.jojo.powersystem.entityaction.LivingComponentAction;
+import com.github.standobyte.jojo.util.network.NetworkUtil;
 
 import net.minecraft.network.RegistryFriendlyByteBuf;
 import net.minecraft.network.codec.ByteBufCodecs;
@@ -51,7 +52,7 @@ public record TrEntityActionPhaseTimePacket(int performerId,
 						size -> new EnumMap<>(ActionPhase.class), 
 						NeoForgeStreamCodecs.enumCodec(ActionPhase.class), 
 						ByteBufCodecs.FLOAT), TrEntityActionPhaseTimePacket::phasesLength,
-				NeoForgeStreamCodecs.enumCodec(ActionPhase.class), TrEntityActionPhaseTimePacket::phase,
+				NeoForgeStreamCodecs.enumCodec(ActionPhase.class).apply(NetworkUtil::nullableCodec), TrEntityActionPhaseTimePacket::phase,
 				ByteBufCodecs.VAR_INT, TrEntityActionPhaseTimePacket::curPhaseTick,
 				TrEntityActionPhaseTimePacket::new);
 
