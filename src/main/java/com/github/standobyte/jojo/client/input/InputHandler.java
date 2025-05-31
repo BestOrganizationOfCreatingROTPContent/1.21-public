@@ -247,7 +247,7 @@ public class InputHandler {
 						ClickHoldResolve keyResolution = heldTicks.clickHoldResolve;
 						var wasItClick = keyResolution.keyReleased();
 						if (wasItClick != null && wasItClick.input() == ClickHoldResolve.InputState.CLICK) {
-							JojoMod.LOGGER.debug("aight, it is click (took {} ticks)", wasItClick.timeTook());
+							JojoMod.LOGGER.debug("input is click: {}, took {} ticks to resolve", keyResolution.clickAbility.abilityId.nameInMoveset(), wasItClick.timeTook());
 							doInput(InputEventType.PRESS_CLICK, keyId, keyResolution.power, keyResolution.clickAbility, wasItClick.timeTook());
 						}
 					}
@@ -318,7 +318,7 @@ public class InputHandler {
 						// TODO (!!!!) only set the animation for the held ability action to the entity, but not the actual action yet
 						case ASSUME_HOLD -> {}
 						case HOLD -> {
-							JojoMod.LOGGER.debug("aight, it is hold (took {} ticks)", changedState.timeTook());
+							JojoMod.LOGGER.debug("input is held: {}, took {} ticks to resolve", timer.clickHoldResolve.heldAbility.abilityId.nameInMoveset(), changedState.timeTook());
 							doInput(InputEventType.PRESS_HOLD, timer.keyId, timer.clickHoldResolve.power, timer.clickHoldResolve.heldAbility, changedState.timeTook());
 							timer.clickHoldResolve = null;
 						}
