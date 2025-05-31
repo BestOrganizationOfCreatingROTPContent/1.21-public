@@ -3,8 +3,8 @@ package com.github.standobyte.jojo.client.entityanim;
 import javax.annotation.Nullable;
 
 import com.github.standobyte.jojo.client.entityrender.EntityActionRenderState;
-import com.github.standobyte.jojo.powersystem.entityaction.LivingComponentAction;
 import com.github.standobyte.jojo.powersystem.entityaction.EntityActionInstance;
+import com.github.standobyte.jojo.powersystem.entityaction.LivingComponentAction;
 
 import net.minecraft.client.model.HumanoidModel;
 import net.minecraft.client.renderer.entity.state.HumanoidRenderState;
@@ -25,16 +25,42 @@ public class RipplesPlayerRenderState {
 		if (action != null) {
 			modRenderState.animSet = action.ability.getEntityAnimSet(entity);
 		}
+		EntityActionRenderState.setAnim(modRenderState.entityAction, vanillaRenderState, 
+				getPlayerAnim(modRenderState), null);
 		
 		if (modRenderState.entityAction.disableCrouch) vanillaRenderState.isCrouching = false;
 	}
 
-	public static boolean setupAnim(HumanoidModel<?> model, HumanoidRenderState vanillaRenderState, RipplesPlayerRenderState modRenderState) {
-		EntityActionRenderState action = modRenderState.entityAction; 								if (action.anim == null || modRenderState.animSet == null) return false;
-		AnimationSet animSet = AnimationLoader.getInstance().getAnimSet(modRenderState.animSet); 	if (animSet == null) return false;
-		AnimWithExtras anim = animSet.getNamedAnim(action.anim); 									if (anim == null) return false;
-		anim.animateVanillaPlayer(model, vanillaRenderState, action, 1);
-		return true;
+	public static boolean setupModelAnim(HumanoidModel<?> model, HumanoidRenderState vanillaRenderState, RipplesPlayerRenderState modRenderState) {
+		AnimWithExtras anim = modRenderState.entityAction.anim;
+		float seconds = modRenderState.entityAction.timeSeconds;
+//		if (anim == null) {
+//			anim = getPlayerAnim(modRenderState);
+//			if (anim != null) {
+//				seconds = anim.getAnimTime(modRenderState.entityAction);
+//			}
+//		}
+		
+		if (anim != null) {
+			anim.animateVanillaPlayer(model, vanillaRenderState, seconds, 1);
+			return true;
+		}
+		
+		return false;
+	}
+	
+	public static AnimWithExtras getPlayerAnim(RipplesPlayerRenderState modRenderState) {
+		if (modRenderState.animSet != null) {
+			EntityActionRenderState action = modRenderState.entityAction;
+			if (action.animId != null) {
+				AnimationSet animSet = AnimationLoader.getInstance().getAnimSet(modRenderState.animSet);
+				if (animSet != null) {
+					AnimWithExtras anim = animSet.getNamedAnim(action.animId);
+					return anim;
+				}
+			}
+		}
+		return null;
 	}
 	
 	public static interface RipplesRenderStateExtensionMixin {

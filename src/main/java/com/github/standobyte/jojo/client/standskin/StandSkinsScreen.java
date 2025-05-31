@@ -10,6 +10,8 @@ import org.joml.Quaternionf;
 import org.lwjgl.glfw.GLFW;
 
 import com.github.standobyte.jojo.client.ClientProxy;
+import com.github.standobyte.jojo.client.entityrender.EntityActionRenderState;
+import com.github.standobyte.jojo.client.entityrender.stand.StandEntityRenderState;
 import com.github.standobyte.jojo.client.entityrender.stand.StandEntityRenderer;
 import com.github.standobyte.jojo.client.input.InputHandler;
 import com.github.standobyte.jojo.core.packet.fromclient.ClSetStandSkinPacket;
@@ -469,7 +471,7 @@ public class StandSkinsScreen extends Screen implements IJojoMenuScreen {
 		}
 	}
 
-	public static void renderStandModel(GuiGraphics gui, float posX, float posY, 
+	public static <S extends StandEntityRenderState> void renderStandModel(GuiGraphics gui, float posX, float posY, 
 			float scale, float scale2, float yRot, float xRot, float xOffsetRatio, float yOffsetRatio, 
 			EntityStandType standType, StandSkin standSkin, float ticks) {
 		Quaternionf rotation = new Quaternionf()
@@ -488,14 +490,15 @@ public class StandSkinsScreen extends Screen implements IJojoMenuScreen {
 		Lighting.setupForEntityInInventory();
 		EntityRenderDispatcher renderManager = Minecraft.getInstance().getEntityRenderDispatcher();
 		
-		StandEntityRenderer<?, ?, ?> renderer = (StandEntityRenderer<?, ?, ?>) renderManager.renderers.get(standType.getEntityType());
+		StandEntityRenderer<?, S, ?> renderer = (StandEntityRenderer<?, S, ?>) renderManager.renderers.get(standType.getEntityType());
 		renderManager.setRenderShadow(false);
 		gui.drawSpecial(bufferSource -> renderer.renderWithRenderState(renderState -> {
 			renderState.defaultSkin = StandSkinsLoader.getInstance().getDefaultSkin(standType.getId());
 			renderState.skin = standSkin;
 			renderState.standId = standType.getId();
-			renderState.action.anim = StandEntityRenderer.IDLE_ANIM;
+			renderState.action.animId = StandEntityRenderer.IDLE_ANIM;
 			renderState.action.time = ticks;
+			EntityActionRenderState.setAnim(renderState.action, renderState, renderer.getStandAnim(renderState), null);
 		}, gui.pose(), bufferSource, 0xF000F0));
 		gui.flush();
 		renderManager.setRenderShadow(true);

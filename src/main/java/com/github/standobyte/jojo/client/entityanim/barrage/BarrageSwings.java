@@ -1,0 +1,294 @@
+package com.github.standobyte.jojo.client.entityanim.barrage;
+
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.Map;
+import java.util.Random;
+
+import javax.annotation.Nullable;
+
+import org.jetbrains.annotations.ApiStatus;
+
+import com.github.standobyte.jojo.client.entityanim.AnimWithExtras;
+import com.github.standobyte.jojo.client.entityrender.EntityActionRenderState;
+import com.github.standobyte.jojo.client.entityrender.stand.StandEntityModel;
+import com.github.standobyte.jojo.client.entityrender.stand.VisibilityMode;
+import com.github.standobyte.jojo.client.utils.RGBUtil;
+import com.github.standobyte.jojo.powersystem.entityaction.ActionPhase;
+import com.github.standobyte.jojo.util.MathUtil;
+import com.mojang.blaze3d.vertex.PoseStack;
+import com.mojang.blaze3d.vertex.VertexConsumer;
+
+import net.minecraft.Util;
+import net.minecraft.client.Minecraft;
+import net.minecraft.client.model.EntityModel;
+import net.minecraft.client.model.HumanoidModel;
+import net.minecraft.client.model.geom.ModelPart;
+import net.minecraft.client.renderer.entity.state.LivingEntityRenderState;
+import net.minecraft.util.Mth;
+import net.minecraft.world.entity.HumanoidArm;
+import net.minecraft.world.phys.Vec3;
+
+public class BarrageSwings {
+	@ApiStatus.Internal public List<BarrageSwing> barrageSwings = new LinkedList<>();
+	@ApiStatus.Internal public float loopLast = -1;
+
+	@ApiStatus.Internal public boolean isBarragingAnim = false;
+	@ApiStatus.Internal public String barrageType;
+	@ApiStatus.Internal public AddBarrageSwing addSwingFunction;
+	
+	@ApiStatus.Internal float swingsPerSecond;
+	@ApiStatus.Internal float standPrecision;
+
+
+	public void frameStandBarrage(Minecraft mc, AnimWithExtras barrageAnim, String barrageTypeName, float curAnimTimeSecs, LivingEntityRenderState renderState) {
+		frameUpdateSwings(mc);
+		frameUpdateBarrageType(barrageTypeName);
+		if (isBarragingAnim) {
+			// TODO (barrage anim) stat formulas
+			frameSetValuesAndAddNewSwings(barrageAnim, renderState, curAnimTimeSecs, 100, 12);
+		}
+	}
+
+	public void frameUpdateSwings(Minecraft mc) {
+		if (!mc.isPaused() && !barrageSwings.isEmpty()) {
+			float timeDelta = mc.getDeltaTracker().getGameTimeDeltaTicks();
+			Iterator<BarrageSwing> iter = barrageSwings.iterator();
+			while (iter.hasNext()) {
+				BarrageSwing swing = iter.next();
+				swing.addDelta(timeDelta);
+				if (swing.removeSwing()) {
+					iter.remove();
+				}
+			}
+		}
+	}
+
+	public void frameUpdateBarrageType(String barrageTypeName) {
+		this.isBarragingAnim = false;
+		this.barrageType = barrageTypeName;
+		this.addSwingFunction = null;
+
+		if (barrageType != null) {
+			AddBarrageSwing addSwingFunction = BARRAGE_SWING_TYPES.get(barrageType);
+			if (addSwingFunction != null) {
+				this.isBarragingAnim = true;
+				this.addSwingFunction = addSwingFunction;
+			}
+		}
+	}
+
+	public void frameSetValuesAndAddNewSwings(AnimWithExtras barrageAnim, LivingEntityRenderState curRenderState, float curAnimTimeSecs, 
+			float swingsPerSecond, float standPrecision) {
+		this.swingsPerSecond = swingsPerSecond;
+		this.standPrecision = standPrecision;
+		addSwingFunction.addSwings(this, barrageAnim, curRenderState, curAnimTimeSecs);
+	}
+
+	
+	public boolean hasSmthToRender() {
+		return !barrageSwings.isEmpty();
+	}
+	
+	public void renderLayerBarrage(EntityModel<?> model, 
+			PoseStack poseStack, VertexConsumer buffer, 
+			int packedLight, int packedOverlay, int color) {
+		for (BarrageSwing swing : barrageSwings) {
+			swing.poseAndRender(model, poseStack, buffer, 
+					packedLight, packedOverlay, color);
+		}
+		restoreVisibility(model);
+	}
+
+
+
+
+
+	public static final Map<String, AddBarrageSwing> BARRAGE_SWING_TYPES = Util.make(new HashMap<>(), map -> {
+		map.put("TWO_HANDED", TwoHandedBarrageLoopSwing::addSwings);
+	});
+
+	@FunctionalInterface
+	public static interface AddBarrageSwing {
+		void addSwings(BarrageSwings swings, AnimWithExtras barrageAnim, 
+				LivingEntityRenderState curRenderState, float curAnimTimeSecs);
+	}
+
+
+
+	public abstract static class BarrageSwing {
+		protected static final Random RANDOM = new Random();
+		protected static final LivingEntityRenderState sharedRenderState = new LivingEntityRenderState();
+		protected static final EntityActionRenderState sharedActionRenderState = new EntityActionRenderState();
+		
+		protected AnimWithExtras barrageAnim;
+		protected float ticks;
+		protected float ticksMax;
+
+		public BarrageSwing(AnimWithExtras barrageAnim, float startingAnim, float animMax) {
+			this.barrageAnim = barrageAnim;
+			this.ticks = startingAnim;
+			this.ticksMax = animMax;
+		}
+
+		public void addDelta(float delta) {
+			ticks += delta * 0.75F;
+		}
+
+		public boolean removeSwing() {
+			return ticks >= ticksMax * 0.75F;
+		}
+
+		public abstract void poseAndRender(EntityModel<?> model, 
+				PoseStack poseStack, VertexConsumer buffer, 
+				int packedLight, int packedOverlay, int color);
+	}
+
+
+	public static class TwoHandedBarrageLoopSwing extends BarrageSwing {
+		protected final float xRot;
+		protected float animTimeOffset;
+		protected final HumanoidArm side;
+		protected final Vec3 offset;
+		protected final float zRot;
+
+		public TwoHandedBarrageLoopSwing(AnimWithExtras barrageAnim, LivingEntityRenderState curRenderState, 
+				float startingAnim, float animMax, HumanoidArm side, double maxOffset, float animTimeOffset) {
+			super(barrageAnim, startingAnim, animMax);
+			this.xRot = curRenderState.xRot;
+			this.animTimeOffset = animTimeOffset;
+			this.side = side;
+			double upOffset = (RANDOM.nextDouble() - 0.5) * maxOffset;
+			double leftOffset = RANDOM.nextDouble() * maxOffset / 2;
+			double frontOffset = RANDOM.nextDouble() * 0.5;
+			if (side == HumanoidArm.RIGHT) {
+				leftOffset *= -1;
+			}
+			double atan = Mth.atan2(upOffset, leftOffset);
+			zRot = maxOffset == 0 ? 0 : MathUtil.wrapRadians((float) (Math.PI / 2 - atan));
+			offset = new Vec3(leftOffset, upOffset, frontOffset);
+		}
+
+		public static void addSwings(BarrageSwings swings, AnimWithExtras barrageAnim, 
+				LivingEntityRenderState curRenderState, float curAnimTimeSecs) {
+			float lastLoop = swings.loopLast;
+			float loopLen = 4;
+			float loop = curRenderState.ageInTicks / loopLen;
+			if (swings.isBarragingAnim && loop > lastLoop) {
+				float hits = swings.swingsPerSecond / 20F * Math.min(loop - lastLoop, 1) * loopLen;
+				int swingsToAdd = MathUtil.fractionRandomInc(hits);
+				if (swingsToAdd > 0) {
+					HumanoidArm side = HumanoidArm.RIGHT;
+					double maxOffset = 1 - swings.standPrecision / 40;
+					if (RANDOM.nextBoolean()) side = side.getOpposite();
+
+					for (int i = 0; i < swingsToAdd; i++) {
+						float x = ((float) i + (RANDOM.nextFloat() - 0.5F) * 0.4F) / swingsToAdd;
+						float f = x * loopLen * 0.5F;
+						float addTime = (side == HumanoidArm.LEFT ? loopLen * 0.5f : 0) + (curAnimTimeSecs - curAnimTimeSecs % loopLen);
+						swings.barrageSwings.add(new BarrageSwings.TwoHandedBarrageLoopSwing(
+								barrageAnim, curRenderState, f, loopLen, side, maxOffset, addTime));
+						side = side.getOpposite();
+					}
+				}
+			}
+			swings.loopLast = loop;
+		}
+
+		@Override
+		public void poseAndRender(EntityModel<?> model, 
+				PoseStack poseStack, VertexConsumer buffer, 
+				int packedLight, int packedOverlay, int color) {
+			setOnlyOneArmVisible(model, side);
+			float loopCompletion = ticks / ticksMax;
+			float zMult = loopCompletion < 0.5 ? loopCompletion * 2 : (1 - loopCompletion) * 2;
+			double zAdditional = 0.5 * zMult;
+			Vec3 offsetRot = new Vec3(offset.x, -offset.y, offset.z + zAdditional).xRot(xRot * MathUtil.DEG_TO_RAD);
+			poseStack.pushPose();
+			poseStack.translate(offsetRot.x, offsetRot.y, -offsetRot.z);
+			
+			sharedActionRenderState.actionPhase = ActionPhase.PERFORM;
+			sharedActionRenderState.phaseTime = ticks + animTimeOffset;
+			sharedActionRenderState.disableCrouch = true;
+			sharedRenderState.xRot = this.xRot;
+			sharedRenderState.yRot = 0;
+			
+			float seconds = barrageAnim.getAnimTime(sharedActionRenderState);
+			// FIXME !!!!!!!!!!!!!!!!!!!! (barrage anim) FPS drop in barrageAnim#animate
+			barrageAnim.animate(model, sharedRenderState, seconds, 1);
+			ModelPart arm = getNoXRotArm(model, side);
+			arm.zRot = arm.zRot + zMult * zRot;
+			// XXX (barrage anim) some layers are not translucent (armor, clothes, mannequin model, etc.)
+			color = RGBUtil.scaleAlpha(color, 0.75f);
+			model.root().render(poseStack, buffer, packedLight, packedOverlay, color);
+			poseStack.popPose();
+		}
+	}
+
+	
+	public static ModelPart getNoXRotArm(EntityModel<?> model, HumanoidArm side) {
+		return switch (model) {
+			case StandEntityModel<?> standModel -> {
+				yield switch (side) {
+					case LEFT -> standModel.left_arm;
+					case RIGHT -> standModel.right_arm;
+				};
+			}
+			case HumanoidModel<?> humanoidModel -> {
+				yield switch (side) {
+					case LEFT -> humanoidModel.leftArm;
+					case RIGHT -> humanoidModel.rightArm;
+				};
+			}
+			default -> null;
+		};
+	}
+	
+	public static void setOnlyOneArmVisible(EntityModel<?> model, HumanoidArm side) {
+		switch (model) {
+			case StandEntityModel<?> standModel -> {
+				standModel.updatePartsVisibility(switch (side) {
+					case LEFT -> VisibilityMode.LEFT_ARM_ONLY;
+					case RIGHT -> VisibilityMode.RIGHT_ARM_ONLY;
+				});
+			}
+			case HumanoidModel<?> humanoidModel -> {
+				humanoidModel.setAllVisible(false);
+				(switch (side) {
+					case LEFT -> humanoidModel.leftArm;
+					case RIGHT -> humanoidModel.rightArm;
+				}).visible = true;
+			}
+			default -> {}
+		}
+	}
+	
+	public static void restoreVisibility(EntityModel<?> model) {
+		switch (model) {
+			case StandEntityModel<?> standModel -> {
+				standModel.setAllVisible(true);
+			}
+			case HumanoidModel<?> humanoidModel -> {
+				humanoidModel.setAllVisible(true);
+			}
+			default -> {}
+		}
+	}
+	
+	
+	@Nullable
+	public static BarrageSwings getBarrageSwings(LivingEntityRenderState renderState) {
+		EntityActionRenderState action = EntityActionRenderState.getFrom(renderState);
+		return action != null ? action.barrageSwings : null;
+	}
+	
+	@Nullable public static BarrageSwings currentlyRendering = null;
+	
+	public static void setupToRender(BarrageSwings barrage) {
+		BarrageSwings.currentlyRendering = barrage;
+	}
+
+}
+

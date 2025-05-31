@@ -48,12 +48,17 @@ public class StandEntity extends LivingEntity implements SummonedStand, IEntityW
 	public static final double Y_OFFSET = 0.2;
 	protected static final Vec3 DEFAULT_USER_OFFSET = new Vec3(0.75, Y_OFFSET, -0.75);
 	public StandOffsetFromUser offsetFromUser;
+	
+	public ClientStandEntityStuff clientStuff;
 
 	public StandEntity(EntityType<? extends StandEntity> type, Level level) {
 		super(type, level);
 		this.standAction = LivingComponentAction.getComponent(this);
 		this.offsetFromUser = new StandOffsetFromUser(this, DEFAULT_USER_OFFSET, StandOffsetFromUser.OffsetMode.BODY);
 		this.noPhysics = true;
+		if (level.isClientSide()) {
+			this.clientStuff = new ClientStandEntityStuff();
+		}
 	}
 	
 	public StandEntity withStandId(ResourceLocation standId) {

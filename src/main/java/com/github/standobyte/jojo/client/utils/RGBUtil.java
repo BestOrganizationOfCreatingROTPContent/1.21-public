@@ -29,4 +29,13 @@ public class RGBUtil {
 	public static int addAlpha(int color, float alpha) {
 		return color | ((int) (255F * alpha)) << 24 & -0x1000000;
 	}
+
+	public static int scaleAlpha(int argbColor, float alphaScale) {
+		return ARGB.color(
+				Math.clamp(((int) (ARGB.alpha(argbColor) * alphaScale)), 0, 255),
+				ARGB.red(argbColor),
+				ARGB.green(argbColor),
+				ARGB.blue(argbColor)
+				);
+	}
 }

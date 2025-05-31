@@ -1,6 +1,7 @@
 package com.github.standobyte.jojo.util;
 
 import java.lang.reflect.Field;
+import java.util.Random;
 
 import com.github.standobyte.jojo.util.reflection.ReflectionUtil;
 
@@ -29,6 +30,17 @@ public final class MathUtil {
 	
 	public static float tan(float angle) {
 		return TAN[(int)(angle * 10430.378F) & 65535];
+	}
+
+	public static float wrapRadians(float angle) {
+		angle %= DOUBLE_PI;
+		if (angle >= PI) {
+			angle -= DOUBLE_PI;
+		}
+		if (angle < -PI) {
+			angle += DOUBLE_PI;
+		}
+		return angle;
 	}
 
 	
@@ -104,6 +116,35 @@ public final class MathUtil {
 			}
 		}
 		return max;
+	}
+
+
+	public static int fractionRandomInc(double num) {
+		int numInt = Mth.floor(num);
+		if (Math.random() < num - (double) numInt) {
+			numInt++;
+		}
+		return numInt;
+	}
+
+	private static final Random RANDOM = new Random();
+	public static int fractionRandomInc(float num) {
+		int numInt = Mth.floor(num);
+		if (RANDOM.nextFloat() < num - (float) numInt) {
+			numInt++;
+		}
+		return numInt;
+	}
+
+	public static int round(double value) {
+		int i = (int) value;
+		double frac = value > i ? value - i : i - value;
+		if (frac < 0.5) {
+			return i;
+		}
+		else {
+			return value > i ? i + 1 : i - 1;
+		}
 	}
 
 }

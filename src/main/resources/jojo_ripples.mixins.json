@@ -14,6 +14,9 @@
     "client.playeranim.HumanoidModelMixin",
     "client.playeranim.ModelMixin",
     "client.playeranim.ModelPartMixin",
-    "client.standskin.SoundInstanceMixin"
+    "client.standskin.SoundInstanceMixin",
+    "client.barrage.LivingEntityRendererMixin",
+    "client.barrage.ModelMixin",
+    "client.barrage.EntityModelMixin"
   ]
 }

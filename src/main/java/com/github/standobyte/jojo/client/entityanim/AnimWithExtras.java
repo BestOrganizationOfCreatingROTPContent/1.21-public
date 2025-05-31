@@ -33,9 +33,9 @@ import net.minecraft.client.renderer.entity.state.LivingEntityRenderState;
 import net.minecraft.util.Mth;
 
 public class AnimWithExtras {
-	protected final AnimationDefinition animation;
+	public final AnimationDefinition animation;
 	protected final List<KeyframeQuery> queries;
-	protected final AnimInstructionTimelines instructionTimelines;
+	public final AnimInstructionTimelines instructionTimelines;
 	
 //	public float animTime;
 	
@@ -45,20 +45,9 @@ public class AnimWithExtras {
 		this.instructionTimelines = instructionTimelines;
 	}
 
-	
-	public void animate(Model model, LivingEntityRenderState renderState, float ticks, float animSpeed) {
+
+	public void animate(Model model, LivingEntityRenderState renderState, float seconds, float animSpeed) {
 		evaluateQueries(renderState);
-		float seconds = getAnimTime(renderState, ticks);
-		for (Map.Entry<String, List<AnimationChannel>> entry : animation.boneAnimations().entrySet()) {
-			model.getAnyDescendantWithName(entry.getKey()).ifPresent(modelPart -> {
-				animateModelPart(this, modelPart, entry.getValue(), seconds, animSpeed);
-			});
-		}
-	}
-	
-	public void animate(Model model, LivingEntityRenderState renderState, EntityActionRenderState entityAction, float animSpeed) {
-		evaluateQueries(renderState);
-		float seconds = getAnimTime(renderState, entityAction);
 		for (Map.Entry<String, List<AnimationChannel>> entry : animation.boneAnimations().entrySet()) {
 			model.getAnyDescendantWithName(entry.getKey()).ifPresent(modelPart -> {
 				animateModelPart(this, modelPart, entry.getValue(), seconds, animSpeed);
@@ -66,20 +55,8 @@ public class AnimWithExtras {
 		}
 	}
 
-	public void animateVanillaPlayer(HumanoidModel<?> humanoidModel, LivingEntityRenderState renderState, float ticks, float animSpeed) {
+	public void animateVanillaPlayer(HumanoidModel<?> humanoidModel, LivingEntityRenderState renderState, float seconds, float animSpeed) {
 		evaluateQueries(renderState);
-		float seconds = getAnimTime(renderState, ticks);
-		for (Map.Entry<String, List<AnimationChannel>> entry : animation.boneAnimations().entrySet()) {
-			ModelPart modelPart = PlayerModelBends.getModelPartForPlayerAnim(humanoidModel, entry.getKey());
-			if (modelPart != null) {
-				animateModelPart(this, modelPart, entry.getValue(), seconds, animSpeed);
-			}
-		}
-	}
-
-	public void animateVanillaPlayer(HumanoidModel<?> humanoidModel, LivingEntityRenderState renderState, EntityActionRenderState entityAction, float animSpeed) {
-		evaluateQueries(renderState);
-		float seconds = getAnimTime(renderState, entityAction);
 		for (Map.Entry<String, List<AnimationChannel>> entry : animation.boneAnimations().entrySet()) {
 			ModelPart modelPart = PlayerModelBends.getModelPartForPlayerAnim(humanoidModel, entry.getKey());
 			if (modelPart != null) {
@@ -92,7 +69,7 @@ public class AnimWithExtras {
 	/**
 	 * @return action anim time in seconds
 	 */
-	public float getAnimTime(LivingEntityRenderState renderState, EntityActionRenderState entityAction) {
+	public float getAnimTime(EntityActionRenderState entityAction) {
 		float animSeconds = 0;
 
 		boolean appliedPhaseAnim = false;
@@ -156,7 +133,7 @@ public class AnimWithExtras {
 	/**
 	 * @return anim time in seconds
 	 */
-	public float getAnimTime(LivingEntityRenderState renderState, float ticks) {
+	public float getAnimTime(float ticks) {
 		return animation.looping() ? (ticks / 20.0f) % animation.lengthInSeconds() : ticks / 20.0f;
 	}
 	

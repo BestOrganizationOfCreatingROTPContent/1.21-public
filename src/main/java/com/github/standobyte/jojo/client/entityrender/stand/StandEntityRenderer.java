@@ -4,6 +4,7 @@ import java.util.Optional;
 import java.util.function.Consumer;
 
 import com.github.standobyte.jojo.client.ClientGlobals;
+import com.github.standobyte.jojo.client.entityanim.AnimWithExtras;
 import com.github.standobyte.jojo.client.entityrender.EntityActionRenderState;
 import com.github.standobyte.jojo.client.standskin.StandSkin;
 import com.github.standobyte.jojo.client.standskin.StandSkinsLoader;
@@ -13,7 +14,6 @@ import com.github.standobyte.jojo.powersystem.entityaction.EntityActionInstance;
 import com.github.standobyte.jojo.powersystem.standpower.entity.StandEntity;
 import com.mojang.blaze3d.vertex.PoseStack;
 
-import net.minecraft.client.model.EntityModel;
 import net.minecraft.client.model.HumanoidModel;
 import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.entity.EntityRendererProvider.Context;
@@ -24,7 +24,7 @@ import net.minecraft.resources.ResourceLocation;
 public class StandEntityRenderer<
 				T extends StandEntity, 
 				S extends StandEntityRenderState, 
-				M extends EntityModel<? super S>> 
+				M extends StandEntityModel<? super S>> 
 		extends LivingEntityRenderer<T, S, M> {
 	protected final S outOfLevelRenderState = createRenderState();
 
@@ -63,17 +63,31 @@ public class StandEntityRenderer<
 		if (renderState.skin == null) renderState.skin = renderState.defaultSkin;
 		
 		EntityActionInstance action = entity.getCurStandAction();
-		EntityActionRenderState.extract(renderState.action, entity, action, partialTick);
-		if (renderState.action.anim == null) {
-			renderState.action.anim = IDLE_ANIM;
+		EntityActionRenderState.extract(renderState.action, 
+				entity, action, partialTick);
+		if (renderState.action.animId == null) {
+			renderState.action.animId = IDLE_ANIM;
 			renderState.action.time = entity.tickCount - entity.nonIdlePoseTimeStamp + partialTick;
 		}
-		if (renderState.action.anim != IDLE_ANIM) {
+		if (renderState.action.animId != IDLE_ANIM) {
 			entity.nonIdlePoseTimeStamp = entity.tickCount;
 		}
+		EntityActionRenderState.setAnim(renderState.action, renderState, 
+				getStandAnim(renderState), entity.clientStuff.barrageSwings);
 		
 		renderState.isInvisible |= !ClientGlobals.canSeeStands;
 		renderState.isInvisibleToPlayer |= !ClientGlobals.canSeeStands;
+	}
+	
+	public AnimWithExtras getStandAnim(S renderState) {
+		if (renderState.skin != null) {
+			EntityActionRenderState action = renderState.action;
+			if (action.animId != null) {
+				AnimWithExtras anim = renderState.skin.getStandAnimation(anims -> anims.getNamedAnim(action.animId), renderState.defaultSkin);
+				return anim;
+			}
+		}
+		return null;
 	}
 	
 	
@@ -103,6 +117,7 @@ public class StandEntityRenderer<
 	public void render(S renderState, PoseStack poseStack, MultiBufferSource bufferSource, int light) {
 		setModelFrom(renderState);
 		if (this.model == null) return;
+		this.model.setAllVisible(true);
 		super.render(renderState, poseStack, bufferSource, light);
 	}
 

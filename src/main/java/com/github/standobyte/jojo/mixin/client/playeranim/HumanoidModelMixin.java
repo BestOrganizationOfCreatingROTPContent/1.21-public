@@ -101,7 +101,7 @@ public abstract class HumanoidModelMixin extends ModelMixin implements IHumanoid
 	@Override
 	public void jojo_ripples$setupHumanoidAnim(HumanoidRenderState renderState) {
 		RipplesPlayerRenderState jojoRenderState = ((RipplesRenderStateExtensionMixin) renderState).get();
-		this.jojo_ripples$playerAnim = RipplesPlayerRenderState.setupAnim((HumanoidModel<?>) (Object) this, renderState, jojoRenderState);
+		this.jojo_ripples$playerAnim = RipplesPlayerRenderState.setupModelAnim((HumanoidModel<?>) (Object) this, renderState, jojoRenderState);
 	}
 	
 	@Override
