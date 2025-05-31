@@ -7,6 +7,7 @@
   "mixins": [
   ],
   "client": [
+    "client.ModelAnimOptimization",
     "client.controls.KeyboardHandlerMixin",
     "client.playeranim.HumanoidRendererMixin",
     "client.playeranim.HumanoidRenderStateMixin",

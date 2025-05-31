@@ -216,7 +216,6 @@ public class BarrageSwings {
 			sharedRenderState.yRot = 0;
 			
 			float seconds = barrageAnim.getAnimTime(sharedActionRenderState);
-			// FIXME !!!!!!!!!!!!!!!!!!!! (barrage anim) FPS drop in barrageAnim#animate
 			barrageAnim.animate(model, sharedRenderState, seconds, 1);
 			ModelPart arm = getNoXRotArm(model, side);
 			arm.zRot = arm.zRot + zMult * zRot;
