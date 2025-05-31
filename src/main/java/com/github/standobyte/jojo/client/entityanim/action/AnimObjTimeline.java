@@ -31,12 +31,14 @@ public class AnimObjTimeline<V> {
 	
 	@Nullable
 	public V getCurValue(float timeInSeconds) {
+		V latestValue = null;
 		for (Float2ObjectMap.Entry<V> entry : timeline.float2ObjectEntrySet()) {
 			if (entry.getFloatKey() <= timeInSeconds) {
-				return entry.getValue();
+				latestValue = entry.getValue();
 			}
+			else break;
 		}
-		return null;
+		return latestValue;
 	}
 	
 	public Iterable<Float2ObjectMap.Entry<V>> getEntries() {
@@ -64,12 +66,14 @@ public class AnimObjTimeline<V> {
 		
 		@Nullable
 		public double getCurValue(float timeInSeconds) {
+			double latestValue = 0;
 			for (Float2DoubleMap.Entry entry : timeline.float2DoubleEntrySet()) {
 				if (entry.getFloatKey() <= timeInSeconds) {
-					return entry.getDoubleValue();
+					latestValue = entry.getDoubleValue();
 				}
+				else break;
 			}
-			return 0;
+			return latestValue;
 		}
 	}
 }
