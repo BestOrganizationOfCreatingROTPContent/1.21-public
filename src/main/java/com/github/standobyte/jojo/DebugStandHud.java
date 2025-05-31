@@ -61,7 +61,7 @@ public class DebugStandHud {
 			y += 9;
 			
 			ability = Ability.resolveSubAbility(input.getRMBClickAbility(power, modifier), player);
-			if (ability != null) guiGraphics.drawString(font, "RMB: " + ability.abilityId.nameInMoveset(), x, y, color);
+			if (ability != null) guiGraphics.drawString(font, "RMB: " + ability.abilityId.nameInMoveset(), x, y, "grab".equals(ability.abilityId.nameInMoveset()) ? color & 0xFF606060 : color);
 			y += 9;
 			
 			ability = Ability.resolveSubAbility(input.getRMBHeldAbility(power, modifier), player);
