@@ -31,6 +31,7 @@ public class DebugStandHud {
 		@Override
 		public void render(GuiGraphics guiGraphics, DeltaTracker deltaTracker) {
 			Minecraft mc = Minecraft.getInstance();
+			if (mc.options.hideGui) return;
 			InputHandler input = InputHandler.getInstance();
 			if (input == null) return;
 			
