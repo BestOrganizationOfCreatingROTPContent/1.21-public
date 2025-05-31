@@ -56,6 +56,7 @@ public class StandEntity extends LivingEntity implements SummonedStand, IEntityW
 		this.standAction = LivingComponentAction.getComponent(this);
 		this.offsetFromUser = new StandOffsetFromUser(this, DEFAULT_USER_OFFSET, StandOffsetFromUser.OffsetMode.BODY);
 		this.noPhysics = true;
+		setNoGravity(true);
 		if (level.isClientSide()) {
 			this.clientStuff = new ClientStandEntityStuff();
 		}
