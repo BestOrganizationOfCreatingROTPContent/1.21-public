@@ -122,17 +122,31 @@ public class EntityActionInstance implements HeldInput {
 	}
 	
 	public float getFullTicksPassed() {
+		return calcFullTicks(this, this.phase, this.getPhaseTick());
+	}
+	
+	public static float calcFullTicks(EntityActionInstance action, ActionPhase targetPhase, float targetPhaseTick) {
 		float sum = 0;
 		for (ActionPhase phase : ActionPhase.values()) {
-			if (phase != this.phase) {
-				sum += phasesLength.get(phase);
+			float length = action.phasesLength.get(phase);
+			if (phase == targetPhase) {
+				length = Math.min(length, targetPhaseTick);
 			}
-			else {
-				sum += getPhaseTick();
-				break;
-			}
+			sum += length;
+			if (phase == targetPhase) break;
 		}
 		return sum;
+	}
+	
+	/**
+	 * A function to time the punch swing sounds a few ticks before the actual punch impact
+	 */
+	public static boolean soundTiming(EntityActionInstance action, ActionPhase targetPhase, float targetPhaseTick, int soundOffset) {
+		float ticksPassed = action.getFullTicksPassed();
+		int ticksDiff = (int) (ticksPassed - calcFullTicks(action, targetPhase, targetPhaseTick));
+		return ticksDiff == soundOffset
+				|| soundOffset < 0 && soundOffset < ticksDiff && (int) ticksPassed == 0
+				/*|| soundOffset > 0 && ... */;
 	}
 	
 
@@ -221,7 +235,7 @@ public class EntityActionInstance implements HeldInput {
 			if (getPhaseTick() < 1) {
 				actionPerformStart();
 			}
-			if (getPhaseTick() == curPhaseLength - 1) {
+			if (getPhaseTick() + 1 >= curPhaseLength) {
 				actionPerformEnd();
 			}
 		}
