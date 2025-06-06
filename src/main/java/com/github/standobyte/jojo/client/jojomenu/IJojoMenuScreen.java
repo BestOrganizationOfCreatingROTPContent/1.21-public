@@ -16,7 +16,7 @@ import net.minecraft.resources.ResourceLocation;
 public interface IJojoMenuScreen {
 	public static final int DEFAULT_WIDTH = 230;
 	public static final int DEFAULT_HEIGHT = 227;
-	public static final ResourceLocation TABS_TEXTURE = JojoMod.resLoc("textures/gui/screen_tabs.png");
+	public static final ResourceLocation TABS_TEXTURE = JojoMod.resLoc("textures/gui/paper_style/screen_tabs.png");
 	
 	TabCategory getTabCategory();
 	
