@@ -7,6 +7,7 @@ import net.minecraft.client.Minecraft;
 
 public class ClientGlobals {
 	public static boolean canSeeStands;
+	public static boolean canHearStands;
 	
 	public static void tick(Minecraft mc) {
 		if (mc.player != null) {
@@ -17,6 +18,7 @@ public class ClientGlobals {
 				StandPower stand = StandPower.get(mc.player);
 				canSeeStands = stand != null && stand.hasPower();
 			}
+			canHearStands = canSeeStands;
 		}
 	}
 	

@@ -5,8 +5,10 @@ import java.util.Optional;
 import java.util.function.Consumer;
 
 import com.github.standobyte.jojo.core.config.DefaultedValue;
+import com.github.standobyte.jojo.core.packet.fromserver.PlayStandEntitySoundPacket;
 import com.github.standobyte.jojo.core.packet.fromserver.TrSetStandEntityPacket;
 import com.github.standobyte.jojo.init.ModEntityTypes;
+import com.github.standobyte.jojo.init.ModSoundEvents;
 import com.github.standobyte.jojo.powersystem.MovesetBuilder;
 import com.github.standobyte.jojo.powersystem.standpower.StandPower;
 import com.github.standobyte.jojo.powersystem.standpower.StandStats;
@@ -129,7 +131,7 @@ public class EntityStandType extends StandType {
 		if (!level.isClientSide() && !standEntity.isAddedToLevel()) {
 			if (addToWorld) {
 				level.addFreshEntity(standEntity);
-//				standEntity.playStandSummonSound();
+				PacketDistributor.sendToPlayersTrackingEntityAndSelf(user, new PlayStandEntitySoundPacket(standEntity, ModSoundEvents.STAND_SUMMON, 1, 1));
 				PacketDistributor.sendToPlayersTrackingEntityAndSelf(user, new TrSetStandEntityPacket(user.getId(), standEntity.getId()));
 //				triggerAdvancement(standPower, standPower.getSummonedStand());
 			}

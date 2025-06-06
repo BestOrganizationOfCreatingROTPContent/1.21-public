@@ -83,36 +83,6 @@ public class StandEntity extends LivingEntity implements SummonedStand, IEntityW
 		if (user != null) {
 			updatePosition(user);
 		}
-		
-		// TODO stand entity sounds
-		// this below was just me testing sounds in stand skins
-//		if (level().isClientSide() && tickCount == 2) {
-//			Minecraft mc = Minecraft.getInstance();
-//			
-//			double x = this.getX() + 0.5;
-//			double y = this.getY() + 0.5;
-//			double z = this.getZ() + 0.5;
-//			SoundEvent soundEvent = ModSoundEvents.STAND_SUMMON.get();
-//			SoundSource source = this.getSoundSource();
-//			float volume = 1.0F;
-//			float pitch = 1;
-//			boolean distanceDelay = false;
-//			long seed = this.random.nextLong();
-//			
-//			
-//			double d0 = mc.gameRenderer.getMainCamera().getPosition().distanceToSqr(x, y, z);
-//			SimpleSoundInstance sound = new SimpleSoundInstance(
-//				soundEvent, source, volume, pitch, RandomSource.create(seed), x, y, z
-//			);
-//			((SoundInstanceWithStandSkin) sound).setStandSkin(standId, standSkin);
-//			if (distanceDelay && d0 > 100.0) {
-//				double d1 = Math.sqrt(d0) / 40.0;
-//				mc.getSoundManager().playDelayed(sound, (int)(d1 * 20.0));
-//			} else {
-//				mc.getSoundManager().play(sound);
-//			}
-//		}
-	
 	}
 	
 	public void updatePosition(LivingEntity user) {
