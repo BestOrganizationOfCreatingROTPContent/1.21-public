@@ -94,6 +94,7 @@ public class EntityActionInstance implements HeldInput {
 						new Vec3(left, StandEntity.Y_OFFSET, front), 
 						offsetMode, 
 						user);
+				standEntity.offsetFromUser.standAbility = this.ability;
 			}
 		}
 	}

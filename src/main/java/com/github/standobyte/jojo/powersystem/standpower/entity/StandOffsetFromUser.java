@@ -1,5 +1,8 @@
 package com.github.standobyte.jojo.powersystem.standpower.entity;
 
+import javax.annotation.Nullable;
+
+import com.github.standobyte.jojo.powersystem.entityaction.type.EntityActionType;
 import com.github.standobyte.jojo.util.MathUtil;
 
 import net.minecraft.util.Mth;
@@ -14,6 +17,7 @@ public class StandOffsetFromUser {
 	
 	private Vec3 relativeOffset;
 	private OffsetMode offsetMode;
+	@Nullable public EntityActionType standAbility;
 	
 	private Vec3 prevAbsoluteOffset;
 	private OffsetMode prevOffsetMode;
@@ -52,6 +56,7 @@ public class StandOffsetFromUser {
 	
 	public void resetToIdle(LivingEntity userEntity) {
 		setOffset(idleOffset, idleOffsetMode, userEntity);
+		this.standAbility = null;
 	}
 	
 	public boolean isIdle() {
