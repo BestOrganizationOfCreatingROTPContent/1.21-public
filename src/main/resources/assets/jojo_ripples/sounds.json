@@ -28,14 +28,6 @@
     "subtitle": "jojo_ripples.subtitle.stand_attack_strong",
     "sounds": [ "jojo_ripples:stand_punch_heavy" ]
   },
-  "stand_crash": {
-    "subtitle": "jojo_ripples.subtitle.stand_crash",
-    "sounds": [ "jojo_ripples:stand_parry" ]
-  },
-  "stand_parry": {
-    "subtitle": "jojo_ripples.subtitle.stand_attack_parried",
-    "sounds": [ "jojo_ripples:stand_parry" ]
-  },
   "stand_leap": {
     "sounds": [ "jojo_ripples:stand_leap" ]
   },

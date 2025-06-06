@@ -58,10 +58,10 @@
     "replace": true,
     "subtitle": "jojo.subtitle.ora_ora_ora",
     "sounds": [ 
-      "jojo_ripples:star_platinum/star_platinum_ora_ora_ora", 
-      "jojo_ripples:star_platinum/star_platinum_ora_ora_ora_2", 
-      "jojo_ripples:star_platinum/star_platinum_ora_ora_ora_3", 
-      "jojo_ripples:star_platinum/star_platinum_ora_ora_ora_4" 
+      "jojo_ripples:star_platinum/star_platinum_ora_rush", 
+      "jojo_ripples:star_platinum/star_platinum_ora_rush_2", 
+      "jojo_ripples:star_platinum/star_platinum_ora_rush_3", 
+      "jojo_ripples:star_platinum/star_platinum_ora_rush_4" 
     ]
   },
   
