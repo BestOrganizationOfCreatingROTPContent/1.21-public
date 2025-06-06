@@ -109,8 +109,7 @@ public class EntityStandType extends StandType {
 		
 		Level level = user.level();
 		if (!level.isClientSide()) {
-			EntitySpawnReason ebatTebyaNeDoljno = EntitySpawnReason.NATURAL;
-			StandEntity standEntity = entityType.value.create(level, ebatTebyaNeDoljno)
+			StandEntity standEntity = entityType.value.create(level, EntitySpawnReason.NATURAL)
 					.withStandId(getId());
 			standEntity.copyPosition(user);
 			standEntity.copyStandUserRotation(user);
