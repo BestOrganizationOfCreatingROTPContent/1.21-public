@@ -166,6 +166,7 @@ public class EntityStandType extends StandType {
 		if (!user.level().isClientSide()) {
 			StandEntity standEntity = standPower.getSummonedStandEntity();
 			if (standEntity != null) {
+				PacketDistributor.sendToPlayersTrackingEntityAndSelf(user, new PlayStandEntitySoundPacket(standEntity, ModSoundEvents.STAND_UNSUMMON, 1, 1));
 				standPower.setSummonedStand(null);
 				standEntity.remove(Entity.RemovalReason.DISCARDED);
 			}

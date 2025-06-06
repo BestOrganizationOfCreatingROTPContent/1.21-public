@@ -30,7 +30,6 @@ public class ClientsideSoundsHelper {
 		ClientsideSoundsHelper.standSkin_soundEvent = soundEvent;
 		ClientsideSoundsHelper.standSkin_standId = standId;
 		ClientsideSoundsHelper.standSkin_standSkin = standSkin;
-		JojoMod.LOGGER.debug("set stand skin for sound {}", soundEvent.location());
 		return soundEvent;
 	}
 
@@ -54,7 +53,6 @@ public class ClientsideSoundsHelper {
 				if (sound instanceof SoundInstanceWithStandSkin withSkin) {
 					withSkin.jojo_ripples$setStandSkin(standSkin_standId, standSkin_standSkin);
 				}
-				JojoMod.LOGGER.debug("consumed stand skin setter for sound {}", standSkin_soundEvent.location());
 				standSkin_soundEvent = null;
 				standSkin_standId = null;
 				standSkin_standSkin = null;
@@ -65,7 +63,6 @@ public class ClientsideSoundsHelper {
 	@SubscribeEvent
 	public static void resetJustInCase(ClientTickEvent.Post event) {
 		if (standSkin_soundEvent != null) {
-			JojoMod.LOGGER.debug("{} didn't trigger", standSkin_soundEvent.location());
 			standSkin_soundEvent = null;
 			standSkin_standId = null;
 			standSkin_standSkin = null;
