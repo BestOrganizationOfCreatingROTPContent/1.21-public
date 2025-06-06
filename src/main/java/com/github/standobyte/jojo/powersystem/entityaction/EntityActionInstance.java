@@ -84,7 +84,14 @@ public class EntityActionInstance implements HeldInput {
 	}
 	
 	
-	// Some helper methods (one so far) to write less boilerplate in Stand abilities
+	@ApiStatus.OverrideOnly
+	public void toBuf(RegistryFriendlyByteBuf buf) {}
+
+	@ApiStatus.OverrideOnly
+	public void fromBuf(RegistryFriendlyByteBuf buf) {}
+	
+	
+	// Some helper methods to write less boilerplate in Stand abilities
 	
 	protected void setStandOffset(double left, double front, StandOffsetFromUser.OffsetMode offsetMode, boolean changeOnlyIfIdle) {
 		if (performer instanceof StandEntity standEntity) {
@@ -98,6 +105,32 @@ public class EntityActionInstance implements HeldInput {
 			}
 		}
 	}
+	
+	public static float calcFullTicks(EntityActionInstance action, ActionPhase targetPhase, float targetPhaseTick) {
+		float sum = 0;
+		for (ActionPhase phase : ActionPhase.values()) {
+			float length = action.phasesLength.get(phase);
+			if (phase == targetPhase) {
+				length = Math.min(length, targetPhaseTick);
+			}
+			sum += length;
+			if (phase == targetPhase) break;
+		}
+		return sum;
+	}
+	
+	/**
+	 * A function to time the punch swing sounds a few ticks before the actual punch impact
+	 */
+	public static boolean soundTiming(EntityActionInstance action, ActionPhase targetPhase, float targetPhaseTick, int soundOffset) {
+		float ticksPassed = action.getFullTicksPassed();
+		int ticksDiff = (int) (ticksPassed - calcFullTicks(action, targetPhase, targetPhaseTick));
+		return ticksDiff == soundOffset
+				|| soundOffset < 0 && soundOffset < ticksDiff && (int) ticksPassed == 0
+				/*|| soundOffset > 0 && ... */;
+	}
+	
+	//
 	
 	
 
@@ -126,30 +159,6 @@ public class EntityActionInstance implements HeldInput {
 		return calcFullTicks(this, this.phase, this.getPhaseTick());
 	}
 	
-	public static float calcFullTicks(EntityActionInstance action, ActionPhase targetPhase, float targetPhaseTick) {
-		float sum = 0;
-		for (ActionPhase phase : ActionPhase.values()) {
-			float length = action.phasesLength.get(phase);
-			if (phase == targetPhase) {
-				length = Math.min(length, targetPhaseTick);
-			}
-			sum += length;
-			if (phase == targetPhase) break;
-		}
-		return sum;
-	}
-	
-	/**
-	 * A function to time the punch swing sounds a few ticks before the actual punch impact
-	 */
-	public static boolean soundTiming(EntityActionInstance action, ActionPhase targetPhase, float targetPhaseTick, int soundOffset) {
-		float ticksPassed = action.getFullTicksPassed();
-		int ticksDiff = (int) (ticksPassed - calcFullTicks(action, targetPhase, targetPhaseTick));
-		return ticksDiff == soundOffset
-				|| soundOffset < 0 && soundOffset < ticksDiff && (int) ticksPassed == 0
-				/*|| soundOffset > 0 && ... */;
-	}
-	
 
 	@ApiStatus.NonExtendable
 	public void forceStop() {
@@ -172,13 +181,6 @@ public class EntityActionInstance implements HeldInput {
 		}
 		return null;
 	}
-	
-	
-	@ApiStatus.OverrideOnly
-	public void toBuf(RegistryFriendlyByteBuf buf) {}
-
-	@ApiStatus.OverrideOnly
-	public void fromBuf(RegistryFriendlyByteBuf buf) {}
 	
 	
 	
