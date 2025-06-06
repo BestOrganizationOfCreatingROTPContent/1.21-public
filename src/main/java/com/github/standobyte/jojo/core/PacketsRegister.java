@@ -4,7 +4,7 @@ import com.github.standobyte.jojo.core.packet.fromclient.ClAbilityInputPacket;
 import com.github.standobyte.jojo.core.packet.fromclient.ClSetStandSkinPacket;
 import com.github.standobyte.jojo.core.packet.fromclient.ClSummonStandPacket;
 import com.github.standobyte.jojo.core.packet.fromserver.DatapackStandsPacket;
-import com.github.standobyte.jojo.core.packet.fromserver.PlayStandEntitySoundPacket;
+import com.github.standobyte.jojo.core.packet.fromserver.StandEntitySoundPacket;
 import com.github.standobyte.jojo.core.packet.fromserver.TrAbilityUsePacket;
 import com.github.standobyte.jojo.core.packet.fromserver.TrPowerStandInstancePacket;
 import com.github.standobyte.jojo.core.packet.fromserver.TrPowerTypePacket;
@@ -38,7 +38,7 @@ public class PacketsRegister {
 		registerPacket(registrar, PayloadRegistrar::playToClient, new TrPowerTypePacket.Handler(JojoMod.resLoc("plpowertype")));
 		registerPacket(registrar, PayloadRegistrar::playToClient, new TrSetStandEntityPacket.Handler(JojoMod.resLoc("standentity")));
 		registerPacket(registrar, PayloadRegistrar::playToClient, new TrStandSkinPacket.Handler(JojoMod.resLoc("standskin")));
-		registerPacket(registrar, PayloadRegistrar::playToClient, new PlayStandEntitySoundPacket.Handler(JojoMod.resLoc("standsound")));
+		registerPacket(registrar, PayloadRegistrar::playToClient, new StandEntitySoundPacket.Handler(JojoMod.resLoc("standsound")));
 		registerPacket(registrar, PayloadRegistrar::playToClient, new TrClothesItemsPacket.Handler(JojoMod.resLoc("clothes")));
 	}
 

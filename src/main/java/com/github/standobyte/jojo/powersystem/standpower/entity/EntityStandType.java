@@ -5,7 +5,7 @@ import java.util.Optional;
 import java.util.function.Consumer;
 
 import com.github.standobyte.jojo.core.config.DefaultedValue;
-import com.github.standobyte.jojo.core.packet.fromserver.PlayStandEntitySoundPacket;
+import com.github.standobyte.jojo.core.packet.fromserver.StandEntitySoundPacket;
 import com.github.standobyte.jojo.core.packet.fromserver.TrSetStandEntityPacket;
 import com.github.standobyte.jojo.init.ModEntityTypes;
 import com.github.standobyte.jojo.init.ModSoundEvents;
@@ -130,7 +130,7 @@ public class EntityStandType extends StandType {
 		if (!level.isClientSide() && !standEntity.isAddedToLevel()) {
 			if (addToWorld) {
 				level.addFreshEntity(standEntity);
-				PacketDistributor.sendToPlayersTrackingEntityAndSelf(user, new PlayStandEntitySoundPacket(standEntity, ModSoundEvents.STAND_SUMMON, 1, 1));
+				PacketDistributor.sendToPlayersTrackingEntityAndSelf(user, new StandEntitySoundPacket(standEntity, ModSoundEvents.STAND_SUMMON, 1, 1));
 				PacketDistributor.sendToPlayersTrackingEntityAndSelf(user, new TrSetStandEntityPacket(user.getId(), standEntity.getId()));
 //				triggerAdvancement(standPower, standPower.getSummonedStand());
 			}
@@ -166,7 +166,7 @@ public class EntityStandType extends StandType {
 		if (!user.level().isClientSide()) {
 			StandEntity standEntity = standPower.getSummonedStandEntity();
 			if (standEntity != null) {
-				PacketDistributor.sendToPlayersTrackingEntityAndSelf(user, new PlayStandEntitySoundPacket(standEntity, ModSoundEvents.STAND_UNSUMMON, 1, 1));
+				PacketDistributor.sendToPlayersTrackingEntityAndSelf(user, new StandEntitySoundPacket(standEntity, ModSoundEvents.STAND_UNSUMMON, 1, 1));
 				standPower.setSummonedStand(null);
 				standEntity.remove(Entity.RemovalReason.DISCARDED);
 			}

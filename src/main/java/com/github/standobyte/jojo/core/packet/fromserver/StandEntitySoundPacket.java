@@ -16,42 +16,42 @@ import net.minecraft.sounds.SoundEvent;
 import net.minecraft.world.entity.Entity;
 import net.neoforged.neoforge.network.handling.IPayloadContext;
 
-public record PlayStandEntitySoundPacket(int entityId, Holder<SoundEvent> sound, boolean onlyForStandUsers, 
+public record StandEntitySoundPacket(int entityId, Holder<SoundEvent> sound, boolean onlyForStandUsers, 
 		float volume, float pitch) implements CustomPacketPayload {
 	
-	public PlayStandEntitySoundPacket(StandEntity standEntity, Holder<SoundEvent> sound, float volume, float pitch) {
+	public StandEntitySoundPacket(StandEntity standEntity, Holder<SoundEvent> sound, float volume, float pitch) {
 		this(standEntity.getId(), sound, standEntity.onlyVisibleToStandUsers(), volume, pitch);
 	}
 	
-	private static CustomPacketPayload.Type<PlayStandEntitySoundPacket> type;
+	private static CustomPacketPayload.Type<StandEntitySoundPacket> type;
 	
-	public static class Handler implements PacketsRegister.PacketCodecHandler<PlayStandEntitySoundPacket> {
+	public static class Handler implements PacketsRegister.PacketCodecHandler<StandEntitySoundPacket> {
 		
 		public Handler(ResourceLocation packetId) { 
 			type = new CustomPacketPayload.Type<>(packetId);
 		}
 
 		@Override
-		public Type<PlayStandEntitySoundPacket> type() {
+		public Type<StandEntitySoundPacket> type() {
 			return type;
 		}
 
 		@Override
-		public StreamCodec<? super RegistryFriendlyByteBuf, PlayStandEntitySoundPacket> reader() {
+		public StreamCodec<? super RegistryFriendlyByteBuf, StandEntitySoundPacket> reader() {
 			return STREAM_CODEC;
 		}
 		
 		
-		public static final StreamCodec<RegistryFriendlyByteBuf, PlayStandEntitySoundPacket> STREAM_CODEC = StreamCodec.composite(
-				ByteBufCodecs.INT, PlayStandEntitySoundPacket::entityId,
-				SoundEvent.STREAM_CODEC, PlayStandEntitySoundPacket::sound,
-				ByteBufCodecs.BOOL, PlayStandEntitySoundPacket::onlyForStandUsers,
-				ByteBufCodecs.FLOAT, PlayStandEntitySoundPacket::volume,
-				ByteBufCodecs.FLOAT, PlayStandEntitySoundPacket::pitch,
-				PlayStandEntitySoundPacket::new);
+		public static final StreamCodec<RegistryFriendlyByteBuf, StandEntitySoundPacket> STREAM_CODEC = StreamCodec.composite(
+				ByteBufCodecs.INT, StandEntitySoundPacket::entityId,
+				SoundEvent.STREAM_CODEC, StandEntitySoundPacket::sound,
+				ByteBufCodecs.BOOL, StandEntitySoundPacket::onlyForStandUsers,
+				ByteBufCodecs.FLOAT, StandEntitySoundPacket::volume,
+				ByteBufCodecs.FLOAT, StandEntitySoundPacket::pitch,
+				StandEntitySoundPacket::new);
 
 		@Override
-		public void handle(PlayStandEntitySoundPacket payload, IPayloadContext context) {
+		public void handle(StandEntitySoundPacket payload, IPayloadContext context) {
 			if (!payload.onlyForStandUsers || ClientGlobals.canHearStands) {
 				SoundEvent sound = payload.sound.value();
 				if (sound != null) {
