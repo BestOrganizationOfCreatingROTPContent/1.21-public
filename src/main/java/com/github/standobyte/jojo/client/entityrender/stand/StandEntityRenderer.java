@@ -75,8 +75,10 @@ public class StandEntityRenderer<
 		EntityActionRenderState.setAnim(renderState.action, renderState, 
 				getStandAnim(renderState), entity.clientStuff.barrageSwings);
 		
-		renderState.isInvisible |= !ClientGlobals.canSeeStands;
-		renderState.isInvisibleToPlayer |= !ClientGlobals.canSeeStands;
+		if (entity.onlyVisibleToStandUsers()) {
+			renderState.isInvisible |= !ClientGlobals.canSeeStands;
+			renderState.isInvisibleToPlayer |= !ClientGlobals.canSeeStands;
+		}
 	}
 	
 	public AnimWithExtras getStandAnim(S renderState) {

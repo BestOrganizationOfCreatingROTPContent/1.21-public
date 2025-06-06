@@ -19,7 +19,7 @@ public class ClientTickHandler {
 	}
 
 	@SubscribeEvent
-	public static void onClientTickPost(ClientTickEvent.Pre event) {
+	public static void onClientTickPost(ClientTickEvent.Post event) {
 		Minecraft mc = Minecraft.getInstance();
 		AimTarget.updateTarget(mc);
 	}
