@@ -123,13 +123,17 @@ public class StandEntityRenderer<
 	
 	@Override
 	public void render(S renderState, PoseStack poseStack, MultiBufferSource bufferSource, int light) {
+		if (renderState.mayObstructView && renderState.ageInTicks < 1.5f) return;
+		
 		setModelFrom(renderState);
 		if (this.model == null) return;
 		this.model.setAllVisible(true);
+		
 		if (renderState.mayObstructView) {
 			bufferSource = FirstPersonStandTranslucentShader.standTranslucencyBufferSource;
 			FirstPersonStandTranslucentShader.usedThisFrame = true;
 		}
+		
 		super.render(renderState, poseStack, bufferSource, light);
 	}
 	
