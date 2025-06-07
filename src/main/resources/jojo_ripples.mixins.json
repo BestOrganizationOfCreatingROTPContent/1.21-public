@@ -18,6 +18,7 @@
     "client.standskin.SoundInstanceMixin",
     "client.barrage.LivingEntityRendererMixin",
     "client.barrage.ModelMixin",
-    "client.barrage.EntityModelMixin"
+    "client.barrage.EntityModelMixin",
+    "client.aim.GameRendererMixin"
   ]
 }

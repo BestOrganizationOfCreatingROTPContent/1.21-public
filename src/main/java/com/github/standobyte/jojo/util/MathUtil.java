@@ -6,8 +6,12 @@ import java.util.Random;
 import com.github.standobyte.jojo.util.reflection.ReflectionUtil;
 
 import net.minecraft.Util;
+import net.minecraft.commands.arguments.EntityAnchorArgument;
 import net.minecraft.util.Mth;
+import net.minecraft.world.entity.Entity;
 import net.minecraft.world.phys.AABB;
+import net.minecraft.world.phys.Vec2;
+import net.minecraft.world.phys.Vec3;
 import net.neoforged.fml.util.ObfuscationReflectionHelper;
 
 public final class MathUtil {
@@ -41,6 +45,16 @@ public final class MathUtil {
 			angle += DOUBLE_PI;
 		}
 		return angle;
+	}
+
+	
+	public static Vec2 lookAnglesTowards(Vec3 targetPos, Entity lookingEntity, EntityAnchorArgument.Anchor lookingAnchor) {
+		Vec3 entityPos = lookingAnchor.apply(lookingEntity);
+		Vec3 vecToTarget = targetPos.subtract(entityPos);
+		double xzProjLen = Math.sqrt(vecToTarget.x * vecToTarget.x + vecToTarget.z * vecToTarget.z);
+		float xRot = Mth.wrapDegrees((float)(-(Mth.atan2(vecToTarget.y, xzProjLen) * RAD_TO_DEG)));
+		float yRot = Mth.wrapDegrees((float)(Mth.atan2(vecToTarget.z, vecToTarget.x) * RAD_TO_DEG) - 90);
+		return new Vec2(xRot, yRot);
 	}
 
 	

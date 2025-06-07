@@ -13,6 +13,7 @@ import com.github.standobyte.jojo.powersystem.entityaction.netcode.TrEntityActio
 import com.github.standobyte.jojo.powersystem.standpower.entity.LivingReactToNewAction;
 import com.github.standobyte.jojo.util.entitycomponent.SynchronizablePlayerData;
 import com.github.standobyte.jojo.util.entitycomponent.TickingEntityData;
+import com.github.standobyte.jojo.util.mc.ActionTargetAim;
 
 import net.minecraft.core.HolderLookup.Provider;
 import net.minecraft.nbt.CompoundTag;
@@ -29,10 +30,12 @@ public class LivingComponentAction implements SynchronizablePlayerData, TickingE
 	private final LivingReactToNewAction setActionCallback;
 	private final AtomicInteger actionIdCounter = new AtomicInteger();
 	@Nullable private EntityActionInstance action;
+	public final ActionTargetAim entityAim;
 	
 	public LivingComponentAction(LivingEntity entity) {
 		this.entity = entity;
 		this.setActionCallback = (entity instanceof LivingReactToNewAction standEntity) ? standEntity : null;
+		this.entityAim = new ActionTargetAim();
 		addSynchronization(entity);
 		addTicking(entity);
 	}

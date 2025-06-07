@@ -10,6 +10,7 @@ import com.github.standobyte.jojo.init.ModItemDataComponents;
 import com.github.standobyte.jojo.init.ModItems;
 import com.github.standobyte.jojo.init.ModSoundEvents;
 import com.github.standobyte.jojo.init.ModSpecialActions;
+import com.github.standobyte.jojo.init.core.ModEntityDataSerializers;
 import com.github.standobyte.jojo.init.power.ModPlayerPowers;
 import com.github.standobyte.jojo.init.power.ModStandAbilities;
 import com.github.standobyte.jojo.init.power.ModStandEffects;
@@ -45,6 +46,7 @@ public class JojoMod {
 		ModCommandArguments.ARGUMENT_TYPES.register(modEventBus);
 		ModSoundEvents.SOUNDS.register(modEventBus);
 		ModItemDataComponents.DATA_COMPONENT_TYPES.register(modEventBus);
+		ModEntityDataSerializers.SERIALIZERS.register(modEventBus);
 		
 		JojoRegistries.ABILITY_TYPES.register(modEventBus);
 		ModStandAbilities.load();

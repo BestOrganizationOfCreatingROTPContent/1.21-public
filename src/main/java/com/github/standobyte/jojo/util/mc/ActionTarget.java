@@ -8,6 +8,7 @@ import javax.annotation.Nonnull;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.network.FriendlyByteBuf;
+import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.state.BlockState;
@@ -97,12 +98,6 @@ public class ActionTarget {
 		return entity;
 	}
 
-	public Vec3 getTargetPos(boolean targetEntityEyeHeight) {
-		return type == TargetType.ENTITY && entity != null ? 
-				targetEntityEyeHeight ? entity.getEyePosition(1) : entity.position()
-						: targetPos;
-	}
-
 	public Optional<AABB> getBoundingBox(Level level) {
 		AABB aabb = null;
 		switch (type) {
@@ -150,9 +145,9 @@ public class ActionTarget {
 		}
 	}
 
-	public static ActionTarget readFromBuf(FriendlyByteBuf buf, Level clientLevel) {
+	public static ActionTarget readFromBuf(FriendlyByteBuf buf, Level level) {
 		ActionTarget target = readFromBuf(buf);
-		return target.resolveEntityId(clientLevel);
+		return target.resolveEntityId(level);
 	}
 
 	public ActionTarget resolveEntityId(Level level) {
@@ -175,6 +170,11 @@ public class ActionTarget {
 			return null;
 		}
 	}
+
+	public static final StreamCodec<? super FriendlyByteBuf, ActionTarget> STREAM_CODEC_UNRESOLVED_ENTITY_ID = new StreamCodec<>() {
+		@Override public ActionTarget decode(FriendlyByteBuf buffer) { return ActionTarget.readFromBuf(buffer); }
+		@Override public void encode(FriendlyByteBuf buffer, ActionTarget value) { value.writeToBuf(buffer); }
+	};
 
 	private ActionTarget(int entityIdOnly) {
 		type = TargetType.ENTITY;

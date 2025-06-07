@@ -13,8 +13,12 @@ import com.github.standobyte.jojo.powersystem.entityaction.EntityActionInstance;
 import com.github.standobyte.jojo.powersystem.entityaction.LivingComponentAction;
 import com.github.standobyte.jojo.powersystem.standpower.StandPower;
 import com.github.standobyte.jojo.powersystem.standpower.type.SummonedStand;
+import com.github.standobyte.jojo.util.MathUtil;
 import com.github.standobyte.jojo.util.StandUtil;
+import com.github.standobyte.jojo.util.mc.ActionTarget;
+import com.github.standobyte.jojo.util.mc.ActionTarget.TargetType;
 
+import net.minecraft.commands.arguments.EntityAnchorArgument;
 import net.minecraft.network.RegistryFriendlyByteBuf;
 import net.minecraft.network.protocol.Packet;
 import net.minecraft.network.protocol.game.ClientGamePacketListener;
@@ -34,6 +38,7 @@ import net.minecraft.world.entity.ai.attributes.Attributes;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
+import net.minecraft.world.phys.Vec2;
 import net.minecraft.world.phys.Vec3;
 import net.neoforged.neoforge.entity.IEntityWithComplexSpawn;
 import net.neoforged.neoforge.network.PacketDistributor;
@@ -91,10 +96,30 @@ public class StandEntity extends LivingEntity implements SummonedStand, IEntityW
 		Vec3 pos = offsetFromUser.getPosition(user);
 		setPos(pos.x, pos.y, pos.z);
 		copyStandUserRotation(user);
+		lookAtCurTarget();
 	}
 	
 	public void copyStandUserRotation(LivingEntity user) {
 		offsetFromUser.copyRotation(user, level().isClientSide());
+	}
+	
+	protected void lookAtCurTarget() {
+		ActionTarget target = standAction.entityAim.getTarget();
+		if (target.getType() == TargetType.ENTITY) {
+			Entity targetEntity = target.getEntity();
+			// TODO (stand aiming) look closer to where the user is looking (legs/head aiming)
+			double y = targetEntity instanceof LivingEntity ? 
+					targetEntity.getEyeY() : 
+					(targetEntity.getBoundingBox().minY + targetEntity.getBoundingBox().maxY) / 2.0;
+			Vec3 targetPos = new Vec3(targetEntity.getX(), y, targetEntity.getZ());
+			Vec2 rotations = MathUtil.lookAnglesTowards(targetPos, this, EntityAnchorArgument.Anchor.EYES);
+			this.setXRot(rotations.x);
+			this.setYRot(rotations.y);
+			this.setYHeadRot(this.getYRot());
+			this.xRotO = this.getXRot();
+			this.yRotO = this.getYRot();
+			this.yHeadRotO = this.getYHeadRot();
+		}
 	}
 	
 	public boolean isFollowingUser() {
