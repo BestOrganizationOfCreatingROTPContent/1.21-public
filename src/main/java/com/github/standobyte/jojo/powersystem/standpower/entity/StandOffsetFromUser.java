@@ -12,8 +12,8 @@ import net.minecraft.world.phys.Vec3;
 public class StandOffsetFromUser {
 	private LivingEntity standEntity;
 	
-	public final Vec3 idleOffset;
-	public final OffsetMode idleOffsetMode;
+	public Vec3 idleOffset;
+	public OffsetMode idleOffsetMode;
 	
 	private Vec3 relativeOffset;
 	private OffsetMode offsetMode;
