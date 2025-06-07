@@ -106,10 +106,10 @@ public class EntityActionInstance implements HeldInput {
 		}
 	}
 	
-	public static float calcFullTicks(EntityActionInstance action, ActionPhase targetPhase, float targetPhaseTick) {
+	public final float calcFullTicks(ActionPhase targetPhase, float targetPhaseTick) {
 		float sum = 0;
 		for (ActionPhase phase : ActionPhase.values()) {
-			float length = action.phasesLength.get(phase);
+			float length = phasesLength.get(phase);
 			if (phase == targetPhase) {
 				length = Math.min(length, targetPhaseTick);
 			}
@@ -122,9 +122,9 @@ public class EntityActionInstance implements HeldInput {
 	/**
 	 * A function to time the punch swing sounds a few ticks before the actual punch impact
 	 */
-	public static boolean soundTiming(EntityActionInstance action, ActionPhase targetPhase, float targetPhaseTick, int soundOffset) {
-		float ticksPassed = action.getFullTicksPassed();
-		int ticksDiff = (int) (ticksPassed - calcFullTicks(action, targetPhase, targetPhaseTick));
+	public final boolean soundTiming(ActionPhase targetPhase, float targetPhaseTick, int soundOffset) {
+		float ticksPassed = getFullTicksPassed();
+		int ticksDiff = (int) (ticksPassed - calcFullTicks(targetPhase, targetPhaseTick));
 		return ticksDiff == soundOffset
 				|| soundOffset < 0 && soundOffset < ticksDiff && (int) ticksPassed == 0
 				/*|| soundOffset > 0 && ... */;
@@ -156,7 +156,7 @@ public class EntityActionInstance implements HeldInput {
 	}
 	
 	public float getFullTicksPassed() {
-		return calcFullTicks(this, this.phase, this.getPhaseTick());
+		return calcFullTicks(this.phase, this.getPhaseTick());
 	}
 	
 

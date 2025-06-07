@@ -38,7 +38,7 @@
   
   "stand_punch_cry": {
     "replace": true,
-    "subtitle": "jojo.subtitle.ora",
+    "subtitle": "jojo_ripples.subtitle.ora",
     "sounds": [ 
       "jojo_ripples:star_platinum/star_platinum_ora", 
       "jojo_ripples:star_platinum/star_platinum_ora_2", 
@@ -48,7 +48,7 @@
   },
   "stand_punch_heavy_cry": {
     "replace": true,
-    "subtitle": "jojo.subtitle.ora",
+    "subtitle": "jojo_ripples.subtitle.ora",
     "sounds": [ 
       "jojo_ripples:star_platinum/star_platinum_ora_long", 
       "jojo_ripples:star_platinum/star_platinum_ora_long_2" 
@@ -56,7 +56,7 @@
   },
   "stand_barrage_cry": {
     "replace": true,
-    "subtitle": "jojo.subtitle.ora_ora_ora",
+    "subtitle": "jojo_ripples.subtitle.ora_rush",
     "sounds": [ 
       "jojo_ripples:star_platinum/star_platinum_ora_rush", 
       "jojo_ripples:star_platinum/star_platinum_ora_rush_2", 

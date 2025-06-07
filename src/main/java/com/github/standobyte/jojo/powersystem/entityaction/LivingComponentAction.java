@@ -80,6 +80,7 @@ public class LivingComponentAction implements SynchronizablePlayerData, TickingE
 		// Action callbacks that may be overriden by specific abilities
 		
 		if (this.action != null) {
+			this.action.forceStop();
 			this.action.onActionCleared();
 		}
 		assignAction(action);

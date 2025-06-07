@@ -1,7 +1,8 @@
 package com.github.standobyte.jojo.jojoimpl.stands._entitybase;
 
+import com.github.standobyte.jojo.client.ClientGlobals;
+import com.github.standobyte.jojo.client.sound.ClientsideSoundsHelper;
 import com.github.standobyte.jojo.core.JojoMod;
-import com.github.standobyte.jojo.core.packet.fromserver.StandEntitySoundPacket;
 import com.github.standobyte.jojo.init.ModSoundEvents;
 import com.github.standobyte.jojo.powersystem.ability.AbilityId;
 import com.github.standobyte.jojo.powersystem.entityaction.ActionPhase;
@@ -11,7 +12,7 @@ import com.github.standobyte.jojo.powersystem.standpower.entity.StandEntity;
 import com.github.standobyte.jojo.powersystem.standpower.entity.StandEntityAbility;
 import com.github.standobyte.jojo.powersystem.standpower.entity.StandOffsetFromUser;
 
-import net.neoforged.neoforge.network.PacketDistributor;
+import net.minecraft.world.level.Level;
 
 public class StandEntityHeavyPunchAbility extends StandEntityAbility {
 
@@ -29,6 +30,8 @@ public class StandEntityHeavyPunchAbility extends StandEntityAbility {
 	}
 	
 	public static class StandEntityHeavyPunch extends EntityActionInstance {
+		protected boolean playedSwingSound;
+		protected boolean playedStandCrySound;
 
 		public StandEntityHeavyPunch(EntityActionType ability) {
 			super(ability);
@@ -41,10 +44,24 @@ public class StandEntityHeavyPunchAbility extends StandEntityAbility {
 		
 		@Override
 		public void actionTick() {
-			if (!performer.level().isClientSide()) {
-				// play the swing sound 5 ticks before the end of the 'perform' phase (when actionPerformEnd() is called)
-				if (soundTiming(this, ActionPhase.PERFORM, phasesLength.get(ActionPhase.PERFORM), -5) && performer instanceof StandEntity stand) {
-					PacketDistributor.sendToPlayersTrackingEntityAndSelf(stand, new StandEntitySoundPacket(stand, ModSoundEvents.STAND_PUNCH_HEAVY_SWING, 1, 1));
+			Level level = performer.level();
+			if (level.isClientSide() && ClientGlobals.canHearStands && !(playedSwingSound && playedStandCrySound) && performer instanceof StandEntity stand) {
+				if (!playedSwingSound) {
+					// how many ticks are left before the end of the 'perform' phase (when actionPerformEnd() is called)
+					int ticksDiff = (int) (calcFullTicks(ActionPhase.PERFORM, phasesLength.get(ActionPhase.PERFORM)) - getFullTicksPassed());
+					if (ticksDiff <= 5) {
+						level.playLocalSound(stand.getX(), stand.getEyeY(), stand.getZ(), ClientsideSoundsHelper.withStandSkin(
+								ModSoundEvents.STAND_PUNCH_HEAVY_SWING.get(), stand.getStandId(), stand.getStandSkin()), 
+								stand.getSoundSource(), 1, 1, false);
+						playedSwingSound = true;
+					}
+				}
+				
+				if (!playedStandCrySound) {
+					ClientsideSoundsHelper.playEntityLingeringSound(stand, ClientsideSoundsHelper.withStandSkin(
+							ModSoundEvents.STAND_PUNCH_HEAVY_CRY.get(), stand.getStandId(), stand.getStandSkin()), 
+							stand.getSoundSource(), 1, 1, level);
+					playedStandCrySound = true;
 				}
 			}
 		}

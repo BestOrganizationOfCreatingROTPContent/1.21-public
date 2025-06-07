@@ -3,8 +3,9 @@ package com.github.standobyte.jojo.jojoimpl.stands._entitybase;
 import java.util.ArrayList;
 import java.util.List;
 
+import com.github.standobyte.jojo.client.ClientGlobals;
+import com.github.standobyte.jojo.client.sound.ClientsideSoundsHelper;
 import com.github.standobyte.jojo.core.JojoMod;
-import com.github.standobyte.jojo.core.packet.fromserver.StandEntitySoundPacket;
 import com.github.standobyte.jojo.init.ModSoundEvents;
 import com.github.standobyte.jojo.powersystem.Moveset;
 import com.github.standobyte.jojo.powersystem.PowerClass;
@@ -19,7 +20,7 @@ import com.github.standobyte.jojo.powersystem.standpower.entity.StandEntityAbili
 import com.github.standobyte.jojo.powersystem.standpower.entity.StandOffsetFromUser;
 
 import net.minecraft.world.entity.LivingEntity;
-import net.neoforged.neoforge.network.PacketDistributor;
+import net.minecraft.world.level.Level;
 
 public class StandEntityPunchAbility extends StandEntityAbility {
 	public List<String> punchNames;
@@ -75,6 +76,8 @@ public class StandEntityPunchAbility extends StandEntityAbility {
 	}
 	
 	public static class StandEntityPunch extends EntityActionInstance {
+		protected boolean playedSwingSound;
+		protected boolean playedStandCrySound;
 
 		public StandEntityPunch(EntityActionType ability) {
 			super(ability);
@@ -87,10 +90,24 @@ public class StandEntityPunchAbility extends StandEntityAbility {
 		
 		@Override
 		public void actionTick() {
-			if (!performer.level().isClientSide()) {
-				// play the swing sound 2 ticks before the start of the 'perform' phase (when actionPerformStart() is called)
-				if (soundTiming(this, ActionPhase.PERFORM, 0, -2) && performer instanceof StandEntity stand) {
-					PacketDistributor.sendToPlayersTrackingEntityAndSelf(stand, new StandEntitySoundPacket(stand, ModSoundEvents.STAND_PUNCH_SWING, 1, 1));
+			Level level = performer.level();
+			if (level.isClientSide() && ClientGlobals.canHearStands && !(playedSwingSound && playedStandCrySound) && performer instanceof StandEntity stand) {
+				if (!playedSwingSound) {
+					// how many ticks are left before the start of the 'perform' phase (when actionPerformStart() is called)
+					int ticksDiff = (int) (calcFullTicks(ActionPhase.PERFORM, 0) - getFullTicksPassed());
+					if (ticksDiff <= 2) {
+						level.playLocalSound(stand.getX(), stand.getEyeY(), stand.getZ(), ClientsideSoundsHelper.withStandSkin(
+								ModSoundEvents.STAND_PUNCH_SWING.get(), stand.getStandId(), stand.getStandSkin()), 
+								stand.getSoundSource(), 1, 1, false);
+						playedSwingSound = true;
+					}
+				}
+				
+				if (!playedStandCrySound) {
+					ClientsideSoundsHelper.playEntityLingeringSound(stand, ClientsideSoundsHelper.withStandSkin(
+							ModSoundEvents.STAND_PUNCH_CRY.get(), stand.getStandId(), stand.getStandSkin()), 
+							stand.getSoundSource(), 1, 1, level);
+					playedStandCrySound = true;
 				}
 			}
 		}

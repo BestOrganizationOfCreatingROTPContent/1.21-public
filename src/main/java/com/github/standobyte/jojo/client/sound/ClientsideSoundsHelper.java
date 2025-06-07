@@ -33,12 +33,25 @@ public class ClientsideSoundsHelper {
 		return soundEvent;
 	}
 
+
 	public static void playEntityLingeringSound(Entity entity, SoundEvent sound, SoundSource channel, float volume, float pitch, Level clientLevel) {
 		Minecraft.getInstance().getSoundManager().play(new EntityLingeringSoundInstance(
 				sound, channel, volume, pitch, entity, clientLevel.random.nextLong()));
 	}
+	
+	/*
+	 * We can actually reference our implementations of SoundInstance (for example, EntityStoppableSoundInstance) anywhere,
+	 * unlike the vanilla classes (such as EntityBoundSoundInstance) that have @OnlyIn annotation and therefore are not present on dedicated server.
+	 * We just can't reference the SoundInstance interface itself in this method's signature. because it is also only present on client.
+	 * Of course we can still only call this on a logical client side (if Level#isClientSide() is true).
+	 */
+	public static void playNonVanillaClassSound(Object soundInstance) {
+		Minecraft.getInstance().getSoundManager().play((SoundInstance) soundInstance);
+	}
 
 	
+
+
 	// Internal Stand skin handler section
 	
 	private static SoundEvent standSkin_soundEvent;
