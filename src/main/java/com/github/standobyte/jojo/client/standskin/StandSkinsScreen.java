@@ -14,18 +14,20 @@ import com.github.standobyte.jojo.client.entityrender.EntityActionRenderState;
 import com.github.standobyte.jojo.client.entityrender.stand.StandEntityRenderState;
 import com.github.standobyte.jojo.client.entityrender.stand.StandEntityRenderer;
 import com.github.standobyte.jojo.client.input.InputHandler;
-import com.github.standobyte.jojo.core.packet.fromclient.ClSetStandSkinPacket;
 import com.github.standobyte.jojo.client.jojomenu.IJojoMenuScreen;
 import com.github.standobyte.jojo.client.jojomenu.JojoMenuTabs;
 import com.github.standobyte.jojo.client.jojomenu.Tab;
 import com.github.standobyte.jojo.client.jojomenu.TabCategory;
+import com.github.standobyte.jojo.client.utils.ui.GuiIcon;
+import com.github.standobyte.jojo.core.JojoMod;
+import com.github.standobyte.jojo.core.packet.fromclient.ClSetStandSkinPacket;
 import com.github.standobyte.jojo.powersystem.PowerClass;
 import com.github.standobyte.jojo.powersystem.standpower.StandInstance;
 import com.github.standobyte.jojo.powersystem.standpower.StandPower;
 import com.github.standobyte.jojo.powersystem.standpower.entity.EntityStandType;
 import com.github.standobyte.jojo.powersystem.standpower.type.StandType;
-import com.github.standobyte.jojo.util.MathUtil;
 import com.github.standobyte.jojo.util.CommonEnums.Direction2D;
+import com.github.standobyte.jojo.util.MathUtil;
 import com.google.common.collect.Streams;
 import com.mojang.blaze3d.platform.Lighting;
 import com.mojang.blaze3d.systems.RenderSystem;
@@ -34,23 +36,54 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.components.Renderable;
 import net.minecraft.client.gui.screens.Screen;
+import net.minecraft.client.renderer.RenderType;
 import net.minecraft.client.renderer.entity.EntityRenderDispatcher;
 import net.minecraft.network.chat.CommonComponents;
 import net.minecraft.resources.ResourceLocation;
+import net.minecraft.util.ARGB;
 import net.minecraft.util.Mth;
 import net.neoforged.neoforge.network.PacketDistributor;
 
-// XXX stans skins UI
 public class StandSkinsScreen extends Screen implements IJojoMenuScreen {
-//	public static final ResourceLocation TEXTURE_MAIN_WINDOW = new ResourceLocation(JojoMod.MOD_ID, "textures/gui/stand_skins.png");
-//	private static final ResourceLocation TEXTURE_BG = new ResourceLocation(JojoMod.MOD_ID, "textures/gui/stand_skins_bg.png");
+	private static final ResourceLocation TEXTURE_BG = ResourceLocation.fromNamespaceAndPath(
+			JojoMod.MOD_ID, "textures/gui/paper_style/stand_skins_bg.png");
+	private static final ResourceLocation TEXTURE_ELEMENTS = ResourceLocation.fromNamespaceAndPath(
+			JojoMod.MOD_ID, "textures/gui/paper_style/stand_skins_ui.png");
 	
-	private static final int WINDOW_WIDTH = 230;
-	private static final int WINDOW_HEIGHT = 180;
+	private static class SkinBoxes {
+		static GuiIcon[] TOP = new GuiIcon[] {
+				new GuiIcon(TEXTURE_ELEMENTS,	6,		19,		64, 90,		512, 512),
+				new GuiIcon(TEXTURE_ELEMENTS,	75,		19,		64, 95,		512, 512),
+				new GuiIcon(TEXTURE_ELEMENTS,	144,	19,		64, 100,	512, 512),
+		};
+		static GuiIcon[] EVEN = new GuiIcon[] {
+				new GuiIcon(TEXTURE_ELEMENTS,	6,		112,	64, 106,	512, 512),
+				new GuiIcon(TEXTURE_ELEMENTS,	75,		117,	64, 99,		512, 512),
+				new GuiIcon(TEXTURE_ELEMENTS,	144,	122,	64, 92,		512, 512),
+		};
+		static GuiIcon[] ODD = new GuiIcon[] {
+				new GuiIcon(TEXTURE_ELEMENTS,	6,		223,	64, 92,		512, 512),
+				new GuiIcon(TEXTURE_ELEMENTS,	75,		221,	64, 99,		512, 512),
+				new GuiIcon(TEXTURE_ELEMENTS,	144,	219,	64, 106,	512, 512),
+		};
+		static GuiIcon[] EVEN_BOTTOM = new GuiIcon[] {
+				new GuiIcon(TEXTURE_ELEMENTS,	213,	112,	64, 106,	512, 512),
+				new GuiIcon(TEXTURE_ELEMENTS,	282,	117,	64, 101,	512, 512),
+				new GuiIcon(TEXTURE_ELEMENTS,	351,	122,	64, 96,		512, 512),
+		};
+		static GuiIcon[] ODD_BOTTOM = new GuiIcon[] {
+				new GuiIcon(TEXTURE_ELEMENTS,	213,	223,	64, 102,	512, 512),
+				new GuiIcon(TEXTURE_ELEMENTS,	282,	221,	64, 104,	512, 512),
+				new GuiIcon(TEXTURE_ELEMENTS,	351,	219,	64, 106,	512, 512),
+		};
+	}
+	
+	private static final int WINDOW_WIDTH = IJojoMenuScreen.DEFAULT_WIDTH;
+	private static final int WINDOW_HEIGHT = IJojoMenuScreen.DEFAULT_HEIGHT;
 	private static final int WINDOW_INSIDE_X = 7;
-	private static final int WINDOW_INSIDE_WIDTH = 201;
+	private static final int WINDOW_INSIDE_WIDTH = WINDOW_WIDTH - WINDOW_INSIDE_X - 22;
 	private static final int WINDOW_INSIDE_Y = 20;
-	private static final int WINDOW_INSIDE_HEIGHT = 153;
+	private static final int WINDOW_INSIDE_HEIGHT = WINDOW_HEIGHT - WINDOW_INSIDE_Y - 7;
 	
 	private static final int SKINS_IN_ROW = 3;
 	
@@ -82,11 +115,25 @@ public class StandSkinsScreen extends Screen implements IJojoMenuScreen {
 	
 	private void setStandCap(StandPower standCap) {
 		this.standCap = standCap;
-		this.skins = Streams.mapWithIndex(StandSkinsLoader.getInstance()
-				.getStandSkins(standCap.getPowerType().getId()), (skin, index) -> {
-					int x = 12 + (int) (index % SKINS_IN_ROW) * (SkinView.boxWidth + 12);
-					int y = 3 + (int) (index / SKINS_IN_ROW) * (SkinView.boxHeight + 3);
-					return new SkinView(skin, x, y);
+		List<StandSkin> skins = StandSkinsLoader.getInstance().getStandSkinsView(standCap.getPowerType().getId());
+		int rowsCount = (skins.size() - 1) / SKINS_IN_ROW + 1;
+		this.skins = Streams.mapWithIndex(skins.stream(), (skin, index) -> {
+					int row = (int) (index / SKINS_IN_ROW);
+					int column = (int) (index % SKINS_IN_ROW);
+					int rowHeight = SkinView.boxHeight + 12;
+					int x = column * (SkinView.boxWidth + 4);
+					int y = row * rowHeight;
+					int yOffset = 0;
+					if (row % 2 == 1) {
+						if (column == 0) yOffset = -10;
+						else if (column == 1) yOffset = -5;
+					}
+					else if (row > 0) {
+						if (column == 0) yOffset = -2;
+						else if (column == 1) yOffset = -4;
+						else if (column == 2) yOffset = -6;
+					}
+					return new SkinView(skin, x, y + yOffset, y, row, column, row == rowsCount - 1);
 				})
 				.collect(Collectors.toList());
 		setScroll(0);
@@ -119,11 +166,8 @@ public class StandSkinsScreen extends Screen implements IJojoMenuScreen {
 		}
 		
 		renderBackground(gui, mouseX, mouseY, partialTick);
-//		renderBgPattern(gui);
+		renderWindow(gui);
 		renderContents(gui, mouseX, mouseY, partialTick);
-//		renderWindow(gui);
-//		
-//		defaultRenderTabs(gui, mouseX, mouseY, this);
 		
 		renderTabs(gui, this);
 		renderTabTooltip(gui, this, mouseX, mouseY);
@@ -156,12 +200,14 @@ public class StandSkinsScreen extends Screen implements IJojoMenuScreen {
 //		
 //		RenderSystem.popMatrix();
 //	}
-//	
-//	private void renderWindow(MatrixStack matrixStack) {
-//		RenderSystem.enableBlend();
-//		minecraft.getTextureManager().bind(TEXTURE_MAIN_WINDOW);
-//		blit(matrixStack, getWindowX(), getWindowY(), 0, 0, WINDOW_WIDTH, WINDOW_HEIGHT);
-//	}
+
+	private void renderWindow(GuiGraphics gui) {
+		int x = getWindowX(this);
+		int y = getWindowY(this);
+		int width = getWindowWidth();
+		int height = getWindowHeight();
+		gui.blit(RenderType::guiTextured, TEXTURE_BG, x, y, 0.0F, 0.0F, width, height, 256, 256);
+	}
 	
 	private void renderContents(GuiGraphics gui, int mouseX, int mouseY, float partialTick) {
 		int x = getWindowX() + WINDOW_INSIDE_X;
@@ -175,11 +221,12 @@ public class StandSkinsScreen extends Screen implements IJojoMenuScreen {
 		}
 		else {
 			gui.pose().translate(0, -scroll, 0);
+			Optional<SkinView> hoveredSkin = getSkinAt(mouseX, mouseY);
 			for (SkinView skin : skinsVisible) {
-				skin.renderStand(gui, mouseX, mouseY, ticks);
+				skin.renderStand(gui, mouseX, mouseY, ticks, 
+						hoveredSkin.map(hovered -> skin == hovered).orElse(false));
 			}
 
-			Optional<SkinView> hoveredSkin = getSkinAt(mouseX, mouseY);
 			for (SkinView skin : skinsVisible) {
 				skin.renderAdditional(gui, mouseX, mouseY, ticks, 
 						hoveredSkin.map(hovered -> skin == hovered).orElse(false));
@@ -201,7 +248,7 @@ public class StandSkinsScreen extends Screen implements IJojoMenuScreen {
 			
 			return skins.stream().filter(skin -> 
 			x		   > skin.x && x		   <= skin.x + SkinView.boxWidth && 
-			yWithScroll > skin.y && yWithScroll <= skin.y + SkinView.boxHeight)
+			yWithScroll > skin.standY && yWithScroll <= skin.standY + SkinView.boxHeight)
 					.findFirst();
 		}
 		else {
@@ -331,7 +378,7 @@ public class StandSkinsScreen extends Screen implements IJojoMenuScreen {
 	
 	public int getMaxScroll() {
 		int rowsCount = (skins.size() - 1) / SKINS_IN_ROW + 1;
-		return Math.max((SkinView.boxHeight + 4) * rowsCount - WINDOW_INSIDE_HEIGHT, 0);
+		return Math.max((SkinView.boxHeight + 12) * rowsCount - 8 - WINDOW_INSIDE_HEIGHT, 0);
 	}
 	
 	
@@ -348,22 +395,37 @@ public class StandSkinsScreen extends Screen implements IJojoMenuScreen {
 		public final StandSkin skin;
 		public final int x;
 		public final int y;
-		public static final int boxWidth = 51;
-		public static final int boxHeight = 72;
+		public final int standY;
+		public static final int boxWidth = 64;
+		public static final int boxHeight = 88;
 		
-		public SkinView(StandSkin skin, int x, int y) {
+		public final int row;
+		public final int column;
+		public final boolean isBottomRow;
+		
+		public SkinView(StandSkin skin, int x, int y, int standY, int row, int column, boolean isBottomRow) {
 			this.skin = skin;
 			this.x = x;
 			this.y = y;
+			this.standY = standY;
+			this.row = row;
+			this.column = column;
+			this.isBottomRow = isBottomRow;
 		}
 		
-		public void renderStand(GuiGraphics gui, int mouseX, int mouseY, float ticks) {
-//			minecraft.getTextureManager().bind(TEXTURE_MAIN_WINDOW);
-//			blit(matrixStack, x, y, 98, 182, width, height);
-			
+		public void renderStand(GuiGraphics gui, int mouseX, int mouseY, float ticks, boolean isHovered) {
+			GuiIcon[] skinBoxRow;
+			if (row == 0)			skinBoxRow = SkinBoxes.TOP;
+			else if (row % 2 == 1)	skinBoxRow = isBottomRow ? SkinBoxes.EVEN_BOTTOM : SkinBoxes.EVEN;
+			else					skinBoxRow = isBottomRow ? SkinBoxes.ODD_BOTTOM : SkinBoxes.ODD;
+			GuiIcon skinBox = skinBoxRow[column];
+
+			int color = isHovered ? ARGB.color(255, skin.color) : 0x80FFFFFF;
+			skinBox.render(gui, x, y, color);
+
 			StandType standType = standCap.getPowerType();
 			if (standType instanceof EntityStandType) {
-				renderStandModel(gui, x + boxWidth / 2, y + boxHeight / 2 + 26.6667F, 25, 
+				renderStandModel(gui, x + boxWidth / 2, standY + boxHeight / 2 + 35, 30, 
 						1, 0, 0, 0, 0, 
 						(EntityStandType) standType, skin, ticks);
 			}
@@ -371,19 +433,9 @@ public class StandSkinsScreen extends Screen implements IJojoMenuScreen {
 		
 		public void renderAdditional(GuiGraphics gui, int mouseX, int mouseY, 
 				float ticks, boolean isHovered) {
-//			minecraft.getTextureManager().bind(TEXTURE_MAIN_WINDOW);
-//			if (isSkinSelected(skin)) {
-//				blit(matrixStack, x + boxWidth - 18, y + 2, 0, 192, 16, 16);
-//			}
-//			if (isHovered) {
-//				float[] color = ClientUtil.rgb(skin.color);
-//				RenderSystem.enableBlend();
-//				RenderSystem.color4f(color[0], color[1], color[2], 1);
-//				blit(matrixStack, x - 2, y - 2, 
-//						32, 180, boxWidth + 4, boxHeight + 4);
-//				RenderSystem.color4f(1, 1, 1, 1);
-//				RenderSystem.disableBlend();
-//			};
+			if (isSkinSelected(skin)) {
+				gui.blit(RenderType::guiTextured, TEXTURE_ELEMENTS, x + 1, y + 2, 213, 18, 16, 16, 512, 512);
+			}
 		}
 	}
 	
@@ -401,7 +453,8 @@ public class StandSkinsScreen extends Screen implements IJojoMenuScreen {
 			this.skin = skin;
 			this.skinIndex = skinIndex;
 		}
-		
+
+		// XXX (stans skins UI) stand icon
 		public void render(GuiGraphics gui, int mouseX, int mouseY, float ticks) {
 //			ResourceLocation standIcon = JojoModUtil.makeTextureLocation("power", 
 //					skinFullView.skin.standTypeId.getNamespace(), skinFullView.skin.standTypeId.getPath());
@@ -411,15 +464,14 @@ public class StandSkinsScreen extends Screen implements IJojoMenuScreen {
 			
 			StandType standType = standCap.getPowerType();
 			if (standType instanceof EntityStandType) {
-				renderStandModel(gui, WINDOW_WIDTH / 2 - 15, 133.33F, 
-						55, scale, yRot * MathUtil.PI, xRot * MathUtil.PI, xOffset, yOffset, 
-						(EntityStandType) standType, skin, ticks);	
+				renderStandModel(gui, WINDOW_WIDTH / 2 - 15, 180, 
+						70, scale, yRot * MathUtil.PI, xRot * MathUtil.PI, xOffset, yOffset, 
+						(EntityStandType) standType, skin, ticks);
 			}
 			
-//			if (isSkinSelected(skin)) {
-//				minecraft.getTextureManager().bind(TEXTURE_MAIN_WINDOW);
-//				blit(matrixStack, WINDOW_INSIDE_WIDTH - 20, 4, 0, 192, 16, 16);
-//			}
+			if (isSkinSelected(skin)) {
+				gui.blit(RenderType::guiTextured, TEXTURE_ELEMENTS, WINDOW_INSIDE_WIDTH - 20, 4, 213, 18, 16, 16, 512, 512);
+			}
 
 			RenderSystem.enableBlend();
 		}

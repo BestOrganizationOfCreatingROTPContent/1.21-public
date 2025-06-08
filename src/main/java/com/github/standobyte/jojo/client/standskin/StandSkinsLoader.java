@@ -11,7 +11,6 @@ import java.util.Objects;
 import java.util.Optional;
 import java.util.function.Function;
 import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 import javax.annotation.Nullable;
 
@@ -115,9 +114,9 @@ public class StandSkinsLoader extends SimplePreparableReloadListener<Map<Resourc
 		return standType.getId();
 	}
 	
-	public Stream<StandSkin> getStandSkins(ResourceLocation standId) {
+	public List<StandSkin> getStandSkinsView(ResourceLocation standId) {
 		List<StandSkin> skins = skinsByStand.get(standId);
-		return skins != null ? skins.stream() : Stream.empty();
+		return skins != null ? skins : Collections.emptyList();
 	}
 
 	
@@ -212,7 +211,7 @@ public class StandSkinsLoader extends SimplePreparableReloadListener<Map<Resourc
 		}
 		
 		private StandSkin makeSkin() {
-			StandSkin skin = new StandSkin(skinId, standId);
+			StandSkin skin = new StandSkin(skinId, standId, uiColor);
 			if (models != null) skin.withModels(models);
 			if (animations != null) skin.withAnimations(animations);
 			if (soundEvents != null) skin.withSoundEvents(soundEvents);

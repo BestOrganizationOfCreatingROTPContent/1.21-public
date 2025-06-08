@@ -25,6 +25,7 @@ public class StandSkin {
 	public final ResourceLocation standTypeId;
 	private final boolean isDefault;
 	private final ResourcePathChecker standTexture;
+	public final int color;
 	
 	private Map<ResourceLocation, LayerDefinition> models = new HashMap<>();
 	private Lazy<StandEntityModel<?>> standModel;
@@ -38,13 +39,14 @@ public class StandSkin {
 	
 	private final Map<ResourceLocation, ResourcePathChecker> remapPathCache = new HashMap<>();
 	
-	public StandSkin(ResourceLocation skinId, ResourceLocation standId) {
+	public StandSkin(ResourceLocation skinId, ResourceLocation standId, int color) {
 		this.skinId = skinId;
 		this.standTypeId = standId;
 		this.standTexture = remapAssetPath(ResourceLocation.fromNamespaceAndPath(
 				standId.getNamespace(), 
 				"textures/entity/" + standId.getPath() + ".png"));
 		this.isDefault = skinId.equals(standId);
+		this.color = color;
 	}
 	
 	protected void withModels(Map<ResourceLocation, LayerDefinition> models) {
