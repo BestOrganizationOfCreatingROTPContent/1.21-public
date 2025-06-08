@@ -1,4 +1,4 @@
-package com.github.standobyte.jojo.client.jojomenu;
+package com.github.standobyte.jojo.client.ui.jojomenu;
 
 import com.github.standobyte.jojo.core.JojoMod;
 

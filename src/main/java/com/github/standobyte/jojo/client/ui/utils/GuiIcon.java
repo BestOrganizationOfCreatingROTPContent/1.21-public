@@ -1,8 +1,7 @@
-package com.github.standobyte.jojo.client.utils.ui;
+package com.github.standobyte.jojo.client.ui.utils;
 
 import org.joml.Matrix4f;
 
-import com.github.standobyte.jojo.client.utils.BlitFloat;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.VertexConsumer;
 

@@ -15,7 +15,7 @@ import com.github.standobyte.jojo.client.entityanim.AnimWithExtras;
 import com.github.standobyte.jojo.client.entityrender.EntityActionRenderState;
 import com.github.standobyte.jojo.client.entityrender.stand.StandEntityModel;
 import com.github.standobyte.jojo.client.entityrender.stand.VisibilityMode;
-import com.github.standobyte.jojo.client.utils.RGBUtil;
+import com.github.standobyte.jojo.client.ui.utils.RGBUtil;
 import com.github.standobyte.jojo.powersystem.entityaction.ActionPhase;
 import com.github.standobyte.jojo.util.MathUtil;
 import com.mojang.blaze3d.vertex.PoseStack;

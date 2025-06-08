@@ -1,11 +1,12 @@
-package com.github.standobyte.jojo.client.jojomenu;
+package com.github.standobyte.jojo.client.ui.jojomenu;
 
-import java.util.Objects;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.function.Supplier;
 
 import javax.annotation.Nullable;
 
-import com.github.standobyte.jojo.client.utils.ui.GuiIcon;
+import com.github.standobyte.jojo.client.ui.utils.GuiIcon;
 import com.github.standobyte.jojo.powersystem.Power;
 import com.github.standobyte.jojo.powersystem.PowerClass;
 import com.github.standobyte.jojo.powersystem.PowerType;
@@ -16,67 +17,60 @@ import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.entity.player.Player;
 
-public class Tab implements IJojoMenuTab {
-	protected final TabCategory category;
-	protected boolean isDisabled = false;
-	protected final @Nullable PowerClass<?> powerClass;
-	protected final @Nullable Supplier<? extends PowerType> powerType;
+public class TabCategory implements IJojoMenuTab {
+	public static final List<TabCategory> ALL_CATEGORIES = new ArrayList<>();
 	
-	public Tab(TabCategory category) {
-		this(category, null, null);
+	public TabCategory() {
+		this(null, null);
 	}
 	
-	protected Tab(TabCategory category, @Nullable PowerClass<?> powerClass, @Nullable Supplier<? extends PowerType> powerType) {
-		this.category = category;
-		category.tabs.add(this);
+	public TabCategory(@Nullable PowerClass<?> powerClass, @Nullable Supplier<? extends PowerType> powerType) {
 		this.powerClass = powerClass;
 		this.powerType = powerType;
+		ALL_CATEGORIES.add(this);
 	}
 	
-	public Tab disable() {
-		this.isDisabled = true;
-		return this;
+	public static List<TabCategory> getActiveCategories() {
+		return ALL_CATEGORIES.stream().filter(TabCategory::isActive).toList();
 	}
+	
+	protected final @Nullable PowerClass<?> powerClass;
+	protected final @Nullable Supplier<? extends PowerType> powerType;
+	protected final List<Tab> tabs = new ArrayList<>();
 	
 	public boolean isActive() {
-		if (isDisabled) return false;
 		if (powerClass != null) {
 			Player player = Minecraft.getInstance().player;
 			if (player == null) return false;
 			Power<?> power = powerClass.get(player);
 			return power != null && power.hasPower() && (powerType == null || power.getPowerType() == powerType.get());
 		}
-		return true;
-	}
-	
-	protected final TabCategory getCategory() {
-		return category;
-	}
-	
-	
-	protected Supplier<? extends Screen> newScreen = () -> new PlaceholderScreen(Component.empty(), this.getCategory(), this);
-	
-	public Tab withScreen(Supplier<? extends Screen> newScreen) {
-		this.newScreen = newScreen;
-		return this;
-	}
-
-	@Override
-	public boolean onClick(Screen curScreen) {
-		if (newScreen != null) {
-			Screen screen = newScreen.get();
-			if (screen != null) {
-				curScreen.getMinecraft().setScreen(screen);
+		for (Tab tab : tabs) {
+			if (tab.isActive()) {
 				return true;
 			}
 		}
 		return false;
 	}
 	
+	public List<Tab> getActiveTabs() {
+		return tabs.stream().filter(Tab::isActive).toList();
+	}
+
+	
+	@Override
+	public boolean onClick(Screen curScreen) {
+		List<Tab> tabs = getActiveTabs();
+		if (!tabs.isEmpty()) {
+			// XXX (jojo menu) open the last tab in the category if it's active, otherwise open the first tab
+			return tabs.get(0).onClick(curScreen);
+		}
+		return false;
+	}
+	
 	
 	protected Component name = Component.empty();
-	public Tab withName(Component name) {
-		Objects.requireNonNull(name);
+	public TabCategory withName(Component name) {
 		this.name = name;
 		return this;
 	}
@@ -88,7 +82,7 @@ public class Tab implements IJojoMenuTab {
 	
 	
 	protected GuiIcon icon;
-	public Tab withIcon(GuiIcon icon) {
+	public TabCategory withIcon(GuiIcon icon) {
 		this.icon = icon;
 		return this;
 	}
@@ -97,7 +91,7 @@ public class Tab implements IJojoMenuTab {
 	public GuiIcon getIcon() {
 		return icon;
 	}
-	
+
 	@Override
 	public void renderIcon(GuiGraphics guiGraphics, int x, int y) {
 		GuiIcon icon = getIcon();

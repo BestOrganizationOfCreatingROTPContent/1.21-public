@@ -1,10 +1,10 @@
-package com.github.standobyte.jojo.client.hud.marker;
+package com.github.standobyte.jojo.client.ui.hud.marker;
 
 import java.util.List;
 
-import com.github.standobyte.jojo.client.hud.AdditionalHud;
 import com.github.standobyte.jojo.client.input.AimTarget;
-import com.github.standobyte.jojo.client.utils.ui.GuiIcon;
+import com.github.standobyte.jojo.client.ui.hud.AdditionalHud;
+import com.github.standobyte.jojo.client.ui.utils.GuiIcon;
 import com.github.standobyte.jojo.core.JojoMod;
 import com.github.standobyte.jojo.powersystem.standpower.StandPower;
 import com.github.standobyte.jojo.util.mc.ActionTarget;

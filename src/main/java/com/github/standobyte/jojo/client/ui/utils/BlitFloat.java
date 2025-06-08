@@ -1,4 +1,4 @@
-package com.github.standobyte.jojo.client.utils;
+package com.github.standobyte.jojo.client.ui.utils;
 
 import java.util.function.Function;
 

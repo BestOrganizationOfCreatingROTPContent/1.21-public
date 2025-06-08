@@ -1,9 +1,9 @@
 package com.github.standobyte.jojo.client;
 
-import com.github.standobyte.jojo.client.hud.marker.MarkerRenderer;
-import com.github.standobyte.jojo.client.hud.marker.StandAimMarker;
 import com.github.standobyte.jojo.client.input.InputHandler;
-import com.github.standobyte.jojo.client.jojomenu.JojoMenuTabs;
+import com.github.standobyte.jojo.client.ui.hud.marker.MarkerRenderer;
+import com.github.standobyte.jojo.client.ui.hud.marker.StandAimMarker;
+import com.github.standobyte.jojo.client.ui.jojomenu.JojoMenuTabs;
 import com.github.standobyte.jojo.core.JojoMod;
 
 import net.neoforged.api.distmarker.Dist;

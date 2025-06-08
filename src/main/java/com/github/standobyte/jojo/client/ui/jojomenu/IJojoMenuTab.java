@@ -1,4 +1,4 @@
-package com.github.standobyte.jojo.client.jojomenu;
+package com.github.standobyte.jojo.client.ui.jojomenu;
 
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.screens.Screen;

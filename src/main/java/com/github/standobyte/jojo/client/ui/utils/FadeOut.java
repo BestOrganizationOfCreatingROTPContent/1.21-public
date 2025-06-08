@@ -1,4 +1,4 @@
-package com.github.standobyte.jojo.client.utils.ui;
+package com.github.standobyte.jojo.client.ui.utils;
 
 public class FadeOut {
 	protected final int ticksMax;

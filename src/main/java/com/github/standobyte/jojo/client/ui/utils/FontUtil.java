@@ -1,4 +1,4 @@
-package com.github.standobyte.jojo.client.utils;
+package com.github.standobyte.jojo.client.ui.utils;
 
 import net.minecraft.client.gui.Font;
 import net.minecraft.client.gui.GuiGraphics;
