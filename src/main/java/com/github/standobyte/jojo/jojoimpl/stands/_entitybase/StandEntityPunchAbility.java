@@ -84,7 +84,8 @@ public class StandEntityPunchAbility extends StandEntityAbility {
 		}
 		
 		@Override
-		public void onActionSet() {
+		public void onActionSet(EntityActionInstance prevAction) {
+			playedStandCrySound = prevAction != null;
 			setStandOffset(0, 2, StandOffsetFromUser.OffsetMode.HEAD_XY, false);
 		}
 		

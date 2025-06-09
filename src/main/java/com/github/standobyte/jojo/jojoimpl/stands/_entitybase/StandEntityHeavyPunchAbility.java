@@ -38,7 +38,7 @@ public class StandEntityHeavyPunchAbility extends StandEntityAbility {
 		}
 		
 		@Override
-		public void onActionSet() {
+		public void onActionSet(EntityActionInstance prevAction) {
 			setStandOffset(0, 2, StandOffsetFromUser.OffsetMode.HEAD_XY, false);
 		}
 		

@@ -4,6 +4,7 @@ import java.util.EnumMap;
 import java.util.Map;
 
 import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 
 import org.jetbrains.annotations.ApiStatus;
 
@@ -49,7 +50,7 @@ public class EntityActionInstance implements HeldInput {
 	
 
 	@ApiStatus.OverrideOnly
-	public void onActionSet() {
+	public void onActionSet(@Nullable EntityActionInstance prevAction) {
 		
 	}
 

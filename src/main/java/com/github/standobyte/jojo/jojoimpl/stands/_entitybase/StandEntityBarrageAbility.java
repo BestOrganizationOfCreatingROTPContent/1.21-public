@@ -36,7 +36,7 @@ public class StandEntityBarrageAbility extends StandEntityAbility {
 		}
 		
 		@Override
-		public void onActionSet() {
+		public void onActionSet(EntityActionInstance prevAction) {
 			setStandOffset(0, 1.5, StandOffsetFromUser.OffsetMode.HEAD_XY, true);
 			Level level = performer.level();
 			if (level.isClientSide()) {

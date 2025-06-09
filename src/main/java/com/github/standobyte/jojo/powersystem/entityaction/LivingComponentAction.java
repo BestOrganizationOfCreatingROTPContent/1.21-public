@@ -86,9 +86,10 @@ public class LivingComponentAction implements SynchronizablePlayerData, TickingE
 			this.action.forceStop();
 			this.action.onActionCleared();
 		}
+		EntityActionInstance prevAction = this.action;
 		assignAction(action);
 		if (action != null) {
-			action.onActionSet();
+			action.onActionSet(prevAction);
 		}
 		
 		// Sync to players
