@@ -12,6 +12,7 @@ import com.github.standobyte.jojo.powersystem.standpower.entity.StandEntity;
 import com.github.standobyte.jojo.powersystem.standpower.entity.StandEntityAbility;
 import com.github.standobyte.jojo.powersystem.standpower.entity.StandOffsetFromUser;
 
+import net.minecraft.world.entity.Entity;
 import net.minecraft.world.level.Level;
 
 public class StandEntityHeavyPunchAbility extends StandEntityAbility {
@@ -40,6 +41,7 @@ public class StandEntityHeavyPunchAbility extends StandEntityAbility {
 		@Override
 		public void onActionSet(EntityActionInstance prevAction) {
 			setStandOffset(0, 2, StandOffsetFromUser.OffsetMode.HEAD_XY, false);
+			keepStandAimedAtTarget();
 		}
 		
 		@Override
@@ -69,7 +71,16 @@ public class StandEntityHeavyPunchAbility extends StandEntityAbility {
 		@Override
 		public void actionPerformEnd() {
 			JojoMod.LOGGER.debug("ORAAAAA");
+			
+			if (standAimTarget != null) {
+				Entity aimTargetEntity = standAimTarget.getEntity();
+				if (aimTargetEntity == null || aimTargetEntity.isRemoved()) {
+					// TODO clear the target if it's too far away / outside of the *stand's* vision
+					standAimTarget = null;
+				}
+			}
 		}
+		
 	}
 
 }

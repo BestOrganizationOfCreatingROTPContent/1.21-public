@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
+import java.util.Optional;
 import java.util.function.BiConsumer;
 import java.util.function.Supplier;
 import java.util.stream.Stream;
@@ -17,6 +18,7 @@ import io.netty.buffer.ByteBuf;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.network.codec.ByteBufCodecs;
 import net.minecraft.network.codec.StreamCodec;
+import net.minecraft.network.codec.StreamDecoder;
 import net.minecraft.network.codec.StreamEncoder;
 import net.minecraft.server.level.ChunkMap;
 import net.minecraft.server.level.ServerChunkCache;
@@ -124,6 +126,10 @@ public class NetworkUtil {
 		} else {
 			buf.writeBoolean(false);
 		}
+	}
+	
+	public static <T> Optional<T> readOptional(FriendlyByteBuf buf, StreamDecoder<? super FriendlyByteBuf, T> reader) {
+		return buf.readBoolean() ? Optional.of(reader.decode(buf)) : Optional.empty();
 	}
 
 }

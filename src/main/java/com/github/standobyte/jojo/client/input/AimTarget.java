@@ -1,6 +1,10 @@
 package com.github.standobyte.jojo.client.input;
 
 import com.github.standobyte.jojo.core.packet.fromclient.ClAimTargetPacket;
+import com.github.standobyte.jojo.powersystem.entityaction.EntityActionInstance;
+import com.github.standobyte.jojo.powersystem.entityaction.LivingComponentAction;
+import com.github.standobyte.jojo.powersystem.standpower.entity.StandEntity;
+import com.github.standobyte.jojo.util.StandUtil;
 import com.github.standobyte.jojo.util.mc.ActionTarget;
 
 import net.minecraft.client.Minecraft;
@@ -17,9 +21,31 @@ public class AimTarget {
 	public static void updateTarget(Minecraft mc, float partialTick) {
 		cameraEntityAimTarget = mc.hitResult != null ? ActionTarget.fromVanilla(mc.hitResult) : ActionTarget.EMPTY;
 
-		playerAimTarget = cameraEntityAimTarget;
-		standAimTarget = cameraEntityAimTarget;
-		// TODO stand aiming
+		if (mc.level != null && mc.player != null) {
+			if (mc.player == mc.cameraEntity || mc.cameraEntity == null) {
+				playerAimTarget = cameraEntityAimTarget;
+			}
+			else {
+				playerAimTarget = ActionTarget.EMPTY;
+			}
+			
+			StandEntity stand = StandUtil.getSummonedStand(mc.player);
+			if (stand != null) {
+				standAimTarget = cameraEntityAimTarget;
+				
+				EntityActionInstance curAction = LivingComponentAction.getCurEntityAction(stand);
+				if (curAction != null && curAction.standAimTarget != null) {
+					standAimTarget = curAction.standAimTarget;
+				}
+			}
+			else {
+				standAimTarget = ActionTarget.EMPTY;
+			}
+		}
+		else {
+			playerAimTarget = ActionTarget.EMPTY;
+			standAimTarget = ActionTarget.EMPTY;
+		}
 //		if (mc.player != null) {
 //			StandEntity stand = StandUtil.getSummonedStand(mc.player);
 //			if (stand != null) {
@@ -31,14 +57,16 @@ public class AimTarget {
 	}
 	
 	public static void updateTargetWithServer(Minecraft mc) {
-		if (!playerAimTarget.equals(playerAimTargetPrev)) {
-			PacketDistributor.sendToServer(new ClAimTargetPacket(playerAimTarget, ClAimTargetPacket.PacketType.PLAYER));
-			playerAimTargetPrev = playerAimTarget;
-		}
-		
-		if (!standAimTarget.equals(standAimTargetPrev)) {
-			PacketDistributor.sendToServer(new ClAimTargetPacket(standAimTarget, ClAimTargetPacket.PacketType.STAND));
-			standAimTargetPrev = standAimTarget;
+		if (mc.level != null) {
+			if (!playerAimTarget.equals(playerAimTargetPrev)) {
+				PacketDistributor.sendToServer(new ClAimTargetPacket(playerAimTarget, ClAimTargetPacket.PacketType.PLAYER));
+				playerAimTargetPrev = playerAimTarget;
+			}
+			
+			if (!standAimTarget.equals(standAimTargetPrev)) {
+				PacketDistributor.sendToServer(new ClAimTargetPacket(standAimTarget, ClAimTargetPacket.PacketType.STAND));
+				standAimTargetPrev = standAimTarget;
+			}
 		}
 	}
 	

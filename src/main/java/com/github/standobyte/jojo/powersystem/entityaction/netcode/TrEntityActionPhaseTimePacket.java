@@ -60,7 +60,7 @@ public record TrEntityActionPhaseTimePacket(int performerId,
 		public void handle(TrEntityActionPhaseTimePacket payload, IPayloadContext context) {
 			Entity entity = ClientProxy.getEntityById(payload.performerId);
 			if (entity instanceof LivingEntity living) {
-				EntityActionInstance action = LivingComponentAction.getUserAction(living);
+				EntityActionInstance action = LivingComponentAction.getCurEntityAction(living);
 				if (action != null && action.id == payload.actionId) {
 					action.phasesLength = payload.phasesLength;
 					action.setPhase(payload.phase, payload.curPhaseTick);

@@ -18,7 +18,7 @@ public class RipplesPlayerRenderState {
 
 	public static void extract(LivingEntity entity, HumanoidRenderState vanillaRenderState, RipplesPlayerRenderState modRenderState, 
 			float partialTick, ItemModelResolver itemModelResolver) {
-		EntityActionInstance action = LivingComponentAction.getUserAction(entity);
+		EntityActionInstance action = LivingComponentAction.getCurEntityAction(entity);
 		EntityActionRenderState.extract(modRenderState.entityAction, entity, action, partialTick);
 		
 		modRenderState.animSet = null;

@@ -85,6 +85,22 @@ public class ActionTarget {
 	public TargetType getType() {
 		return type;
 	}
+	
+	public boolean isEmpty(Level level) {
+		return switch (type) {
+			case BLOCK -> {
+				BlockState blockState = level.getBlockState(blockPos);
+				yield blockState.isEmpty();
+			}
+			case ENTITY -> {
+				if (entity == null) {
+					resolveEntityId(level);
+				}
+				yield entity == null || entity.isRemoved();
+			}
+			default -> true;
+		};
+	}
 
 	public BlockPos getBlockPos() {
 		return blockPos;
@@ -151,7 +167,7 @@ public class ActionTarget {
 	}
 
 	public ActionTarget resolveEntityId(Level level) {
-		if (getType() == TargetType.ENTITY) {
+		if (getType() == TargetType.ENTITY && this.entity == null) {
 			this.entity = level.getEntity(entityId);
 			return this.entity != null ? this : ActionTarget.EMPTY;
 		}

@@ -4,6 +4,9 @@ import com.github.standobyte.jojo.util.mc.ActionTarget.TargetType;
 
 import net.minecraft.world.level.Level;
 
+/**
+ * Aim target that is constantly synchronized from player client to server
+ */
 public class ActionTargetAim {
 	protected ActionTarget target = ActionTarget.EMPTY;
 	protected ActionTarget targetPrev = ActionTarget.EMPTY;

@@ -80,16 +80,22 @@ public class LivingComponentAction implements SynchronizablePlayerData, TickingE
 			return null;
 		}
 		
+		// Resolve entity references
+		
+		if (action != null && action.standAimTarget != null) {
+			action.standAimTarget.resolveEntityId(entity.level());
+		}
+		
 		// Action callbacks that may be overriden by specific abilities
 		
 		if (this.action != null) {
+			this.action._beforeActionRemoved(action);
 			this.action.forceStop();
-			this.action.onActionCleared();
 		}
 		EntityActionInstance prevAction = this.action;
 		assignAction(action);
 		if (action != null) {
-			action.onActionSet(prevAction);
+			action._onActionStarted(prevAction);
 		}
 		
 		// Sync to players
@@ -182,9 +188,15 @@ public class LivingComponentAction implements SynchronizablePlayerData, TickingE
 	}
 	
 	@Nullable
-	public static EntityActionInstance getUserAction(LivingEntity entity) {
+	public static EntityActionInstance getCurEntityAction(LivingEntity entity) {
 		LivingComponentAction existingData = getExistingComponent(entity);
 		return existingData != null ? existingData.getAction() : null;
+	}
+	
+	@Nullable
+	public static ActionTargetAim getAim(LivingEntity entity) {
+		LivingComponentAction existingData = getExistingComponent(entity);
+		return existingData != null ? existingData.entityAim : null;
 	}
 
 }

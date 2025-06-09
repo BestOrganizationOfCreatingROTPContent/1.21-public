@@ -17,6 +17,7 @@ import com.github.standobyte.jojo.util.MathUtil;
 import com.github.standobyte.jojo.util.StandUtil;
 import com.github.standobyte.jojo.util.mc.ActionTarget;
 import com.github.standobyte.jojo.util.mc.ActionTarget.TargetType;
+import com.github.standobyte.jojo.util.mc.PrevRotations;
 
 import net.minecraft.commands.arguments.EntityAnchorArgument;
 import net.minecraft.network.RegistryFriendlyByteBuf;
@@ -28,6 +29,7 @@ import net.minecraft.network.syncher.EntityDataSerializers;
 import net.minecraft.network.syncher.SynchedEntityData;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerEntity;
+import net.minecraft.util.Mth;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.EquipmentSlot;
@@ -79,10 +81,12 @@ public class StandEntity extends LivingEntity implements SummonedStand, IEntityW
 		builder.define(USER_ID, -1);
 	}
 	
-	
+
+	protected PrevRotations rotO = new PrevRotations();
 	@Override
 	public void tick() {
 		fallDistance = 0;
+		rotO.rememberAngles(this);
 		super.tick();
 		LivingEntity user = getUser();
 		if (user != null) {
@@ -91,35 +95,71 @@ public class StandEntity extends LivingEntity implements SummonedStand, IEntityW
 	}
 	
 	public void updatePosition(LivingEntity user) {
-		if (user == null) return;
-		
-		Vec3 pos = offsetFromUser.getPosition(user);
-		setPos(pos.x, pos.y, pos.z);
-		copyStandUserRotation(user);
-		lookAtCurTarget();
+		if (user != null) {
+			Vec3 pos = offsetFromUser.getPosition(user);
+			setPos(pos.x, pos.y, pos.z);
+			copyStandUserRotation(user);
+		}
+		lookAtCurTarget(rotO);
 	}
 	
 	public void copyStandUserRotation(LivingEntity user) {
 		offsetFromUser.copyRotation(user, level().isClientSide());
 	}
 	
-	protected void lookAtCurTarget() {
-		ActionTarget target = standAction.entityAim.getTarget();
-		if (target.getType() == TargetType.ENTITY) {
-			Entity targetEntity = target.getEntity();
-			// TODO (stand aiming) look closer to where the user is looking (legs/head aiming)
-			double y = targetEntity instanceof LivingEntity ? 
-					targetEntity.getEyeY() : 
-					(targetEntity.getBoundingBox().minY + targetEntity.getBoundingBox().maxY) / 2.0;
-			Vec3 targetPos = new Vec3(targetEntity.getX(), y, targetEntity.getZ());
+	protected boolean lookAtCurTarget(PrevRotations rotO) {
+		ActionTarget lookTarget;
+		EntityActionInstance curAction = standAction.getAction();
+		boolean fullyRotateBody = curAction != null;
+		if (curAction != null && curAction.rotateStandTowardsTarget != null) {
+			lookTarget = curAction.rotateStandTowardsTarget;
+		}
+		else {
+			ActionTarget crosshairTarget = standAction.entityAim.getTarget();
+			if (crosshairTarget.getType() == TargetType.ENTITY) {
+				lookTarget = crosshairTarget;
+			}
+			else {
+				lookTarget = ActionTarget.EMPTY;
+			}
+		}
+		
+		Vec3 targetPos = switch (lookTarget.getType()) {
+			case ENTITY -> {
+				Entity targetEntity = lookTarget.getEntity();
+				// TODO (stand aiming) look closer to where the user is looking (legs/head aiming)
+				double y = targetEntity instanceof LivingEntity ? 
+						targetEntity.getEyeY() : 
+						(targetEntity.getBoundingBox().minY + targetEntity.getBoundingBox().maxY) / 2.0;
+				yield new Vec3(targetEntity.getX(), y, targetEntity.getZ());
+			}
+			case BLOCK -> {
+				yield Vec3.atCenterOf(lookTarget.getBlockPos());
+			}
+			default -> null;
+		};
+		
+		if (targetPos != null) {
 			Vec2 rotations = MathUtil.lookAnglesTowards(targetPos, this, EntityAnchorArgument.Anchor.EYES);
 			this.setXRot(rotations.x);
 			this.setYRot(rotations.y);
-			this.setYHeadRot(this.getYRot());
-			this.xRotO = this.getXRot();
-			this.yRotO = this.getYRot();
-			this.yHeadRotO = this.getYHeadRot();
+			if (fullyRotateBody) {
+				this.setYHeadRot(this.getYRot());
+				this.setYBodyRot(this.getYRot());
+			}
+			else {
+				float maxHeadYRot = 37.5f;
+		    	float f2 = Mth.wrapDegrees(yBodyRot - this.getYRot());
+		    	float f3 = Mth.clamp(f2, -maxHeadYRot, maxHeadYRot);
+				this.setYHeadRot(this.getYRot() + f2 - f3);
+			}
+			this.xRotO = rotO.xRot;
+			this.yRotO = rotO.yRot;
+			this.yHeadRotO = rotO.yHeadRot;
+			this.yBodyRotO = rotO.yBodyRot;
+			return true;
 		}
+		return false;
 	}
 	
 	public boolean isFollowingUser() {

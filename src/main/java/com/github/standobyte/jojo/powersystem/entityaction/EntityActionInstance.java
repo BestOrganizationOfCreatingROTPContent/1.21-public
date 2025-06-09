@@ -12,13 +12,17 @@ import com.github.standobyte.jojo.powersystem.entityaction.netcode.TrEntityActio
 import com.github.standobyte.jojo.powersystem.entityaction.type.EntityActionType;
 import com.github.standobyte.jojo.powersystem.standpower.entity.StandEntity;
 import com.github.standobyte.jojo.powersystem.standpower.entity.StandOffsetFromUser;
+import com.github.standobyte.jojo.util.mc.ActionTarget;
 import com.github.standobyte.jojo.util.mc.EntityResolver;
+import com.github.standobyte.jojo.util.network.NetworkUtil;
 
 import net.minecraft.Util;
 import net.minecraft.network.RegistryFriendlyByteBuf;
 import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.util.Mth;
 import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.level.Level;
 import net.minecraft.world.phys.Vec3;
 import net.neoforged.neoforge.network.PacketDistributor;
 
@@ -33,11 +37,13 @@ public class EntityActionInstance implements HeldInput {
 	protected int curPhaseTick;
 	protected float curPhaseLength;
 	protected float phasePartialTick;
+	protected boolean stoppedHolding = false;
 	
 	protected LivingEntity performer;
 	protected EntityResolver powerUser = new EntityResolver();
 	
-	protected boolean stoppedHolding = false;
+	@Nullable public ActionTarget standAimTarget;
+	@Nullable public ActionTarget rotateStandTowardsTarget;
 	
 	public EntityActionInstance(EntityActionType ability) {
 		this.ability = ability;
@@ -49,6 +55,9 @@ public class EntityActionInstance implements HeldInput {
 	}
 	
 
+	/**
+	 * Is called before the action is synched from the server.
+	 */
 	@ApiStatus.OverrideOnly
 	public void onActionSet(@Nullable EntityActionInstance prevAction) {
 		
@@ -70,7 +79,12 @@ public class EntityActionInstance implements HeldInput {
 	}
 
 	@ApiStatus.OverrideOnly
-	public void onActionCleared() {
+	public void onSetPhase(ActionPhase newPhase) {
+		
+	}
+
+	@ApiStatus.OverrideOnly
+	public void onActionCleared(@Nullable EntityActionInstance newAction) {
 		
 	}
 	
@@ -107,6 +121,16 @@ public class EntityActionInstance implements HeldInput {
 		}
 	}
 	
+	public void keepStandAimedAtTarget() {
+		if (!level().isClientSide()) {
+			ActionTarget aimTarget = LivingComponentAction.getAim(performer).getTarget();
+			if (!aimTarget.isEmpty(level())) {
+				standAimTarget = aimTarget;
+			}
+		}
+		rotateStandTowardsTarget = standAimTarget;
+	}
+	
 	public final float calcFullTicks(ActionPhase targetPhase, float targetPhaseTick) {
 		float sum = 0;
 		for (ActionPhase phase : ActionPhase.values()) {
@@ -131,10 +155,19 @@ public class EntityActionInstance implements HeldInput {
 				/*|| soundOffset > 0 && ... */;
 	}
 	
-	//
+	public final boolean isUserCreative() {
+		LivingEntity user = getPowerUser();
+		return user instanceof Player player && player.getAbilities().instabuild;
+	}
+	
+	protected Level level() {
+		return performer.level();
+	}
 	
 	
-
+	
+	
+	
 	@ApiStatus.NonExtendable
 	public float getPhaseTick() {
 		return curPhaseTick + phasePartialTick;
@@ -206,6 +239,9 @@ public class EntityActionInstance implements HeldInput {
 		float prevPhaseTick = getPhaseTick();
 		float prevTickLength = this.curPhaseLength;
 		
+		if (this.performer != null && this.phase != phase) {
+			onSetPhase(phase);
+		}
 		this.phase = phase;
 		this.curPhaseTick = tick;
 		this.curPhaseLength = phase != null ? phasesLength.get(phase) : -1;
@@ -222,6 +258,17 @@ public class EntityActionInstance implements HeldInput {
 		}
 	}
 
+
+	@ApiStatus.Internal
+	public void _onActionStarted(@Nullable EntityActionInstance prevAction) {
+		onActionSet(prevAction);
+		onSetPhase(phase);
+	}
+
+	@ApiStatus.Internal
+	public void _beforeActionRemoved(@Nullable EntityActionInstance newAction) {
+		onActionCleared(newAction);
+	}
 	
 	@ApiStatus.Internal
 	public void _tickAction() {
@@ -284,6 +331,7 @@ public class EntityActionInstance implements HeldInput {
 				buffer.writeFloat(action.phasePartialTick);
 				buffer.writeFloat(action.curPhaseLength);
 				action.powerUser.writeNetwork(buffer);
+				NetworkUtil.writeOptionally(action.standAimTarget, buffer, ActionTarget.STREAM_CODEC_UNRESOLVED_ENTITY_ID);
 				action.toBuf(buffer);
 			}
 		}
@@ -301,6 +349,7 @@ public class EntityActionInstance implements HeldInput {
 					action.phasePartialTick = buffer.readFloat();
 					action.curPhaseLength = buffer.readFloat();
 					action.powerUser.readNetwork(buffer);
+					action.standAimTarget = NetworkUtil.readOptional(buffer, ActionTarget.STREAM_CODEC_UNRESOLVED_ENTITY_ID).orElse(null);
 					action.fromBuf(buffer);
 					return action;
 				}
