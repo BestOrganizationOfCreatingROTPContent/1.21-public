@@ -2,8 +2,8 @@ package com.github.standobyte.jojo.core;
 
 import com.github.standobyte.jojo.core.packet.fromclient.ClAbilityInputPacket;
 import com.github.standobyte.jojo.core.packet.fromclient.ClAimTargetPacket;
+import com.github.standobyte.jojo.core.packet.fromclient.ClNoParamsPacket;
 import com.github.standobyte.jojo.core.packet.fromclient.ClSetStandSkinPacket;
-import com.github.standobyte.jojo.core.packet.fromclient.ClSummonStandPacket;
 import com.github.standobyte.jojo.core.packet.fromserver.DatapackStandsPacket;
 import com.github.standobyte.jojo.core.packet.fromserver.StandEntitySoundPacket;
 import com.github.standobyte.jojo.core.packet.fromserver.TrAbilityUsePacket;
@@ -29,7 +29,7 @@ public class PacketsRegister {
 	public static void register(RegisterPayloadHandlersEvent event) {
 		PayloadRegistrar registrar = event.registrar("1");
 		registerPacket(registrar, PayloadRegistrar::playToServer, new ClAbilityInputPacket.Handler(JojoMod.resLoc("clkey")));
-		registerPacket(registrar, PayloadRegistrar::playToServer, new ClSummonStandPacket.Handler(JojoMod.resLoc("clsummon")));
+		registerPacket(registrar, PayloadRegistrar::playToServer, new ClNoParamsPacket.Handler(JojoMod.resLoc("clsignal")));
 		registerPacket(registrar, PayloadRegistrar::playToServer, new ClAimTargetPacket.Handler(JojoMod.resLoc("clientaim")));
 		registerPacket(registrar, PayloadRegistrar::playToServer, new ClSetStandSkinPacket.Handler(JojoMod.resLoc("clskin")));
 

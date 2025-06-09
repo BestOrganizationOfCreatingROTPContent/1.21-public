@@ -34,8 +34,8 @@ public class EntityClothesInventory implements SynchronizableEntityData, Ticking
 
 	public EntityClothesInventory(LivingEntity entity) {
 		this.entity = entity;
-		this.items = EnumUtil.makeEnumMap(ClothesSlotType.class, () -> ItemStack.EMPTY);
-		this.lastItems = EnumUtil.makeEnumMap(ClothesSlotType.class, () -> ItemStack.EMPTY);
+		this.items = EnumUtil.makeEnumMap(ClothesSlotType.class, slot -> ItemStack.EMPTY);
+		this.lastItems = EnumUtil.makeEnumMap(ClothesSlotType.class, slot -> ItemStack.EMPTY);
 		addTicking(entity);
 		addSynchronization(entity);
 	}

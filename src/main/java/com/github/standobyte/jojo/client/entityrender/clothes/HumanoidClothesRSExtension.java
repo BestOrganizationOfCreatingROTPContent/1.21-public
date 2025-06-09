@@ -13,7 +13,7 @@ import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.item.ItemStack;
 
 public class HumanoidClothesRSExtension {
-	public final Map<ClothesSlotType, ItemStack> items = EnumUtil.makeEnumMap(ClothesSlotType.class, () -> ItemStack.EMPTY);
+	public final Map<ClothesSlotType, ItemStack> items = EnumUtil.makeEnumMap(ClothesSlotType.class, slot -> ItemStack.EMPTY);
 	public boolean slimModel;
 	
 	public final boolean extract(LivingEntity entity) {

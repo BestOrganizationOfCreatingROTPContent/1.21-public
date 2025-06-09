@@ -12,10 +12,8 @@ import javax.annotation.Nullable;
 import org.lwjgl.glfw.GLFW;
 
 import com.github.standobyte.jojo.client.event.PreKeyInputEvent;
-import com.github.standobyte.jojo.client.ui.jojomenu.IJojoMenuScreen;
 import com.github.standobyte.jojo.core.JojoMod;
 import com.github.standobyte.jojo.core.packet.fromclient.ClAbilityInputPacket;
-import com.github.standobyte.jojo.core.packet.fromclient.ClSummonStandPacket;
 import com.github.standobyte.jojo.init.power.ModPlayerPowers;
 import com.github.standobyte.jojo.powersystem.Power;
 import com.github.standobyte.jojo.powersystem.PowerClass;
@@ -32,7 +30,6 @@ import com.mojang.blaze3d.platform.InputConstants.Key;
 import it.unimi.dsi.fastutil.ints.Int2ObjectMap;
 import it.unimi.dsi.fastutil.ints.Int2ObjectOpenHashMap;
 import net.minecraft.Util;
-import net.minecraft.client.KeyMapping;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.screens.ChatScreen;
 import net.minecraft.network.RegistryFriendlyByteBuf;
@@ -44,7 +41,6 @@ import net.neoforged.neoforge.client.event.ClientTickEvent;
 import net.neoforged.neoforge.client.event.InputEvent;
 import net.neoforged.neoforge.client.event.RegisterKeyMappingsEvent;
 import net.neoforged.neoforge.client.event.RenderFrameEvent;
-import net.neoforged.neoforge.client.settings.KeyConflictContext;
 import net.neoforged.neoforge.client.settings.KeyModifier;
 import net.neoforged.neoforge.common.NeoForge;
 import net.neoforged.neoforge.network.PacketDistributor;
@@ -65,46 +61,16 @@ public class InputHandler {
 		return instance;
 	}
 	
-	public static final String MAIN_CATEGORY = "key.categories." + JojoMod.MOD_ID;
-	public KeyMapping summonStand;
-	public KeyMapping jojoStuffMenu;
-	public static final String HUD_CATEGORY = "key.categories." + JojoMod.MOD_ID + ".hud";
-	public KeyMapping standHudMode;
-	public KeyMapping playerPowerHudMode;
+	public VanillaKeybinds keybinds;
 	
 	private void registerBindings(RegisterKeyMappingsEvent event) {
-		event.register(summonStand = new KeyMapping(
-				JojoMod.MOD_ID + ".key.toggle_stand", KeyConflictContext.IN_GAME, InputConstants.Type.KEYSYM, GLFW.GLFW_KEY_M, MAIN_CATEGORY));
-		event.register(jojoStuffMenu = new KeyMapping(
-				JojoMod.MOD_ID + ".key.jojo_menu", KeyConflictContext.IN_GAME, InputConstants.Type.KEYSYM, GLFW.GLFW_KEY_BACKSLASH, MAIN_CATEGORY));
-		event.register(standHudMode = new KeyMapping(
-				JojoMod.MOD_ID + ".key.stand_mode", KeyConflictContext.IN_GAME, InputConstants.Type.KEYSYM, GLFW.GLFW_KEY_K, HUD_CATEGORY));
-		event.register(playerPowerHudMode = new KeyMapping(
-				JojoMod.MOD_ID + ".key.non_stand_mode", KeyConflictContext.IN_GAME, InputConstants.Type.KEYSYM, GLFW.GLFW_KEY_J, HUD_CATEGORY));
+		this.keybinds = VanillaKeybinds.register(event);
 	}
 	
 	
 	@SubscribeEvent
 	public void handleKeyBindingsPost(ClientTickEvent.Post event) {
-//		if (standHudMode.consumeClick()) {
-//			actionsOverlay.switchMode(PowerClass.STAND);
-//		}
-//		
-//		if (playerPowerHudMode.consumeClick()) {
-//			actionsOverlay.switchMode(PowerClass.PLAYER_POWER);
-//		}
-//		
-		if (summonStand.consumeClick()) {
-//			if (standPower.hasPower() && !standPower.isActive()) {
-//				actionsOverlay.onStandSummon();
-//			}
-			PacketDistributor.sendToServer(new ClSummonStandPacket());
-		}
-		
-		if (jojoStuffMenu.consumeClick()) {
-			IJojoMenuScreen.onScreenKeyPress();
-		}
-		
+		keybinds.handleTick();
 		for (var heldKey : heldKeys.values()) {
 			heldKey.incTicks();
 		}

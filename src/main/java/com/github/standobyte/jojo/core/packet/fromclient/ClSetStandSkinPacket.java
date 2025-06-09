@@ -54,11 +54,4 @@ public record ClSetStandSkinPacket(Optional<ResourceLocation> standSkin, Resourc
 		return type;
 	}
 	
-	
-	
-	public enum PacketType {
-		CLICK,
-		STARTED_HOLDING,
-		RELEASED
-	}
 }
