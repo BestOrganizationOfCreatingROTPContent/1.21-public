@@ -3,7 +3,7 @@ package com.github.standobyte.jojo.core.packet.fromserver;
 import com.github.standobyte.jojo.client.ClientProxy;
 import com.github.standobyte.jojo.core.PacketsRegister;
 import com.github.standobyte.jojo.powersystem.entityaction.LivingComponentAction;
-import com.github.standobyte.jojo.util.mc.ActionTarget;
+import com.github.standobyte.jojo.util.target.ActionTarget;
 
 import net.minecraft.network.RegistryFriendlyByteBuf;
 import net.minecraft.network.protocol.common.custom.CustomPacketPayload;

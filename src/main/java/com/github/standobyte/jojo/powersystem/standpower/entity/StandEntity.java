@@ -15,9 +15,9 @@ import com.github.standobyte.jojo.powersystem.standpower.StandPower;
 import com.github.standobyte.jojo.powersystem.standpower.type.SummonedStand;
 import com.github.standobyte.jojo.util.MathUtil;
 import com.github.standobyte.jojo.util.StandUtil;
-import com.github.standobyte.jojo.util.mc.ActionTarget;
-import com.github.standobyte.jojo.util.mc.ActionTarget.TargetType;
 import com.github.standobyte.jojo.util.mc.PrevRotations;
+import com.github.standobyte.jojo.util.target.ActionTarget;
+import com.github.standobyte.jojo.util.target.ActionTarget.TargetType;
 
 import net.minecraft.commands.arguments.EntityAnchorArgument;
 import net.minecraft.network.RegistryFriendlyByteBuf;

@@ -13,7 +13,7 @@ import com.github.standobyte.jojo.powersystem.entityaction.netcode.TrEntityActio
 import com.github.standobyte.jojo.powersystem.standpower.entity.LivingReactToNewAction;
 import com.github.standobyte.jojo.util.entitycomponent.SynchronizablePlayerData;
 import com.github.standobyte.jojo.util.entitycomponent.TickingEntityData;
-import com.github.standobyte.jojo.util.mc.ActionTargetAim;
+import com.github.standobyte.jojo.util.target.ActionTargetAim;
 
 import net.minecraft.core.HolderLookup.Provider;
 import net.minecraft.nbt.CompoundTag;

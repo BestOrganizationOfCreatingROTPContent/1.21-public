@@ -12,9 +12,9 @@ import com.github.standobyte.jojo.powersystem.entityaction.netcode.TrEntityActio
 import com.github.standobyte.jojo.powersystem.entityaction.type.EntityActionType;
 import com.github.standobyte.jojo.powersystem.standpower.entity.StandEntity;
 import com.github.standobyte.jojo.powersystem.standpower.entity.StandOffsetFromUser;
-import com.github.standobyte.jojo.util.mc.ActionTarget;
 import com.github.standobyte.jojo.util.mc.EntityResolver;
 import com.github.standobyte.jojo.util.network.NetworkUtil;
+import com.github.standobyte.jojo.util.target.ActionTarget;
 
 import net.minecraft.Util;
 import net.minecraft.network.RegistryFriendlyByteBuf;

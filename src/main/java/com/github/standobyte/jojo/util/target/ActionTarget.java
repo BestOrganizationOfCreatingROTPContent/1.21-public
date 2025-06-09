@@ -1,4 +1,4 @@
-package com.github.standobyte.jojo.util.mc;
+package com.github.standobyte.jojo.util.target;
 
 import java.util.Objects;
 import java.util.Optional;

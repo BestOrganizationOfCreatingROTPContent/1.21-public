@@ -1,4 +1,4 @@
-package com.github.standobyte.jojo.util.mc;
+package com.github.standobyte.jojo.util.target;
 
 import net.minecraft.core.BlockPos;
 import net.minecraft.world.entity.Entity;

@@ -5,7 +5,7 @@ import com.github.standobyte.jojo.powersystem.entityaction.EntityActionInstance;
 import com.github.standobyte.jojo.powersystem.entityaction.LivingComponentAction;
 import com.github.standobyte.jojo.powersystem.standpower.entity.StandEntity;
 import com.github.standobyte.jojo.util.StandUtil;
-import com.github.standobyte.jojo.util.mc.ActionTarget;
+import com.github.standobyte.jojo.util.target.ActionTarget;
 
 import net.minecraft.client.Minecraft;
 import net.neoforged.neoforge.network.PacketDistributor;

@@ -52,7 +52,6 @@ public class StandEntityBarrageAbility extends StandEntityAbility {
 		@Override
 		public void actionTick() {
 			if (getPhase() == ActionPhase.PERFORM) {
-				JojoMod.LOGGER.debug("ORAORAORA");
 				Level level = performer.level();
 				if (level.isClientSide()) {
 					if (ClientGlobals.canHearStands && performer instanceof StandEntity stand) {
@@ -60,6 +59,11 @@ public class StandEntityBarrageAbility extends StandEntityAbility {
 								ModSoundEvents.STAND_PUNCH_BARRAGE_SWING.get(), stand.getStandId(), stand.getStandSkin()), 
 								stand.getSoundSource(), 1, 1, false);
 					}
+				}
+				else {
+					
+					JojoMod.LOGGER.debug("ORAORAORA");
+					
 				}
 			}
 		}

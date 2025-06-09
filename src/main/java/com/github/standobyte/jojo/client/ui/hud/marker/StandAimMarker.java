@@ -7,7 +7,7 @@ import com.github.standobyte.jojo.client.ui.hud.AdditionalHud;
 import com.github.standobyte.jojo.client.ui.utils.GuiIcon;
 import com.github.standobyte.jojo.core.JojoMod;
 import com.github.standobyte.jojo.powersystem.standpower.StandPower;
-import com.github.standobyte.jojo.util.mc.ActionTarget;
+import com.github.standobyte.jojo.util.target.ActionTarget;
 import com.mojang.blaze3d.vertex.PoseStack;
 
 import net.minecraft.client.Camera;

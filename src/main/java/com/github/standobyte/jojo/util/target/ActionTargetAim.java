@@ -1,6 +1,6 @@
-package com.github.standobyte.jojo.util.mc;
+package com.github.standobyte.jojo.util.target;
 
-import com.github.standobyte.jojo.util.mc.ActionTarget.TargetType;
+import com.github.standobyte.jojo.util.target.ActionTarget.TargetType;
 
 import net.minecraft.world.level.Level;
 
