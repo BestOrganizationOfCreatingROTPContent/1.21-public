@@ -48,6 +48,11 @@ public class StandEntityBarrageAbility extends StandEntityAbility {
 				}
 			}
 		}
+		
+		@Override
+		public void onSetPhase(ActionPhase newPhase) {
+			userWalkSpeed = newPhase == ActionPhase.PERFORM ? 0.6f : 1;
+		}
 
 		@Override
 		public void actionTick() {

@@ -20,10 +20,14 @@ import com.github.standobyte.jojo.powersystem.PowerClass;
 import com.github.standobyte.jojo.powersystem.ability.Ability;
 import com.github.standobyte.jojo.powersystem.ability.AbilityInput;
 import com.github.standobyte.jojo.powersystem.ability.AbilityInput.InputEventType;
+import com.github.standobyte.jojo.powersystem.entityaction.EntityActionInstance;
+import com.github.standobyte.jojo.powersystem.entityaction.LivingComponentAction;
 import com.github.standobyte.jojo.powersystem.playerpower.PlayerPower;
 import com.github.standobyte.jojo.powersystem.standpower.StandPower;
+import com.github.standobyte.jojo.powersystem.standpower.entity.StandEntity;
 import com.github.standobyte.jojo.util.CommonEnums.DiagonalDirection2D;
 import com.github.standobyte.jojo.util.CommonEnums.Direction2D;
+import com.github.standobyte.jojo.util.StandUtil;
 import com.mojang.blaze3d.platform.InputConstants;
 import com.mojang.blaze3d.platform.InputConstants.Key;
 
@@ -32,6 +36,7 @@ import it.unimi.dsi.fastutil.ints.Int2ObjectOpenHashMap;
 import net.minecraft.Util;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.screens.ChatScreen;
+import net.minecraft.client.player.ClientInput;
 import net.minecraft.network.RegistryFriendlyByteBuf;
 import net.minecraft.world.entity.player.Player;
 import net.neoforged.bus.api.EventPriority;
@@ -39,6 +44,7 @@ import net.neoforged.bus.api.ICancellableEvent;
 import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.neoforge.client.event.ClientTickEvent;
 import net.neoforged.neoforge.client.event.InputEvent;
+import net.neoforged.neoforge.client.event.MovementInputUpdateEvent;
 import net.neoforged.neoforge.client.event.RegisterKeyMappingsEvent;
 import net.neoforged.neoforge.client.event.RenderFrameEvent;
 import net.neoforged.neoforge.client.settings.KeyModifier;
@@ -418,6 +424,36 @@ public class InputHandler {
 			};
 		}
 		return null;
+	}
+	
+	
+	
+	@SubscribeEvent(priority = EventPriority.HIGH)
+	public void playerMovementInput(MovementInputUpdateEvent event) {
+		Player player = event.getEntity();
+		ClientInput input = event.getInput();
+		float movementMultiplier = 1;
+		
+		EntityActionInstance playerAction = LivingComponentAction.getCurEntityAction(player);
+		if (playerAction != null) {
+			movementMultiplier *= playerAction.userWalkSpeed;
+		}
+		
+		StandEntity stand = StandUtil.getSummonedStand(player);
+		if (stand != null) {
+			EntityActionInstance standAction = LivingComponentAction.getCurEntityAction(stand);
+			if (standAction != null) {
+				movementMultiplier *= standAction.userWalkSpeed;
+			}
+		}
+		
+		if (movementMultiplier != 1) {
+			input.forwardImpulse *= movementMultiplier;
+			input.leftImpulse *= movementMultiplier;
+			if (movementMultiplier < 1) {
+				player.setSprinting(false);
+			}
+		}
 	}
 	
 	

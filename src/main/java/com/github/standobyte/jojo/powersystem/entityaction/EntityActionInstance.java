@@ -45,6 +45,8 @@ public class EntityActionInstance implements HeldInput {
 	@Nullable public ActionTarget standAimTarget;
 	@Nullable public ActionTarget rotateStandTowardsTarget;
 	
+	public float userWalkSpeed = 1;
+	
 	public EntityActionInstance(EntityActionType ability) {
 		this.ability = ability;
 		this.phasesLength = new EnumMap<>(ActionPhase.class);
