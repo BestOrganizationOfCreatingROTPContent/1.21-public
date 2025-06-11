@@ -4,6 +4,7 @@ import com.github.standobyte.jojo.client.ClientGlobals;
 import com.github.standobyte.jojo.client.sound.ClientsideSoundsHelper;
 import com.github.standobyte.jojo.client.sound.sounds.EntityStoppableSoundInstance;
 import com.github.standobyte.jojo.core.JojoMod;
+import com.github.standobyte.jojo.init.ModDamageTypes;
 import com.github.standobyte.jojo.init.ModSoundEvents;
 import com.github.standobyte.jojo.powersystem.ability.AbilityId;
 import com.github.standobyte.jojo.powersystem.entityaction.ActionPhase;
@@ -12,8 +13,17 @@ import com.github.standobyte.jojo.powersystem.entityaction.type.EntityActionType
 import com.github.standobyte.jojo.powersystem.standpower.entity.StandEntity;
 import com.github.standobyte.jojo.powersystem.standpower.entity.StandEntityAbility;
 import com.github.standobyte.jojo.powersystem.standpower.entity.StandOffsetFromUser;
+import com.github.standobyte.jojo.util.damage.DamageUtil;
+import com.github.standobyte.jojo.util.damage.RipplesModifiedDamageSource;
+import com.github.standobyte.jojo.util.target.ActionTarget;
+import com.github.standobyte.jojo.util.target.ActionTarget.TargetType;
+import com.github.standobyte.jojo.util.target.HitResultUtil;
 
+import net.minecraft.core.registries.Registries;
+import net.minecraft.world.damagesource.DamageSource;
+import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.level.Level;
+import net.minecraft.world.phys.HitResult;
 
 public class StandEntityBarrageAbility extends StandEntityAbility {
 
@@ -66,9 +76,16 @@ public class StandEntityBarrageAbility extends StandEntityAbility {
 					}
 				}
 				else {
-					
-					JojoMod.LOGGER.debug("ORAORAORA");
-					
+					HitResult hitResult = HitResultUtil.clip(performer.getEyePosition(), performer.getLookAngle(), 5, 5, level, performer);
+					ActionTarget target = ActionTarget.fromVanilla(hitResult);
+					JojoMod.LOGGER.debug("    {}", target);
+					if (target.getType() == TargetType.ENTITY && target.getEntity() instanceof LivingEntity targetLiving) {
+						var damageType = level.registryAccess().lookupOrThrow(Registries.DAMAGE_TYPE).getOrThrow(ModDamageTypes.STAND_ATTACK);
+						DamageSource dmgSource = new DamageSource(damageType, performer);
+						((RipplesModifiedDamageSource) dmgSource).jojo_ripples$modifyKnockback(0, 0.1f);
+						float dmgAmount = 1;
+						DamageUtil.hurtThroughInvulTicks(targetLiving, dmgSource, dmgAmount);
+					}
 				}
 			}
 		}
