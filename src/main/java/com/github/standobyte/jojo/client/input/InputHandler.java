@@ -11,6 +11,7 @@ import javax.annotation.Nullable;
 
 import org.lwjgl.glfw.GLFW;
 
+import com.github.standobyte.jojo.client.ClientGlobals;
 import com.github.standobyte.jojo.client.event.PreKeyInputEvent;
 import com.github.standobyte.jojo.core.JojoMod;
 import com.github.standobyte.jojo.core.packet.fromclient.ClAbilityInputPacket;
@@ -27,7 +28,6 @@ import com.github.standobyte.jojo.powersystem.standpower.StandPower;
 import com.github.standobyte.jojo.powersystem.standpower.entity.StandEntity;
 import com.github.standobyte.jojo.util.CommonEnums.DiagonalDirection2D;
 import com.github.standobyte.jojo.util.CommonEnums.Direction2D;
-import com.github.standobyte.jojo.util.StandUtil;
 import com.mojang.blaze3d.platform.InputConstants;
 import com.mojang.blaze3d.platform.InputConstants.Key;
 
@@ -439,7 +439,7 @@ public class InputHandler {
 			movementMultiplier *= playerAction.userWalkSpeed;
 		}
 		
-		StandEntity stand = StandUtil.getSummonedStand(player);
+		StandEntity stand = ClientGlobals.playerStandEntity;
 		if (stand != null) {
 			EntityActionInstance standAction = LivingComponentAction.getCurEntityAction(stand);
 			if (standAction != null) {

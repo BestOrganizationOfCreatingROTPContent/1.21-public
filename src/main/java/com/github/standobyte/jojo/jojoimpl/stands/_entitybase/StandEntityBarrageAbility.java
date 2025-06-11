@@ -75,7 +75,7 @@ public class StandEntityBarrageAbility extends StandEntityAbility {
 					}
 				}
 				else {
-					HitResult hitResult = HitResultUtil.clipEntityLook(stand, entity -> StandEntityPunchAbility.canStandHit(stand, entity));
+					HitResult hitResult = HitResultUtil.clipEntityLook(stand, entity -> StandEntityPunchAbility.canStandHit(stand, entity), 0);
 					ActionTarget target = ActionTarget.fromVanilla(hitResult);
 					if (target.getType() == TargetType.ENTITY && target.getEntity() instanceof LivingEntity targetLiving) {
 						var damageType = level.registryAccess().lookupOrThrow(Registries.DAMAGE_TYPE).getOrThrow(ModDamageTypes.STAND_ATTACK);

@@ -1,16 +1,21 @@
 package com.github.standobyte.jojo.client;
 
 import com.github.standobyte.jojo.powersystem.standpower.StandPower;
+import com.github.standobyte.jojo.powersystem.standpower.entity.StandEntity;
 import com.github.standobyte.jojo.util.JojoModUtil;
+import com.github.standobyte.jojo.util.StandUtil;
 
 import net.minecraft.client.Minecraft;
 
 public class ClientGlobals {
 	public static boolean canSeeStands;
 	public static boolean canHearStands;
-	
+	public static StandEntity playerStandEntity;
+	public static double standPrecision;
+
 	public static void tick(Minecraft mc) {
 		if (mc.player != null) {
+			playerStandEntity = StandUtil.getSummonedStand(mc.player);
 			if (JojoModUtil.isPlayerSpectator(mc.player)) {
 				canSeeStands = true;
 			}
@@ -20,6 +25,9 @@ public class ClientGlobals {
 			}
 			canHearStands = canSeeStands;
 		}
+		else {
+			playerStandEntity = null;
+		}
+		standPrecision = playerStandEntity != null ? playerStandEntity.getPrecision() : 0;
 	}
-	
 }

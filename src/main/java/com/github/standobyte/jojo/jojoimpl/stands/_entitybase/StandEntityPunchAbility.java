@@ -128,7 +128,7 @@ public class StandEntityPunchAbility extends StandEntityAbility {
 		public void actionPerformStart() {
 			Level level = level();
 			if (performer instanceof StandEntity stand) {
-				HitResult hitResult = HitResultUtil.clipEntityLook(stand, entity -> StandEntityPunchAbility.canStandHit(stand, entity));
+				HitResult hitResult = HitResultUtil.clipEntityLook(stand, entity -> StandEntityPunchAbility.canStandHit(stand, entity), 0);
 				ActionTarget target = ActionTarget.fromVanilla(hitResult);
 				if (!level.isClientSide()) {
 					if (target.getType() == TargetType.ENTITY && target.getEntity() instanceof LivingEntity targetLiving) {

@@ -25,14 +25,14 @@ import net.minecraft.world.phys.shapes.VoxelShape;
 
 public class HitResultUtil {
 
-	public static HitResult clipEntityLook(LivingEntity aiming, Predicate<Entity> entityFilter) {
+	public static HitResult clipEntityLook(LivingEntity aiming, Predicate<Entity> entityFilter, double standPrecision) {
 		return HitResultUtil.clip(aiming.getEyePosition(), aiming.getLookAngle(), 
 				aiming.getAttributeValue(Attributes.BLOCK_INTERACTION_RANGE), aiming.getAttributeValue(Attributes.ENTITY_INTERACTION_RANGE), 
-				aiming.level(), entityFilter, aiming);
+				aiming.level(), entityFilter, aiming, standPrecision);
 	}
 
 	public static HitResult clip(Vec3 startingPos, Vec3 directionVec, double blockMaxRange, double entityMaxRange, 
-			Level level, Predicate<Entity> entityFilter, @Nullable Entity aiming) {
+			Level level, Predicate<Entity> entityFilter, @Nullable Entity aiming, double standPrecision) {
 		boolean hitFluids = false;
 		CollisionContext entityCtx = aiming != null ? CollisionContext.of(aiming) : CollisionContext.empty();
 
@@ -43,35 +43,8 @@ public class HitResultUtil {
 
 		Vec3 endPosBlocks = startingPos.add(directionVec.x * blockMaxRange, directionVec.y * blockMaxRange, directionVec.z * blockMaxRange);
 		ClipContext blockClipCtx = new ClipContext(startingPos, endPosBlocks, 
-				ClipContext.Block.OUTLINE, hitFluids ? ClipContext.Fluid.ANY : ClipContext.Fluid.NONE, entityCtx);
-		BlockHitResult blockHitResult = BlockGetter.traverseBlocks(blockClipCtx.getFrom(), blockClipCtx.getTo(), blockClipCtx, 
-				(ClipContext ctx, BlockPos blockPos) -> {
-					BlockState blockState = level.getBlockState(blockPos);
-					FluidState fluidState = level.getFluidState(blockPos);
-					Vec3 from = ctx.getFrom();
-					Vec3 to = ctx.getTo();
-
-					VoxelShape blockShape = ctx.getBlockShape(blockState, level, blockPos);
-					BlockHitResult blockClip = blockShape.clip(from, to, blockPos);
-					if (blockClip != null) {
-						BlockHitResult blockI9nClip = blockState.getInteractionShape(level, blockPos).clip(from, to, blockPos);
-						if (blockI9nClip != null
-								&& blockI9nClip.getLocation().subtract(from).lengthSqr() < blockClip.getLocation().subtract(from).lengthSqr()) {
-							blockClip = blockClip.withDirection(blockI9nClip.getDirection());
-						}
-					}
-
-					VoxelShape fluidShape = ctx.getFluidShape(fluidState, level, blockPos);
-					BlockHitResult fluidClip = fluidShape.clip(from, to, blockPos);
-
-					double blockDist = blockClip == null ? Double.MAX_VALUE : ctx.getFrom().distanceToSqr(blockClip.getLocation());
-					double fluidDist = fluidClip == null ? Double.MAX_VALUE : ctx.getFrom().distanceToSqr(fluidClip.getLocation());
-					return blockDist <= fluidDist ? blockClip : fluidClip;
-				}, 
-				(ClipContext ctx) -> {
-					Vec3 clipVec = ctx.getFrom().subtract(ctx.getTo());
-					return BlockHitResult.miss(ctx.getTo(), Direction.getApproximateNearest(clipVec.x, clipVec.y, clipVec.z), BlockPos.containing(ctx.getTo()));
-				});
+				ClipContext.Block.COLLIDER, hitFluids ? ClipContext.Fluid.ANY : ClipContext.Fluid.NONE, entityCtx);
+		BlockHitResult blockHitResult = clipBlocks(blockClipCtx, level);
 
 		maxRange = entityMaxRange;
 		AABB blockHitAABB = null;
@@ -95,29 +68,30 @@ public class HitResultUtil {
 
 		for (Entity potentialTarget : level.getEntities(aiming, boundingBox, entityFilter)) {
 			AABB targetAABB = potentialTarget.getBoundingBox().inflate(potentialTarget.getPickRadius());
-			Optional<Vec3> targetClipPos = targetAABB.clip(startingPos, endPosEntities);
+			AABB precisionAABB = standPrecisionTargetHitbox(targetAABB, standPrecision);
+			
 			if (targetAABB.contains(startingPos)) {
 				if (closestEntityDistSqr >= 0.0) {
 					closestEntity = potentialTarget;
-					closestEntityPos = targetClipPos.orElse(startingPos);
+					Optional<Vec3> clip = targetAABB.clip(startingPos, endPosEntities);
+					closestEntityPos = clip.orElse(startingPos);
 					closestEntityDistSqr = 0.0;
 					entityHitAABB = targetAABB;
 				}
-			} else if (targetClipPos.isPresent()) {
-				Vec3 clipPos = targetClipPos.get();
-				double distSqr = startingPos.distanceToSqr(clipPos);
-				if (distSqr < closestEntityDistSqr || closestEntityDistSqr == 0.0) {
-					if (aiming != null && potentialTarget.getRootVehicle() == aiming.getRootVehicle() && !potentialTarget.canRiderInteract()) {
-						if (closestEntityDistSqr == 0.0) {
+			}
+			else {
+				boolean hitWithPrecision = precisionAABB.contains(startingPos) || precisionAABB.clip(startingPos, endPosEntities).isPresent();
+				if (hitWithPrecision) {
+					Optional<Vec3> clip = targetAABB.clip(startingPos, targetAABB.getCenter());
+					if (clip.isPresent()) {
+						Vec3 clipPos = clip.get();
+						double distSqr = startingPos.distanceToSqr(clipPos);
+						if (distSqr < closestEntityDistSqr) {
 							closestEntity = potentialTarget;
 							closestEntityPos = clipPos;
+							closestEntityDistSqr = distSqr;
 							entityHitAABB = targetAABB;
 						}
-					} else {
-						closestEntity = potentialTarget;
-						closestEntityPos = clipPos;
-						closestEntityDistSqr = distSqr;
-						entityHitAABB = targetAABB;
 					}
 				}
 			}
@@ -150,6 +124,59 @@ public class HitResultUtil {
 		}
 
 		return hitResult;
+	}
+	
+	public static AABB standPrecisionTargetHitbox(AABB aabb, double precision) {
+		if (precision > 4) {
+			double scale = precision / 5 + 0.2;
+
+			double xSize = aabb.getXsize();
+			double ySize = aabb.getYsize();
+			double zSize = aabb.getZsize();
+
+			double scaleX = Math.min(scale, 1 + 4 / (xSize * xSize));
+			double scaleZ = Math.min(scale, 1 + 4 / (zSize * zSize));
+
+			Vec3 center = aabb.getCenter();
+			double inflX = xSize * scaleX / 2;
+			double inflZ = zSize * scaleZ / 2;
+			double inflY = (ySize + inflX - xSize / 2 + inflZ - zSize / 2) / 2;
+			aabb = new AABB(
+					center.x - inflX, center.y - inflY, center.z - inflZ,
+					center.x + inflX, center.y + inflY, center.z + inflZ);
+		}
+		return aabb;
+	}
+	
+	public static BlockHitResult clipBlocks(ClipContext blockClipCtx, Level level) {
+		return BlockGetter.traverseBlocks(blockClipCtx.getFrom(), blockClipCtx.getTo(), blockClipCtx, 
+				(ClipContext ctx, BlockPos blockPos) -> {
+					BlockState blockState = level.getBlockState(blockPos);
+					FluidState fluidState = level.getFluidState(blockPos);
+					Vec3 from = ctx.getFrom();
+					Vec3 to = ctx.getTo();
+
+					VoxelShape blockShape = ctx.getBlockShape(blockState, level, blockPos);
+					BlockHitResult blockClip = blockShape.clip(from, to, blockPos);
+					if (blockClip != null) {
+						BlockHitResult blockI9nClip = blockState.getInteractionShape(level, blockPos).clip(from, to, blockPos);
+						if (blockI9nClip != null
+								&& blockI9nClip.getLocation().subtract(from).lengthSqr() < blockClip.getLocation().subtract(from).lengthSqr()) {
+							blockClip = blockClip.withDirection(blockI9nClip.getDirection());
+						}
+					}
+
+					VoxelShape fluidShape = ctx.getFluidShape(fluidState, level, blockPos);
+					BlockHitResult fluidClip = fluidShape.clip(from, to, blockPos);
+
+					double blockDist = blockClip == null ? Double.MAX_VALUE : ctx.getFrom().distanceToSqr(blockClip.getLocation());
+					double fluidDist = fluidClip == null ? Double.MAX_VALUE : ctx.getFrom().distanceToSqr(fluidClip.getLocation());
+					return blockDist <= fluidDist ? blockClip : fluidClip;
+				}, 
+				(ClipContext ctx) -> {
+					Vec3 clipVec = ctx.getFrom().subtract(ctx.getTo());
+					return BlockHitResult.miss(ctx.getTo(), Direction.getApproximateNearest(clipVec.x, clipVec.y, clipVec.z), BlockPos.containing(ctx.getTo()));
+				});
 	}
 
 }

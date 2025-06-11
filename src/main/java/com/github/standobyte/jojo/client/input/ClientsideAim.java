@@ -1,17 +1,18 @@
 package com.github.standobyte.jojo.client.input;
 
+import com.github.standobyte.jojo.client.ClientGlobals;
 import com.github.standobyte.jojo.core.packet.fromclient.ClAimTargetPacket;
 import com.github.standobyte.jojo.jojoimpl.stands._entitybase.StandEntityPunchAbility;
 import com.github.standobyte.jojo.powersystem.entityaction.EntityActionInstance;
 import com.github.standobyte.jojo.powersystem.entityaction.LivingComponentAction;
 import com.github.standobyte.jojo.powersystem.standpower.entity.StandEntity;
-import com.github.standobyte.jojo.util.StandUtil;
 import com.github.standobyte.jojo.util.target.ActionTarget;
 import com.github.standobyte.jojo.util.target.ActionTargetAim;
 import com.github.standobyte.jojo.util.target.HitResultUtil;
 
 import net.minecraft.client.Minecraft;
 import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.entity.ai.attributes.Attributes;
 import net.neoforged.neoforge.network.PacketDistributor;
 
 public class ClientsideAim {
@@ -31,26 +32,27 @@ public class ClientsideAim {
 				playerAim.setTarget(ActionTarget.EMPTY);
 			}
 			
-			StandEntity stand = StandUtil.getSummonedStand(mc.player);
+			StandEntity stand = ClientGlobals.playerStandEntity;
 			if (stand != null) {
 				EntityActionInstance curAction = LivingComponentAction.getCurEntityAction(stand);
 
-				LivingEntity aimingEntity;
+				LivingEntity aiming;
 				if (isPlayerCameraEntity && curAction == null) {
-					aimingEntity = mc.player;
+					aiming = mc.player;
 				}
 				else if (curAction != null) {
-					aimingEntity = switch (curAction.aimAs) {
+					aiming = switch (curAction.aimAs) {
 						case PLAYER -> mc.player;
 						case STAND -> stand;
 					};
 				}
 				else {
-					aimingEntity = stand;
+					aiming = stand;
 				}
-				ActionTarget target = ActionTarget.fromVanilla(HitResultUtil.clipEntityLook(
+				ActionTarget target = ActionTarget.fromVanilla(HitResultUtil.clip(aiming.getEyePosition(), aiming.getLookAngle(), 
+						stand.getAttributeValue(Attributes.BLOCK_INTERACTION_RANGE), stand.getAttributeValue(Attributes.ENTITY_INTERACTION_RANGE), 
 						// TODO stand aiming for other abilities that do not need friendly fire check (e.g. healing)
-						aimingEntity, entity -> StandEntityPunchAbility.canStandHit(stand, entity)));
+						aiming.level(), entity -> StandEntityPunchAbility.canStandHit(stand, entity), aiming, stand.getPrecision()));
 				standAim.setTarget(target);
 			}
 			else {

@@ -7,6 +7,7 @@ import java.util.Optional;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 
+import com.github.standobyte.jojo.client.ClientGlobals;
 import com.github.standobyte.jojo.client.ClientProxy;
 import com.github.standobyte.jojo.core.packet.fromserver.TrSetStandEntityPacket;
 import com.github.standobyte.jojo.powersystem.entityaction.EntityActionInstance;
@@ -14,7 +15,6 @@ import com.github.standobyte.jojo.powersystem.entityaction.LivingComponentAction
 import com.github.standobyte.jojo.powersystem.standpower.StandPower;
 import com.github.standobyte.jojo.powersystem.standpower.type.SummonedStand;
 import com.github.standobyte.jojo.util.MathUtil;
-import com.github.standobyte.jojo.util.StandUtil;
 import com.github.standobyte.jojo.util.damage.DamageUtil;
 import com.github.standobyte.jojo.util.mc.PrevRotations;
 import com.github.standobyte.jojo.util.target.ActionTarget;
@@ -196,7 +196,7 @@ public class StandEntity extends LivingEntity implements SummonedStand, IEntityW
 	public boolean isPickable() {
 		if (level().isClientSide()) {
 			Player clientPlayer = ClientProxy.getClientPlayer();
-			if (clientPlayer != null && this.is(StandUtil.getSummonedStand(clientPlayer))) {
+			if (clientPlayer != null && this.is(ClientGlobals.playerStandEntity)) {
 				return false;
 			}
 		}
@@ -311,7 +311,6 @@ public class StandEntity extends LivingEntity implements SummonedStand, IEntityW
 	// TODO (entity action 2) sync already existing action with tracking
 	
 	
-	// TODO StandEntity attributes
 	public static AttributeSupplier.Builder createAttributes() {
 		return LivingEntity.createLivingAttributes()
 			.add(Attributes.ATTACK_DAMAGE, 1.0)
@@ -325,6 +324,11 @@ public class StandEntity extends LivingEntity implements SummonedStand, IEntityW
 			.add(Attributes.SNEAKING_SPEED)
 			.add(Attributes.MINING_EFFICIENCY)
 			.add(Attributes.SWEEPING_DAMAGE_RATIO);
+	}
+
+	// TODO StandEntity stat attributes
+	public double getPrecision() {
+		return 20;
 	}
 	
 	
