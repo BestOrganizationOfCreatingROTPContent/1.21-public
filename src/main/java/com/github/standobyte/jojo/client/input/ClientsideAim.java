@@ -70,7 +70,7 @@ public class ClientsideAim {
 			}
 			
 			if (standAim.checkDirty()) {
-				PacketDistributor.sendToServer(new ClAimTargetPacket(playerAim.getTarget(), ClAimTargetPacket.PacketType.STAND));
+				PacketDistributor.sendToServer(new ClAimTargetPacket(standAim.getTarget(), ClAimTargetPacket.PacketType.STAND));
 			}
 		}
 	}
