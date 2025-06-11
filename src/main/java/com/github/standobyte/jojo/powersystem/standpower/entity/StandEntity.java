@@ -15,6 +15,7 @@ import com.github.standobyte.jojo.powersystem.standpower.StandPower;
 import com.github.standobyte.jojo.powersystem.standpower.type.SummonedStand;
 import com.github.standobyte.jojo.util.MathUtil;
 import com.github.standobyte.jojo.util.StandUtil;
+import com.github.standobyte.jojo.util.damage.DamageUtil;
 import com.github.standobyte.jojo.util.mc.PrevRotations;
 import com.github.standobyte.jojo.util.target.ActionTarget;
 import com.github.standobyte.jojo.util.target.ActionTarget.TargetType;
@@ -29,7 +30,9 @@ import net.minecraft.network.syncher.EntityDataSerializers;
 import net.minecraft.network.syncher.SynchedEntityData;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerEntity;
+import net.minecraft.server.level.ServerLevel;
 import net.minecraft.util.Mth;
+import net.minecraft.world.damagesource.DamageSource;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.EquipmentSlot;
@@ -324,6 +327,12 @@ public class StandEntity extends LivingEntity implements SummonedStand, IEntityW
 	
 	public boolean onlyVisibleToStandUsers() {
 		return true;
+	}
+
+	
+	@Override
+    public boolean isInvulnerableTo(ServerLevel level, DamageSource damageSource) {
+		return !DamageUtil.canHurtStands(damageSource) || super.isInvulnerableTo(level, damageSource);
 	}
 	
 	
