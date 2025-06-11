@@ -18,7 +18,7 @@ void main(){
         vec2 centerCoordCorr = vec2(0.5, 0.5) * sizeCorr;
         
         float distFromCenter = distance(texCoordCorr, centerCoordCorr);
-        float mult = min(2 * distFromCenter + 0.1, 1);
+        float mult = min(distFromCenter + 0.5, 1);
         fragColor = vec4(diffuseColor.rgb, alpha * mult);
     }
     else {
