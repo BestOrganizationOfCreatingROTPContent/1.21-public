@@ -121,8 +121,9 @@ public class StandEntity extends LivingEntity implements SummonedStand, IEntityW
 		ActionTarget lookTarget;
 		EntityActionInstance curAction = standAction.getAction();
 		boolean fullyRotateBody = curAction != null;
-		if (curAction != null && curAction.rotateStandTowardsTarget != null) {
+		if (curAction != null) {
 			lookTarget = curAction.rotateStandTowardsTarget;
+			if (lookTarget == null) lookTarget = ActionTarget.EMPTY;
 		}
 		else {
 			ActionTarget crosshairTarget = standAction.entityAim.getTarget();
