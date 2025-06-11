@@ -20,6 +20,7 @@ import com.github.standobyte.jojo.powersystem.standpower.entity.StandEntityAbili
 import com.github.standobyte.jojo.powersystem.standpower.entity.StandOffsetFromUser;
 
 import net.minecraft.world.entity.Entity;
+import net.minecraft.world.entity.EntitySelector;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.level.Level;
 
@@ -131,6 +132,11 @@ public class StandEntityPunchAbility extends StandEntityAbility {
 			}
 		}
 		
+	}
+	
+	
+	public static boolean canStandHit(StandEntity stand, Entity target) {
+		return EntitySelector.CAN_BE_PICKED.test(target) && stand.canAttackEntity(target);
 	}
 
 }

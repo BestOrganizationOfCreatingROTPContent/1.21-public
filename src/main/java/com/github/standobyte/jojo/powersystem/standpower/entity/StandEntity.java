@@ -39,9 +39,12 @@ import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.EquipmentSlot;
 import net.minecraft.world.entity.HumanoidArm;
 import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.entity.TamableAnimal;
 import net.minecraft.world.entity.ai.attributes.AttributeSupplier;
 import net.minecraft.world.entity.ai.attributes.Attributes;
+import net.minecraft.world.entity.animal.Animal;
 import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.entity.projectile.Projectile;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.phys.Vec2;
@@ -348,7 +351,48 @@ public class StandEntity extends LivingEntity implements SummonedStand, IEntityW
 		getAttribute(Attributes.MAX_HEALTH).setBaseValue(user.getMaxHealth());
 		setHealth(user.getHealth());
 	}
-	
+
+
+	@Deprecated
+	@Override
+	public boolean canAttack(LivingEntity entity) {
+		if (entity.is(this) || !super.canAttack(entity)) return false;
+
+		LivingEntity user = getUser();
+		if (user != null) {
+			boolean canHarm = DamageUtil.isNotFriendlyFire(user, entity);
+			if (canHarm && entity instanceof Animal) {
+				canHarm &= !entity.isPassengerOfSameVehicle(user);
+				if (canHarm && entity instanceof TamableAnimal) {
+					LivingEntity tameableOwner = ((TamableAnimal) entity).getOwner();
+					canHarm &= !(tameableOwner != null && tameableOwner == user);
+				}
+			}
+			return canHarm;
+		}
+
+		return true;
+	}
+
+	public boolean canAttackEntity(Entity target) {
+		if (target instanceof LivingEntity) {
+			return canAttack((LivingEntity) target);
+		}
+		LivingEntity user = getUser();
+		if (target instanceof Projectile) {
+			Entity owner = ((Projectile) target).getOwner();
+			if (owner != null && (owner.is(this) || owner.is(user))) {
+				// TODO mod projectiles that can hit the owner
+//				return target instanceof DamagingEntity && ((DamagingEntity) target).canHitOwner();
+				return false;
+			}
+		}
+		if (user != null && target.getControllingPassenger() == user) {
+			return false;
+		}
+		return true;
+	}
+
 	
 	/**
 	 * Apparently we have to do this to make sure the user's id is read before the EntityJoinLevelEvent fires on client side.

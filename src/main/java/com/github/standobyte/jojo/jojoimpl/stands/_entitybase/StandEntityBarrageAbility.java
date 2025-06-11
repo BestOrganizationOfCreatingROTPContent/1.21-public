@@ -66,17 +66,17 @@ public class StandEntityBarrageAbility extends StandEntityAbility {
 
 		@Override
 		public void actionTick() {
-			if (getPhase() == ActionPhase.PERFORM) {
+			if (getPhase() == ActionPhase.PERFORM && performer instanceof StandEntity stand) {
 				Level level = performer.level();
 				if (level.isClientSide()) {
-					if (ClientGlobals.canHearStands && performer instanceof StandEntity stand) {
+					if (ClientGlobals.canHearStands) {
 						level.playLocalSound(stand.getX(), stand.getEyeY(), stand.getZ(), ClientsideSoundsHelper.withStandSkin(
 								ModSoundEvents.STAND_PUNCH_BARRAGE_SWING.get(), stand.getStandId(), stand.getStandSkin()), 
 								stand.getSoundSource(), 1, 1, false);
 					}
 				}
 				else {
-					HitResult hitResult = HitResultUtil.clip(performer.getEyePosition(), performer.getLookAngle(), 5, 5, level, performer);
+					HitResult hitResult = HitResultUtil.clipEntityLook(stand, entity -> StandEntityPunchAbility.canStandHit(stand, entity));
 					ActionTarget target = ActionTarget.fromVanilla(hitResult);
 					JojoMod.LOGGER.debug("    {}", target);
 					if (target.getType() == TargetType.ENTITY && target.getEntity() instanceof LivingEntity targetLiving) {

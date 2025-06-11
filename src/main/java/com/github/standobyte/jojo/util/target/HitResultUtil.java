@@ -9,6 +9,8 @@ import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EntitySelector;
+import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.entity.ai.attributes.Attributes;
 import net.minecraft.world.level.BlockGetter;
 import net.minecraft.world.level.ClipContext;
 import net.minecraft.world.level.Level;
@@ -24,9 +26,16 @@ import net.minecraft.world.phys.shapes.VoxelShape;
 
 public class HitResultUtil {
 
-	public static HitResult clip(Vec3 startingPos, Vec3 directionVec, double blockMaxRange, double entityMaxRange, Level level, @Nullable Entity entity) {
+	public static HitResult clipEntityLook(LivingEntity aiming, Predicate<Entity> entityFilter) {
+		return HitResultUtil.clip(aiming.getEyePosition(), aiming.getLookAngle(), 
+				aiming.getAttributeValue(Attributes.BLOCK_INTERACTION_RANGE), aiming.getAttributeValue(Attributes.ENTITY_INTERACTION_RANGE), 
+				aiming.level(), entityFilter, aiming);
+	}
+
+	public static HitResult clip(Vec3 startingPos, Vec3 directionVec, double blockMaxRange, double entityMaxRange, 
+			Level level, Predicate<Entity> entityFilter, @Nullable Entity aiming) {
 		boolean hitFluids = false;
-		CollisionContext entityCtx = entity != null ? CollisionContext.of(entity) : CollisionContext.empty();
+		CollisionContext entityCtx = aiming != null ? CollisionContext.of(aiming) : CollisionContext.empty();
 
 		double maxRange = Math.max(blockMaxRange, entityMaxRange);
 
@@ -86,7 +95,7 @@ public class HitResultUtil {
 		Vec3 closestEntityPos = null;
 		AABB entityHitAABB = null;
 
-		for (Entity potentialTarget : level.getEntities(entity, boundingBox, filter)) {
+		for (Entity potentialTarget : level.getEntities(aiming, boundingBox, filter)) {
 			AABB targetAABB = potentialTarget.getBoundingBox().inflate(potentialTarget.getPickRadius());
 			Optional<Vec3> targetClipPos = targetAABB.clip(startingPos, endPosEntities);
 			if (targetAABB.contains(startingPos)) {
@@ -100,7 +109,7 @@ public class HitResultUtil {
 				Vec3 clipPos = targetClipPos.get();
 				double distSqr = startingPos.distanceToSqr(clipPos);
 				if (distSqr < closestEntityDistSqr || closestEntityDistSqr == 0.0) {
-					if (entity != null && potentialTarget.getRootVehicle() == entity.getRootVehicle() && !potentialTarget.canRiderInteract()) {
+					if (aiming != null && potentialTarget.getRootVehicle() == aiming.getRootVehicle() && !potentialTarget.canRiderInteract()) {
 						if (closestEntityDistSqr == 0.0) {
 							closestEntity = potentialTarget;
 							closestEntityPos = clipPos;

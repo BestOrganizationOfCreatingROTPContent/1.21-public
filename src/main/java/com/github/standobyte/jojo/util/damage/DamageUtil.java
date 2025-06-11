@@ -6,6 +6,7 @@ import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.damagesource.DamageSource;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.scores.PlayerTeam;
 
 public class DamageUtil {
 
@@ -51,6 +52,23 @@ public class DamageUtil {
 	
 	public static boolean canHurtStands(DamageSource dmgSource) {
 		return dmgSource.is(ModDamageTypes.CAN_HURT_STANDS);
+	}
+
+	public static boolean isNotFriendlyFire(LivingEntity attacker, LivingEntity target) {
+		if (attacker.is(target)) {
+			return false;
+		}
+		if (!attacker.canAttack(target)) {
+			return false;
+		}
+
+		PlayerTeam team1 = attacker.getTeam();
+		PlayerTeam team2 = target.getTeam();
+		if (team1 != null && team1.isAlliedTo(team2) && !team1.isAllowFriendlyFire()) {
+			return false;
+		}
+
+		return true;
 	}
 
 //	public static DamageSource enderDragonDamageHack(DamageSource damageSource, Entity target) {
