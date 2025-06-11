@@ -31,6 +31,7 @@ import net.minecraft.network.syncher.SynchedEntityData;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerEntity;
 import net.minecraft.server.level.ServerLevel;
+import net.minecraft.tags.DamageTypeTags;
 import net.minecraft.util.Mth;
 import net.minecraft.world.damagesource.DamageSource;
 import net.minecraft.world.entity.Entity;
@@ -94,6 +95,9 @@ public class StandEntity extends LivingEntity implements SummonedStand, IEntityW
 		LivingEntity user = getUser();
 		if (user != null) {
 			updatePosition(user);
+			if (!level().isClientSide()) {
+				tickHealth(user);
+			}
 		}
 	}
 	
@@ -332,7 +336,17 @@ public class StandEntity extends LivingEntity implements SummonedStand, IEntityW
 	
 	@Override
     public boolean isInvulnerableTo(ServerLevel level, DamageSource damageSource) {
-		return !DamageUtil.canHurtStands(damageSource) || super.isInvulnerableTo(level, damageSource);
+		LivingEntity user = getUser();
+		return user != null && (
+					user.isInvulnerableTo(level, damageSource)
+					|| user instanceof Player player && player.getAbilities().invulnerable && !damageSource.is(DamageTypeTags.BYPASSES_INVULNERABILITY))
+				|| !DamageUtil.canHurtStands(damageSource)
+				|| super.isInvulnerableTo(level, damageSource);
+	}
+	
+	protected void tickHealth(LivingEntity user) {
+		getAttribute(Attributes.MAX_HEALTH).setBaseValue(user.getMaxHealth());
+		setHealth(user.getHealth());
 	}
 	
 	
