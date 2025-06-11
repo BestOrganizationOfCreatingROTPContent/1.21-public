@@ -3,7 +3,6 @@ package com.github.standobyte.jojo.jojoimpl.stands._entitybase;
 import com.github.standobyte.jojo.client.ClientGlobals;
 import com.github.standobyte.jojo.client.sound.ClientsideSoundsHelper;
 import com.github.standobyte.jojo.client.sound.sounds.EntityStoppableSoundInstance;
-import com.github.standobyte.jojo.core.JojoMod;
 import com.github.standobyte.jojo.init.ModDamageTypes;
 import com.github.standobyte.jojo.init.ModSoundEvents;
 import com.github.standobyte.jojo.powersystem.ability.AbilityId;
@@ -78,7 +77,6 @@ public class StandEntityBarrageAbility extends StandEntityAbility {
 				else {
 					HitResult hitResult = HitResultUtil.clipEntityLook(stand, entity -> StandEntityPunchAbility.canStandHit(stand, entity));
 					ActionTarget target = ActionTarget.fromVanilla(hitResult);
-					JojoMod.LOGGER.debug("    {}", target);
 					if (target.getType() == TargetType.ENTITY && target.getEntity() instanceof LivingEntity targetLiving) {
 						var damageType = level.registryAccess().lookupOrThrow(Registries.DAMAGE_TYPE).getOrThrow(ModDamageTypes.STAND_ATTACK);
 						DamageSource dmgSource = new DamageSource(damageType, performer);

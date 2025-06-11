@@ -7,7 +7,7 @@ import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
-import com.github.standobyte.jojo.client.input.AimTarget;
+import com.github.standobyte.jojo.client.input.ClientsideAim;
 
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.GameRenderer;
@@ -19,7 +19,7 @@ public class GameRendererMixin {
 	@Inject(method = "renderLevel", at = @At(value = "INVOKE_STRING", target = 
 			"Lnet/minecraft/util/profiling/ProfilerFiller;push(Ljava/lang/String;)V", args = "ldc=center"))
 	public void jojo_ripples$afterAimTargetPick(CallbackInfo ci) {
-		AimTarget.updateTarget(minecraft, minecraft.getDeltaTracker().getGameTimeDeltaPartialTick(true));
+		ClientsideAim.updateTarget(minecraft, minecraft.getDeltaTracker().getGameTimeDeltaPartialTick(true));
 	}
 
 }

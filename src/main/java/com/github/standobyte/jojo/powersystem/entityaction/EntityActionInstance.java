@@ -15,6 +15,7 @@ import com.github.standobyte.jojo.powersystem.standpower.entity.StandOffsetFromU
 import com.github.standobyte.jojo.util.mc.EntityResolver;
 import com.github.standobyte.jojo.util.network.NetworkUtil;
 import com.github.standobyte.jojo.util.target.ActionTarget;
+import com.github.standobyte.jojo.util.target.AimingEntity;
 
 import net.minecraft.Util;
 import net.minecraft.network.RegistryFriendlyByteBuf;
@@ -42,8 +43,8 @@ public class EntityActionInstance implements HeldInput {
 	protected LivingEntity performer;
 	protected EntityResolver powerUser = new EntityResolver();
 	
-	@Nullable public ActionTarget standAimTarget;
-	@Nullable public ActionTarget rotateStandTowardsTarget;
+	@Nullable public ActionTarget standRotationTarget;
+	public AimingEntity aimAs = AimingEntity.PLAYER;
 	
 	public float userWalkSpeed = 1;
 	
@@ -119,18 +120,21 @@ public class EntityActionInstance implements HeldInput {
 						offsetMode, 
 						user);
 				standEntity.offsetFromUser.standAbility = this.ability;
+				if (!standEntity.offsetFromUser.isIdle()) {
+					aimAs = AimingEntity.STAND;
+				}
 			}
 		}
 	}
 	
 	public void keepStandAimedAtTarget() {
-		if (!level().isClientSide()) {
+		Level level = level();
+		if (!level.isClientSide()) {
 			ActionTarget aimTarget = LivingComponentAction.getAim(performer).getTarget();
-			if (!aimTarget.isEmpty(level())) {
-				standAimTarget = aimTarget;
+			if (!aimTarget.isEmpty(level)) {
+				standRotationTarget = aimTarget;
 			}
 		}
-		rotateStandTowardsTarget = standAimTarget;
 	}
 	
 	public final float calcFullTicks(ActionPhase targetPhase, float targetPhaseTick) {
@@ -333,7 +337,7 @@ public class EntityActionInstance implements HeldInput {
 				buffer.writeFloat(action.phasePartialTick);
 				buffer.writeFloat(action.curPhaseLength);
 				action.powerUser.writeNetwork(buffer);
-				NetworkUtil.writeOptionally(action.standAimTarget, buffer, ActionTarget.STREAM_CODEC_UNRESOLVED_ENTITY_ID);
+				NetworkUtil.writeOptionally(action.standRotationTarget, buffer, ActionTarget.STREAM_CODEC_UNRESOLVED_ENTITY_ID);
 				action.toBuf(buffer);
 			}
 		}
@@ -351,7 +355,7 @@ public class EntityActionInstance implements HeldInput {
 					action.phasePartialTick = buffer.readFloat();
 					action.curPhaseLength = buffer.readFloat();
 					action.powerUser.readNetwork(buffer);
-					action.standAimTarget = NetworkUtil.readOptional(buffer, ActionTarget.STREAM_CODEC_UNRESOLVED_ENTITY_ID).orElse(null);
+					action.standRotationTarget = NetworkUtil.readOptional(buffer, ActionTarget.STREAM_CODEC_UNRESOLVED_ENTITY_ID).orElse(null);
 					action.fromBuf(buffer);
 					return action;
 				}

@@ -5,7 +5,7 @@ import java.util.List;
 
 import com.github.standobyte.jojo.client.ClientGlobals;
 import com.github.standobyte.jojo.client.sound.ClientsideSoundsHelper;
-import com.github.standobyte.jojo.core.JojoMod;
+import com.github.standobyte.jojo.init.ModDamageTypes;
 import com.github.standobyte.jojo.init.ModSoundEvents;
 import com.github.standobyte.jojo.powersystem.Moveset;
 import com.github.standobyte.jojo.powersystem.PowerClass;
@@ -18,11 +18,19 @@ import com.github.standobyte.jojo.powersystem.standpower.StandPower;
 import com.github.standobyte.jojo.powersystem.standpower.entity.StandEntity;
 import com.github.standobyte.jojo.powersystem.standpower.entity.StandEntityAbility;
 import com.github.standobyte.jojo.powersystem.standpower.entity.StandOffsetFromUser;
+import com.github.standobyte.jojo.util.damage.DamageUtil;
+import com.github.standobyte.jojo.util.target.ActionTarget;
+import com.github.standobyte.jojo.util.target.ActionTarget.TargetType;
+import com.github.standobyte.jojo.util.target.AimingEntity;
+import com.github.standobyte.jojo.util.target.HitResultUtil;
 
+import net.minecraft.core.registries.Registries;
+import net.minecraft.world.damagesource.DamageSource;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EntitySelector;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.level.Level;
+import net.minecraft.world.phys.HitResult;
 
 public class StandEntityPunchAbility extends StandEntityAbility {
 	public List<String> punchNames;
@@ -118,16 +126,28 @@ public class StandEntityPunchAbility extends StandEntityAbility {
 		
 		@Override
 		public void actionPerformStart() {
-			JojoMod.LOGGER.debug("ORA {}", ((Ability) ability).abilityId.nameInMoveset());
-		}
-		
-		@Override
-		public void actionPerformEnd() {
-			if (standAimTarget != null) {
-				Entity aimTargetEntity = standAimTarget.getEntity();
-				if (aimTargetEntity == null || aimTargetEntity.isRemoved()) {
-					// TODO clear the target if it's too far away / outside of the *stand's* vision
-					standAimTarget = null;
+			Level level = level();
+			if (performer instanceof StandEntity stand) {
+				HitResult hitResult = HitResultUtil.clipEntityLook(stand, entity -> StandEntityPunchAbility.canStandHit(stand, entity));
+				ActionTarget target = ActionTarget.fromVanilla(hitResult);
+				if (!level.isClientSide()) {
+					if (target.getType() == TargetType.ENTITY && target.getEntity() instanceof LivingEntity targetLiving) {
+						var damageType = level.registryAccess().lookupOrThrow(Registries.DAMAGE_TYPE).getOrThrow(ModDamageTypes.STAND_ATTACK);
+						DamageSource dmgSource = new DamageSource(damageType, performer);
+						float dmgAmount = 4.625f;
+						DamageUtil.hurtThroughInvulTicks(targetLiving, dmgSource, dmgAmount);
+					}
+					/*
+					 *  During the punch, the Stand entity keeps rotating towards the target (keepStandAimedAtTarget()).
+					 *  Additionally, when we set aimAs == AimingEntity.STAND, 
+					 *  effectively this makes the Stand locked on the target entity during a combo,
+					 *  because the Stand keeps aiming at *its* direction rather than the player's.
+					 *  Here, if the Stand does not hit an entity, we reset this field to AimingEntity.PLAYER, 
+					 *  resetting the aim back to the look direction of the user.
+					 */
+				}
+				if (target.getType() != TargetType.ENTITY) {
+					aimAs = AimingEntity.PLAYER;
 				}
 			}
 		}

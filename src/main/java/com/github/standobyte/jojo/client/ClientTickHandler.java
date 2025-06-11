@@ -1,6 +1,6 @@
 package com.github.standobyte.jojo.client;
 
-import com.github.standobyte.jojo.client.input.AimTarget;
+import com.github.standobyte.jojo.client.input.ClientsideAim;
 import com.github.standobyte.jojo.core.JojoMod;
 
 import net.minecraft.client.Minecraft;
@@ -21,7 +21,7 @@ public class ClientTickHandler {
 	@SubscribeEvent
 	public static void onClientTickPost(ClientTickEvent.Post event) {
 		Minecraft mc = Minecraft.getInstance();
-		AimTarget.updateTarget(mc, 1);
-		AimTarget.updateTargetWithServer(mc);
+		ClientsideAim.updateTarget(mc, 1);
+		ClientsideAim.updateTargetWithServer(mc);
 	}
 }

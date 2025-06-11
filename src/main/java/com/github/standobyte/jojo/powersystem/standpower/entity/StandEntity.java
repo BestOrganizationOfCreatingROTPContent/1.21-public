@@ -122,8 +122,14 @@ public class StandEntity extends LivingEntity implements SummonedStand, IEntityW
 		EntityActionInstance curAction = standAction.getAction();
 		boolean fullyRotateBody = curAction != null;
 		if (curAction != null) {
-			lookTarget = curAction.rotateStandTowardsTarget;
-			if (lookTarget == null) lookTarget = ActionTarget.EMPTY;
+			lookTarget = curAction.standRotationTarget;
+			if (lookTarget == null) {
+				lookTarget = ActionTarget.EMPTY;
+			}
+			else if (lookTarget.isEmpty(level())) {
+				curAction.standRotationTarget = null;
+				lookTarget = ActionTarget.EMPTY;
+			}
 		}
 		else {
 			ActionTarget crosshairTarget = standAction.entityAim.getTarget();
@@ -312,8 +318,8 @@ public class StandEntity extends LivingEntity implements SummonedStand, IEntityW
 			.add(Attributes.MOVEMENT_SPEED, 0.1F)
 			.add(Attributes.ATTACK_SPEED)
 			.add(Attributes.LUCK)
-			.add(Attributes.BLOCK_INTERACTION_RANGE, 4.5)
-			.add(Attributes.ENTITY_INTERACTION_RANGE, 3.0)
+			.add(Attributes.BLOCK_INTERACTION_RANGE, 4.0)
+			.add(Attributes.ENTITY_INTERACTION_RANGE, 4.0)
 			.add(Attributes.BLOCK_BREAK_SPEED)
 			.add(Attributes.SUBMERGED_MINING_SPEED)
 			.add(Attributes.SNEAKING_SPEED)

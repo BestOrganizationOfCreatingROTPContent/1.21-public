@@ -2,7 +2,7 @@ package com.github.standobyte.jojo.client.ui.hud.marker;
 
 import java.util.List;
 
-import com.github.standobyte.jojo.client.input.AimTarget;
+import com.github.standobyte.jojo.client.input.ClientsideAim;
 import com.github.standobyte.jojo.client.ui.hud.AdditionalHud;
 import com.github.standobyte.jojo.client.ui.utils.GuiIcon;
 import com.github.standobyte.jojo.core.JojoMod;
@@ -27,7 +27,7 @@ public class StandAimMarker extends MarkerRenderer {
 
 	@Override
 	protected void updatePositions(List<MarkerInstance> list, float partialTick) {
-		ActionTarget target = AimTarget.standAimTarget;
+		ActionTarget target = ClientsideAim.standAim.getTarget();
 		switch (target.getType()) {
 			case BLOCK -> list.add(new MarkerInstance(Vec3.atCenterOf(target.getBlockPos())));
 			case ENTITY -> {
