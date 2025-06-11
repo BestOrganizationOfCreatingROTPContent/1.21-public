@@ -8,7 +8,6 @@ import javax.annotation.Nullable;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.world.entity.Entity;
-import net.minecraft.world.entity.EntitySelector;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.ai.attributes.Attributes;
 import net.minecraft.world.level.BlockGetter;
@@ -88,14 +87,13 @@ public class HitResultUtil {
 
 		Vec3 endPosEntities = startingPos.add(directionVec.x * maxRange, directionVec.y * maxRange, directionVec.z * maxRange);
 		AABB boundingBox = new AABB(startingPos, endPosEntities).inflate(1.0, 1.0, 1.0);
-		Predicate<Entity> filter = EntitySelector.CAN_BE_PICKED;
 
 		double closestEntityDistSqr = maxRange * maxRange;
 		Entity closestEntity = null;
 		Vec3 closestEntityPos = null;
 		AABB entityHitAABB = null;
 
-		for (Entity potentialTarget : level.getEntities(aiming, boundingBox, filter)) {
+		for (Entity potentialTarget : level.getEntities(aiming, boundingBox, entityFilter)) {
 			AABB targetAABB = potentialTarget.getBoundingBox().inflate(potentialTarget.getPickRadius());
 			Optional<Vec3> targetClipPos = targetAABB.clip(startingPos, endPosEntities);
 			if (targetAABB.contains(startingPos)) {
