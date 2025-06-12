@@ -13,6 +13,14 @@ public class RGBUtil {
 		};
 	}
 	
+	public static float[] rgb(int color) {
+		return new float[] {
+				ARGB.red(color) / 255F, 
+				ARGB.green(color) / 255F, 
+				ARGB.blue(color) / 255F
+		};
+	}
+	
 	public static int[] argbInt(int color) {
 		return new int[] {
 				ARGB.alpha(color), 
