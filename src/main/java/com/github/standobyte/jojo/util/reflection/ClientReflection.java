@@ -11,7 +11,6 @@ import net.neoforged.fml.util.ObfuscationReflectionHelper;
 
 public final class ClientReflection {
 
-	// FIXME test a built mod (can i really use the MojMap names now Pog ?)
 	private static final Field SOUND_MANAGER_SOUND_CACHE = ObfuscationReflectionHelper.findField(SoundManager.class, "soundCache");
 	public static Map<ResourceLocation, Resource> getSoundCache(SoundManager soundManager) {
 		return ReflectionUtil.getFieldValue(SOUND_MANAGER_SOUND_CACHE, soundManager);

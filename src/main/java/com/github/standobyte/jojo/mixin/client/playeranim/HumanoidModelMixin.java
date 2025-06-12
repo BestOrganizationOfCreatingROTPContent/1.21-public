@@ -128,7 +128,6 @@ public abstract class HumanoidModelMixin extends ModelMixin implements IHumanoid
 	@Inject(method = "copyPropertiesTo", at = @At("HEAD"))
 	public void jojo_ripples$copyPose(HumanoidModel<?> _model, CallbackInfo ci) {
 //		IPlayerPseudoModelParts model = (IPlayerPseudoModelParts) _model;
-		// FIXME can i actually cast to a mixin class? test a build
 		HumanoidModelMixin model = (HumanoidModelMixin) (IPlayerPseudoModelParts) _model;
 		model.jojo_ripples$animMainBody().copyFrom(this.jojo_ripples$animMainBody);
 		model.jojo_ripples$animTorso().copyFrom(this.jojo_ripples$animTorso);

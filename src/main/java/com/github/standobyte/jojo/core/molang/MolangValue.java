@@ -5,7 +5,6 @@ import java.util.function.DoubleSupplier;
 import java.util.function.IntSupplier;
 import java.util.function.Predicate;
 
-import com.github.standobyte.jojo.core.JojoMod;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonPrimitive;
 
@@ -86,18 +85,16 @@ public sealed interface MolangValue extends DoubleSupplier, IntSupplier, Boolean
 		}
 		
 		private static MochaFunction makeFunction(String molangExpr, MochaEngine<?> molangEngine, boolean tryCompile) {
-			if (tryCompile) {
-				try {
-					// FIXME test jar-in-jar in build (javassist might not work with Java 21 Sadge)
-					// FIXME test if Molang compilation works
-					MochaFunction function = molangEngine.compile(molangExpr);
-					return function;
-				}
-				catch (Exception e) {
-					JojoMod.getLogger().error("Failed to compile a Molang expression ({}) into bytecode.", molangExpr, e);
-					throw e;
-				}
-			}
+//			if (tryCompile) {
+//				try {
+//					MochaFunction function = molangEngine.compile(molangExpr);
+//					return function;
+//				}
+//				catch (Exception e) {
+//					JojoMod.getLogger().error("Failed to compile a Molang expression ({}) into bytecode.", molangExpr, e);
+//					throw e;
+//				}
+//			}
 			MochaFunction function = molangEngine.prepareEval(molangExpr);
 			return function;
 		}
