@@ -45,13 +45,13 @@ public class ClAimTargetPacket implements CustomPacketPayload {
 
 		@Override
 		public void encode(ClAimTargetPacket packet, RegistryFriendlyByteBuf buf) {
-			packet.target.writeToBuf(buf);
+			ActionTarget.STREAM_CODEC_UNRESOLVED_ENTITY_ID.encode(buf, packet.target);
 			buf.writeEnum(packet.entityType);
 		}
 
 		@Override
 		public ClAimTargetPacket decode(RegistryFriendlyByteBuf buf) {
-			return new ClAimTargetPacket(ActionTarget.readFromBuf(buf), buf.readEnum(PacketType.class));
+			return new ClAimTargetPacket(ActionTarget.STREAM_CODEC_UNRESOLVED_ENTITY_ID.decode(buf), buf.readEnum(PacketType.class));
 		}
 
 		@Override

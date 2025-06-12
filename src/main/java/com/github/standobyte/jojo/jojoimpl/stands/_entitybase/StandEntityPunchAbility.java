@@ -30,7 +30,6 @@ import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EntitySelector;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.level.Level;
-import net.minecraft.world.phys.HitResult;
 
 public class StandEntityPunchAbility extends StandEntityAbility {
 	public List<String> punchNames;
@@ -98,6 +97,7 @@ public class StandEntityPunchAbility extends StandEntityAbility {
 			playedStandCrySound = prevAction != null;
 			setStandOffset(0, 2, StandOffsetFromUser.OffsetMode.HEAD_XY, false);
 			keepStandAimedAtTarget();
+			aimAs = AimingEntity.STAND;
 		}
 		
 		@Override
@@ -128,8 +128,7 @@ public class StandEntityPunchAbility extends StandEntityAbility {
 		public void actionPerformStart() {
 			Level level = level();
 			if (performer instanceof StandEntity stand) {
-				HitResult hitResult = HitResultUtil.clipEntityLook(stand, entity -> StandEntityPunchAbility.canStandHit(stand, entity), 0);
-				ActionTarget target = ActionTarget.fromVanilla(hitResult);
+				ActionTarget target = HitResultUtil.clipEntityLook(stand, entity -> StandEntityPunchAbility.canStandHit(stand, entity), 0);
 				if (!level.isClientSide()) {
 					if (target.getType() == TargetType.ENTITY && target.getEntity() instanceof LivingEntity targetLiving) {
 						var damageType = level.registryAccess().lookupOrThrow(Registries.DAMAGE_TYPE).getOrThrow(ModDamageTypes.STAND_ATTACK);
@@ -140,7 +139,7 @@ public class StandEntityPunchAbility extends StandEntityAbility {
 					/*
 					 *  During the punch, the Stand entity keeps rotating towards the target (keepStandAimedAtTarget()).
 					 *  Additionally, when we set aimAs == AimingEntity.STAND, 
-					 *  effectively this makes the Stand locked on the target entity during a combo,
+					 *  effectively this makes the Stand locked on the target entity after the punch,
 					 *  because the Stand keeps aiming at *its* direction rather than the player's.
 					 *  Here, if the Stand does not hit an entity, we reset this field to AimingEntity.PLAYER, 
 					 *  resetting the aim back to the look direction of the user.

@@ -49,10 +49,10 @@ public class ClientsideAim {
 				else {
 					aiming = stand;
 				}
-				ActionTarget target = ActionTarget.fromVanilla(HitResultUtil.clip(aiming.getEyePosition(), aiming.getLookAngle(), 
+				ActionTarget target = HitResultUtil.clip(aiming.getEyePosition(partialTick), aiming.getLookAngle(), 
 						stand.getAttributeValue(Attributes.BLOCK_INTERACTION_RANGE), stand.getAttributeValue(Attributes.ENTITY_INTERACTION_RANGE), 
 						// TODO stand aiming for other abilities that do not need friendly fire check (e.g. healing)
-						aiming.level(), entity -> StandEntityPunchAbility.canStandHit(stand, entity), aiming, stand.getPrecision()));
+						aiming.level(), entity -> StandEntityPunchAbility.canStandHit(stand, entity), aiming, stand.getPrecision());
 				standAim.setTarget(target);
 			}
 			else {

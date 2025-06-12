@@ -7,6 +7,7 @@ import javax.annotation.Nullable;
 
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
+import net.minecraft.util.Mth;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.ai.attributes.Attributes;
@@ -17,7 +18,6 @@ import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.material.FluidState;
 import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.BlockHitResult;
-import net.minecraft.world.phys.EntityHitResult;
 import net.minecraft.world.phys.HitResult;
 import net.minecraft.world.phys.Vec3;
 import net.minecraft.world.phys.shapes.CollisionContext;
@@ -25,13 +25,13 @@ import net.minecraft.world.phys.shapes.VoxelShape;
 
 public class HitResultUtil {
 
-	public static HitResult clipEntityLook(LivingEntity aiming, Predicate<Entity> entityFilter, double standPrecision) {
+	public static ActionTarget clipEntityLook(LivingEntity aiming, Predicate<Entity> entityFilter, double standPrecision) {
 		return HitResultUtil.clip(aiming.getEyePosition(), aiming.getLookAngle(), 
 				aiming.getAttributeValue(Attributes.BLOCK_INTERACTION_RANGE), aiming.getAttributeValue(Attributes.ENTITY_INTERACTION_RANGE), 
 				aiming.level(), entityFilter, aiming, standPrecision);
 	}
 
-	public static HitResult clip(Vec3 startingPos, Vec3 directionVec, double blockMaxRange, double entityMaxRange, 
+	public static ActionTarget clip(Vec3 startingPos, Vec3 directionVec, double blockMaxRange, double entityMaxRange, 
 			Level level, Predicate<Entity> entityFilter, @Nullable Entity aiming, double standPrecision) {
 		boolean hitFluids = false;
 		CollisionContext entityCtx = aiming != null ? CollisionContext.of(aiming) : CollisionContext.empty();
@@ -57,7 +57,7 @@ public class HitResultUtil {
 
 
 		// raytrace entities
-
+		
 		Vec3 endPosEntities = startingPos.add(directionVec.x * maxRange, directionVec.y * maxRange, directionVec.z * maxRange);
 		AABB boundingBox = new AABB(startingPos, endPosEntities).inflate(1.0, 1.0, 1.0);
 
@@ -80,27 +80,40 @@ public class HitResultUtil {
 				}
 			}
 			else {
-				boolean hitWithPrecision = precisionAABB.contains(startingPos) || precisionAABB.clip(startingPos, endPosEntities).isPresent();
-				if (hitWithPrecision) {
-					Optional<Vec3> clip = targetAABB.clip(startingPos, targetAABB.getCenter());
-					if (clip.isPresent()) {
-						Vec3 clipPos = clip.get();
-						double distSqr = startingPos.distanceToSqr(clipPos);
-						if (distSqr < closestEntityDistSqr) {
-							closestEntity = potentialTarget;
-							closestEntityPos = clipPos;
-							closestEntityDistSqr = distSqr;
-							entityHitAABB = targetAABB;
-						}
+				Optional<Vec3> precisionClip;
+				if (precisionAABB.contains(startingPos)) {
+					precisionClip = Optional.of(startingPos);
+				}
+				else {
+					precisionClip = precisionAABB.clip(startingPos, endPosEntities);
+				}
+				if (precisionClip.isPresent()) {
+					Optional<Vec3> clip = targetAABB.clip(startingPos, endPosEntities);
+					Vec3 clipPos;
+					if (clip.isPresent()) clipPos = clip.get();
+					else {
+						Vec3 point = precisionClip.get();
+						clipPos = new Vec3(
+								Mth.clamp(point.x, targetAABB.minX, targetAABB.maxX),
+								Mth.clamp(point.y, targetAABB.minY, targetAABB.maxY),
+								Mth.clamp(point.z, targetAABB.minZ, targetAABB.maxZ));
+					}
+					
+					double distSqr = startingPos.distanceToSqr(clipPos);
+					if (distSqr < closestEntityDistSqr) {
+						closestEntity = potentialTarget;
+						closestEntityPos = clipPos;
+						closestEntityDistSqr = distSqr;
+						entityHitAABB = targetAABB;
 					}
 				}
 			}
 		}
 
-		EntityHitResult entityHitResult = closestEntity == null ? null : new EntityHitResult(closestEntity, closestEntityPos);
+		ActionTarget entityHitResult = closestEntity == null ? null : new ActionTarget(closestEntity).withClipPos(Optional.ofNullable(closestEntityPos));
 
 
-		HitResult hitResult;
+		ActionTarget hitResult;
 		AABB hitResultAABB;
 		if (entityHitResult != null) {
 			hitResult = entityHitResult;
@@ -108,18 +121,18 @@ public class HitResultUtil {
 			hitResultAABB = entityHitAABB;
 		}
 		else {
-			hitResult = blockHitResult;
+			hitResult = ActionTarget.fromVanilla(blockHitResult);
 			maxRange = blockMaxRange;
 			hitResultAABB = blockHitAABB;
 		}
 
 		// filter out if it's too far
 
-		if (hitResult.getType() != HitResult.Type.MISS) {
+		if (hitResult.getType() != ActionTarget.TargetType.EMPTY) {
 			if (hitResultAABB.distanceToSqr(startingPos) > maxRange * maxRange) {
-				Vec3 pos = hitResultAABB.getCenter();
-				Direction direction = Direction.getApproximateNearest(pos.x - startingPos.x, pos.y - startingPos.y, pos.z - startingPos.z);
-				hitResult = BlockHitResult.miss(pos, direction, BlockPos.containing(pos));
+//				Vec3 pos = hitResultAABB.getCenter();
+//				Direction direction = Direction.getApproximateNearest(pos.x - startingPos.x, pos.y - startingPos.y, pos.z - startingPos.z);
+				hitResult = ActionTarget.EMPTY;
 			}
 		}
 

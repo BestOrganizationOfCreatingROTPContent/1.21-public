@@ -5,6 +5,8 @@ import java.util.Optional;
 
 import javax.annotation.Nonnull;
 
+import com.github.standobyte.jojo.util.network.NetworkUtil;
+
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.network.FriendlyByteBuf;
@@ -25,7 +27,7 @@ public class ActionTarget {
 	private final Direction face;
 	private Entity entity;
 	private final int entityId;
-	private final Vec3 targetPos;
+	private Optional<Vec3> clipPos = Optional.empty();
 
 	public static final ActionTarget EMPTY = new ActionTarget();
 
@@ -35,7 +37,6 @@ public class ActionTarget {
 		this.face = null;
 		this.entity = null;
 		this.entityId = -1;
-		this.targetPos = null;
 	}
 
 	public ActionTarget(@Nonnull BlockPos blockPos, @Nonnull Direction face) {
@@ -44,7 +45,6 @@ public class ActionTarget {
 		this.face = face;
 		this.entity = null;
 		this.entityId = -1;
-		this.targetPos = Vec3.atCenterOf(blockPos);
 	}
 
 	public ActionTarget(@Nonnull Entity entity) {
@@ -54,7 +54,6 @@ public class ActionTarget {
 			this.face = null;
 			this.entity = entity;
 			this.entityId = entity.getId();
-			this.targetPos = null;
 		}
 		else {
 			type = TargetType.EMPTY;
@@ -62,8 +61,14 @@ public class ActionTarget {
 			this.face = null;
 			this.entity = null;
 			this.entityId = -1;
-			this.targetPos = null;
 		}
+	}
+	
+	public ActionTarget withClipPos(Optional<Vec3> clipPos) {
+		if (this != EMPTY) {
+			this.clipPos = clipPos;
+		}
+		return this;
 	}
 
 	public ActionTarget(int entityId, Level level) {
@@ -113,6 +118,10 @@ public class ActionTarget {
 	public Entity getEntity() {
 		return entity;
 	}
+	
+	public Optional<Vec3> getClipPos() {
+		return clipPos;
+	}
 
 	public Optional<AABB> getBoundingBox(Level level) {
 		AABB aabb = null;
@@ -134,35 +143,8 @@ public class ActionTarget {
 	}
 
 
-	public void writeToBuf(FriendlyByteBuf buf) {
-		TargetType type = getType();
-		buf.writeEnum(type);
-		switch (type) {
-		case ENTITY:
-			buf.writeInt(entityId);
-			break;
-		case BLOCK:
-			buf.writeBlockPos(getBlockPos());
-			buf.writeEnum(getFace());
-			break;
-		default:
-		}
-	}
-
-	public static ActionTarget readFromBuf(FriendlyByteBuf buf) {
-		TargetType type = buf.readEnum(TargetType.class);
-		switch (type) {
-		case ENTITY:
-			return new ActionTarget(buf.readInt());
-		case BLOCK:
-			return new ActionTarget(buf.readBlockPos(), buf.readEnum(Direction.class));
-		default:
-			return ActionTarget.EMPTY;
-		}
-	}
-
-	public static ActionTarget readFromBuf(FriendlyByteBuf buf, Level level) {
-		ActionTarget target = readFromBuf(buf);
+	public static ActionTarget readResolveEntity(FriendlyByteBuf buf, Level level) {
+		ActionTarget target = STREAM_CODEC_UNRESOLVED_ENTITY_ID.decode(buf);
 		return target.resolveEntityId(level);
 	}
 
@@ -179,17 +161,41 @@ public class ActionTarget {
 		case EMPTY:
 			return ActionTarget.EMPTY;
 		case BLOCK:
-			return new ActionTarget(blockPos, face);
+			return new ActionTarget(blockPos, face).withClipPos(clipPos);
 		case ENTITY:
-			return new ActionTarget(entityId);
+			return new ActionTarget(entityId).withClipPos(clipPos);
 		default:
 			return null;
 		}
 	}
 
 	public static final StreamCodec<? super FriendlyByteBuf, ActionTarget> STREAM_CODEC_UNRESOLVED_ENTITY_ID = new StreamCodec<>() {
-		@Override public ActionTarget decode(FriendlyByteBuf buffer) { return ActionTarget.readFromBuf(buffer); }
-		@Override public void encode(FriendlyByteBuf buffer, ActionTarget value) { value.writeToBuf(buffer); }
+		
+		@Override public ActionTarget decode(FriendlyByteBuf buffer) {
+			TargetType type = buffer.readEnum(TargetType.class);
+			Optional<Vec3> clipPos = NetworkUtil.readOptional(buffer, Vec3.STREAM_CODEC);
+			return switch (type) {
+				case ENTITY -> new ActionTarget(buffer.readInt()).withClipPos(clipPos);
+				case BLOCK -> new ActionTarget(buffer.readBlockPos(), buffer.readEnum(Direction.class)).withClipPos(clipPos);
+				default -> ActionTarget.EMPTY;
+			};
+		}
+		
+		@Override public void encode(FriendlyByteBuf buffer, ActionTarget value) {
+			TargetType type = value.getType();
+			buffer.writeEnum(type);
+			NetworkUtil.writeOptional(value.clipPos, buffer, Vec3.STREAM_CODEC);
+			switch (type) {
+				case ENTITY -> {
+					buffer.writeInt(value.entityId);
+				}
+				case BLOCK -> {
+					buffer.writeBlockPos(value.getBlockPos());
+					buffer.writeEnum(value.getFace());
+				}
+				default -> {}
+			}
+		}
 	};
 
 	private ActionTarget(int entityIdOnly) {
@@ -198,7 +204,6 @@ public class ActionTarget {
 		this.face = null;
 		this.entity = null;
 		this.entityId = entityIdOnly;
-		this.targetPos = null;
 	}
 
 	@Override
@@ -208,7 +213,7 @@ public class ActionTarget {
 	
 	@Override
 	public int hashCode() {
-		return Objects.hash(type, blockPos, face, entity, entityId, targetPos);
+		return this == EMPTY ? 0 : Objects.hash(type, blockPos, face, entity, entityId, clipPos);
 	}
 
 	public boolean sameTarget(ActionTarget target) {

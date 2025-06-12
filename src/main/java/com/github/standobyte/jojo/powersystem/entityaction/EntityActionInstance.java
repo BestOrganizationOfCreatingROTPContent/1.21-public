@@ -120,9 +120,6 @@ public class EntityActionInstance implements HeldInput {
 						offsetMode, 
 						user);
 				standEntity.offsetFromUser.standAbility = this.ability;
-				if (!standEntity.offsetFromUser.isIdle()) {
-					aimAs = AimingEntity.STAND;
-				}
 			}
 		}
 	}

@@ -1,5 +1,7 @@
 package com.github.standobyte.jojo.mixin.client.debug;
 
+import java.util.Optional;
+
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
@@ -20,6 +22,7 @@ import net.minecraft.client.renderer.ShapeRenderer;
 import net.minecraft.client.renderer.entity.EntityRenderDispatcher;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.phys.AABB;
+import net.minecraft.world.phys.Vec3;
 
 @Mixin(EntityRenderDispatcher.class)
 public class EntityRenderDispatcherMixin {
@@ -34,6 +37,16 @@ public class EntityRenderDispatcherMixin {
 	        ActionTarget target = ClientsideAim.standAim.getTarget();
 	        if (target.getEntity() == p_entity) {
 	        	ShapeRenderer.renderLineBox(poseStack, buffer, precisionAABB, color[0], color[1], color[2], 1);
+	        	
+	        	Optional<Vec3> clipPos = target.getClipPos();
+	        	if (clipPos.isPresent()) {
+	        		Vec3 point = clipPos.get().subtract(p_entity.getX(), p_entity.getY(), p_entity.getZ());
+	        		ShapeRenderer.renderLineBox(
+	        				poseStack, buffer,
+	        				point.x - 0.01, point.y - 0.01, point.z - 0.01,
+	        				point.x + 0.01, point.y + 0.01, point.z + 0.01,
+	        				1.0F, 0.0F, 0.0F, 1.0F);
+	        	}
 	        }
 	        else {
 	        	ShapeRenderer.renderLineBox(poseStack, buffer, precisionAABB, color[0], color[1], color[2], 0.25f);

@@ -128,6 +128,15 @@ public class NetworkUtil {
 		}
 	}
 	
+	public static <T> void writeOptional(@Nullable Optional<T> value, FriendlyByteBuf buf, StreamEncoder<? super FriendlyByteBuf, T> writer) {
+		if (value.isPresent()) {
+			buf.writeBoolean(true);
+			writer.encode(buf, value.get());
+		} else {
+			buf.writeBoolean(false);
+		}
+	}
+	
 	public static <T> Optional<T> readOptional(FriendlyByteBuf buf, StreamDecoder<? super FriendlyByteBuf, T> reader) {
 		return buf.readBoolean() ? Optional.of(reader.decode(buf)) : Optional.empty();
 	}

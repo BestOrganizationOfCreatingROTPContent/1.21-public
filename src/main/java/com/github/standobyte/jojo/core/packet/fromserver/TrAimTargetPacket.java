@@ -39,12 +39,12 @@ public class TrAimTargetPacket implements CustomPacketPayload {
 		@Override
 		public void encode(TrAimTargetPacket packet, RegistryFriendlyByteBuf buf) {
 			buf.writeInt(packet.entityId);
-			packet.target.writeToBuf(buf);
+			ActionTarget.STREAM_CODEC_UNRESOLVED_ENTITY_ID.encode(buf, packet.target);
 		}
 
 		@Override
 		public TrAimTargetPacket decode(RegistryFriendlyByteBuf buf) {
-			return new TrAimTargetPacket(buf.readInt(), ActionTarget.readFromBuf(buf));
+			return new TrAimTargetPacket(buf.readInt(), ActionTarget.STREAM_CODEC_UNRESOLVED_ENTITY_ID.decode(buf));
 		}
 
 		@Override
