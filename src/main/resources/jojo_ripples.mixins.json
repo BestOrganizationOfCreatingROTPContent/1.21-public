@@ -21,6 +21,6 @@
     "client.barrage.ModelMixin",
     "client.barrage.EntityModelMixin",
     "client.aim.GameRendererMixin",
-    "client.debug.EntityRenderDispatcherMixin"
+    "client.aim.HitboxRenderingMixin"
   ]
 }

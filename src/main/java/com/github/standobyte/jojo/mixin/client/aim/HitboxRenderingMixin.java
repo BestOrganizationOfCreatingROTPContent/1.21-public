@@ -1,4 +1,4 @@
-package com.github.standobyte.jojo.mixin.client.debug;
+package com.github.standobyte.jojo.mixin.client.aim;
 
 import java.util.Optional;
 
@@ -25,11 +25,13 @@ import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec3;
 
 @Mixin(EntityRenderDispatcher.class)
-public class EntityRenderDispatcherMixin {
+public class HitboxRenderingMixin {
 
 	@Inject(method = "renderHitbox", at = @At("TAIL"))
 	private static void jojo_ripples$standPrecisionBox(PoseStack poseStack, VertexConsumer buffer, Entity p_entity, float red, float green, float blue, float alpha, CallbackInfo ci) {
-		if (ClientGlobals.standPrecision > 0 && ClientGlobals.playerStandEntity != null && p_entity != ClientGlobals.playerStandEntity && p_entity != Minecraft.getInstance().player) {
+		Minecraft mc = Minecraft.getInstance();
+		if (ClientGlobals.standPrecision > 0 && ClientGlobals.playerStandEntity != null && p_entity != ClientGlobals.playerStandEntity 
+				&& p_entity != mc.player && !ClientsideAim.precisionAimingDisabled(mc)) {
 	        AABB aabb = p_entity.getBoundingBox().move(-p_entity.getX(), -p_entity.getY(), -p_entity.getZ());
 	        AABB precisionAABB = HitResultUtil.standPrecisionTargetHitbox(aabb, ClientGlobals.standPrecision);
 	        StandSkin skin = StandSkinsLoader.getInstance().getSkin(ClientGlobals.playerStandEntity);
