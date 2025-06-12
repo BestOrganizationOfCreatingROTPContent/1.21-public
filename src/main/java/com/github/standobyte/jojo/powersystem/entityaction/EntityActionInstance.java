@@ -12,6 +12,8 @@ import com.github.standobyte.jojo.powersystem.entityaction.netcode.TrEntityActio
 import com.github.standobyte.jojo.powersystem.entityaction.type.EntityActionType;
 import com.github.standobyte.jojo.powersystem.standpower.entity.StandEntity;
 import com.github.standobyte.jojo.powersystem.standpower.entity.StandOffsetFromUser;
+import com.github.standobyte.jojo.util.StandUtil;
+import com.github.standobyte.jojo.util.damage.DamageUtil;
 import com.github.standobyte.jojo.util.mc.EntityResolver;
 import com.github.standobyte.jojo.util.network.NetworkUtil;
 import com.github.standobyte.jojo.util.target.ActionTarget;
@@ -20,9 +22,13 @@ import com.github.standobyte.jojo.util.target.AimingEntity;
 import net.minecraft.Util;
 import net.minecraft.network.RegistryFriendlyByteBuf;
 import net.minecraft.network.codec.StreamCodec;
+import net.minecraft.server.level.ServerLevel;
 import net.minecraft.util.Mth;
+import net.minecraft.world.damagesource.DamageSource;
+import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.item.enchantment.EnchantmentHelper;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.phys.Vec3;
 import net.neoforged.neoforge.network.PacketDistributor;
@@ -122,6 +128,29 @@ public class EntityActionInstance implements HeldInput {
 				standEntity.offsetFromUser.standAbility = this.ability;
 			}
 		}
+	}
+	
+	public boolean standEntityAttack(StandEntity stand, Entity target, DamageSource dmgSource, float dmgAmount) {
+		boolean hurt = DamageUtil.hurtThroughInvulTicks(target, dmgSource, dmgAmount);
+		if (hurt) {
+			if (target instanceof LivingEntity) {
+				LivingEntity targetLiving = (LivingEntity) target;
+				LivingEntity user = stand.getUser();
+				if (user != null) {
+					if (user instanceof Player player) {
+						targetLiving.setLastHurtByPlayer(player);
+						targetLiving.lastHurtByPlayerTime = 100;
+					}
+					LivingEntity aggroTo = stand.isFollowingUser() || targetLiving.hasLineOfSight(user) ? user : 
+						StandUtil.isEntityStandUser(targetLiving) ? stand : null;
+					if (aggroTo != null) {
+						targetLiving.setLastHurtByMob(aggroTo);
+					}
+				}
+			}
+            EnchantmentHelper.doPostAttackEffects((ServerLevel) stand.level(), target, dmgSource);
+		}
+		return hurt;
 	}
 	
 	public void keepStandAimedAtTarget() {

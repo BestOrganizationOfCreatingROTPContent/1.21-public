@@ -18,7 +18,6 @@ import com.github.standobyte.jojo.powersystem.standpower.StandPower;
 import com.github.standobyte.jojo.powersystem.standpower.entity.StandEntity;
 import com.github.standobyte.jojo.powersystem.standpower.entity.StandEntityAbility;
 import com.github.standobyte.jojo.powersystem.standpower.entity.StandOffsetFromUser;
-import com.github.standobyte.jojo.util.damage.DamageUtil;
 import com.github.standobyte.jojo.util.target.ActionTarget;
 import com.github.standobyte.jojo.util.target.ActionTarget.TargetType;
 import com.github.standobyte.jojo.util.target.AimingEntity;
@@ -134,7 +133,7 @@ public class StandEntityPunchAbility extends StandEntityAbility {
 						var damageType = level.registryAccess().lookupOrThrow(Registries.DAMAGE_TYPE).getOrThrow(ModDamageTypes.STAND_ATTACK);
 						DamageSource dmgSource = new DamageSource(damageType, performer);
 						float dmgAmount = 4.625f;
-						DamageUtil.hurtThroughInvulTicks(targetLiving, dmgSource, dmgAmount);
+						standEntityAttack(stand, targetLiving, dmgSource, dmgAmount);
 					}
 				}
 				/*

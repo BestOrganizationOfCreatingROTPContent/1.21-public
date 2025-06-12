@@ -12,11 +12,10 @@ import com.github.standobyte.jojo.powersystem.entityaction.type.EntityActionType
 import com.github.standobyte.jojo.powersystem.standpower.entity.StandEntity;
 import com.github.standobyte.jojo.powersystem.standpower.entity.StandEntityAbility;
 import com.github.standobyte.jojo.powersystem.standpower.entity.StandOffsetFromUser;
-import com.github.standobyte.jojo.util.damage.DamageUtil;
 import com.github.standobyte.jojo.util.damage.RipplesModifiedDamageSource;
 import com.github.standobyte.jojo.util.target.ActionTarget;
-import com.github.standobyte.jojo.util.target.AimingEntity;
 import com.github.standobyte.jojo.util.target.ActionTarget.TargetType;
+import com.github.standobyte.jojo.util.target.AimingEntity;
 import com.github.standobyte.jojo.util.target.HitResultUtil;
 
 import net.minecraft.core.registries.Registries;
@@ -82,7 +81,7 @@ public class StandEntityBarrageAbility extends StandEntityAbility {
 						DamageSource dmgSource = new DamageSource(damageType, performer);
 						((RipplesModifiedDamageSource) dmgSource).jojo_ripples$modifyKnockback(0, 0.1f);
 						float dmgAmount = 1;
-						DamageUtil.hurtThroughInvulTicks(targetLiving, dmgSource, dmgAmount);
+						standEntityAttack(stand, targetLiving, dmgSource, dmgAmount);
 					}
 				}
 			}

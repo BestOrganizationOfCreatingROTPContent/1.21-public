@@ -11,7 +11,6 @@ import com.github.standobyte.jojo.powersystem.entityaction.type.EntityActionType
 import com.github.standobyte.jojo.powersystem.standpower.entity.StandEntity;
 import com.github.standobyte.jojo.powersystem.standpower.entity.StandEntityAbility;
 import com.github.standobyte.jojo.powersystem.standpower.entity.StandOffsetFromUser;
-import com.github.standobyte.jojo.util.damage.DamageUtil;
 import com.github.standobyte.jojo.util.damage.RipplesModifiedDamageSource;
 import com.github.standobyte.jojo.util.target.ActionTarget;
 import com.github.standobyte.jojo.util.target.ActionTarget.TargetType;
@@ -88,7 +87,7 @@ public class StandEntityHeavyPunchAbility extends StandEntityAbility {
 						DamageSource dmgSource = new DamageSource(damageType, performer);
 						((RipplesModifiedDamageSource) dmgSource).jojo_ripples$modifyKnockback(2, 1);
 						float dmgAmount = 13.875f;
-						DamageUtil.hurtThroughInvulTicks(targetLiving, dmgSource, dmgAmount);
+						standEntityAttack(stand, targetLiving, dmgSource, dmgAmount);
 					}
 				}
 				if (target.getType() == TargetType.ENTITY) {
