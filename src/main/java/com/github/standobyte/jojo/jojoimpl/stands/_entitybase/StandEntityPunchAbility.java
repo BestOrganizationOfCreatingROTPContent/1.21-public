@@ -136,16 +136,19 @@ public class StandEntityPunchAbility extends StandEntityAbility {
 						float dmgAmount = 4.625f;
 						DamageUtil.hurtThroughInvulTicks(targetLiving, dmgSource, dmgAmount);
 					}
-					/*
-					 *  During the punch, the Stand entity keeps rotating towards the target (keepStandAimedAtTarget()).
-					 *  Additionally, when we set aimAs == AimingEntity.STAND, 
-					 *  effectively this makes the Stand locked on the target entity after the punch,
-					 *  because the Stand keeps aiming at *its* direction rather than the player's.
-					 *  Here, if the Stand does not hit an entity, we reset this field to AimingEntity.PLAYER, 
-					 *  resetting the aim back to the look direction of the user.
-					 */
 				}
-				if (target.getType() != TargetType.ENTITY) {
+				/*
+				 *  During the punch, the Stand entity keeps rotating towards the target (keepStandAimedAtTarget()).
+				 *  Additionally, when we set aimAs == AimingEntity.STAND, 
+				 *  effectively this makes the Stand locked on the target entity after the punch,
+				 *  because the Stand keeps aiming at *its* direction rather than the player's.
+				 *  Here, if the Stand does not hit an entity, we reset this field to AimingEntity.PLAYER, 
+				 *  resetting the aim back to the look direction of the user.
+				 */
+				if (target.getType() == TargetType.ENTITY) {
+					standRotationTarget = target;
+				}
+				else {
 					aimAs = AimingEntity.PLAYER;
 				}
 			}

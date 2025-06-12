@@ -91,7 +91,10 @@ public class StandEntityHeavyPunchAbility extends StandEntityAbility {
 						DamageUtil.hurtThroughInvulTicks(targetLiving, dmgSource, dmgAmount);
 					}
 				}
-				if (target.getType() != TargetType.ENTITY) {
+				if (target.getType() == TargetType.ENTITY) {
+					standRotationTarget = target;
+				}
+				else {
 					aimAs = AimingEntity.PLAYER;
 				}
 			}
