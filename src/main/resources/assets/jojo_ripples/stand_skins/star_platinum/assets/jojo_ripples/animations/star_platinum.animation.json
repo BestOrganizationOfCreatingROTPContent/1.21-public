@@ -1827,8 +1827,8 @@
 			},
 			"timeline": {
 				"0.0": "phase = WINDUP;",
-				"0.2": "phase = PERFORM;",
-				"0.2667": "phase = RECOVERY;"
+				"0.1667": "phase = PERFORM;",
+				"0.2333": "phase = RECOVERY;"
 			}
 		},
 		"punch2": {
@@ -2283,8 +2283,8 @@
 			},
 			"timeline": {
 				"0.0": "phase = WINDUP;",
-				"0.2": "phase = PERFORM;",
-				"0.2667": "phase = RECOVERY;"
+				"0.1667": "phase = PERFORM;",
+				"0.2333": "phase = RECOVERY;"
 			}
 		},
 		"punch3": {
@@ -2751,8 +2751,8 @@
 			},
 			"timeline": {
 				"0.0": "phase = WINDUP;",
-				"0.2": "phase = PERFORM;",
-				"0.2667": "phase = RECOVERY;"
+				"0.1667": "phase = PERFORM;",
+				"0.2333": "phase = RECOVERY;"
 			}
 		},
 		"punch4": {
@@ -3225,8 +3225,8 @@
 			},
 			"timeline": {
 				"0.0": "phase = WINDUP;",
-				"0.2667": "phase = PERFORM;",
-				"0.3333": "phase = RECOVERY;"
+				"0.2333": "phase = PERFORM;",
+				"0.3": "phase = RECOVERY;"
 			}
 		},
 		"_punchCombo2": {
@@ -8740,8 +8740,8 @@
 			},
 			"timeline": {
 				"0.0": "phase = WINDUP;",
-				"0.3333": "phase = PERFORM;",
-				"0.5333": "phase = RECOVERY;"
+				"0.4333": "phase = PERFORM;",
+				"0.7333": "phase = RECOVERY;"
 			}
 		},
 		"heavy_charged": {

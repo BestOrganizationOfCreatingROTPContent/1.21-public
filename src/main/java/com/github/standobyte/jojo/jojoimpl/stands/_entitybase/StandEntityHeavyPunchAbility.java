@@ -26,9 +26,9 @@ public class StandEntityHeavyPunchAbility extends StandEntityAbility {
 
 	public StandEntityHeavyPunchAbility(AbilityId abilityId) {
 		super(abilityId);
-		setDefaultPhaseLength(ActionPhase.WINDUP, 8);
-		setDefaultPhaseLength(ActionPhase.PERFORM, 4);
-		setDefaultPhaseLength(ActionPhase.RECOVERY, 20);
+		setDefaultPhaseLength(ActionPhase.WINDUP, 10);
+		setDefaultPhaseLength(ActionPhase.PERFORM, 6);
+		setDefaultPhaseLength(ActionPhase.RECOVERY, 16);
 	}
 	
 	
@@ -77,7 +77,7 @@ public class StandEntityHeavyPunchAbility extends StandEntityAbility {
 		}
 
 		@Override
-		public void actionPerformEnd() {
+		public void actionPerformStart() {
 			Level level = level();
 			if (performer instanceof StandEntity stand) {
 				ActionTarget target = HitResultUtil.clipEntityLook(stand, entity -> StandEntityPunchAbility.canStandHit(stand, entity), 0);

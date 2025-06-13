@@ -54,7 +54,12 @@ public class StandEntityHeavyPunchChargedAbility extends StandEntityAbility {
 		public void actionPerformEnd() {
 			JojoMod.LOGGER.debug("ORAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA");
 		}
+		
+		@Override
+		public boolean canBeCancelledInto(EntityActionType cancellingAbility) {
+			return phase.ordinal() < ActionPhase.PERFORM.ordinal();
+		}
+		
 	}
-	
 
 }

@@ -95,6 +95,11 @@ public class StandEntityBarrageAbility extends StandEntityAbility {
 			}
 		}
 		
+		@Override
+		public boolean canBeCancelledInto(EntityActionType cancellingAbility) {
+			return cancellingAbility != this.ability;
+		}
+		
 	}
 
 }
