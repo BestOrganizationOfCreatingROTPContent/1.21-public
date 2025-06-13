@@ -11,13 +11,19 @@ import net.minecraft.resources.ResourceLocation;
 public class PlaceholderScreen extends Screen implements IJojoMenuScreen {
 	public static final ResourceLocation WINDOW = JojoMod.resLoc("textures/gui/paper_style/empty2.png");
 	
+	protected ResourceLocation texture;
 	protected TabCategory category;
 	protected Tab tab;
 
 	public PlaceholderScreen(Component title, TabCategory category, Tab tab) {
+		this(title, category, tab, WINDOW);
+	}
+
+	public PlaceholderScreen(Component title, TabCategory category, Tab tab, ResourceLocation texture) {
 		super(title);
 		this.category = category;
 		this.tab = tab;
+		this.texture = texture;
 	}
 
 	@Override
@@ -38,7 +44,7 @@ public class PlaceholderScreen extends Screen implements IJojoMenuScreen {
 		int y = getWindowY(this);
 		int width = getWindowWidth();
 		int height = getWindowHeight();
-		guiGraphics.blit(RenderType::guiTextured, WINDOW, x, y, 0.0F, 0.0F, width, height, 256, 256);
+		guiGraphics.blit(RenderType::guiTextured, texture, x, y, 0.0F, 0.0F, width, height, 256, 256);
 		
 		renderTabs(guiGraphics, this);
 		renderTabTooltip(guiGraphics, this, mouseX, mouseY);

@@ -76,6 +76,7 @@ public class JojoMenuTabs {
 	
 	public static final Tab STAND_SKILLS = new Tab(CATEGORY_STAND)
 			.withName(Component.translatable(JojoMod.MOD_ID + ".menu.stand.skills"))
+			.withScreen(tab -> new PlaceholderScreen(Component.empty(), tab.category, tab, JojoMod.resLoc("textures/gui/paper_style/stand_skills.png")))
 			.withIcon(/*standSkillsIcon*/ placeholder);
 	
 	public static final Tab STAND_SKINS = new Tab(CATEGORY_STAND) {
@@ -85,7 +86,7 @@ public class JojoMenuTabs {
 		}
 	}
 			.withName(Component.translatable(JojoMod.MOD_ID + ".menu.stand.skins"))
-			.withScreen(() -> {
+			.withScreen(tab -> {
 				return PowerClass.STAND.getOptional(ClientProxy.getClientPlayer()).map(playerStand -> {
 					return playerStand.hasPower() ? new StandSkinsScreen(playerStand) : null;
 				}).orElse(null);

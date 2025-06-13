@@ -59,11 +59,11 @@ public class TabCategory implements IJojoMenuTab {
 
 	
 	@Override
-	public boolean onClick(Screen curScreen) {
+	public boolean onClick(Minecraft mc, Screen curScreen) {
 		List<Tab> tabs = getActiveTabs();
 		if (!tabs.isEmpty()) {
 			// XXX (jojo menu) open the last tab in the category if it's active, otherwise open the first tab
-			return tabs.get(0).onClick(curScreen);
+			return tabs.get(0).onClick(mc, curScreen);
 		}
 		return false;
 	}

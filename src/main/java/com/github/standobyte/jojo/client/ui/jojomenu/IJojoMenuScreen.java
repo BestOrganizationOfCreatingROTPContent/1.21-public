@@ -79,7 +79,7 @@ public interface IJojoMenuScreen {
 			IJojoMenuTab tab = getTabAt(mouseX, mouseY, screen);
 			
 			if (tab != null) {
-				return tab.onClick(screen);
+				return tab.onClick(screen.getMinecraft(), screen);
 			}
 		}
 		return false;
@@ -118,7 +118,8 @@ public interface IJojoMenuScreen {
 		if (!categories.isEmpty()) {
 			TabCategory category = categories.get(0);
 			Tab tab = category.getActiveTabs().get(0);
-			Minecraft.getInstance().setScreen(new PlaceholderScreen(Component.empty(), category, tab));
+			Minecraft mc = Minecraft.getInstance();
+			tab.onClick(mc, mc.screen);
 		}
 	}
 	

@@ -1,6 +1,7 @@
 package com.github.standobyte.jojo.client.ui.jojomenu;
 
 import java.util.Objects;
+import java.util.function.Function;
 import java.util.function.Supplier;
 
 import javax.annotation.Nullable;
@@ -54,19 +55,19 @@ public class Tab implements IJojoMenuTab {
 	}
 	
 	
-	protected Supplier<? extends Screen> newScreen = () -> new PlaceholderScreen(Component.empty(), this.getCategory(), this);
+	protected Function<Tab, ? extends Screen> newScreen = tab -> new PlaceholderScreen(Component.empty(), this.getCategory(), this);
 	
-	public Tab withScreen(Supplier<? extends Screen> newScreen) {
+	public Tab withScreen(Function<Tab, ? extends Screen> newScreen) {
 		this.newScreen = newScreen;
 		return this;
 	}
 
 	@Override
-	public boolean onClick(Screen curScreen) {
+	public boolean onClick(Minecraft mc, Screen curScreen) {
 		if (newScreen != null) {
-			Screen screen = newScreen.get();
+			Screen screen = newScreen.apply(this);
 			if (screen != null) {
-				curScreen.getMinecraft().setScreen(screen);
+				mc.setScreen(screen);
 				return true;
 			}
 		}
