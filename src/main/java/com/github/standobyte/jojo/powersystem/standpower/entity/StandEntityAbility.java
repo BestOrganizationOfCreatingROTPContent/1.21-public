@@ -8,6 +8,7 @@ import com.github.standobyte.jojo.powersystem.entityaction.EntityActionInstance;
 import com.github.standobyte.jojo.powersystem.entityaction.HeldInput;
 import com.github.standobyte.jojo.powersystem.standpower.StandPower;
 
+import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.level.Level;
 
@@ -19,7 +20,8 @@ public class StandEntityAbility extends EntityActionAbility {
 	
 	
 	@Override
-	public void onClick(Level level, LivingEntity user) {
+	public void onClick(Level level, LivingEntity user, 
+			FriendlyByteBuf extraClientInput, float clickHoldResolveTime) {
 		if (level.isClientSide()) return;
 		
 		StandPower power = PowerClass.STAND.get(user); if (power == null) return;
@@ -28,7 +30,8 @@ public class StandEntityAbility extends EntityActionAbility {
 	}
 	
 	@Override
-	public HeldInput onButtonStartHold(Level level, LivingEntity user) {
+	public HeldInput onButtonStartHold(Level level, LivingEntity user, 
+			FriendlyByteBuf extraClientInput, float clickHoldResolveTime) {
 		if (level.isClientSide()) return null;
 		
 		StandPower power = PowerClass.STAND.get(user); if (power == null) return null;

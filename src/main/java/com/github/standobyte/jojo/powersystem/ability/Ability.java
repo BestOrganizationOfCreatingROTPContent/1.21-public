@@ -6,7 +6,7 @@ import org.jetbrains.annotations.ApiStatus;
 
 import com.github.standobyte.jojo.powersystem.entityaction.HeldInput;
 
-import net.minecraft.network.RegistryFriendlyByteBuf;
+import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.level.Level;
 
@@ -34,16 +34,18 @@ public class Ability {
 	}
 	
 	
-	public void writeExtraInput(RegistryFriendlyByteBuf serverboundBuf) {}
+	public void writeExtraInput(FriendlyByteBuf serverboundBuf) {}
 
 	// Input stuff below is called in AbilityInput
 	
 	@ApiStatus.OverrideOnly
-	public void onClick(Level level, LivingEntity user) {}
+	public void onClick(Level level, LivingEntity user, 
+			FriendlyByteBuf extraClientInput, float clickHoldResolveTime) {}
 	
 	@ApiStatus.OverrideOnly
 	@Nullable
-	public HeldInput onButtonStartHold(Level level, LivingEntity user) {
+	public HeldInput onButtonStartHold(Level level, LivingEntity user, 
+			FriendlyByteBuf extraClientInput, float clickHoldResolveTime) {
 		return null;
 	}
 	

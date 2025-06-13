@@ -5,10 +5,11 @@ import javax.annotation.Nullable;
 import com.github.standobyte.jojo.core.PacketsRegister;
 import com.github.standobyte.jojo.powersystem.Power;
 import com.github.standobyte.jojo.powersystem.ability.Ability;
-import com.github.standobyte.jojo.powersystem.ability.AbilityInput;
 import com.github.standobyte.jojo.powersystem.ability.AbilityId.AbilityInputNetwork;
+import com.github.standobyte.jojo.powersystem.ability.AbilityInput;
 import com.github.standobyte.jojo.powersystem.ability.AbilityInput.InputEventType;
 
+import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.network.RegistryFriendlyByteBuf;
 import net.minecraft.network.protocol.common.custom.CustomPacketPayload;
 import net.minecraft.resources.ResourceLocation;
@@ -23,7 +24,7 @@ public class ClAbilityInputPacket implements CustomPacketPayload {
 	private final float timeTookToResolve;
 
 	private Power<?> clUserPower; // is used to optimize the packets - if the player has power of the same powerClass and powerTypeId as in the abilityId, we don't have to send powerTypeId
-	private RegistryFriendlyByteBuf extraData;
+	private FriendlyByteBuf extraData;
 	
 	public static ClAbilityInputPacket click(Power<?> power, Ability ability, float timeTookToResolve) {
 		return new ClAbilityInputPacket((short) 0, InputEventType.PRESS_CLICK, power, ability, null, timeTookToResolve);
@@ -86,9 +87,8 @@ public class ClAbilityInputPacket implements CustomPacketPayload {
 					float timeTookToResolve = ability != null ? buf.readFloat() : 0;
 					
 					ClAbilityInputPacket packet = new ClAbilityInputPacket(key, inputType, null, null, ability, timeTookToResolve);
-					// TODO send the extra data buf as parameter
-					// WAIT A FUCKING SECOND - it if disconnects a player because it "found extra bytes", does this mean i can't do it like this anymore??
-					packet.extraData = buf;
+					int extraInputBytes = buf.readableBytes();
+					packet.extraData = extraInputBytes > 0 ? new FriendlyByteBuf(buf.readBytes(extraInputBytes)) : null;
 					yield packet;
 				}
 			};

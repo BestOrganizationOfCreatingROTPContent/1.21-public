@@ -31,13 +31,14 @@ import com.github.standobyte.jojo.util.CommonEnums.Direction2D;
 import com.mojang.blaze3d.platform.InputConstants;
 import com.mojang.blaze3d.platform.InputConstants.Key;
 
+import io.netty.buffer.Unpooled;
 import it.unimi.dsi.fastutil.ints.Int2ObjectMap;
 import it.unimi.dsi.fastutil.ints.Int2ObjectOpenHashMap;
 import net.minecraft.Util;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.screens.ChatScreen;
 import net.minecraft.client.player.ClientInput;
-import net.minecraft.network.RegistryFriendlyByteBuf;
+import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.world.entity.player.Player;
 import net.neoforged.bus.api.EventPriority;
 import net.neoforged.bus.api.ICancellableEvent;
@@ -148,8 +149,7 @@ public class InputHandler {
 	private Key RMB = InputConstants.Type.MOUSE.getOrCreate(InputConstants.MOUSE_BUTTON_RIGHT);	
 	private Key MMB = InputConstants.Type.MOUSE.getOrCreate(InputConstants.MOUSE_BUTTON_MIDDLE);
 
-	// XXX use separate input buffer on client
-	private RegistryFriendlyByteBuf inputBuf;
+	private FriendlyByteBuf inputBuf = new FriendlyByteBuf(Unpooled.buffer());
 	
 	public Power<?> getCurPower() {
 		if (mc.player != null) {
@@ -244,12 +244,14 @@ public class InputHandler {
 			case PRESS_CLICK -> {
 				if (ability == null || player == null) return;
 
+				ability.writeExtraInput(inputBuf);
 				AbilityInput.click(ability, player, inputBuf, timeTookToResolve);
 				PacketDistributor.sendToServer(ClAbilityInputPacket.click(power, ability, timeTookToResolve));
 			}
 			case PRESS_HOLD -> {
 				if (ability == null || player == null) return;
-				
+
+				ability.writeExtraInput(inputBuf);
 				AbilityInput.startHolding(keyId, ability, player, inputBuf, timeTookToResolve);
 				PacketDistributor.sendToServer(ClAbilityInputPacket.startHold(keyId, power, ability, timeTookToResolve));
 			}

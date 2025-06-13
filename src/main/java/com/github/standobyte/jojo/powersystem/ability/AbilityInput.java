@@ -10,26 +10,26 @@ import com.github.standobyte.jojo.powersystem.entityaction.EntityActionInputStat
 import com.github.standobyte.jojo.powersystem.entityaction.EntityActionInputState.HeldInputEntry;
 import com.github.standobyte.jojo.powersystem.entityaction.HeldInput;
 
-import net.minecraft.network.RegistryFriendlyByteBuf;
+import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.level.Level;
 import net.neoforged.neoforge.network.PacketDistributor;
 
 public class AbilityInput {
 
-	public static void click(Ability ability, LivingEntity user, RegistryFriendlyByteBuf extraData, float timeTookToResolve) {
+	public static void click(Ability ability, LivingEntity user, FriendlyByteBuf extraClientInput, float clickHoldResolveTime) {
 		if (ability == null || user == null) return;
 
 		ability = Ability.resolveSubAbility(ability, user);
 		Level level = user.level();
-		ability.onClick(level, user);
+		ability.onClick(level, user, extraClientInput, clickHoldResolveTime);
 		if (!level.isClientSide()) {
 			PacketDistributor.sendToPlayersTrackingEntity(user, 
-					TrAbilityUsePacket.click(user.getId(), ability, timeTookToResolve));
+					TrAbilityUsePacket.click(user.getId(), ability, clickHoldResolveTime));
 		}
 	}
 
-	public static void clickMob(Ability ability, LivingEntity user, RegistryFriendlyByteBuf extraData) {
+	public static void clickMob(Ability ability, LivingEntity user, FriendlyByteBuf extraData) {
 		click(ability, user, extraData, 0);
 	}
 
@@ -40,7 +40,7 @@ public class AbilityInput {
 	 */
 	@Nullable
 	public static HeldInputEntry startHolding(short keyId, Ability ability, 
-			LivingEntity user, RegistryFriendlyByteBuf extraData, float timeTookToResolve) {
+			LivingEntity user, FriendlyByteBuf extraClientInput, float clickHoldResolveTime) {
 		if (ability == null || user == null) return null;
 
 		ability = Ability.resolveSubAbility(ability, user);
@@ -48,10 +48,10 @@ public class AbilityInput {
 		if (inputHandler == null) return null;
 		
 		Level level = user.level();
-		HeldInput action = ability.onButtonStartHold(level, user);
+		HeldInput action = ability.onButtonStartHold(level, user, extraClientInput, clickHoldResolveTime);
 		if (!level.isClientSide()) {
 			PacketDistributor.sendToPlayersTrackingEntity(user, 
-					TrAbilityUsePacket.startHold(user.getId(), keyId, ability, timeTookToResolve));
+					TrAbilityUsePacket.startHold(user.getId(), keyId, ability, clickHoldResolveTime));
 		}
 		
 		HeldInputEntry heldInput = new HeldInputEntry(keyId, ability, action);
@@ -59,7 +59,7 @@ public class AbilityInput {
 		return heldInput;
 	}
 	
-	public static HeldInputEntry startHoldingMob(Ability ability, LivingEntity user, RegistryFriendlyByteBuf extraData) {
+	public static HeldInputEntry startHoldingMob(Ability ability, LivingEntity user, FriendlyByteBuf extraData) {
 		short keyId = (short) pseudoKey.incrementAndGet();
 		return startHolding(keyId, ability, user, extraData, 0);
 	}

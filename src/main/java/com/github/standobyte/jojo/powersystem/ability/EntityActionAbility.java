@@ -5,12 +5,13 @@ import org.jetbrains.annotations.ApiStatus;
 import com.github.standobyte.jojo.core.molang.MolangValue;
 import com.github.standobyte.jojo.powersystem.ability.AbilityInput.InputType;
 import com.github.standobyte.jojo.powersystem.entityaction.ActionAnimIdentifier;
-import com.github.standobyte.jojo.powersystem.entityaction.LivingComponentAction;
 import com.github.standobyte.jojo.powersystem.entityaction.ActionPhase;
 import com.github.standobyte.jojo.powersystem.entityaction.EntityActionInstance;
 import com.github.standobyte.jojo.powersystem.entityaction.HeldInput;
+import com.github.standobyte.jojo.powersystem.entityaction.LivingComponentAction;
 import com.github.standobyte.jojo.powersystem.entityaction.type.EntityActionType;
 
+import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.level.Level;
 
@@ -24,7 +25,8 @@ public class EntityActionAbility extends Ability implements EntityActionType {
 	
 
 	@Override
-	public void onClick(Level level, LivingEntity user) {
+	public void onClick(Level level, LivingEntity user, 
+			FriendlyByteBuf extraClientInput, float clickHoldResolveTime) {
 		if (level.isClientSide()) return;
 		
 		EntityActionInstance action = initActionOnAbilityUse(level, user);
@@ -32,7 +34,8 @@ public class EntityActionAbility extends Ability implements EntityActionType {
 	}
 	
 	@Override
-	public HeldInput onButtonStartHold(Level level, LivingEntity user) {
+	public HeldInput onButtonStartHold(Level level, LivingEntity user, 
+			FriendlyByteBuf extraClientInput, float clickHoldResolveTime) {
 		if (level.isClientSide()) return null;
 
 		EntityActionInstance action = initActionOnAbilityUse(level, user);
