@@ -45,11 +45,11 @@ public class LivingComponentAction implements SynchronizablePlayerData, TickingE
 	}
 	
 	
-	public HeldInput bufferOrSetAction(EntityActionInstance action, LivingEntity user, InputType inputType) {
-		return bufferOrSetAction(action, user, inputType, SyncType.TRACKING_AND_SELF);
+	public HeldInput bufferOrSetAction(EntityActionInstance action, LivingEntity user, InputType inputType, float skipWindupTime) {
+		return bufferOrSetAction(action, user, inputType, SyncType.TRACKING_AND_SELF, skipWindupTime);
 	}
 	
-	public HeldInput bufferOrSetAction(EntityActionInstance action, LivingEntity user, InputType inputType, SyncType sync) {
+	public HeldInput bufferOrSetAction(EntityActionInstance action, LivingEntity user, InputType inputType, SyncType sync, float skipWindupTime) {
 		if (action != null && action.ability.shouldBufferInput(this) && user != null && inputType != null) {
 			HeldInput heldInputObj = null;
 			EntityActionInputState actionInput = user.getData(ModDataAttachmentTypes.ENTITY_ABILITY_INPUT.get());
@@ -62,7 +62,31 @@ public class LivingComponentAction implements SynchronizablePlayerData, TickingE
 			return heldInputObj;
 		}
 		
+		skipWindupTime(action, skipWindupTime);
 		return setAction(action, user, sync);
+	}
+	
+	public void skipWindupTime(EntityActionInstance action, float time) {
+		switch (action.phase) {
+			case BUTTON_CHARGE, WINDUP -> {
+				if (this.action != null) {
+					/* 
+					 * Skipping too much makes the light punch animations look too choppy.
+					 * On the other hand, this mechanic encourages timing the input clicking:
+					 * if the player spam clicks, the inputs get buffered and the punches not get any windup skip,
+					 * however if they click after the punch PERFORM phase is over, they still get some windup skipping.
+					 * So if they time the inputs just after the punch, the combo speed gets faster.
+					 * At the start of a combo (action == null) they get full windup skipping time, 
+					 * to not slow down the initial jab just because the silly dev felt like adding the click/hold input system.
+					 */
+					time = Math.min(time, action.curPhaseLength / 4);
+				}
+				float phaseTime = Math.max(action.curPhaseLength - time, 1);
+				action.phasesLength.put(action.phase, phaseTime);
+				action.curPhaseLength = phaseTime;
+			}
+			default -> {}
+		}
 	}
 	
 	public HeldInput setAction(EntityActionInstance action, LivingEntity powerUser, SyncType sync) {

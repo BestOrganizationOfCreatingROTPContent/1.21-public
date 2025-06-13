@@ -26,7 +26,7 @@ public class StandEntityAbility extends EntityActionAbility {
 		
 		StandPower power = PowerClass.STAND.get(user); if (power == null) return;
 		StandEntity standEntity = power.getSummonedStandEntity(); if (standEntity == null) return;
-		setStandAction(this, level, user, power, standEntity, InputType.CLICK);
+		setStandAction(this, level, user, power, standEntity, InputType.CLICK, clickHoldResolveTime);
 	}
 	
 	@Override
@@ -36,15 +36,15 @@ public class StandEntityAbility extends EntityActionAbility {
 		
 		StandPower power = PowerClass.STAND.get(user); if (power == null) return null;
 		StandEntity standEntity = power.getSummonedStandEntity(); if (standEntity == null) return null;
-		return setStandAction(this, level, user, power, standEntity, InputType.HOLD);
+		return setStandAction(this, level, user, power, standEntity, InputType.HOLD, clickHoldResolveTime);
 	}
 	
 	public static HeldInput setStandAction(StandEntityAbility ability, Level level, LivingEntity user, 
-			StandPower power, StandEntity standEntity, InputType inputType) {
+			StandPower power, StandEntity standEntity, InputType inputType, float skipWindupTime) {
 		if (level.isClientSide()) return null;
 		
 		EntityActionInstance action = ability.initActionOnAbilityUse(level, user);
-		HeldInput actionOrQueue = standEntity.getStandActionComponent().bufferOrSetAction(action, user, inputType);
+		HeldInput actionOrQueue = standEntity.getStandActionComponent().bufferOrSetAction(action, user, inputType, skipWindupTime);
 		return actionOrQueue;
 	}
 

@@ -30,7 +30,7 @@ public class EntityActionAbility extends Ability implements EntityActionType {
 		if (level.isClientSide()) return;
 		
 		EntityActionInstance action = initActionOnAbilityUse(level, user);
-		LivingComponentAction.getComponent(user).bufferOrSetAction(action, user, InputType.CLICK);
+		LivingComponentAction.getComponent(user).bufferOrSetAction(action, user, InputType.CLICK, clickHoldResolveTime);
 	}
 	
 	@Override
@@ -39,7 +39,7 @@ public class EntityActionAbility extends Ability implements EntityActionType {
 		if (level.isClientSide()) return null;
 
 		EntityActionInstance action = initActionOnAbilityUse(level, user);
-		return LivingComponentAction.getComponent(user).bufferOrSetAction(action, user, InputType.HOLD);
+		return LivingComponentAction.getComponent(user).bufferOrSetAction(action, user, InputType.HOLD, clickHoldResolveTime);
 	}
 	
 	
