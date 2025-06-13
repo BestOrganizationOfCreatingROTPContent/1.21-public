@@ -171,7 +171,6 @@ public class InputHandler {
 		return input(keyId(key), key, key, input.action(), input.modifiers());
 	}
 
-	// TODO (!!!) input queue (make it possible to queue a barrage midway through a jab combo)
 	/**
 	 * Handles the direct events of keyboard/mouse inputs to trigger abilities from the player's moveset.
 	 * @return true if the vanilla input should be cancelled.

@@ -5,7 +5,6 @@ import javax.annotation.Nullable;
 import com.github.standobyte.jojo.powersystem.Power;
 import com.github.standobyte.jojo.powersystem.ability.Ability;
 
-// TODO (!!!!) skip the windup time it took to resolve the key
 public class ClickHoldResolve {
 	public static final float timeIsHold = 4; // 200 ms
 	public static final float timeAssumeHold = 2; // 100 ms

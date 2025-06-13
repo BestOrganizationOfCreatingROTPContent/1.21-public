@@ -18,13 +18,7 @@ import net.minecraft.network.codec.ByteBufCodecs;
 import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.world.item.ItemStack;
 
-//TODO (!!!!!) (clothes) use the ClothesDataComponent
-/*
- * [V]	item model
- * [V]	item name
- * [V]	humanoid layer model
- * [_]	equip sound
- */
+//TODO (clothes) equip sound
 public class ClothesDataComponent {
 	private final Holder<ClothesSet> set;
 	private final ClothesSlotType slot;
