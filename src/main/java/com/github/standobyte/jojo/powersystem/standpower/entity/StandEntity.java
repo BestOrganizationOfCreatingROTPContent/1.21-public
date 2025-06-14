@@ -10,9 +10,12 @@ import javax.annotation.Nullable;
 import com.github.standobyte.jojo.client.ClientGlobals;
 import com.github.standobyte.jojo.client.ClientProxy;
 import com.github.standobyte.jojo.core.packet.fromserver.TrSetStandEntityPacket;
+import com.github.standobyte.jojo.init.core.ModEntityAttributes;
 import com.github.standobyte.jojo.powersystem.entityaction.EntityActionInstance;
 import com.github.standobyte.jojo.powersystem.entityaction.LivingComponentAction;
 import com.github.standobyte.jojo.powersystem.standpower.StandPower;
+import com.github.standobyte.jojo.powersystem.standpower.StandStats;
+import com.github.standobyte.jojo.powersystem.standpower.type.StandType;
 import com.github.standobyte.jojo.powersystem.standpower.type.SummonedStand;
 import com.github.standobyte.jojo.util.MathUtil;
 import com.github.standobyte.jojo.util.damage.DamageUtil;
@@ -76,9 +79,10 @@ public class StandEntity extends LivingEntity implements SummonedStand, IEntityW
 		}
 	}
 	
-	public StandEntity withStandId(ResourceLocation standId) {
+	public StandEntity withStandType(StandType standType) {
 		if (isAddedToLevel()) throw new IllegalStateException();
-		this.standId = standId;
+		this.standId = standType.getId();
+		setStandStatsValues(standType.getStandStats());
 		return this;
 	}
 
@@ -166,8 +170,8 @@ public class StandEntity extends LivingEntity implements SummonedStand, IEntityW
 			}
 			else {
 				float maxHeadYRot = 37.5f;
-		    	float f2 = Mth.wrapDegrees(yBodyRot - this.getYRot());
-		    	float f3 = Mth.clamp(f2, -maxHeadYRot, maxHeadYRot);
+				float f2 = Mth.wrapDegrees(yBodyRot - this.getYRot());
+				float f3 = Mth.clamp(f2, -maxHeadYRot, maxHeadYRot);
 				this.setYHeadRot(this.getYRot() + f2 - f3);
 			}
 			this.xRotO = rotO.xRot;
@@ -311,14 +315,17 @@ public class StandEntity extends LivingEntity implements SummonedStand, IEntityW
 	// TODO (entity action 2) sync already existing action with tracking
 	
 	
+	protected static final double DEFAULT_ATTACK_RANGE = 4;
 	public static AttributeSupplier.Builder createAttributes() {
 		return LivingEntity.createLivingAttributes()
-			.add(Attributes.ATTACK_DAMAGE, 1.0)
-			.add(Attributes.MOVEMENT_SPEED, 0.1F)
-			.add(Attributes.ATTACK_SPEED)
+			.add(Attributes.ATTACK_DAMAGE, 8)
+			.add(Attributes.MOVEMENT_SPEED, 0.5)
+			.add(Attributes.ATTACK_SPEED, 8)
+			.add(Attributes.BLOCK_INTERACTION_RANGE, DEFAULT_ATTACK_RANGE)
+			.add(Attributes.ENTITY_INTERACTION_RANGE, DEFAULT_ATTACK_RANGE)
+			.add(ModEntityAttributes.STAND_DURABILITY, 8)
+			.add(ModEntityAttributes.STAND_PRECISION, 8)
 			.add(Attributes.LUCK)
-			.add(Attributes.BLOCK_INTERACTION_RANGE, 4.0)
-			.add(Attributes.ENTITY_INTERACTION_RANGE, 4.0)
 			.add(Attributes.BLOCK_BREAK_SPEED)
 			.add(Attributes.SUBMERGED_MINING_SPEED)
 			.add(Attributes.SNEAKING_SPEED)
@@ -327,8 +334,16 @@ public class StandEntity extends LivingEntity implements SummonedStand, IEntityW
 	}
 
 	// TODO StandEntity stat attributes
+	public void setStandStatsValues(StandStats stats) {
+		getAttribute(Attributes.ATTACK_DAMAGE).setBaseValue(stats.power());
+		getAttribute(Attributes.ATTACK_SPEED).setBaseValue(stats.speed());
+		getAttribute(Attributes.MOVEMENT_SPEED).setBaseValue(StandStatFormulas.getMovementSpeed(stats.speed()));
+		getAttribute(ModEntityAttributes.STAND_DURABILITY).setBaseValue(stats.durability());
+		getAttribute(ModEntityAttributes.STAND_PRECISION).setBaseValue(stats.precision());
+	}
+
 	public double getPrecision() {
-		return 20;
+		return getAttributeValue(ModEntityAttributes.STAND_PRECISION);
 	}
 	
 	
@@ -349,7 +364,7 @@ public class StandEntity extends LivingEntity implements SummonedStand, IEntityW
 
 	
 	@Override
-    public boolean isInvulnerableTo(ServerLevel level, DamageSource damageSource) {
+	public boolean isInvulnerableTo(ServerLevel level, DamageSource damageSource) {
 		LivingEntity user = getUser();
 		return user != null && (
 					user.isInvulnerableTo(level, damageSource)

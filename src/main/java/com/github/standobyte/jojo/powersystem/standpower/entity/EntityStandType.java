@@ -110,7 +110,7 @@ public class EntityStandType extends StandType {
 		Level level = user.level();
 		if (!level.isClientSide()) {
 			StandEntity standEntity = entityType.value.create(level, EntitySpawnReason.NATURAL)
-					.withStandId(getId());
+					.withStandType(this);
 			standEntity.copyPosition(user);
 			standEntity.copyStandUserRotation(user);
 			standPower.setSummonedStand(standEntity);
