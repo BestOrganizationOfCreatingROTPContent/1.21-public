@@ -1,11 +1,16 @@
 package com.github.standobyte.jojo.util.damage;
 
+import javax.annotation.Nullable;
+
 import com.github.standobyte.jojo.init.ModDamageTypes;
 
 import net.minecraft.server.level.ServerLevel;
+import net.minecraft.util.Mth;
+import net.minecraft.world.damagesource.CombatRules;
 import net.minecraft.world.damagesource.DamageSource;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.entity.ai.attributes.Attributes;
 import net.minecraft.world.scores.PlayerTeam;
 
 public class DamageUtil {
@@ -29,6 +34,11 @@ public class DamageUtil {
 //		}
 //	}
 
+	/**
+	 * @deprecated Turns out, there is now a vanilla damage type tag for it now (minecraft:bypasses_cooldown). 
+	 * Though tags are a bit inconvenient because you have to keep them in mind when making attacks, but eh, probably better for compatibility.
+	 */
+	@Deprecated
 	public static boolean hurtThroughInvulTicks(Entity target, DamageSource dmgSource, float dmgAmount) {
 		if (target.level().isClientSide()) return false;
 		
@@ -71,26 +81,28 @@ public class DamageUtil {
 		return true;
 	}
 
-//	public static DamageSource enderDragonDamageHack(DamageSource damageSource, Entity target) {
-//		if (target instanceof EnderDragonEntity || target instanceof EnderDragonPartEntity) {
-//			damageSource.setExplosion();
-//		}
-//		return damageSource;
-//	}
-//
-//	public static float addArmorPiercing(float damage, float armorPiercing, @Nullable LivingEntity armoredTarget) {
-//		if (armoredTarget != null && armorPiercing > 0) {
-//			float armor = (float) armoredTarget.getArmorValue();
-//			if (armor > 0) {
-//				float toughness = (float) armoredTarget.getAttributeValue(Attributes.ARMOR_TOUGHNESS);
-//				armorPiercing = MathHelper.clamp(armorPiercing, 0, 1);
-//				float damagePierced = MathHelper.lerp(armorPiercing, CombatRules.getDamageAfterAbsorb(damage, armor, toughness), damage);
-//				damage = MathUtil.inverseArmorProtectionDamage(damagePierced, armor, toughness);
-//			}
-//		}
-//		return damage;
-//	}
-//
+	public static float addArmorPiercing(float damage, float armorPiercing, @Nullable LivingEntity armoredTarget, DamageSource dmgSource) {
+		if (armoredTarget != null && armorPiercing > 0) {
+			float armor = (float) armoredTarget.getArmorValue();
+			if (armor > 0) {
+				float toughness = (float) armoredTarget.getAttributeValue(Attributes.ARMOR_TOUGHNESS);
+				armorPiercing = Mth.clamp(armorPiercing, 0, 1);
+				float damagePierced = Mth.lerp(armorPiercing, CombatRules.getDamageAfterAbsorb(armoredTarget, damage, dmgSource, armor, toughness), damage);
+				damage = inverseArmorProtectionDamage(damagePierced, armor, toughness);
+			}
+		}
+		return damage;
+	}
+    
+	public static float inverseArmorProtectionDamage(float damageAfterAbsorb, float armor, float toughness) {
+		float f = armor / 25 - 1;
+		float f2 = 25 * (1 + toughness / 8);
+		return Mth.clamp(
+				f2 * (f + (float) Math.sqrt(f * f + 2 * damageAfterAbsorb / f2)), 
+				damageAfterAbsorb / (1 - armor / 125), 
+				5 * damageAfterAbsorb);
+	}
+
 //	public static void disableShield(PlayerEntity target, float chance) {
 //		if (!target.level.isClientSide() && target.getRandom().nextFloat() < chance) {
 //			target.getCooldowns().addCooldown(target.getUseItem().getItem(), 100);

@@ -9,7 +9,9 @@ import net.minecraft.tags.TagKey;
 import net.minecraft.world.damagesource.DamageType;
 
 public class ModDamageTypes {
+	/** Tags: jojo:can_hurt_stands, minecraft:bypasses_cooldown, minecraft:always_hurts_ender_dragon */
 	public static final ResourceKey<DamageType> STAND_ATTACK = ResourceKey.create(Registries.DAMAGE_TYPE, JojoMod.resLoc("stand_attack"));
+	
 	
 	public static final TagKey<DamageType> CAN_HURT_STANDS = TagKey.create(Registries.DAMAGE_TYPE, ResourceLocation.fromNamespaceAndPath("jojo", "can_hurt_stands"));
 }

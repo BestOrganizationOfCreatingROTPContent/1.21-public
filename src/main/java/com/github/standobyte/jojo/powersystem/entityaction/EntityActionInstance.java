@@ -13,7 +13,6 @@ import com.github.standobyte.jojo.powersystem.entityaction.type.EntityActionType
 import com.github.standobyte.jojo.powersystem.standpower.entity.StandEntity;
 import com.github.standobyte.jojo.powersystem.standpower.entity.StandOffsetFromUser;
 import com.github.standobyte.jojo.util.StandUtil;
-import com.github.standobyte.jojo.util.damage.DamageUtil;
 import com.github.standobyte.jojo.util.mc.EntityResolver;
 import com.github.standobyte.jojo.util.network.NetworkUtil;
 import com.github.standobyte.jojo.util.target.ActionTarget;
@@ -131,7 +130,8 @@ public class EntityActionInstance implements HeldInput {
 	}
 	
 	public boolean standEntityAttack(StandEntity stand, Entity target, DamageSource dmgSource, float dmgAmount) {
-		boolean hurt = DamageUtil.hurtThroughInvulTicks(target, dmgSource, dmgAmount);
+		ServerLevel level = (ServerLevel) target.level();
+		boolean hurt = target.hurtServer(level, dmgSource, dmgAmount);
 		if (hurt) {
 			if (target instanceof LivingEntity) {
 				LivingEntity targetLiving = (LivingEntity) target;
@@ -148,7 +148,7 @@ public class EntityActionInstance implements HeldInput {
 					}
 				}
 			}
-            EnchantmentHelper.doPostAttackEffects((ServerLevel) stand.level(), target, dmgSource);
+            EnchantmentHelper.doPostAttackEffects(level, target, dmgSource);
 		}
 		return hurt;
 	}
