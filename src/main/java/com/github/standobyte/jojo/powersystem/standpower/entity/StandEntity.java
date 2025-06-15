@@ -387,7 +387,7 @@ public class StandEntity extends LivingEntity implements SummonedStand, IEntityW
 	}
 
 
-	protected Optional<ResourceLocation> standSkin;
+	protected Optional<ResourceLocation> standSkin = Optional.empty();
 	@Override
 	public void setSelectedSkin(Optional<ResourceLocation> standSkin) {
 		this.standSkin = standSkin;
