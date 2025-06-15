@@ -8,9 +8,26 @@ import net.minecraft.resources.ResourceLocation;
 import net.minecraft.tags.TagKey;
 import net.minecraft.world.damagesource.DamageType;
 
+// TODO datagen for damage types and tags
 public class ModDamageTypes {
-	/** Tags: jojo:can_hurt_stands, minecraft:bypasses_cooldown, minecraft:always_hurts_ender_dragon */
+	/** Tags: 
+	 * jojo:can_hurt_stands, 
+	 * minecraft:bypasses_cooldown, 
+	 * minecraft:bypasses_enchantments, 
+	 * minecraft:always_hurts_ender_dragon, 
+	 * neoforge:is_physical
+	 */
 	public static final ResourceKey<DamageType> STAND_ATTACK = ResourceKey.create(Registries.DAMAGE_TYPE, JojoMod.resLoc("stand_attack"));
+
+	/** Tags: 
+	 * minecraft:bypasses_armor, 
+	 * minecraft:bypasses_shield, 
+	 * minecraft:bypasses_cooldown, 
+	 * minecraft:bypasses_effects,  
+	 * minecraft:no_knockback, 
+	 * neoforge:is_technical
+	 */
+	public static final ResourceKey<DamageType> STAND_HEALTH_LINK = ResourceKey.create(Registries.DAMAGE_TYPE, JojoMod.resLoc("stand_health_link"));
 	
 	
 	public static final TagKey<DamageType> CAN_HURT_STANDS = TagKey.create(Registries.DAMAGE_TYPE, ResourceLocation.fromNamespaceAndPath("jojo", "can_hurt_stands"));

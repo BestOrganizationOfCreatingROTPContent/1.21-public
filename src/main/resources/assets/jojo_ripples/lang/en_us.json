@@ -51,5 +51,7 @@
   "jojo_ripples.subtitle.ora": "ORA",
   "jojo_ripples.subtitle.ora_rush": "ORA ORA ORA",
   "jojo_ripples.subtitle.muda": "MUDA",
-  "jojo_ripples.subtitle.muda_rush": "MUDA MUDA MUDA"
+  "jojo_ripples.subtitle.muda_rush": "MUDA MUDA MUDA",
+  
+  "death.attack.jojo_ripples.stand": "%s was slain by %s"
 }

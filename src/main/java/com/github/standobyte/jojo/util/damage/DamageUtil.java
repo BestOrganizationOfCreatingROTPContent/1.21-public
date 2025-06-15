@@ -4,16 +4,32 @@ import javax.annotation.Nullable;
 
 import com.github.standobyte.jojo.init.ModDamageTypes;
 
+import net.minecraft.core.Holder;
+import net.minecraft.resources.ResourceKey;
 import net.minecraft.server.level.ServerLevel;
+import net.minecraft.tags.DamageTypeTags;
+import net.minecraft.tags.EntityTypeTags;
 import net.minecraft.util.Mth;
 import net.minecraft.world.damagesource.CombatRules;
 import net.minecraft.world.damagesource.DamageSource;
+import net.minecraft.world.damagesource.DamageType;
+import net.minecraft.world.effect.MobEffects;
 import net.minecraft.world.entity.Entity;
+import net.minecraft.world.entity.EquipmentSlot;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.ai.attributes.Attributes;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.item.enchantment.EnchantmentHelper;
+import net.minecraft.world.level.Level;
 import net.minecraft.world.scores.PlayerTeam;
+import net.neoforged.neoforge.common.damagesource.DamageContainer;
+import net.neoforged.neoforge.event.entity.living.LivingShieldBlockEvent;
 
 public class DamageUtil {
+	
+	public static Holder<DamageType> type(Level level, ResourceKey<DamageType> resourceKey) {
+		return level.damageSources().damageTypes.getOrThrow(resourceKey); // i ain't typin' allat
+	}
 
 //	public static boolean dealDamageAndSetOnFire(Entity entity, Predicate<Entity> hurtEntity, int fireSeconds, boolean stand) {
 //		int fireTicks = entity.getRemainingFireTicks();
@@ -93,7 +109,7 @@ public class DamageUtil {
 		}
 		return damage;
 	}
-    
+
 	public static float inverseArmorProtectionDamage(float damageAfterAbsorb, float armor, float toughness) {
 		float f = armor / 25 - 1;
 		float f2 = 25 * (1 + toughness / 8);
@@ -101,6 +117,110 @@ public class DamageUtil {
 				f2 * (f + (float) Math.sqrt(f * f + 2 * damageAfterAbsorb / f2)), 
 				damageAfterAbsorb / (1 - armor / 125), 
 				5 * damageAfterAbsorb);
+	}
+	
+	/**
+	 * Calculates the amount of damage the given entity will take, considering the armor, resistance effect, enchantments, and stuff like that.
+	 * Copies vanilla calculations, and does not take the Neoforge damage event listeners into account - we are not actually dealing any damage here, so some other mods can get confused.
+	 */
+	public static DamageContainer damageEntityWillTake(LivingEntity player, DamageSource dmgSource, float dmgAmount, boolean bypassShield) {
+		DamageContainer damage = new DamageContainer(dmgSource, dmgAmount);
+		
+		// Check for illegal damage amount argument
+		
+		if (Float.isNaN(dmgAmount) || Float.isInfinite(dmgAmount)) {
+			damage.setNewDamage(Float.MAX_VALUE);
+			return damage;
+		}
+		if (dmgAmount <= 0) {
+			damage.setNewDamage(Math.max(damage.getNewDamage(), 0));
+			return damage;
+		}
+		
+		// Other conditions in LivingEntity#hurtServer
+
+		ServerLevel level = (ServerLevel) player.level();
+		if (player.isInvulnerableTo(level, dmgSource) || player.isDeadOrDying()
+				|| dmgSource.is(DamageTypeTags.IS_FIRE) && player.hasEffect(MobEffects.FIRE_RESISTANCE)) {
+			damage.setNewDamage(0);
+			return damage;
+		}
+		
+		// Difficulty scaling
+
+		if (player instanceof Player actuallyPlayer) {
+			damage.setNewDamage(Math.max(0, dmgSource.type().scaling().getScalingFunction().scaleDamage(
+					dmgSource, actuallyPlayer, damage.getNewDamage(), level.getDifficulty())));
+			if (damage.getNewDamage() == 0) return damage;
+		}
+		
+		// Shield check
+
+		if (!bypassShield && player.isDamageSourceBlocked(dmgSource)) {
+			LivingShieldBlockEvent ev = new LivingShieldBlockEvent(player, damage, true);
+			damage.setBlockedDamage(ev); // why not :P
+			if (damage.getNewDamage() <= 0) {
+				damage.setNewDamage(Math.max(damage.getNewDamage(), 0));
+				return damage;
+			}
+		}
+		
+		// Tags
+
+		if (dmgSource.is(DamageTypeTags.IS_FREEZING) && player.getType().is(EntityTypeTags.FREEZE_HURTS_EXTRA_TYPES)) {
+			damage.setNewDamage(damage.getNewDamage() * 5);
+		}
+		if (dmgSource.is(DamageTypeTags.DAMAGES_HELMET) && !player.getItemBySlot(EquipmentSlot.HEAD).isEmpty()) {
+			damage.setNewDamage(damage.getNewDamage() * 0.75f);
+		}
+		
+		// I-frames
+
+		if (player.invulnerableTime > 10 && !dmgSource.is(DamageTypeTags.BYPASSES_COOLDOWN)) {
+			if (damage.getNewDamage() <= player.lastHurt) {
+				damage.setNewDamage(0);
+				return damage;
+			}
+
+			damage.setReduction(DamageContainer.Reduction.INVULNERABILITY, player.lastHurt);
+		}
+		
+		// Armor
+		
+		if (!dmgSource.is(DamageTypeTags.BYPASSES_ARMOR)) {
+			float damageWithArmor = CombatRules.getDamageAfterAbsorb(player, 
+					damage.getNewDamage(), dmgSource, 
+					(float) player.getArmorValue(), (float) player.getAttributeValue(Attributes.ARMOR_TOUGHNESS));
+			damage.setReduction(DamageContainer.Reduction.ARMOR, 
+					damage.getNewDamage() - damageWithArmor);
+		}
+		
+		if (!dmgSource.is(DamageTypeTags.BYPASSES_EFFECTS)) {
+			
+			// Resistance effect
+			
+			if (player.hasEffect(MobEffects.DAMAGE_RESISTANCE) && !dmgSource.is(DamageTypeTags.BYPASSES_RESISTANCE)) {
+				int resistanceLvl = player.getEffect(MobEffects.DAMAGE_RESISTANCE).getAmplifier();
+				float damageWithResistance = Math.max(damage.getNewDamage() * (25 - (resistanceLvl + 1) * 5) / 25F, 0);
+				if (damageWithResistance < damage.getNewDamage()) {
+					damage.setReduction(DamageContainer.Reduction.MOB_EFFECTS, 
+							damage.getNewDamage() - damageWithResistance);
+				}
+			}
+
+			// Armor enchantments
+
+			if (damage.getNewDamage() >= 0 && !dmgSource.is(DamageTypeTags.BYPASSES_ENCHANTMENTS)) {
+				float protReduction = EnchantmentHelper.getDamageProtection(level, player, dmgSource);
+				if (protReduction > 0) {
+					damage.setReduction(DamageContainer.Reduction.ENCHANTMENTS, 
+							damage.getNewDamage() - CombatRules.getDamageAfterMagicAbsorb(damage.getNewDamage(), protReduction));
+				}
+			}
+		}
+
+		damage.setNewDamage(Math.max(damage.getNewDamage(), 0));
+		return damage;
 	}
 
 //	public static void disableShield(PlayerEntity target, float chance) {

@@ -12,13 +12,13 @@ import com.github.standobyte.jojo.powersystem.entityaction.type.EntityActionType
 import com.github.standobyte.jojo.powersystem.standpower.entity.StandEntity;
 import com.github.standobyte.jojo.powersystem.standpower.entity.StandEntityAbility;
 import com.github.standobyte.jojo.powersystem.standpower.entity.StandOffsetFromUser;
+import com.github.standobyte.jojo.util.damage.DamageUtil;
 import com.github.standobyte.jojo.util.damage.RipplesModifiedDamageSource;
 import com.github.standobyte.jojo.util.target.ActionTarget;
 import com.github.standobyte.jojo.util.target.ActionTarget.TargetType;
 import com.github.standobyte.jojo.util.target.AimingEntity;
 import com.github.standobyte.jojo.util.target.HitResultUtil;
 
-import net.minecraft.core.registries.Registries;
 import net.minecraft.world.damagesource.DamageSource;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.level.Level;
@@ -77,7 +77,7 @@ public class StandEntityBarrageAbility extends StandEntityAbility {
 				else {
 					ActionTarget target = HitResultUtil.clipEntityLook(stand, entity -> StandEntityPunchAbility.canStandHit(stand, entity), 0);
 					if (target.getType() == TargetType.ENTITY && target.getEntity() instanceof LivingEntity targetLiving) {
-						var damageType = level.registryAccess().lookupOrThrow(Registries.DAMAGE_TYPE).getOrThrow(ModDamageTypes.STAND_ATTACK);
+						var damageType = DamageUtil.type(level, ModDamageTypes.STAND_ATTACK);
 						DamageSource dmgSource = new DamageSource(damageType, performer);
 						((RipplesModifiedDamageSource) dmgSource).jojo_ripples$modifyKnockback(0, 0.1f);
 						float dmgAmount = 1;

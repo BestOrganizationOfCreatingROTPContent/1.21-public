@@ -18,12 +18,12 @@ import com.github.standobyte.jojo.powersystem.standpower.StandPower;
 import com.github.standobyte.jojo.powersystem.standpower.entity.StandEntity;
 import com.github.standobyte.jojo.powersystem.standpower.entity.StandEntityAbility;
 import com.github.standobyte.jojo.powersystem.standpower.entity.StandOffsetFromUser;
+import com.github.standobyte.jojo.util.damage.DamageUtil;
 import com.github.standobyte.jojo.util.target.ActionTarget;
 import com.github.standobyte.jojo.util.target.ActionTarget.TargetType;
 import com.github.standobyte.jojo.util.target.AimingEntity;
 import com.github.standobyte.jojo.util.target.HitResultUtil;
 
-import net.minecraft.core.registries.Registries;
 import net.minecraft.world.damagesource.DamageSource;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EntitySelector;
@@ -130,7 +130,7 @@ public class StandEntityPunchAbility extends StandEntityAbility {
 				ActionTarget target = HitResultUtil.clipEntityLook(stand, entity -> StandEntityPunchAbility.canStandHit(stand, entity), 0);
 				if (!level.isClientSide()) {
 					if (target.getType() == TargetType.ENTITY && target.getEntity() instanceof LivingEntity targetLiving) {
-						var damageType = level.registryAccess().lookupOrThrow(Registries.DAMAGE_TYPE).getOrThrow(ModDamageTypes.STAND_ATTACK);
+						var damageType = DamageUtil.type(level, ModDamageTypes.STAND_ATTACK);
 						DamageSource dmgSource = new DamageSource(damageType, performer);
 						float dmgAmount = 4.625f;
 						standEntityAttack(stand, targetLiving, dmgSource, dmgAmount);
