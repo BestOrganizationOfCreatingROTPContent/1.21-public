@@ -23,36 +23,39 @@ import net.minecraft.client.renderer.entity.EntityRenderDispatcher;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec3;
+import net.neoforged.fml.loading.FMLLoader;
 
 @Mixin(EntityRenderDispatcher.class)
 public class HitboxRenderingMixin {
 
 	@Inject(method = "renderHitbox", at = @At("TAIL"))
 	private static void jojo_ripples$standPrecisionBox(PoseStack poseStack, VertexConsumer buffer, Entity p_entity, float red, float green, float blue, float alpha, CallbackInfo ci) {
-		Minecraft mc = Minecraft.getInstance();
-		if (ClientGlobals.standPrecision > 0 && ClientGlobals.playerStandEntity != null && p_entity != ClientGlobals.playerStandEntity 
-				&& p_entity != mc.player && !ClientsideAim.precisionAimingDisabled(mc)) {
-	        AABB aabb = p_entity.getBoundingBox().move(-p_entity.getX(), -p_entity.getY(), -p_entity.getZ());
-	        AABB precisionAABB = HitResultUtil.standPrecisionTargetHitbox(aabb, ClientGlobals.standPrecision);
-	        StandSkin skin = StandSkinsLoader.getInstance().getSkin(ClientGlobals.playerStandEntity);
-	        float[] color = RGBUtil.rgb(skin.color);
-	        ActionTarget target = ClientsideAim.standAim.getTarget();
-	        if (target.getEntity() == p_entity) {
-	        	ShapeRenderer.renderLineBox(poseStack, buffer, precisionAABB, color[0], color[1], color[2], 1);
-	        	
-	        	Optional<Vec3> clipPos = target.getClipPos();
-	        	if (clipPos.isPresent()) {
-	        		Vec3 point = clipPos.get().subtract(p_entity.getX(), p_entity.getY(), p_entity.getZ());
-	        		ShapeRenderer.renderLineBox(
-	        				poseStack, buffer,
-	        				point.x - 0.01, point.y - 0.01, point.z - 0.01,
-	        				point.x + 0.01, point.y + 0.01, point.z + 0.01,
-	        				1.0F, 0.0F, 0.0F, 1.0F);
-	        	}
-	        }
-	        else {
-	        	ShapeRenderer.renderLineBox(poseStack, buffer, precisionAABB, color[0], color[1], color[2], 0.25f);
-	        }
+		if (!FMLLoader.isProduction()) {
+			Minecraft mc = Minecraft.getInstance();
+			if (ClientGlobals.standPrecision > 0 && ClientGlobals.playerStandEntity != null && p_entity != ClientGlobals.playerStandEntity 
+					&& p_entity != mc.player && !ClientsideAim.precisionAimingDisabled(mc)) {
+				AABB aabb = p_entity.getBoundingBox().move(-p_entity.getX(), -p_entity.getY(), -p_entity.getZ());
+				AABB precisionAABB = HitResultUtil.standPrecisionTargetHitbox(aabb, ClientGlobals.standPrecision);
+				StandSkin skin = StandSkinsLoader.getInstance().getSkin(ClientGlobals.playerStandEntity);
+				float[] color = RGBUtil.rgb(skin.color);
+				ActionTarget target = ClientsideAim.standAim.getTarget();
+				if (target.getEntity() == p_entity) {
+					ShapeRenderer.renderLineBox(poseStack, buffer, precisionAABB, color[0], color[1], color[2], 1);
+
+					Optional<Vec3> clipPos = target.getClipPos();
+					if (clipPos.isPresent()) {
+						Vec3 point = clipPos.get().subtract(p_entity.getX(), p_entity.getY(), p_entity.getZ());
+						ShapeRenderer.renderLineBox(
+								poseStack, buffer,
+								point.x - 0.01, point.y - 0.01, point.z - 0.01,
+								point.x + 0.01, point.y + 0.01, point.z + 0.01,
+								1.0F, 0.0F, 0.0F, 1.0F);
+					}
+				}
+				else {
+					ShapeRenderer.renderLineBox(poseStack, buffer, precisionAABB, color[0], color[1], color[2], 0.25f);
+				}
+			}
 		}
 	}
 }
