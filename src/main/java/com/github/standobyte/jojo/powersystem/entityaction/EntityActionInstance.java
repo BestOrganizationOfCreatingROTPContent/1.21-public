@@ -2,6 +2,7 @@ package com.github.standobyte.jojo.powersystem.entityaction;
 
 import java.util.EnumMap;
 import java.util.Map;
+import java.util.Optional;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
@@ -26,6 +27,8 @@ import net.minecraft.util.Mth;
 import net.minecraft.world.damagesource.DamageSource;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.entity.ai.Brain;
+import net.minecraft.world.entity.ai.memory.MemoryModuleType;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.enchantment.EnchantmentHelper;
 import net.minecraft.world.level.Level;
@@ -133,18 +136,24 @@ public class EntityActionInstance implements HeldInput {
 		ServerLevel level = (ServerLevel) target.level();
 		boolean hurt = target.hurtServer(level, dmgSource, dmgAmount);
 		if (hurt) {
-			if (target instanceof LivingEntity) {
-				LivingEntity targetLiving = (LivingEntity) target;
+			if (target instanceof LivingEntity targetLiving) {
 				LivingEntity user = stand.getUser();
 				if (user != null) {
 					if (user instanceof Player player) {
 						targetLiving.setLastHurtByPlayer(player);
 						targetLiving.lastHurtByPlayerTime = 100;
 					}
+					
 					LivingEntity aggroTo = stand.isFollowingUser() || targetLiving.hasLineOfSight(user) ? user : 
 						StandUtil.isEntityStandUser(targetLiving) ? stand : null;
-					if (aggroTo != null) {
+					if (aggroTo != null && aggroTo != dmgSource.getEntity()) {
 						targetLiving.setLastHurtByMob(aggroTo);
+						
+						Brain<?> brain = targetLiving.getBrain();
+						Optional<LivingEntity> brainAttackTarget = brain.getMemoryInternal(MemoryModuleType.ATTACK_TARGET);
+						if (brainAttackTarget != null && brainAttackTarget.filter(t -> t == dmgSource.getEntity()).isPresent()) {
+							brain.setMemory(MemoryModuleType.ATTACK_TARGET, aggroTo);
+						}
 					}
 				}
 			}
