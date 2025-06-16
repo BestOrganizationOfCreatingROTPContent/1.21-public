@@ -85,7 +85,7 @@ public class StandEntityHeavyPunchAbility extends StandEntityAbility {
 					if (target.getType() == TargetType.ENTITY && target.getEntity() instanceof LivingEntity targetLiving) {
 						var damageType = DamageUtil.type(level, ModDamageTypes.STAND_ATTACK);
 						DamageSource dmgSource = new DamageSource(damageType, performer);
-						((RipplesModifiedDamageSource) dmgSource).jojo_ripples$modifyKnockback(2, 1);
+						((RipplesModifiedDamageSource) dmgSource).jojo_ripples$modifyKnockback(1f, 1);
 						float dmgAmount = 13.875f;
 						standEntityAttack(stand, targetLiving, dmgSource, dmgAmount);
 					}

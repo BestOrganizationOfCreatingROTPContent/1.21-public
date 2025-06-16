@@ -143,4 +143,9 @@ public class StandOffsetFromUser {
 		BODY,
 		HEAD_XY
 	}
+	
+	
+	public Vec3 getRelativeOffset() {
+		return relativeOffset;
+	}
 }
