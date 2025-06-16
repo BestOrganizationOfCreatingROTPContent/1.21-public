@@ -10,10 +10,15 @@ displayName="Ripples of the Past"
 # updateJSONURL="https://......."
 # displayURL="https://......."
 # logoFile="logo.png"
-# credits=""
 authors="StandoByte"
+credits='''
+    StandoByte - game design, programming
+    Yujin - structure design and building, player animations, 2D sprites
+    August_dr - 3D models and animations
+'''
 description='''
-    This mod adds items and supernatural powers from the JoJo's Bizarre Adventure manga and anime series.'''
+    A mod based on the JoJo's Bizarre Adventure series.
+'''
 
 [[mixins]]
 config="${mod_id}.mixins.json"
