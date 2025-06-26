@@ -1,14 +1,44 @@
 package com.github.standobyte.jojo.jojoimpl.stands._entitybase;
 
+import com.github.standobyte.jojo.client.ClientGlobals;
+import com.github.standobyte.jojo.client.sound.ClientsideSoundsHelper;
+import com.github.standobyte.jojo.init.ModDataAttachmentTypes;
+import com.github.standobyte.jojo.init.ModSoundEvents;
+import com.github.standobyte.jojo.mechanics.grab.LivingComponentGrab;
+import com.github.standobyte.jojo.powersystem.PowerClass;
 import com.github.standobyte.jojo.powersystem.ability.AbilityId;
+import com.github.standobyte.jojo.powersystem.entityaction.ActionPhase;
 import com.github.standobyte.jojo.powersystem.entityaction.EntityActionInstance;
 import com.github.standobyte.jojo.powersystem.entityaction.type.EntityActionType;
+import com.github.standobyte.jojo.powersystem.standpower.StandPower;
+import com.github.standobyte.jojo.powersystem.standpower.entity.StandEntity;
 import com.github.standobyte.jojo.powersystem.standpower.entity.StandEntityAbility;
+import com.github.standobyte.jojo.powersystem.standpower.entity.StandOffsetFromUser;
+import com.github.standobyte.jojo.util.target.AimingEntity;
+
+import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.level.Level;
+import net.minecraft.world.phys.Vec3;
 
 public class StandEntityGrabThrowAbility extends StandEntityAbility {
 
 	public StandEntityGrabThrowAbility(AbilityId abilityId) {
 		super(abilityId);
+		setDefaultPhaseLength(ActionPhase.BUTTON_CHARGE, 16);
+		setDefaultPhaseLength(ActionPhase.WINDUP, 999999);
+		setDefaultPhaseLength(ActionPhase.PERFORM, 6);
+		setDefaultPhaseLength(ActionPhase.RECOVERY, 12);
+	}
+	
+	@Override
+	public boolean isVisible(LivingEntity user) {
+		StandPower standPower = PowerClass.STAND.get(user);
+		if (standPower != null) {
+			StandEntity standEntity = standPower.getSummonedStandEntity();
+			return standEntity != null && LivingComponentGrab.getGrabbedEntity(standEntity) != null;
+		}
+		
+		return false;
 	}
 	
 	
@@ -24,7 +54,60 @@ public class StandEntityGrabThrowAbility extends StandEntityAbility {
 		}
 		
 		@Override
+		public void onButtonStopHold() {
+			switch (getPhase()) {
+				case BUTTON_CHARGE -> {
+					phasesLength.put(ActionPhase.WINDUP, 0f);
+					syncPhaseChanges();
+				}
+				case WINDUP -> {
+					startPhase(ActionPhase.PERFORM);
+					syncPhaseChanges();
+				}
+				default -> {}
+			}
+		}
+		
+		@Override
 		public void actionPerformStart() {
+			if (performer instanceof StandEntity standEntity) {
+				LivingEntity user = getPowerUser();
+				if (user != null) {
+					standEntity.offsetFromUser.setOffset(
+							new Vec3(0, StandEntity.Y_OFFSET, Math.max(standEntity.offsetFromUser.getRelativeOffset().z, 0) + 2), 
+							StandOffsetFromUser.OffsetMode.HEAD_XY, 
+							user);
+					standEntity.offsetFromUser.standAbility = this.ability;
+				}
+				
+				Level level = performer.level();
+				if (level.isClientSide() && ClientGlobals.canHearStands) {
+					ClientsideSoundsHelper.playEntityLingeringSound(standEntity, ClientsideSoundsHelper.withStandSkin(
+							ModSoundEvents.STAND_PUNCH_HEAVY_CRY.get(), standEntity.getStandId(), standEntity.getStandSkin()), 
+							standEntity.getSoundSource(), 1, 1, level);
+				}
+			}
+			aimAs = AimingEntity.STAND;
+		}
+		
+		@Override
+		public void actionPerformEnd() {
+			Level level = level();
+			if (!level.isClientSide()) {
+				LivingComponentGrab standGrab = performer.getData(ModDataAttachmentTypes.LIVING_GRAB.get());
+				LivingEntity grabbedEntity = standGrab.getGrabbedEntity();
+				if (grabbedEntity != null) {
+					standGrab.setGrabbedEntity(null);
+					Vec3 throwVec = performer.getLookAngle().scale(2);
+					grabbedEntity.setDeltaMovement(throwVec);
+				}
+			}
+			aimAs = AimingEntity.PLAYER;
+		}
+		
+		@Override
+		public boolean canBeCancelledInto(EntityActionType cancellingAbility) {
+			return phase.ordinal() < ActionPhase.PERFORM.ordinal();
 		}
 		
 	}

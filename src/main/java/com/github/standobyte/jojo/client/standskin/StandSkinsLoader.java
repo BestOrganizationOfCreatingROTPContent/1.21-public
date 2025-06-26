@@ -24,6 +24,7 @@ import com.github.standobyte.jojo.client.entityrender.parsemodel.ParseModEntityM
 import com.github.standobyte.jojo.client.standskin.StandSkinsLoader.StandSkinResourceBuilder;
 import com.github.standobyte.jojo.core.JojoMod;
 import com.github.standobyte.jojo.powersystem.standpower.StandInstance;
+import com.github.standobyte.jojo.powersystem.standpower.StandPower;
 import com.github.standobyte.jojo.powersystem.standpower.entity.StandEntity;
 import com.github.standobyte.jojo.powersystem.standpower.type.StandType;
 import com.github.standobyte.jojo.util.JSONUtil;
@@ -87,6 +88,12 @@ public class StandSkinsLoader extends SimplePreparableReloadListener<Map<Resourc
 	
 	public StandSkin getDefaultSkin(ResourceLocation standId) {
 		return defaultSkins.get(standId);
+	}
+	
+	@Nullable
+	public StandSkin getSkin(StandPower standPower) {
+		if (standPower == null) return null;
+		return standPower.getStandInstance().map(this::getSkin).orElse(null);
 	}
 	
 	public StandSkin getSkin(StandInstance standInstance) {

@@ -5,7 +5,8 @@
   "refmap": "mixins.jojo.refmap.json",
   "minVersion": "0.8.5",
   "mixins": [
-    "DamageSourceMixin"
+    "DamageSourceMixin",
+    "grab.LivingEntityMixin"
   ],
   "client": [
     "client.ModelAnimOptimization",

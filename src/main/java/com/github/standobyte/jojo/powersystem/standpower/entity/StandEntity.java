@@ -11,6 +11,7 @@ import com.github.standobyte.jojo.client.ClientGlobals;
 import com.github.standobyte.jojo.client.ClientProxy;
 import com.github.standobyte.jojo.core.packet.fromserver.TrSetStandEntityPacket;
 import com.github.standobyte.jojo.init.core.ModEntityAttributes;
+import com.github.standobyte.jojo.mechanics.grab.LivingComponentGrab;
 import com.github.standobyte.jojo.powersystem.entityaction.EntityActionInstance;
 import com.github.standobyte.jojo.powersystem.entityaction.LivingComponentAction;
 import com.github.standobyte.jojo.powersystem.standpower.StandPower;
@@ -37,6 +38,7 @@ import net.minecraft.server.level.ServerEntity;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.tags.DamageTypeTags;
 import net.minecraft.util.Mth;
+import net.minecraft.world.InteractionHand;
 import net.minecraft.world.damagesource.DamageSource;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EntityType;
@@ -649,6 +651,14 @@ public class StandEntity extends LivingEntity implements SummonedStand, IEntityW
 	@Override
 	public HumanoidArm getMainArm() {
 		return HumanoidArm.RIGHT;
+	}
+	
+	public boolean isHandFree(InteractionHand hand) {
+		if (hand == InteractionHand.OFF_HAND && LivingComponentGrab.getGrabbedEntity(this) != null) {
+			return false;
+		}
+		ItemStack heldItem = getItemInHand(hand);
+		return heldItem.isEmpty();
 	}
 
 	

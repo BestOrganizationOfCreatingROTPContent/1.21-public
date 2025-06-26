@@ -4,6 +4,7 @@ import static com.github.standobyte.jojo.core.JojoRegistries.ABILITY_TYPES;
 
 import com.github.standobyte.jojo.jojoimpl.stands._entitybase.StandEntityBarrageAbility;
 import com.github.standobyte.jojo.jojoimpl.stands._entitybase.StandEntityGrabAbility;
+import com.github.standobyte.jojo.jojoimpl.stands._entitybase.StandEntityGrabReleaseAbility;
 import com.github.standobyte.jojo.jojoimpl.stands._entitybase.StandEntityGrabThrowAbility;
 import com.github.standobyte.jojo.jojoimpl.stands._entitybase.StandEntityHeavyPunchAbility;
 import com.github.standobyte.jojo.jojoimpl.stands._entitybase.StandEntityHeavyPunchChargedAbility;
@@ -12,8 +13,8 @@ import com.github.standobyte.jojo.jojoimpl.stands.starplatinum.InhaleAbility;
 import com.github.standobyte.jojo.jojoimpl.stands.starplatinum.StarFingerAbility;
 import com.github.standobyte.jojo.jojoimpl.stands.starplatinum.StarFingerSwipeAbility;
 import com.github.standobyte.jojo.jojoimpl.stands.theworld.TimeStopAbility;
+import com.github.standobyte.jojo.powersystem.ability.Ability;
 import com.github.standobyte.jojo.powersystem.ability.AbilityType;
-import com.github.standobyte.jojo.powersystem.standpower.entity.StandEntityAbility;
 
 import net.neoforged.neoforge.registries.DeferredHolder;
 
@@ -33,8 +34,8 @@ public final class ModStandAbilities {
 	public static final DeferredHolder<AbilityType<?>, AbilityType<StandEntityGrabAbility>> GRAB = ABILITY_TYPES.register(
 			"stand_grab", key -> new AbilityType<>(key, StandEntityGrabAbility::new));
 	
-	public static final DeferredHolder<AbilityType<?>, AbilityType<StandEntityAbility>> GRAB_RELEASE = ABILITY_TYPES.register(
-			"stand_grab_release", key -> new AbilityType<>(key, StandEntityAbility::new));
+	public static final DeferredHolder<AbilityType<?>, AbilityType<Ability>> GRAB_RELEASE = ABILITY_TYPES.register(
+			"stand_grab_release", key -> new AbilityType<>(key, StandEntityGrabReleaseAbility::new));
 	
 	public static final DeferredHolder<AbilityType<?>, AbilityType<StandEntityGrabThrowAbility>> GRAB_THROW = ABILITY_TYPES.register(
 			"stand_grab_throw", key -> new AbilityType<>(key, StandEntityGrabThrowAbility::new));

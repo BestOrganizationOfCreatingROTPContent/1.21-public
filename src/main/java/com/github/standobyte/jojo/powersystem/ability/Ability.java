@@ -28,9 +28,18 @@ public class Ability {
 	public static Ability resolveSubAbility(Ability baseAbility, LivingEntity user) {
 		if (baseAbility != null) {
 			Ability subAbility = baseAbility.replaceWithSubAbility(user);
-			return subAbility != null ? subAbility : baseAbility;
+			if (subAbility != null && subAbility.isVisible(user)) {
+				return subAbility;
+			}
+			if (baseAbility.isVisible(user)) {
+				return baseAbility;
+			}
 		}
 		return null;
+	}
+	
+	public boolean isVisible(LivingEntity user) {
+		return true;
 	}
 	
 	

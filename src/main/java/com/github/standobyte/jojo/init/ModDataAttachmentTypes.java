@@ -6,6 +6,7 @@ import org.jetbrains.annotations.ApiStatus;
 
 import com.github.standobyte.jojo.core.JojoMod;
 import com.github.standobyte.jojo.mechanics.clothes.EntityClothesInventory;
+import com.github.standobyte.jojo.mechanics.grab.LivingComponentGrab;
 import com.github.standobyte.jojo.powersystem.PowerClass;
 import com.github.standobyte.jojo.powersystem.entityaction.EntityActionInputState;
 import com.github.standobyte.jojo.powersystem.entityaction.LivingComponentAction;
@@ -41,5 +42,8 @@ public final class ModDataAttachmentTypes {
 	
 	public static final Supplier<AttachmentType<EntityClothesInventory>> HUMANOID_CLOTHES = ATTACHMENT_TYPES.register("humanoid_clothes", 
 			() -> AttachmentType.serializable(obj -> obj instanceof LivingEntity living ? new EntityClothesInventory(living) : null).build());
+	
+	public static final Supplier<AttachmentType<LivingComponentGrab>> LIVING_GRAB = ATTACHMENT_TYPES.register("living_grab", 
+			() -> AttachmentType.builder(entity -> entity instanceof LivingEntity living ? new LivingComponentGrab(living) : null).build());
 	
 }

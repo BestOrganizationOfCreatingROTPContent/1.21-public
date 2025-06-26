@@ -1,9 +1,12 @@
 package com.github.standobyte.jojo;
 
 import com.github.standobyte.jojo.client.input.InputHandler;
+import com.github.standobyte.jojo.client.standskin.StandSkin;
+import com.github.standobyte.jojo.client.standskin.StandSkinsLoader;
 import com.github.standobyte.jojo.core.JojoMod;
 import com.github.standobyte.jojo.powersystem.Power;
 import com.github.standobyte.jojo.powersystem.ability.Ability;
+import com.github.standobyte.jojo.powersystem.standpower.StandPower;
 
 import net.minecraft.client.DeltaTracker;
 import net.minecraft.client.Minecraft;
@@ -48,8 +51,14 @@ public class DebugStandHud {
 			Ability ability;
 			
 			int color = 0xFFFFFFFF;
+			if (power instanceof StandPower standPower) {
+				StandSkin skin = StandSkinsLoader.getInstance().getSkin(standPower);
+				if (skin != null) {
+					color = 0xFF000000 | skin.color;
+				}
+			}
 			if (input.inputsDisabled()) {
-				color = 0x40FFFFFF;
+				color &= 0x40FFFFFF;
 			}
 			
 			ability = Ability.resolveSubAbility(input.getLMBClickAbility(power, modifier), player);
@@ -61,7 +70,7 @@ public class DebugStandHud {
 			y += 9;
 			
 			ability = Ability.resolveSubAbility(input.getRMBClickAbility(power, modifier), player);
-			if (ability != null) guiGraphics.drawString(font, "RMB: " + ability.abilityId.nameInMoveset(), x, y, "grab".equals(ability.abilityId.nameInMoveset()) ? color & 0xFF606060 : color);
+			if (ability != null) guiGraphics.drawString(font, "RMB: " + ability.abilityId.nameInMoveset(), x, y, color);
 			y += 9;
 			
 			ability = Ability.resolveSubAbility(input.getRMBHeldAbility(power, modifier), player);

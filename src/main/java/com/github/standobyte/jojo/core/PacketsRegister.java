@@ -13,6 +13,7 @@ import com.github.standobyte.jojo.core.packet.fromserver.TrPowerTypePacket;
 import com.github.standobyte.jojo.core.packet.fromserver.TrSetStandEntityPacket;
 import com.github.standobyte.jojo.core.packet.fromserver.TrStandSkinPacket;
 import com.github.standobyte.jojo.mechanics.clothes.TrClothesItemsPacket;
+import com.github.standobyte.jojo.mechanics.grab.TrSetGrabbedEntityPacket;
 import com.github.standobyte.jojo.powersystem.entityaction.netcode.TrEntityActionInstancePacket;
 import com.github.standobyte.jojo.powersystem.entityaction.netcode.TrEntityActionPhaseTimePacket;
 
@@ -44,6 +45,7 @@ public class PacketsRegister {
 		registerPacket(registrar, PayloadRegistrar::playToClient, new TrStandSkinPacket.Handler(JojoMod.resLoc("standskin")));
 		registerPacket(registrar, PayloadRegistrar::playToClient, new StandEntitySoundPacket.Handler(JojoMod.resLoc("standsound")));
 		registerPacket(registrar, PayloadRegistrar::playToClient, new TrClothesItemsPacket.Handler(JojoMod.resLoc("clothes")));
+		registerPacket(registrar, PayloadRegistrar::playToClient, new TrSetGrabbedEntityPacket.Handler(JojoMod.resLoc("grab")));
 	}
 
 	

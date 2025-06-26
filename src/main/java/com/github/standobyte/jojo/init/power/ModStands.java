@@ -48,14 +48,14 @@ public class ModStands {
 					.addAbility("barrage", 				ModStandAbilities.BARRAGE, true)
 					
 					.addAbility("grab", 				ModStandAbilities.GRAB, true)
+					.addAbility("grab_release", 		ModStandAbilities.GRAB_RELEASE)
+					.addAbility("grabbed_throw", 		ModStandAbilities.GRAB_THROW, false)
 //					.addAbility("grab_punch", 			ModStandAbilities.PUNCH, false)
 //					.addAbility("grab_punch2", 			ModStandAbilities.PUNCH, false)
 //					.addAbility("grab_punch3", 			ModStandAbilities.PUNCH, false)
 //					.addAbility("grab_punch4", 			ModStandAbilities.PUNCH, false)
 //					.addAbility("grab_ground_slam", 	ModStandAbilities.HEAVY_PUNCH, false)
 //					.addAbility("grab_barrage", 		ModStandAbilities.BARRAGE, false)
-					.addAbility("grab_release", 		ModStandAbilities.GRAB_RELEASE)
-//					.addAbility("grabbed_throw", 		ModStandAbilities.GRAB_THROW, false)
 //					.addAbility("grab_terrain", 		ModStandAbilities.GRAB_TERRAIN)
 //					.addAbility("terrain_throw", 		ModStandAbilities.GRAB_TERRAIN_THROW)
 					

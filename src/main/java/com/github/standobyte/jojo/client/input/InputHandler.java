@@ -16,6 +16,7 @@ import com.github.standobyte.jojo.client.event.PreKeyInputEvent;
 import com.github.standobyte.jojo.core.JojoMod;
 import com.github.standobyte.jojo.core.packet.fromclient.ClAbilityInputPacket;
 import com.github.standobyte.jojo.init.power.ModPlayerPowers;
+import com.github.standobyte.jojo.powersystem.Moveset;
 import com.github.standobyte.jojo.powersystem.Power;
 import com.github.standobyte.jojo.powersystem.PowerClass;
 import com.github.standobyte.jojo.powersystem.ability.Ability;
@@ -407,7 +408,7 @@ public class InputHandler {
 	public Ability getRMBClickAbility(Power<?> power, KeyModifier keyModifier) {
 		if (power.getPowerClass() == PowerClass.STAND) {
 			return switch (keyModifier) {
-				case CONTROL -> power.getMoveset().getAbility("grab");
+				case CONTROL -> getFirstVisibleAbility(power, "grab_release", "grab");
 				default -> power.getMoveset().getAbility("heavy_punch");
 			};
 		}
@@ -421,8 +422,19 @@ public class InputHandler {
 		if (power.getPowerClass() == PowerClass.STAND) {
 			return switch (keyModifier) {
 				case CONTROL -> null;
-				default -> power.getMoveset().getAbility("heavy_charged");
+				default -> getFirstVisibleAbility(power, "grabbed_throw", "heavy_charged");
 			};
+		}
+		return null;
+	}
+	
+	public Ability getFirstVisibleAbility(Power<?> power, String... abilityNames) {
+		Moveset moveset = power.getMoveset();
+		for (String abilityName : abilityNames) {
+			Ability ability = moveset.getAbility(abilityName);
+			if (ability != null && ability.isVisible(mc.player)) {
+				return ability;
+			}
 		}
 		return null;
 	}
