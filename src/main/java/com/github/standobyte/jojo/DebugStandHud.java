@@ -54,7 +54,7 @@ public class DebugStandHud {
 			if (power instanceof StandPower standPower) {
 				StandSkin skin = StandSkinsLoader.getInstance().getSkin(standPower);
 				if (skin != null) {
-					color = 0xFF000000 | skin.color;
+					color = skin.getColor();
 				}
 			}
 			if (input.inputsDisabled()) {

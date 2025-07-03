@@ -4,42 +4,48 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
+import java.util.OptionalInt;
 import java.util.function.Function;
 
 import com.github.standobyte.jojo.client.entityanim.AnimWithExtras;
 import com.github.standobyte.jojo.client.entityanim.AnimationSet;
 import com.github.standobyte.jojo.client.entityrender.stand.StandEntityModel;
+import com.github.standobyte.jojo.client.entityrender.stand.StandEntityRenderState;
+import com.github.standobyte.jojo.client.entityrender.stand.StandEntityRenderer;
 import com.github.standobyte.jojo.client.standskin.sound.CustomPathSound;
 import com.github.standobyte.jojo.client.utils.ResourcePathChecker;
+import com.github.standobyte.jojo.powersystem.standpower.entity.StandEntity;
 
+import net.minecraft.client.model.Model;
 import net.minecraft.client.model.geom.builders.LayerDefinition;
 import net.minecraft.client.resources.sounds.Sound;
 import net.minecraft.client.sounds.WeighedSoundEvents;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.MutableComponent;
 import net.minecraft.resources.ResourceLocation;
-import net.neoforged.neoforge.common.util.Lazy;
 
 public class StandSkin {
 	public final ResourceLocation skinId;
 	public final ResourceLocation standTypeId;
-	private final boolean isDefault;
-	private final ResourcePathChecker standTexture;
-	public final int color;
+	protected final boolean isDefault;
+	protected final ResourcePathChecker standTexture;
+	protected final OptionalInt color;
 	
-	private Map<ResourceLocation, LayerDefinition> models = new HashMap<>();
-	private Lazy<StandEntityModel<?>> standModel;
+	protected Map<ResourceLocation, LayerDefinition> models = new HashMap<>();
+	protected LayerDefinition standModel;
+	protected Map<ResourceLocation, Optional<Model>> createdModelsCache = new HashMap<>();
+	protected Optional<StandEntityModel<?>> createdStandModelCache;
 	
-	private Map<ResourceLocation, AnimationSet> animations = new HashMap<>();
-	private AnimationSet standEntityAnims;
+	protected Map<ResourceLocation, AnimationSet> animations = new HashMap<>();
+	protected AnimationSet standEntityAnims;
 	
-	private Map<ResourceLocation, WeighedSoundEvents> soundEvents = new HashMap<>();
-	private Map<ResourceLocation, ResourceLocation> existingSounds = new HashMap<>();
-	private Map<ResourceLocation, Sound> remappedSound = new HashMap<>();
+	protected Map<ResourceLocation, WeighedSoundEvents> soundEvents = new HashMap<>();
+	protected Map<ResourceLocation, ResourceLocation> existingSounds = new HashMap<>();
+	protected Map<ResourceLocation, Sound> remappedSound = new HashMap<>();
 	
-	private final Map<ResourceLocation, ResourcePathChecker> remapPathCache = new HashMap<>();
+	protected final Map<ResourceLocation, ResourcePathChecker> remapPathCache = new HashMap<>();
 	
-	public StandSkin(ResourceLocation skinId, ResourceLocation standId, int color) {
+	public StandSkin(ResourceLocation skinId, ResourceLocation standId, OptionalInt color) {
 		this.skinId = skinId;
 		this.standTypeId = standId;
 		this.standTexture = remapAssetPath(ResourceLocation.fromNamespaceAndPath(
@@ -52,8 +58,7 @@ public class StandSkin {
 	protected void withModels(Map<ResourceLocation, LayerDefinition> models) {
 		Objects.requireNonNull(models);
 		this.models = models;
-		LayerDefinition standModel = models.get(standTypeId);
-		this.standModel = standModel != null ? Lazy.of(() -> new StandEntityModel<>(standModel.bakeRoot())) : null;
+		this.standModel = models.get(standTypeId);
 	}
 	
 	protected void withAnimations(Map<ResourceLocation, AnimationSet.Builder> animations) {
@@ -85,48 +90,99 @@ public class StandSkin {
 	}
 
 	
-	public ResourceLocation getTexture(ResourceLocation path, StandSkin defaultSkin) {
+	@Deprecated
+	public int getColor() {
+		return this.color.orElse(0xffffffff);
+	}
+	
+	public int getColor(StandSkin defaultSkin) {
+		if (this.color.isPresent()) {
+			return this.color.getAsInt();
+		}
+		if (this != defaultSkin && defaultSkin.color.isPresent()) {
+			return defaultSkin.color.getAsInt();
+		}
+		return 0xffffff;
+	}
+	
+	public ResourceLocation getTexture(ResourceLocation path, StandSkin defaultSkin, ResourceLocation defaultTex) {
 		ResourcePathChecker remapped = remapAssetPath(path);
-		if (this == defaultSkin) {
-			return remapped.path;
+		if (this != defaultSkin && defaultSkin != null) {
+			return remapped.or(() -> defaultSkin.getTexture(path, defaultSkin, defaultTex));
+		}
+		else {
+			return remapped.or(defaultTex);
+		}
+	}
+	
+	public ResourceLocation getStandTexture(StandSkin defaultSkin, ResourceLocation defaultTex) {
+		if (this != defaultSkin && defaultSkin != null) {
+			return this.standTexture.or(() -> defaultSkin.getStandTexture(defaultSkin, defaultTex));
+		}
+		else {
+			return this.standTexture.or(defaultTex);
+		}
+	}
+	
+	public Model getModel(ResourceLocation modelPath, StandEntityRenderer<?, ?, ?> entityRenderer, StandSkin defaultSkin) {
+		Optional<Model> cached = createdModelsCache.get(modelPath);
+		if (cached != null) {
+			return cached.orElse(null);
+		}
+		LayerDefinition modelDefinition = models.get(modelPath);
+		if (modelDefinition != null) {
+			cached = Optional.ofNullable(entityRenderer.createModel(modelPath, modelDefinition));
+			createdModelsCache.put(modelPath, cached);
+			return cached.orElse(null);
 		}
 		
-		if (defaultSkin != null) {
-			return remapped.or(defaultSkin.getTexture(path, defaultSkin));
+		if (this != defaultSkin) {
+			return defaultSkin.getModel(modelPath, entityRenderer, defaultSkin);
 		}
+		
 		return null;
 	}
 	
-	public ResourceLocation getStandTexture(StandSkin defaultSkin) {
-		if (this == defaultSkin) {
-			return standTexture.path;
+	public 
+		<T extends StandEntity, 
+		S extends StandEntityRenderState, 
+		M extends StandEntityModel<? super S>> 
+	M getStandModel(
+			StandEntityRenderer<T, S, M> entityRenderer, StandSkin defaultSkin) {
+		if (this.createdStandModelCache != null) {
+			return (M) createdStandModelCache.orElse(null);
+		}
+		if (this.standModel != null) {
+			this.createdStandModelCache = Optional.ofNullable(entityRenderer.createStandModel(standModel));
+			return (M) this.createdStandModelCache.orElse(null);
 		}
 		
-		if (defaultSkin != null) {
-			return standTexture.or(defaultSkin.standTexture.path);
+		if (this != defaultSkin) {
+			return defaultSkin.getStandModel(entityRenderer, defaultSkin);
 		}
+		
 		return null;
 	}
 	
-	public LayerDefinition getModel(ResourceLocation modelId, StandSkin defaultSkin) {
+	public LayerDefinition getModelDef(ResourceLocation modelId, StandSkin defaultSkin) {
 		LayerDefinition model = models.get(modelId);
 		if (model != null || this == defaultSkin) {
 			return model;
 		}
 		
 		if (defaultSkin != null) {
-			return defaultSkin.getModel(modelId, defaultSkin);
+			return defaultSkin.getModelDef(modelId, defaultSkin);
 		}
 		return null;
 	}
 	
-	public StandEntityModel<?> getStandModel(StandSkin defaultSkin) {
+	public LayerDefinition getStandModelDef(StandSkin defaultSkin) {
 		if (standModel != null) {
-			return standModel.get();
+			return standModel;
 		}
-		
-		if (defaultSkin != null && defaultSkin.standModel != null) {
-			return defaultSkin.standModel.get();
+
+		if (defaultSkin != null) {
+			return defaultSkin.standModel;
 		}
 		return null;
 	}

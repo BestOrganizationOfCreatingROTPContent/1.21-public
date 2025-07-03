@@ -37,7 +37,7 @@ public class HitboxRenderingMixin {
 				AABB aabb = p_entity.getBoundingBox().move(-p_entity.getX(), -p_entity.getY(), -p_entity.getZ());
 				AABB precisionAABB = HitResultUtil.standPrecisionTargetHitbox(aabb, ClientGlobals.standPrecision);
 				StandSkin skin = StandSkinsLoader.getInstance().getSkin(ClientGlobals.playerStandEntity);
-				float[] color = RGBUtil.rgb(skin.color);
+				float[] color = RGBUtil.rgb(skin.getColor());
 				ActionTarget target = ClientsideAim.standAim.getTarget();
 				if (target.getEntity() == p_entity) {
 					ShapeRenderer.renderLineBox(poseStack, buffer, precisionAABB, color[0], color[1], color[2], 1);

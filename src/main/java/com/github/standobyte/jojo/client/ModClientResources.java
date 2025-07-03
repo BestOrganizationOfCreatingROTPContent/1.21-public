@@ -17,6 +17,7 @@ public class ModClientResources {
 	@SubscribeEvent
 	public static void registerResourceLoaders(AddClientReloadListenersEvent event) {
 		event.addListener(JojoMod.resLoc("resource_check"), new ResourcePathChecker.ResourceReloadNotifier());
+		RotpGeckoModelLoader.init(event);
 		StandSkinsLoader.init(event);
 		AnimationLoader.init(event);
 		ClothesModelLoader.init(event);

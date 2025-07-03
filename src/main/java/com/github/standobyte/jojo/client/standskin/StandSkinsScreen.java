@@ -40,7 +40,6 @@ import net.minecraft.client.renderer.RenderType;
 import net.minecraft.client.renderer.entity.EntityRenderDispatcher;
 import net.minecraft.network.chat.CommonComponents;
 import net.minecraft.resources.ResourceLocation;
-import net.minecraft.util.ARGB;
 import net.minecraft.util.Mth;
 import net.neoforged.neoforge.network.PacketDistributor;
 
@@ -420,7 +419,7 @@ public class StandSkinsScreen extends Screen implements IJojoMenuScreen {
 			else					skinBoxRow = isBottomRow ? SkinBoxes.ODD_BOTTOM : SkinBoxes.ODD;
 			GuiIcon skinBox = skinBoxRow[column];
 
-			int color = isHovered ? ARGB.color(255, skin.color) : 0x80FFFFFF;
+			int color = isHovered ? skin.getColor() : 0x80FFFFFF;
 			skinBox.render(gui, x, y, color);
 
 			StandType standType = standCap.getPowerType();
@@ -545,12 +544,7 @@ public class StandSkinsScreen extends Screen implements IJojoMenuScreen {
 		StandEntityRenderer<?, S, ?> renderer = (StandEntityRenderer<?, S, ?>) renderManager.renderers.get(standType.getEntityType());
 		renderManager.setRenderShadow(false);
 		gui.drawSpecial(bufferSource -> renderer.renderWithRenderState(renderState -> {
-			renderState.defaultSkin = StandSkinsLoader.getInstance().getDefaultSkin(standType.getId());
-			renderState.skin = standSkin;
-			renderState.standId = standType.getId();
-			renderState.action.animId = StandEntityRenderer.IDLE_ANIM;
-			renderState.action.time = ticks;
-			EntityActionRenderState.setAnim(renderState.action, renderState, renderer.getStandAnim(renderState), null);
+			renderer.extractSkinMenuRenderState(renderState, standSkin, standType.getId(), ticks);
 		}, gui.pose(), bufferSource, 0xF000F0));
 		gui.flush();
 		renderManager.setRenderShadow(true);

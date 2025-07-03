@@ -77,4 +77,19 @@ public class ModStands {
 //					.addAbility("time_stop", 			ModStandAbilities.TIME_STOP)
 
 					, id));
+	
+	public static final DeferredHolder<StandType, EntityStandType> CRAZY_DIAMOND = DEFAULT_STANDS.register(
+			"crazy_diamond", id -> 
+			new EntityStandType(
+					new StandStats.Builder()
+					.power(17.0)
+					.speed(16.5)
+					.range(2, 4)
+					.durability(13.0)
+					.precision(12.0)
+					.build(),
+
+					new MovesetBuilder()
+
+					, id));
 }

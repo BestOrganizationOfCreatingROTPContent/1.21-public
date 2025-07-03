@@ -9,6 +9,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
+import java.util.OptionalInt;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
@@ -204,7 +205,7 @@ public class StandSkinsLoader extends SimplePreparableReloadListener<Map<Resourc
 	public static class StandSkinResourceBuilder {
 		private final ResourceLocation skinId;
 		private ResourceLocation standId;
-		private int uiColor = 0xffffff;
+		private OptionalInt uiColor = OptionalInt.empty();
 		private Map<ResourceLocation, LayerDefinition> models;
 		private Map<ResourceLocation, AnimationSet.Builder> animations;
 		private Map<ResourceLocation, WeighedSoundEvents> soundEvents;
@@ -237,7 +238,7 @@ public class StandSkinsLoader extends SimplePreparableReloadListener<Map<Resourc
 	private void loadSkinInfo(JsonObject skinInfoJson, StandSkinResourceBuilder builder, Logger logger) {
 		ResourceLocation.CODEC.decode(JsonOps.INSTANCE, skinInfoJson.get("stand_type")).ifSuccess(res -> builder.standId = res.getFirst());
 		if (skinInfoJson.has("color")) {
-			builder.uiColor = JSONUtil.parseColor(skinInfoJson.get("color"));
+			builder.uiColor = OptionalInt.of(0xff000000 | JSONUtil.parseColor(skinInfoJson.get("color")));
 		}
 	}
 	
