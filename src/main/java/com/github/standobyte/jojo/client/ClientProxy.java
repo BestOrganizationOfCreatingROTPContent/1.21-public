@@ -2,6 +2,7 @@ package com.github.standobyte.jojo.client;
 
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.screens.Screen;
+import net.minecraft.client.multiplayer.ClientLevel;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.level.Level;
@@ -27,6 +28,10 @@ public final class ClientProxy {
 	public static Entity getEntityById(int entityId) {
 		Minecraft mc = Minecraft.getInstance();
 		return mc.level.getEntity(entityId);
+	}
+	
+	public static Iterable<Entity> getEntities(Level level) {
+		return ((ClientLevel) level).entitiesForRendering();
 	}
 	
 	public static void openScreen(Screen screen) {
