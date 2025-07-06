@@ -2,6 +2,9 @@ package com.github.standobyte.jojo.util;
 
 import javax.annotation.Nullable;
 
+import com.github.standobyte.jojo.mechanics.grab.LivingComponentGrab;
+import com.github.standobyte.jojo.powersystem.Power;
+import com.github.standobyte.jojo.powersystem.PowerClass;
 import com.github.standobyte.jojo.powersystem.standpower.StandPower;
 import com.github.standobyte.jojo.powersystem.standpower.entity.StandEntity;
 
@@ -27,5 +30,18 @@ public class StandUtil {
     	StandPower standData = StandPower.get(entity);
     	return standData != null ? standData.hasPower() : false;
     }
+	
+	@Nullable
+	public static LivingEntity getStandGrabTarget(Power<?> power) {
+		StandPower standPower = PowerClass.STAND.cast(power);
+		if (standPower != null) {
+			StandEntity standEntity = standPower.getSummonedStandEntity();
+			if (standEntity != null) {
+				return LivingComponentGrab.getGrabbedEntity(standEntity);
+			}
+		}
+		
+		return null;
+	}
     
 }

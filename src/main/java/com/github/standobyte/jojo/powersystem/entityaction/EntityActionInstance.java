@@ -20,6 +20,7 @@ import com.github.standobyte.jojo.util.target.ActionTarget;
 import com.github.standobyte.jojo.util.target.AimingEntity;
 
 import net.minecraft.Util;
+import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.network.RegistryFriendlyByteBuf;
 import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.server.level.ServerLevel;
@@ -64,6 +65,8 @@ public class EntityActionInstance implements HeldInput {
 	public void setPhaseZero() {
 		startPhase(ActionPhase.values()[0]);
 	}
+	
+	public void extraClientInput(FriendlyByteBuf input) {}
 	
 
 	/**

@@ -23,28 +23,31 @@ public class TrAbilityUsePacket implements CustomPacketPayload {
 	private final Ability abilityEncode;
 	private final AbilityInputNetwork abilityDecoded;
 	private final float timeTookToResolve;
+	private final LivingEntity senderUser;
 	private RegistryFriendlyByteBuf extraData;
 	
-	public static TrAbilityUsePacket click(int entityId, Ability ability, float timeTookToResolve) {
-		return new TrAbilityUsePacket(entityId, (short) 0, InputEventType.PRESS_CLICK, ability, null, timeTookToResolve);
+	public static TrAbilityUsePacket click(int entityId, Ability ability, float timeTookToResolve, LivingEntity serverUser) {
+		return new TrAbilityUsePacket(entityId, (short) 0, InputEventType.PRESS_CLICK, ability, null, timeTookToResolve, serverUser);
 	}
 	
-	public static TrAbilityUsePacket startHold(int entityId, short key, Ability ability, float timeTookToResolve) {
-		return new TrAbilityUsePacket(entityId, key, InputEventType.PRESS_HOLD, ability, null, timeTookToResolve);
+	public static TrAbilityUsePacket startHold(int entityId, short key, Ability ability, float timeTookToResolve, LivingEntity serverUser) {
+		return new TrAbilityUsePacket(entityId, key, InputEventType.PRESS_HOLD, ability, null, timeTookToResolve, serverUser);
 	}
 	
 	public static TrAbilityUsePacket releaseHold(int entityId, short key) {
-		return new TrAbilityUsePacket(entityId, key, InputEventType.RELEASE, null, null, 0);
+		return new TrAbilityUsePacket(entityId, key, InputEventType.RELEASE, null, null, 0, null);
 	}
 	
 	private TrAbilityUsePacket(int entityId, short key, InputEventType inputType, 
-			@Nullable Ability abilityEncode, @Nullable AbilityInputNetwork abilityDecoded, float timeTookToResolve) {
+			@Nullable Ability abilityEncode, @Nullable AbilityInputNetwork abilityDecoded, 
+			float timeTookToResolve, LivingEntity serverUser) {
 		this.entityId = entityId;
 		this.key = key;
 		this.inputType = inputType;
 		this.abilityEncode = abilityEncode;
 		this.abilityDecoded = abilityDecoded;
 		this.timeTookToResolve = timeTookToResolve;
+		this.senderUser = serverUser;
 	}
 
 	
@@ -71,7 +74,7 @@ public class TrAbilityUsePacket implements CustomPacketPayload {
 				AbilityInputNetwork.encodeInput(buf, packet.abilityEncode, null);
 				buf.writeFloat(packet.timeTookToResolve);
 				if (packet.abilityEncode != null) {
-					packet.abilityEncode.writeExtraInput(buf);
+					packet.abilityEncode.writeExtraInput(buf, packet.senderUser);
 				}	
 			}
 		}
@@ -87,7 +90,7 @@ public class TrAbilityUsePacket implements CustomPacketPayload {
 					AbilityInputNetwork ability = AbilityInputNetwork.decodeInput(buf);
 					float timeTookToResolve = buf.readFloat();
 					
-					TrAbilityUsePacket packet = new TrAbilityUsePacket(entityId, key, inputType, null, ability, timeTookToResolve);
+					TrAbilityUsePacket packet = new TrAbilityUsePacket(entityId, key, inputType, null, ability, timeTookToResolve, null);
 					packet.extraData = buf;
 					yield packet;
 				}

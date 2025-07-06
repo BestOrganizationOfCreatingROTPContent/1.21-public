@@ -14,7 +14,8 @@ import net.minecraft.resources.ResourceLocation;
 
 @ApiStatus.NonExtendable
 public class Moveset {
-	protected final Map<String, Ability> abilities;
+	@ApiStatus.Internal
+	public final Map<String, Ability> abilities;
 	
 	protected Moveset(Stream<Map.Entry<String, ConfigAbilityFactory<?>>> abilities, PowerClass<?> powerClass, ResourceLocation powerTypeId) {
 		this.abilities = abilities.collect(Collectors.toMap(

@@ -2,11 +2,12 @@ package com.github.standobyte.jojo.jojoimpl.stands._entitybase;
 
 import com.github.standobyte.jojo.init.ModDataAttachmentTypes;
 import com.github.standobyte.jojo.mechanics.grab.LivingComponentGrab;
-import com.github.standobyte.jojo.powersystem.PowerClass;
+import com.github.standobyte.jojo.powersystem.Power;
 import com.github.standobyte.jojo.powersystem.ability.Ability;
 import com.github.standobyte.jojo.powersystem.ability.AbilityId;
 import com.github.standobyte.jojo.powersystem.standpower.StandPower;
 import com.github.standobyte.jojo.powersystem.standpower.entity.StandEntity;
+import com.github.standobyte.jojo.util.StandUtil;
 
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.world.entity.LivingEntity;
@@ -19,14 +20,8 @@ public class StandEntityGrabReleaseAbility extends Ability {
 	}
 	
 	@Override
-	public boolean isVisible(LivingEntity user) {
-		StandPower standPower = PowerClass.STAND.get(user);
-		if (standPower != null) {
-			StandEntity standEntity = standPower.getSummonedStandEntity();
-			return standEntity != null && LivingComponentGrab.getGrabbedEntity(standEntity) != null;
-		}
-		
-		return false;
+	public boolean isAbilityAvailable(Power<?> context) {
+		return super.isAbilityAvailable(context) && StandUtil.getStandGrabTarget(context) != null;
 	}
 
 	@Override

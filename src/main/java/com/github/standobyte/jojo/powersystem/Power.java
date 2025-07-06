@@ -5,8 +5,11 @@ import java.util.Optional;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 
+import org.jetbrains.annotations.ApiStatus;
+
 import com.github.standobyte.jojo.core.JojoMod;
 import com.github.standobyte.jojo.powersystem.ability.Ability;
+import com.github.standobyte.jojo.powersystem.ability.condition.AvailableAbilities;
 import com.github.standobyte.jojo.util.entitycomponent.SynchronizablePlayerData;
 import com.github.standobyte.jojo.util.entitycomponent.TickingEntityData;
 
@@ -58,6 +61,13 @@ public abstract class Power<P extends Power<P>> implements SynchronizablePlayerD
 					user.getDisplayName().getString(), name, getClass(), getPowerType().getId());
 		}
 		return ability;
+	}
+	
+	@ApiStatus.Internal
+	public AvailableAbilities _curAvailableMoves = new AvailableAbilities();
+	public AvailableAbilities updateAvailableMoves() {
+		_curAvailableMoves.update(this, getMoveset());
+		return _curAvailableMoves;
 	}
 	
 	public boolean hasPower() {

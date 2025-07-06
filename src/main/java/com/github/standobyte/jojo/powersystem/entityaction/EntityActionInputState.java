@@ -79,7 +79,8 @@ public class EntityActionInputState implements TickingEntityData {
 					EntityActionType ability = bufferedInput.entityAbility;
 					if (performerActionData != null && ability != null && !ability.shouldBufferInput(performerActionData)) {
 						// Can finally start the previously buffered action
-						EntityActionInstance newAction = ability.initActionOnAbilityUse(user.level(), user);
+						// XXX add extra ability input (FriendlyByteBuf) to the input buffer as well?
+						EntityActionInstance newAction = ability.initActionOnAbilityUse(user.level(), user, null);
 						performerActionData.setAction(newAction, user, SyncType.TRACKING_AND_SELF);
 						for (var heldKeyAction : heldKeys.values()) {
 							if (heldKeyAction.action == bufferedInput) {

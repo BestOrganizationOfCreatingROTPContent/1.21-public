@@ -29,7 +29,7 @@ public class EntityActionAbility extends Ability implements EntityActionType {
 			FriendlyByteBuf extraClientInput, float clickHoldResolveTime) {
 		if (level.isClientSide()) return;
 		
-		EntityActionInstance action = initActionOnAbilityUse(level, user);
+		EntityActionInstance action = initActionOnAbilityUse(level, user, extraClientInput);
 		LivingComponentAction.getComponent(user).bufferOrSetAction(action, user, InputType.CLICK, clickHoldResolveTime);
 	}
 	
@@ -38,8 +38,10 @@ public class EntityActionAbility extends Ability implements EntityActionType {
 			FriendlyByteBuf extraClientInput, float clickHoldResolveTime) {
 		if (level.isClientSide()) return null;
 
-		EntityActionInstance action = initActionOnAbilityUse(level, user);
-		return LivingComponentAction.getComponent(user).bufferOrSetAction(action, user, InputType.HOLD, clickHoldResolveTime);
+		EntityActionInstance action = initActionOnAbilityUse(level, user, extraClientInput);
+		HeldInput actionOrQueue = LivingComponentAction.getComponent(user)
+				.bufferOrSetAction(action, user, InputType.HOLD, clickHoldResolveTime);
+		return actionOrQueue;
 	}
 	
 	

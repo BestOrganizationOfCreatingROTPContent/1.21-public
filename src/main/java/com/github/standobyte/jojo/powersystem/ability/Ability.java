@@ -1,11 +1,18 @@
 package com.github.standobyte.jojo.powersystem.ability;
 
+import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 
 import org.jetbrains.annotations.ApiStatus;
 
+import com.github.standobyte.jojo.client.input.InputHandler;
+import com.github.standobyte.jojo.powersystem.Power;
+import com.github.standobyte.jojo.powersystem.ability.condition.AvailableAbilities;
+import com.github.standobyte.jojo.powersystem.ability.condition.AvailableAbilities.AbilityConditionCheck;
+import com.github.standobyte.jojo.powersystem.ability.condition.ConditionCheck;
 import com.github.standobyte.jojo.powersystem.entityaction.HeldInput;
 
+import net.minecraft.client.Minecraft;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.level.Level;
@@ -18,32 +25,74 @@ public class Ability {
 		this.abilityId = abilityId;
 	}
 	
+	
+	// Most of the methods below are called in AvailableAbilities#update(Power, Moveset)
+	
+	/**
+	 * @return A variation of this ability depending on the context
+	 * (e.g. a specific punch in a combo string, a heavy punch finisher, etc.).
+	 * You should also call {@link Ability#isAbilityAvailable(Power)} on each candidate yourself,
+	 * to make sure the ability shows up when and only when it is unlocked.
+	 */
 	@ApiStatus.OverrideOnly
-	@Nullable
-	public Ability replaceWithSubAbility(LivingEntity user) {
-		return null;
+	@Nonnull
+	public Ability replaceWithSubAbility(Power<?> context) {
+		return this;
 	}
 	
-	@ApiStatus.Internal
-	public static Ability resolveSubAbility(Ability baseAbility, LivingEntity user) {
-		if (baseAbility != null) {
-			Ability subAbility = baseAbility.replaceWithSubAbility(user);
-			if (subAbility != null && subAbility.isVisible(user)) {
-				return subAbility;
-			}
-			if (baseAbility.isVisible(user)) {
-				return baseAbility;
-			}
-		}
-		return null;
-	}
-	
-	public boolean isVisible(LivingEntity user) {
+	/**
+	 * Whether or not the ability should be visible in the HUD and available to the user.
+	 * @return true if the ability is unlocked by the user, 
+	 * and it makes sense for it to show up in the HUD in the current context 
+	 * (e.g. only show the "Use item" ability if the Stand is holding an item).
+	 */
+	@ApiStatus.OverrideOnly
+	public boolean isAbilityAvailable(Power<?> context) {
 		return true;
 	}
 	
+	/**
+	 * A version of {@link Ability#checkConditions(Power)} with more control, allowing one ability to disable others 
+	 * (e.g. if the "Use item" ability is currently available, it can set all punch moves condition to negative)
+	 */
+	public void onConditionCheck(Power<?> context, AvailableAbilities abilities, AbilityConditionCheck thisAbility) {
+		ConditionCheck check = checkConditions(context);
+		thisAbility.setConditionCheck(check);
+	}
 	
-	public void writeExtraInput(FriendlyByteBuf serverboundBuf) {}
+	public ConditionCheck checkConditions(Power<?> context) {
+		return ConditionCheck.POSITIVE;
+	}
+	
+	/**
+	 * Is only called on physical client side, can be used to override whether or not an ability
+	 * shows up in the HUD and if the input is active.
+	 * For example, abilities that are used on items in the inventory (Crazy D's Item repair or item marking abilities)
+	 * don't show up in the HUD regularly, but are active when you're hovering over a fitting item.
+	 * This method is only called on the client, so it can reference client-only classes and methods.
+	 */
+	public AbilityInputActive cl_IsInputActive() {
+		return !InputHandler.holdingLAlt && Minecraft.getInstance().screen == null ? AbilityInputActive.ACTIVE : AbilityInputActive.INACTIVE_SHOW_TRANSLUCENT;
+	}
+	
+	public enum AbilityInputActive {
+		ACTIVE(true, true),
+		INACTIVE_SHOW_TRANSLUCENT(true, false),
+		INACTIVE_HIDE(false, false);
+		
+		public final boolean showInHUD;
+		public final boolean inputActive;
+		
+		private AbilityInputActive(boolean showInHUD, boolean inputActive) {
+			this.showInHUD = showInHUD;
+			this.inputActive = inputActive;
+		}
+	}
+	
+	// 
+	
+	
+	public void writeExtraInput(FriendlyByteBuf serverboundBuf, LivingEntity user) {}
 
 	// Input stuff below is called in AbilityInput
 	

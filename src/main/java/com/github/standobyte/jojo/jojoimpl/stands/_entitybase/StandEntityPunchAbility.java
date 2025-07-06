@@ -8,6 +8,7 @@ import com.github.standobyte.jojo.client.sound.ClientsideSoundsHelper;
 import com.github.standobyte.jojo.init.ModDamageTypes;
 import com.github.standobyte.jojo.init.ModSoundEvents;
 import com.github.standobyte.jojo.powersystem.Moveset;
+import com.github.standobyte.jojo.powersystem.Power;
 import com.github.standobyte.jojo.powersystem.PowerClass;
 import com.github.standobyte.jojo.powersystem.ability.Ability;
 import com.github.standobyte.jojo.powersystem.ability.AbilityId;
@@ -43,8 +44,8 @@ public class StandEntityPunchAbility extends StandEntityAbility {
 	}
 	
 	@Override
-	public Ability replaceWithSubAbility(LivingEntity user) {
-		StandPower standPower = PowerClass.STAND.get(user);
+	public Ability replaceWithSubAbility(Power<?> context) {
+		StandPower standPower = PowerClass.STAND.cast(context);
 		if (standPower != null) {
 			Moveset moveset = standPower.getMoveset();
 			int startFromPunch = 0;
@@ -74,7 +75,7 @@ public class StandEntityPunchAbility extends StandEntityAbility {
 			}
 		}
 		
-		return super.replaceWithSubAbility(user);
+		return super.replaceWithSubAbility(context);
 	}
 	
 	

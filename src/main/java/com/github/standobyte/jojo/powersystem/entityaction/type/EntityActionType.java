@@ -1,5 +1,7 @@
 package com.github.standobyte.jojo.powersystem.entityaction.type;
 
+import javax.annotation.Nullable;
+
 import org.jetbrains.annotations.ApiStatus;
 
 import com.github.standobyte.jojo.core.JojoRegistries;
@@ -11,6 +13,7 @@ import com.github.standobyte.jojo.powersystem.entityaction.EntityActionInstance;
 import com.github.standobyte.jojo.powersystem.entityaction.LivingComponentAction;
 import com.github.standobyte.jojo.powersystem.playerpower.PlayerPower;
 
+import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.network.RegistryFriendlyByteBuf;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.LivingEntity;
@@ -30,12 +33,16 @@ public interface EntityActionType {
 	 * A helper method to create the action to be set to the performer when they user uses an ability (e.g. a Hamon attack).
 	 * @param level The method is called both on server and on the player user's client.
 	 * @param user The player/mob user.
+	 * @param extraInput The extra input needed for some abilities to work, defined by overriding {@link Ability#writeExtraInput(FriendlyByteBuf, LivingEntity)}
 	 * @return The instance of the action, to be able to stop it when the player stops holding the button.
 	 */
-	default EntityActionInstance initActionOnAbilityUse(Level level, LivingEntity user) {
+	default EntityActionInstance initActionOnAbilityUse(Level level, LivingEntity user, @Nullable FriendlyByteBuf extraInput) {
 		EntityActionInstance action = createActionObj();
 		initActionFromConfig(action, level, user);
 		action.setPhaseZero();
+		if (extraInput != null) {
+			action.extraClientInput(extraInput);
+		}
 		return action;
 	}
 

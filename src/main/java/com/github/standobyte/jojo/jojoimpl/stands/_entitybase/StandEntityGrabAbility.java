@@ -2,15 +2,15 @@ package com.github.standobyte.jojo.jojoimpl.stands._entitybase;
 
 import com.github.standobyte.jojo.init.ModDataAttachmentTypes;
 import com.github.standobyte.jojo.mechanics.grab.LivingComponentGrab;
-import com.github.standobyte.jojo.powersystem.PowerClass;
+import com.github.standobyte.jojo.powersystem.Power;
 import com.github.standobyte.jojo.powersystem.ability.AbilityId;
 import com.github.standobyte.jojo.powersystem.entityaction.ActionPhase;
 import com.github.standobyte.jojo.powersystem.entityaction.EntityActionInstance;
 import com.github.standobyte.jojo.powersystem.entityaction.type.EntityActionType;
-import com.github.standobyte.jojo.powersystem.standpower.StandPower;
 import com.github.standobyte.jojo.powersystem.standpower.entity.StandEntity;
 import com.github.standobyte.jojo.powersystem.standpower.entity.StandEntityAbility;
 import com.github.standobyte.jojo.powersystem.standpower.entity.StandOffsetFromUser;
+import com.github.standobyte.jojo.util.StandUtil;
 import com.github.standobyte.jojo.util.target.ActionTarget;
 import com.github.standobyte.jojo.util.target.ActionTarget.TargetType;
 import com.github.standobyte.jojo.util.target.AimingEntity;
@@ -30,14 +30,8 @@ public class StandEntityGrabAbility extends StandEntityAbility {
 	}
 	
 	@Override
-	public boolean isVisible(LivingEntity user) {
-		StandPower standPower = PowerClass.STAND.get(user);
-		if (standPower != null) {
-			StandEntity standEntity = standPower.getSummonedStandEntity();
-			return standEntity != null && LivingComponentGrab.getGrabbedEntity(standEntity) == null;
-		}
-		
-		return false;
+	public boolean isAbilityAvailable(Power<?> context) {
+		return super.isAbilityAvailable(context) && StandUtil.getStandGrabTarget(context) == null;
 	}
 	
 

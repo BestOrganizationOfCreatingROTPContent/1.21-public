@@ -13,6 +13,7 @@ import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.network.RegistryFriendlyByteBuf;
 import net.minecraft.network.protocol.common.custom.CustomPacketPayload;
 import net.minecraft.resources.ResourceLocation;
+import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.player.Player;
 import net.neoforged.neoforge.network.handling.IPayloadContext;
 
@@ -23,25 +24,27 @@ public class ClAbilityInputPacket implements CustomPacketPayload {
 	private final AbilityInputNetwork abilityDecoded;
 	private final float timeTookToResolve;
 
+	private final LivingEntity clUser;
 	private Power<?> clUserPower; // is used to optimize the packets - if the player has power of the same powerClass and powerTypeId as in the abilityId, we don't have to send powerTypeId
 	private FriendlyByteBuf extraData;
 	
-	public static ClAbilityInputPacket click(Power<?> power, Ability ability, float timeTookToResolve) {
-		return new ClAbilityInputPacket((short) 0, InputEventType.PRESS_CLICK, power, ability, null, timeTookToResolve);
+	public static ClAbilityInputPacket click(LivingEntity user, Power<?> power, Ability ability, float timeTookToResolve) {
+		return new ClAbilityInputPacket((short) 0, InputEventType.PRESS_CLICK, user, power, ability, null, timeTookToResolve);
 	}
 	
-	public static ClAbilityInputPacket startHold(short key, Power<?> power, Ability ability, float timeTookToResolve) {
-		return new ClAbilityInputPacket(key, InputEventType.PRESS_HOLD, power, ability, null, timeTookToResolve);
+	public static ClAbilityInputPacket startHold(short key, LivingEntity user, Power<?> power, Ability ability, float timeTookToResolve) {
+		return new ClAbilityInputPacket(key, InputEventType.PRESS_HOLD, user, power, ability, null, timeTookToResolve);
 	}
 	
 	public static ClAbilityInputPacket releaseHold(short key) {
-		return new ClAbilityInputPacket(key, InputEventType.RELEASE, null, null, null, 0);
+		return new ClAbilityInputPacket(key, InputEventType.RELEASE, null, null, null, null, 0);
 	}
 	
-	private ClAbilityInputPacket(short key, InputEventType inputType, Power<?> userPower, 
+	private ClAbilityInputPacket(short key, InputEventType inputType, LivingEntity user, Power<?> userPower, 
 			@Nullable Ability abilityEncode, @Nullable AbilityInputNetwork abilityDecoded, float timeTookToResolve) {
 		this.key = key;
 		this.inputType = inputType;
+		this.clUser = user;
 		this.clUserPower = userPower;
 		this.abilityEncode = abilityEncode;
 		this.abilityDecoded = abilityDecoded;
@@ -71,7 +74,7 @@ public class ClAbilityInputPacket implements CustomPacketPayload {
 				AbilityInputNetwork.encodeInput(buf, packet.abilityEncode, packet.clUserPower);
 				if (packet.abilityEncode != null) {
 					buf.writeFloat(packet.timeTookToResolve);
-					packet.abilityEncode.writeExtraInput(buf);
+					packet.abilityEncode.writeExtraInput(buf, packet.clUser);
 				}	
 			}
 		}
@@ -86,7 +89,7 @@ public class ClAbilityInputPacket implements CustomPacketPayload {
 					AbilityInputNetwork ability = AbilityInputNetwork.decodeInput(buf);
 					float timeTookToResolve = ability != null ? buf.readFloat() : 0;
 					
-					ClAbilityInputPacket packet = new ClAbilityInputPacket(key, inputType, null, null, ability, timeTookToResolve);
+					ClAbilityInputPacket packet = new ClAbilityInputPacket(key, inputType, null, null, null, ability, timeTookToResolve);
 					int extraInputBytes = buf.readableBytes();
 					packet.extraData = extraInputBytes > 0 ? new FriendlyByteBuf(buf.readBytes(extraInputBytes)) : null;
 					yield packet;

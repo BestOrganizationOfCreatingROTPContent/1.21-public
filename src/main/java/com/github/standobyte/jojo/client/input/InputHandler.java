@@ -7,6 +7,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Queue;
 
+import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 
 import org.lwjgl.glfw.GLFW;
@@ -16,18 +17,18 @@ import com.github.standobyte.jojo.client.event.PreKeyInputEvent;
 import com.github.standobyte.jojo.core.JojoMod;
 import com.github.standobyte.jojo.core.packet.fromclient.ClAbilityInputPacket;
 import com.github.standobyte.jojo.init.power.ModPlayerPowers;
-import com.github.standobyte.jojo.powersystem.Moveset;
 import com.github.standobyte.jojo.powersystem.Power;
 import com.github.standobyte.jojo.powersystem.PowerClass;
 import com.github.standobyte.jojo.powersystem.ability.Ability;
 import com.github.standobyte.jojo.powersystem.ability.AbilityInput;
 import com.github.standobyte.jojo.powersystem.ability.AbilityInput.InputEventType;
+import com.github.standobyte.jojo.powersystem.ability.AbilityInput.InputType;
+import com.github.standobyte.jojo.powersystem.ability.condition.AvailableAbilities;
 import com.github.standobyte.jojo.powersystem.entityaction.EntityActionInstance;
 import com.github.standobyte.jojo.powersystem.entityaction.LivingComponentAction;
 import com.github.standobyte.jojo.powersystem.playerpower.PlayerPower;
 import com.github.standobyte.jojo.powersystem.standpower.StandPower;
 import com.github.standobyte.jojo.powersystem.standpower.entity.StandEntity;
-import com.github.standobyte.jojo.util.CommonEnums.DiagonalDirection2D;
 import com.github.standobyte.jojo.util.CommonEnums.Direction2D;
 import com.mojang.blaze3d.platform.InputConstants;
 import com.mojang.blaze3d.platform.InputConstants.Key;
@@ -75,6 +76,10 @@ public class InputHandler {
 		this.keybinds = VanillaKeybinds.register(event);
 	}
 	
+	@Deprecated
+	public static boolean holdingLAlt;
+	public Key lAlt = InputConstants.Type.KEYSYM.getOrCreate(InputConstants.KEY_LALT);
+	
 	
 	@SubscribeEvent
 	public void handleKeyBindingsPost(ClientTickEvent.Post event) {
@@ -87,6 +92,7 @@ public class InputHandler {
 	
 	@SubscribeEvent
 	public void onFrameUpdate(RenderFrameEvent.Pre event) {
+		holdingLAlt = heldKeys.containsKey(lAlt);
 		float tickDelta = mc.getDeltaTracker().getRealtimeDeltaTicks();
 		frameUpdateHeldKeys(tickDelta);
 	}
@@ -144,12 +150,6 @@ public class InputHandler {
 	private Queue<GeneralizedInput> keyReleaseEventQueue = new ArrayDeque<>();
 	
 	
-
-	private Key lAlt = InputConstants.Type.KEYSYM.getOrCreate(InputConstants.KEY_LALT);
-	private Key LMB = InputConstants.Type.MOUSE.getOrCreate(InputConstants.MOUSE_BUTTON_LEFT);
-	private Key RMB = InputConstants.Type.MOUSE.getOrCreate(InputConstants.MOUSE_BUTTON_RIGHT);	
-	private Key MMB = InputConstants.Type.MOUSE.getOrCreate(InputConstants.MOUSE_BUTTON_MIDDLE);
-
 	private FriendlyByteBuf inputBuf = new FriendlyByteBuf(Unpooled.buffer());
 	
 	public Power<?> getCurPower() {
@@ -178,33 +178,31 @@ public class InputHandler {
 	 */
 	public boolean input(short keyId, Object key, @Nullable Key keyboardMouseKey, int inputType, int modifiers) {
 		boolean cancelVanilla = false;
-		heldAbility = null;
-		clickAbility = null;
 		Power<?> power = getCurPower();
 		
 		switch (inputType) {
 			case InputConstants.PRESS -> {
 				// TODO ability HUD
-				if (power == null || inputsDisabled()) return false;
+				if (power == null) return false;
 				
 				KeyModifier keyModifier = getCurModifier();
 				
-				resolveInputAbilitiesOnClick(power, key, keyboardMouseKey, keyModifier);
-				boolean ambiguousClickOrHold = heldAbility != null && clickAbility != null;
-				cancelVanilla = heldAbility != null || clickAbility != null;
+				CurInput input = getInputAbilitiesOnClick(power, key, keyboardMouseKey, keyModifier);
+				boolean ambiguousClickOrHold = input.heldAbility != null && input.clickAbility != null;
+				cancelVanilla = input.heldAbility != null || input.clickAbility != null;
 
 				HeldKeyTimer heldKeyTimer = new HeldKeyTimer(keyId, cancelVanilla, keyModifier);
 				if (ambiguousClickOrHold) {
 					// TODO (!!!!) only do this if both abilities have a windup (if not, then idfk, it's 2AM rn)
 					// also consider that the windup might be shorted than 4 ticks
-					heldKeyTimer.clickHoldResolve = new ClickHoldResolve(power, heldAbility, clickAbility);
+					heldKeyTimer.clickHoldResolve = new ClickHoldResolve(power, input.heldAbility, input.clickAbility);
 				}
 				else {
-					if (heldAbility != null) {
-						doInput(InputEventType.PRESS_HOLD, keyId, power, heldAbility, 0);
+					if (input.heldAbility != null) {
+						doInput(InputEventType.PRESS_HOLD, keyId, power, input.heldAbility, 0);
 					}
-					else if (clickAbility != null) {
-						doInput(InputEventType.PRESS_CLICK, keyId, power, clickAbility, 0);
+					else if (input.clickAbility != null) {
+						doInput(InputEventType.PRESS_CLICK, keyId, power, input.clickAbility, 0);
 					}
 				}
 				
@@ -244,16 +242,16 @@ public class InputHandler {
 			case PRESS_CLICK -> {
 				if (ability == null || player == null) return;
 
-				ability.writeExtraInput(inputBuf);
+				ability.writeExtraInput(inputBuf, player);
 				AbilityInput.click(ability, player, inputBuf, timeTookToResolve);
-				PacketDistributor.sendToServer(ClAbilityInputPacket.click(power, ability, timeTookToResolve));
+				PacketDistributor.sendToServer(ClAbilityInputPacket.click(player, power, ability, timeTookToResolve));
 			}
 			case PRESS_HOLD -> {
 				if (ability == null || player == null) return;
 
-				ability.writeExtraInput(inputBuf);
+				ability.writeExtraInput(inputBuf, player);
 				AbilityInput.startHolding(keyId, ability, player, inputBuf, timeTookToResolve);
-				PacketDistributor.sendToServer(ClAbilityInputPacket.startHold(keyId, power, ability, timeTookToResolve));
+				PacketDistributor.sendToServer(ClAbilityInputPacket.startHold(keyId, player, power, ability, timeTookToResolve));
 			}
 			case RELEASE -> {
 				AbilityInput.releaseHolding(keyId, player);
@@ -262,6 +260,7 @@ public class InputHandler {
 		}
 	}
 	
+	@Deprecated
 	public boolean inputsDisabled() {
 		return mc.screen != null || heldKeys.containsKey(lAlt);
 	}
@@ -273,7 +272,7 @@ public class InputHandler {
 	
 	// Held keys stuff
 	
-	private Map<Object, HeldKeyTimer> heldKeys = new HashMap<>();
+	public Map<Object, HeldKeyTimer> heldKeys = new HashMap<>();
 	
 	public boolean isHeld(Object key, @Nullable KeyModifier modifier) {
 		HeldKeyTimer timer = heldKeys.get(key);
@@ -322,6 +321,7 @@ public class InputHandler {
 		}
 	}
 	
+	@Nonnull
 	public KeyModifier getCurModifier() {
 		return !modifiersQueue.isEmpty() ? modifiersQueue.get(modifiersQueue.size() - 1) : KeyModifier.NONE;
 	}
@@ -329,116 +329,42 @@ public class InputHandler {
 	
 	// The function that figures out what ability has the player inputed.
 	
-	private Ability heldAbility;
-	private Ability clickAbility;
+	static class CurInput {
+		private static CurInput instance = new CurInput();
+		
+		public Ability heldAbility;
+		public Ability clickAbility;
+	}
 	
-	private void resolveInputAbilitiesOnClick(Power<?> power, Object key, @Nullable Key keyboardMouseKey, KeyModifier keyModifier) {
-		// XXX custom inputs
-		if (key == LMB) {
-			clickAbility = getLMBClickAbility(power, keyModifier);
-			heldAbility = getLMBHeldAbility(power, keyModifier);
+	private CurInput getInputAbilitiesOnClick(Power<?> power, Object key, @Nullable Key keyboardMouseKey, KeyModifier keyModifier) {
+		CurInput input = CurInput.instance;
+		input.heldAbility = null;
+		input.clickAbility = null;
+		
+		ControlScheme controlScheme = null;
+		if (power.getPowerClass() == PowerClass.STAND) {
+			controlScheme = ControlScheme.PROTOTYPE_STAND;
 		}
-		else if (key == RMB) {
-			clickAbility = getRMBClickAbility(power, keyModifier);
-			heldAbility = getRMBHeldAbility(power, keyModifier);
-		}
-		else if (key == MMB) {
-			DiagonalDirection2D dir = DiagonalDirection2D.fromDirs(
-					isHeld(mc.options.keyUp.getKey(), null), 
-					isHeld(mc.options.keyUp.getKey(), null), 
-					isHeld(mc.options.keyUp.getKey(), null), 
-					isHeld(mc.options.keyUp.getKey(), null));
-			if (dir != null) {
-				clickAbility = power.getMoveset().getAbility("quickstep");
-//				quickstepDir = dir;
-			}
-			else {
-				clickAbility = power.getMoveset().getAbility("dodge");
-				heldAbility = power.getMoveset().getAbility("block");
+		else if (power.getPowerClass() == PowerClass.PLAYER_POWER) {
+			if (power.getPowerType() == ModPlayerPowers.HAMON.get()) {
+				controlScheme = ControlScheme.PROTOTYPE_HAMON;
 			}
 		}
-		// XXX (quickstep) only trigger if MMB was used as quickstep when pressed
-		// XXX (quickstep) diagonal quickstep motion when multiple of the WASD keys are pressed in the same tick (but i should also cancel them right here)
-//		else if (isHeld(MMB, KeyModifier.CONTROL)) {
-//			if (key == mc.options.keyUp.getKey()) {
-//				clickAbility = power.getMoveset().getAbility("quickstep");
-//				quickstepDir = DiagonalDirection2D.UP;
-//			}
-//			else if (key == mc.options.keyDown.getKey()) {
-//				clickAbility = power.getMoveset().getAbility("quickstep");
-//				quickstepDir = DiagonalDirection2D.DOWN;
-//			}
-//			else if (key == mc.options.keyLeft.getKey()) {
-//				clickAbility = power.getMoveset().getAbility("quickstep");
-//				quickstepDir = DiagonalDirection2D.LEFT;
-//			}
-//			else if (key == mc.options.keyRight.getKey()) {
-//				clickAbility = power.getMoveset().getAbility("quickstep");
-//				quickstepDir = DiagonalDirection2D.RIGHT;
-//			}
-//		}
-		// manual_control
-		// swap_items
-		// item_lmb
-		// item_rmb
-		// leap
-		// special
-	}
-	
-	public Ability getLMBClickAbility(Power<?> power, KeyModifier keyModifier) {
-		if (power.getPowerClass() == PowerClass.STAND) {
-			return power.getMoveset().getAbility("punch");
-		}
-		else if (power.getPowerType() == ModPlayerPowers.HAMON.get()) {
-			return power.getMoveset().getAbility("hamon_beat");
-		}
-		return null;
-	}
-	
-	public Ability getLMBHeldAbility(Power<?> power, KeyModifier keyModifier) {
-		if (power.getPowerClass() == PowerClass.STAND) {
-			return power.getMoveset().getAbility("barrage");
-		}
-		else if (power.getPowerType() == ModPlayerPowers.HAMON.get()) {
-			return power.getMoveset().getAbility("sunlight_yellow_overdrive");
-		}
-		return null;
-	}
-	
-	public Ability getRMBClickAbility(Power<?> power, KeyModifier keyModifier) {
-		if (power.getPowerClass() == PowerClass.STAND) {
-			return switch (keyModifier) {
-				case CONTROL -> getFirstVisibleAbility(power, "grab_release", "grab");
-				default -> power.getMoveset().getAbility("heavy_punch");
-			};
-		}
-		else if (power.getPowerType() == ModPlayerPowers.HAMON.get()) {
-			return power.getMoveset().getAbility("rebuff_overdrive");
-		}
-		return null;
-	}
-	
-	public Ability getRMBHeldAbility(Power<?> power, KeyModifier keyModifier) {
-		if (power.getPowerClass() == PowerClass.STAND) {
-			return switch (keyModifier) {
-				case CONTROL -> null;
-				default -> getFirstVisibleAbility(power, "grabbed_throw", "heavy_charged");
-			};
-		}
-		return null;
-	}
-	
-	public Ability getFirstVisibleAbility(Power<?> power, String... abilityNames) {
-		Moveset moveset = power.getMoveset();
-		for (String abilityName : abilityNames) {
-			Ability ability = moveset.getAbility(abilityName);
-			if (ability != null && ability.isVisible(mc.player)) {
-				return ability;
+		
+		if (controlScheme != null) {
+			List<String> heldBound = controlScheme.getBindsWithModifier(InputType.HOLD, key, keyModifier);
+			List<String> clickBound = controlScheme.getBindsWithModifier(InputType.CLICK, key, keyModifier);
+			
+			if (!(heldBound.isEmpty() && clickBound.isEmpty())) {
+				AvailableAbilities available = power.updateAvailableMoves();
+
+				input.heldAbility = ControlScheme.prioritizedAbility(heldBound, available, true).ability;
+				input.clickAbility = ControlScheme.prioritizedAbility(clickBound, available, true).ability;
 			}
 		}
-		return null;
+		
+		return input;
 	}
-	
 	
 	
 	@SubscribeEvent(priority = EventPriority.HIGH)
@@ -468,9 +394,6 @@ public class InputHandler {
 			}
 		}
 	}
-	
-	
-//	public static DiagonalDirection2D quickstepDir;
 	
 	
 	public static final Int2ObjectMap<Direction2D> ARROW_KEYS = Util.make(new Int2ObjectOpenHashMap<>(), map -> {

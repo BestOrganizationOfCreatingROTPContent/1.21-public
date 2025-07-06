@@ -20,12 +20,11 @@ public class AbilityInput {
 	public static void click(Ability ability, LivingEntity user, FriendlyByteBuf extraClientInput, float clickHoldResolveTime) {
 		if (ability == null || user == null) return;
 
-		ability = Ability.resolveSubAbility(ability, user);
 		Level level = user.level();
 		ability.onClick(level, user, extraClientInput, clickHoldResolveTime);
 		if (!level.isClientSide()) {
 			PacketDistributor.sendToPlayersTrackingEntity(user, 
-					TrAbilityUsePacket.click(user.getId(), ability, clickHoldResolveTime));
+					TrAbilityUsePacket.click(user.getId(), ability, clickHoldResolveTime, user));
 		}
 	}
 
@@ -43,7 +42,6 @@ public class AbilityInput {
 			LivingEntity user, FriendlyByteBuf extraClientInput, float clickHoldResolveTime) {
 		if (ability == null || user == null) return null;
 
-		ability = Ability.resolveSubAbility(ability, user);
 		EntityActionInputState inputHandler = user.getData(ModDataAttachmentTypes.ENTITY_ABILITY_INPUT.get());
 		if (inputHandler == null) return null;
 		
@@ -51,7 +49,7 @@ public class AbilityInput {
 		HeldInput action = ability.onButtonStartHold(level, user, extraClientInput, clickHoldResolveTime);
 		if (!level.isClientSide()) {
 			PacketDistributor.sendToPlayersTrackingEntity(user, 
-					TrAbilityUsePacket.startHold(user.getId(), keyId, ability, clickHoldResolveTime));
+					TrAbilityUsePacket.startHold(user.getId(), keyId, ability, clickHoldResolveTime, user));
 		}
 		
 		HeldInputEntry heldInput = new HeldInputEntry(keyId, ability, action);
