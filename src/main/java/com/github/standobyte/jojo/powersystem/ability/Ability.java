@@ -76,16 +76,20 @@ public class Ability {
 	}
 	
 	public enum AbilityInputActive {
-		ACTIVE(true, true),
-		INACTIVE_SHOW_TRANSLUCENT(true, false),
-		INACTIVE_HIDE(false, false);
+		ACTIVE(						true, 	true, 	false),
+		INACTIVE_SHOW_TRANSLUCENT(	true, 	false, 	false),
+		INACTIVE_HIDE(				false, 	false, 	false),
+		ACTIVE_IN_CONTAINER(		true, 	true, 	true),
+		INACTIVE_IN_CONTAINER(		true, 	false, 	true);
 		
 		public final boolean showInHUD;
 		public final boolean inputActive;
+		public final boolean inContainer;
 		
-		private AbilityInputActive(boolean showInHUD, boolean inputActive) {
+		private AbilityInputActive(boolean showInHUD, boolean inputActive, boolean inContainer) {
 			this.showInHUD = showInHUD;
 			this.inputActive = inputActive;
+			this.inContainer = inContainer;
 		}
 	}
 	

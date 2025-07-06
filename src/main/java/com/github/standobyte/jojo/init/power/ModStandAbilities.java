@@ -9,6 +9,7 @@ import com.github.standobyte.jojo.jojoimpl.stands._entitybase.StandEntityGrabThr
 import com.github.standobyte.jojo.jojoimpl.stands._entitybase.StandEntityHeavyPunchAbility;
 import com.github.standobyte.jojo.jojoimpl.stands._entitybase.StandEntityHeavyPunchChargedAbility;
 import com.github.standobyte.jojo.jojoimpl.stands._entitybase.StandEntityPunchAbility;
+import com.github.standobyte.jojo.jojoimpl.stands.crazydiamond.CrazyDRepairItemAbility;
 import com.github.standobyte.jojo.jojoimpl.stands.starplatinum.InhaleAbility;
 import com.github.standobyte.jojo.jojoimpl.stands.starplatinum.StarFingerAbility;
 import com.github.standobyte.jojo.jojoimpl.stands.starplatinum.StarFingerSwipeAbility;
@@ -52,6 +53,9 @@ public final class ModStandAbilities {
 	
 	public static final DeferredHolder<AbilityType<?>, AbilityType<TimeStopAbility>> TIME_STOP = ABILITY_TYPES.register(
 			"time_stop", key -> new AbilityType<>(key, TimeStopAbility::new));
+	
+	public static final DeferredHolder<AbilityType<?>, AbilityType<CrazyDRepairItemAbility>> CD_REPAIR_ITEM = ABILITY_TYPES.register(
+			"repair_item", key -> new AbilityType<>(key, CrazyDRepairItemAbility::new));
 	
 	
 	public static void load() {}

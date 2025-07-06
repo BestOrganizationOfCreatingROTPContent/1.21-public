@@ -22,27 +22,55 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.Font;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.LayeredDraw;
+import net.minecraft.client.gui.screens.inventory.AbstractContainerScreen;
 import net.minecraft.util.ARGB;
 import net.minecraft.world.entity.player.Player;
 import net.neoforged.api.distmarker.Dist;
 import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.fml.common.EventBusSubscriber;
 import net.neoforged.fml.common.EventBusSubscriber.Bus;
+import net.neoforged.neoforge.client.event.ContainerScreenEvent;
 import net.neoforged.neoforge.client.event.RegisterGuiLayersEvent;
 import net.neoforged.neoforge.client.settings.KeyModifier;
+import net.neoforged.neoforge.common.NeoForge;
 
 @EventBusSubscriber(value = Dist.CLIENT, bus = Bus.MOD)
 public class DebugStandHud {
+	
+	public static PrototypeAbilityHud abilityHUDInstance;
 
 	@SubscribeEvent
-	public static void addHud(RegisterGuiLayersEvent zaloopa) {
-		zaloopa.registerAboveAll(JojoMod.resLoc("prototype_stand_hud"), new PrototypeStandHud());
+	public static void addHud(RegisterGuiLayersEvent event) {
+		event.registerAboveAll(JojoMod.resLoc("ability_hud"), abilityHUDInstance = new PrototypeAbilityHud());
+		NeoForge.EVENT_BUS.register(new GameBusEventHandler());
 	}
 	
-	public static class PrototypeStandHud implements LayeredDraw.Layer {
-
+	public static class GameBusEventHandler {
+		
+		@SubscribeEvent
+		public void onContainerMenuRender(ContainerScreenEvent.Render.Foreground event) {
+			GuiGraphics graphics = event.getGuiGraphics();
+			AbstractContainerScreen<?> screen = event.getContainerScreen();
+			graphics.pose().pushPose();
+			graphics.pose().translate(-screen.getGuiLeft(), -screen.getGuiTop(), 0.0F);
+			abilityHUDInstance.renderAbilitiesHUD(graphics, Minecraft.getInstance().getDeltaTracker(), true);
+			graphics.pose().popPose();
+		}
+		
+	}
+	
+	public static class PrototypeAbilityHud implements LayeredDraw.Layer {
+		
 		@Override
 		public void render(GuiGraphics guiGraphics, DeltaTracker deltaTracker) {
+			Minecraft mc = Minecraft.getInstance();
+			if (!(mc.screen instanceof AbstractContainerScreen)) {
+				renderAbilitiesHUD(guiGraphics, deltaTracker, false);
+			}
+			
+		}
+
+		public void renderAbilitiesHUD(GuiGraphics guiGraphics, DeltaTracker deltaTracker, boolean inContainerMenu) {
 			Minecraft mc = Minecraft.getInstance();
 			if (mc.options.hideGui) return;
 			InputHandler input = InputHandler.getInstance();
@@ -87,12 +115,12 @@ public class DebugStandHud {
 					var ability = ControlScheme.prioritizedAbility(boundAbilities, available, false);
 					if (ability.ability != null) {
 						AbilityInputActive mode = ability.ability.cl_IsInputActive();
-						if (mode.showInHUD) {
+						if (mode.showInHUD && (mode.inContainer == inContainerMenu)) {
 							int nameColor = color;
 							if (!ability.conditionCheck.isPositive()) {
 								nameColor = ARGB.multiply(nameColor, 0xFF606060);
 							}
-							if (mode == AbilityInputActive.INACTIVE_SHOW_TRANSLUCENT) {
+							if (!mode.inputActive) {
 								nameColor &= 0x40FFFFFF;
 							}
 							String bindName = keybind.inputType() == InputType.HOLD ? "Hold " : "";

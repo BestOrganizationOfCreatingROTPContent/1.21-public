@@ -90,6 +90,8 @@ public class ModStands {
 					.build(),
 
 					new MovesetBuilder()
+					.addAbility("barrage", 				ModStandAbilities.BARRAGE, true)
+					.addAbility("repair_item", 			ModStandAbilities.CD_REPAIR_ITEM, false)
 
 					, id));
 }
