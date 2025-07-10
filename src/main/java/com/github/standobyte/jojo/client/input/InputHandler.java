@@ -14,7 +14,6 @@ import org.lwjgl.glfw.GLFW;
 
 import com.github.standobyte.jojo.client.ClientGlobals;
 import com.github.standobyte.jojo.client.event.PreKeyInputEvent;
-import com.github.standobyte.jojo.core.JojoMod;
 import com.github.standobyte.jojo.core.packet.fromclient.ClAbilityInputPacket;
 import com.github.standobyte.jojo.init.power.ModPlayerPowers;
 import com.github.standobyte.jojo.powersystem.Power;
@@ -24,6 +23,8 @@ import com.github.standobyte.jojo.powersystem.ability.AbilityInput;
 import com.github.standobyte.jojo.powersystem.ability.AbilityInput.InputEventType;
 import com.github.standobyte.jojo.powersystem.ability.AbilityInput.InputType;
 import com.github.standobyte.jojo.powersystem.ability.condition.AvailableAbilities;
+import com.github.standobyte.jojo.powersystem.ability.condition.AvailableAbilities.AbilityConditionCheck;
+import com.github.standobyte.jojo.powersystem.ability.condition.ConditionCheck;
 import com.github.standobyte.jojo.powersystem.entityaction.EntityActionInstance;
 import com.github.standobyte.jojo.powersystem.entityaction.LivingComponentAction;
 import com.github.standobyte.jojo.powersystem.playerpower.PlayerPower;
@@ -154,12 +155,12 @@ public class InputHandler {
 	
 	public Power<?> getCurPower() {
 		if (mc.player != null) {
-			StandPower standPower = PowerClass.STAND.get(mc.player);
+			StandPower standPower = ClientPowerCache.getPower(PowerClass.STAND);
 			if (standPower != null && standPower.hasPower() && standPower.isSummoned()) {
 				return standPower;
 			}
 			
-			PlayerPower power = PowerClass.PLAYER_POWER.get(mc.player);
+			PlayerPower power = ClientPowerCache.getPower(PowerClass.PLAYER_POWER);
 			if (power != null && power.hasPower()) {
 				return power;
 			}
@@ -188,21 +189,24 @@ public class InputHandler {
 				KeyModifier keyModifier = getCurModifier();
 				
 				CurInput input = getInputAbilitiesOnClick(power, key, keyboardMouseKey, keyModifier);
-				boolean ambiguousClickOrHold = input.heldAbility != null && input.clickAbility != null;
-				cancelVanilla = input.heldAbility != null || input.clickAbility != null;
+				@Nullable Ability heldAbility = input.heldAbility.ability;
+				@Nullable Ability clickAbility = input.clickAbility.ability;
+				
+				boolean ambiguousClickOrHold = heldAbility != null && clickAbility != null;
+				cancelVanilla = heldAbility != null || clickAbility != null;
 
 				HeldKeyTimer heldKeyTimer = new HeldKeyTimer(keyId, cancelVanilla, keyModifier);
 				if (ambiguousClickOrHold) {
 					// TODO (!!!!) only do this if both abilities have a windup (if not, then idfk, it's 2AM rn)
 					// also consider that the windup might be shorted than 4 ticks
-					heldKeyTimer.clickHoldResolve = new ClickHoldResolve(power, input.heldAbility, input.clickAbility);
+					heldKeyTimer.clickHoldResolve = new ClickHoldResolve(power, heldAbility, clickAbility);
 				}
 				else {
-					if (input.heldAbility != null) {
-						doInput(InputEventType.PRESS_HOLD, keyId, power, input.heldAbility, 0);
+					if (heldAbility != null) {
+						doInput(InputEventType.PRESS_HOLD, keyId, power, heldAbility, input.heldAbility.conditionCheck, 0);
 					}
-					else if (input.clickAbility != null) {
-						doInput(InputEventType.PRESS_CLICK, keyId, power, input.clickAbility, 0);
+					else if (clickAbility != null) {
+						doInput(InputEventType.PRESS_CLICK, keyId, power, clickAbility, input.clickAbility.conditionCheck, 0);
 					}
 				}
 				
@@ -214,15 +218,10 @@ public class InputHandler {
 				
 				if (heldTicks != null) {
 					if (heldTicks.clickHoldResolve != null) {
-						ClickHoldResolve keyResolution = heldTicks.clickHoldResolve;
-						var wasItClick = keyResolution.keyReleased();
-						if (wasItClick != null && wasItClick.input() == ClickHoldResolve.InputState.CLICK) {
-							JojoMod.LOGGER.debug("input is click: {}, took {} ticks to resolve", keyResolution.clickAbility.abilityId.nameInMoveset(), wasItClick.timeTook());
-							doInput(InputEventType.PRESS_CLICK, keyId, keyResolution.power, keyResolution.clickAbility, wasItClick.timeTook());
-						}
+						clickHeldOnRelease(heldTicks, keyId);
 					}
 					else {
-						doInput(InputEventType.RELEASE, keyId, null, null, 0);
+						doInput(InputEventType.RELEASE, keyId, null, null, ConditionCheck.POSITIVE, 0);
 					}
 				}
 				
@@ -236,21 +235,25 @@ public class InputHandler {
 		return cancelVanilla;
 	}
 	
-	private void doInput(InputEventType type, short keyId, Power<?> power, Ability ability, float timeTookToResolve) {
+	private void doInput(InputEventType type, short keyId, Power<?> power, Ability ability, ConditionCheck conditionCheck, float timeTookToResolve) {
 		Player player = mc.player;
 		switch (type) {
 			case PRESS_CLICK -> {
 				if (ability == null || player == null) return;
 
-				ability.writeExtraInput(inputBuf, player);
-				AbilityInput.click(ability, player, inputBuf, timeTookToResolve);
+				if (conditionCheck.isPositive()) {
+					ability.writeExtraInput(inputBuf, player);
+					AbilityInput.click(ability, player, inputBuf, timeTookToResolve);
+				}
 				PacketDistributor.sendToServer(ClAbilityInputPacket.click(player, power, ability, timeTookToResolve));
 			}
 			case PRESS_HOLD -> {
 				if (ability == null || player == null) return;
 
-				ability.writeExtraInput(inputBuf, player);
-				AbilityInput.startHolding(keyId, ability, player, inputBuf, timeTookToResolve);
+				if (conditionCheck.isPositive()) {
+					ability.writeExtraInput(inputBuf, player);
+					AbilityInput.startHolding(keyId, ability, player, inputBuf, timeTookToResolve);
+				}
 				PacketDistributor.sendToServer(ClAbilityInputPacket.startHold(keyId, player, power, ability, timeTookToResolve));
 			}
 			case RELEASE -> {
@@ -282,17 +285,33 @@ public class InputHandler {
 		return false;
 	}
 	
+	private void clickHeldOnRelease(HeldKeyTimer heldTicks, short keyId) {
+		ClickHoldResolve keyResolution = heldTicks.clickHoldResolve;
+		var wasItClick = keyResolution.keyReleased();
+		if (wasItClick != null && wasItClick.input() == ClickHoldResolve.InputState.CLICK) {
+			Power<?> power = keyResolution.power;
+			Ability ability = keyResolution.clickAbility;
+			ConditionCheck conditionCheck = ClientPowerCache.getAvailableMoves(power.getPowerClass(), power).getConditionCheck(ability);
+			float ticksToResolveClick = wasItClick.timeTook();
+			doInput(InputEventType.PRESS_CLICK, keyId, power, ability, conditionCheck, ticksToResolveClick);
+		}
+	}
+	
 	private void frameUpdateHeldKeys(float tickDelta) {
 		for (var timer : heldKeys.values()) {
-			if (timer.clickHoldResolve != null) {
-				var changedState = timer.clickHoldResolve.frameUpdate(tickDelta);
+			ClickHoldResolve keyResolution = timer.clickHoldResolve;
+			if (keyResolution != null) {
+				var changedState = keyResolution.frameUpdate(tickDelta);
 				if (changedState != null) {
 					switch (changedState.input()) {
 						// TODO (!!!!) only set the animation for the held ability action to the entity, but not the actual action yet
 						case ASSUME_HOLD -> {}
 						case HOLD -> {
-							JojoMod.LOGGER.debug("input is held: {}, took {} ticks to resolve", timer.clickHoldResolve.heldAbility.abilityId.nameInMoveset(), changedState.timeTook());
-							doInput(InputEventType.PRESS_HOLD, timer.keyId, timer.clickHoldResolve.power, timer.clickHoldResolve.heldAbility, changedState.timeTook());
+							Power<?> power = keyResolution.power;
+							Ability ability = keyResolution.heldAbility;
+							ConditionCheck conditionCheck = ClientPowerCache.getAvailableMoves(power.getPowerClass(), power).getConditionCheck(ability);
+							float ticksToResolveHeld = changedState.timeTook();
+							doInput(InputEventType.PRESS_HOLD, timer.keyId, power, ability, conditionCheck, ticksToResolveHeld);
 							timer.clickHoldResolve = null;
 						}
 						default -> {}
@@ -332,14 +351,14 @@ public class InputHandler {
 	static class CurInput {
 		private static CurInput instance = new CurInput();
 		
-		public Ability heldAbility;
-		public Ability clickAbility;
+		public AbilityConditionCheck heldAbility;
+		public AbilityConditionCheck clickAbility;
 	}
 	
 	private CurInput getInputAbilitiesOnClick(Power<?> power, Object key, @Nullable Key keyboardMouseKey, KeyModifier keyModifier) {
 		CurInput input = CurInput.instance;
-		input.heldAbility = null;
-		input.clickAbility = null;
+		input.heldAbility = AbilityConditionCheck.NULL_ABILITY;
+		input.clickAbility = AbilityConditionCheck.NULL_ABILITY;
 		
 		ControlScheme controlScheme = null;
 		if (power.getPowerClass() == PowerClass.STAND) {
@@ -356,10 +375,10 @@ public class InputHandler {
 			List<String> clickBound = controlScheme.getBindsWithModifier(InputType.CLICK, key, keyModifier);
 			
 			if (!(heldBound.isEmpty() && clickBound.isEmpty())) {
-				AvailableAbilities available = power.updateAvailableMoves();
+				AvailableAbilities available = ClientPowerCache.getAvailableMoves(power.getPowerClass(), power);
 
-				input.heldAbility = ControlScheme.prioritizedAbility(heldBound, available, true).ability;
-				input.clickAbility = ControlScheme.prioritizedAbility(clickBound, available, true).ability;
+				input.heldAbility = ControlScheme.prioritizedAbility(heldBound, available, true);
+				input.clickAbility = ControlScheme.prioritizedAbility(clickBound, available, true);
 			}
 		}
 		

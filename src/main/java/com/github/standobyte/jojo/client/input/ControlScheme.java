@@ -51,7 +51,7 @@ public class ControlScheme {
 	
 	public static AbilityConditionCheck prioritizedAbility(List<String> abilityNames, AvailableAbilities available, boolean onlyWithInputActive) {
 		return abilityNames.stream()
-				.map(abilityName -> available.inMoveset.get(abilityName))
+				.map(abilityName -> available._inMoveset.get(abilityName))
 				.filter(a -> a != null && (!onlyWithInputActive || a.ability.cl_IsInputActive().inputActive))
 				.sorted(Comparator.comparingInt(a -> a.conditionCheck.isPositive() ? 0 : 1))
 				.findFirst().orElse(AbilityConditionCheck.NULL_ABILITY);

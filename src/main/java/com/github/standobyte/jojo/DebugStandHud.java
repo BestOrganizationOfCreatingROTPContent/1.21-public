@@ -2,6 +2,7 @@ package com.github.standobyte.jojo;
 
 import java.util.List;
 
+import com.github.standobyte.jojo.client.input.ClientPowerCache;
 import com.github.standobyte.jojo.client.input.ControlScheme;
 import com.github.standobyte.jojo.client.input.ControlScheme.KeybindNoModifier;
 import com.github.standobyte.jojo.client.input.InputHandler;
@@ -106,8 +107,7 @@ public class DebugStandHud {
 			}
 			
 			if (controlScheme != null) {
-				AvailableAbilities available = power.updateAvailableMoves();
-				
+				AvailableAbilities available = ClientPowerCache.getAvailableMoves(power.getPowerClass(), power);
 				var binds = controlScheme.bindsMapView;
 				for (var bindEntry : binds.entrySet()) {
 					KeybindNoModifier keybind = bindEntry.getKey();
@@ -135,5 +135,6 @@ public class DebugStandHud {
 		}
 		
 	}
+	
 	
 }

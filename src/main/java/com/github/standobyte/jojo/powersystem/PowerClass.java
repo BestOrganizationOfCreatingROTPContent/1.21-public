@@ -39,15 +39,15 @@ public abstract class PowerClass<P extends Power<P>> {
 		}
 
 	};
-	private static final PowerClass<?>[] VALUES = { STAND, PLAYER_POWER };
+	public static final PowerClass<?>[] VALUES = { STAND, PLAYER_POWER };
 
 	private final String name;
-	private final int id;
+	private final int ordinal;
 	private final Supplier<AttachmentType<P>> dataAttachment;
 
-	private PowerClass(String name, int id, Supplier<AttachmentType<P>> dataAttachment) {
+	private PowerClass(String name, int ordinal, Supplier<AttachmentType<P>> dataAttachment) {
 		this.name = name;
-		this.id = id;
+		this.ordinal = ordinal;
 		this.dataAttachment = dataAttachment;
 	}
 	
@@ -90,12 +90,16 @@ public abstract class PowerClass<P extends Power<P>> {
 		return VALUES;
 	}
 	
+	public int ordinal() {
+		return ordinal;
+	}
+	
 	
 	public static final StreamCodec<ByteBuf, PowerClass<?>> NETWORK_CODEC = new StreamCodec<>() {
 
 		@Override
 		public void encode(ByteBuf buffer, PowerClass<?> value) {
-			ByteBufCodecs.VAR_INT.encode(buffer, value.id);
+			ByteBufCodecs.VAR_INT.encode(buffer, value.ordinal);
 		}
 
 		@Override

@@ -103,11 +103,15 @@ public class ClAbilityInputPacket implements CustomPacketPayload {
 			switch (payload.inputType) {
 				case PRESS_CLICK -> {
 					Ability ability = payload.abilityDecoded != null ? payload.abilityDecoded.getAbility(player) : null;
-					AbilityInput.click(ability, player, payload.extraData, payload.timeTookToResolve);
+					if (AbilityInput.withConditionCheck(ability, player)) {
+						AbilityInput.click(ability, player, payload.extraData, payload.timeTookToResolve);
+					}
 				}
 				case PRESS_HOLD -> {
 					Ability ability = payload.abilityDecoded != null ? payload.abilityDecoded.getAbility(player) : null;
-					AbilityInput.startHolding(payload.key, ability, player, payload.extraData, payload.timeTookToResolve);
+					if (AbilityInput.withConditionCheck(ability, player)) {
+						AbilityInput.startHolding(payload.key, ability, player, payload.extraData, payload.timeTookToResolve);
+					}
 				}
 				case RELEASE -> AbilityInput.releaseHolding(payload.key, player);
 			}

@@ -64,7 +64,7 @@ public abstract class Power<P extends Power<P>> implements SynchronizablePlayerD
 	}
 	
 	@ApiStatus.Internal
-	public AvailableAbilities _curAvailableMoves = new AvailableAbilities();
+	public AvailableAbilities _curAvailableMoves = new AvailableAbilities(getPowerClass());
 	public AvailableAbilities updateAvailableMoves() {
 		_curAvailableMoves.update(this, getMoveset());
 		return _curAvailableMoves;

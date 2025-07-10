@@ -5,37 +5,45 @@ import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
 
+import javax.annotation.Nonnull;
+
 import org.jetbrains.annotations.ApiStatus;
 
 import com.github.standobyte.jojo.powersystem.Moveset;
 import com.github.standobyte.jojo.powersystem.Power;
+import com.github.standobyte.jojo.powersystem.PowerClass;
 import com.github.standobyte.jojo.powersystem.ability.Ability;
 import com.github.standobyte.jojo.powersystem.ability.AbilityId;
 
 public class AvailableAbilities {
-	public final Map<String, AbilityConditionCheck> inMoveset = new HashMap<>();
+	public final PowerClass<?> powerClass;
+	public final Map<String, AbilityConditionCheck> _inMoveset = new HashMap<>();
 	public final Map<String, Ability> inMovesetAndCanBeUsed = new HashMap<>();
 	
+	public AvailableAbilities(PowerClass<?> powerClass) {
+		this.powerClass = powerClass;
+	}
+	
 	public void update(Power<?> context, Moveset baseMoveset) {
-		inMoveset.clear();
+		_inMoveset.clear();
 		
 		for (var baseAbilityEntry : baseMoveset.abilities.entrySet()) {
 			Ability ability = baseAbilityEntry.getValue();
 			ability = ability.replaceWithSubAbility(context);
 			if (ability.isAbilityAvailable(context)) {
 				AbilityConditionCheck container = getContainerFor(ability);
-				inMoveset.put(baseAbilityEntry.getKey(), container);
+				_inMoveset.put(baseAbilityEntry.getKey(), container);
 			}
 		}
 		
 		__visibleIter.clear();
-		__visibleIter.addAll(inMoveset.values());
+		__visibleIter.addAll(_inMoveset.values());
 		for (AbilityConditionCheck ability : __visibleIter) {
 			ability.ability.onConditionCheck(context, this, ability);
 		}
 		
 		inMovesetAndCanBeUsed.clear();
-		for (var abilityEntry : inMoveset.entrySet()) {
+		for (var abilityEntry : _inMoveset.entrySet()) {
 			AbilityConditionCheck ability = abilityEntry.getValue();
 			if (ability.conditionCheck.isPositive()) {
 				inMovesetAndCanBeUsed.put(abilityEntry.getKey(), ability.ability);
@@ -45,10 +53,21 @@ public class AvailableAbilities {
 	
 	
 	public void setConditionCheck(String baseAbilityName, ConditionCheck check) {
-		AbilityConditionCheck container = inMoveset.get(baseAbilityName);
+		AbilityConditionCheck container = _inMoveset.get(baseAbilityName);
 		if (container != null) {
 			container.setConditionCheck(check);
 		}
+	}
+	
+	@Nonnull
+	public ConditionCheck getConditionCheck(Ability ability) {
+		return getConditionCheck(ability.abilityId.nameInMoveset());
+	}
+
+	@Nonnull
+	public ConditionCheck getConditionCheck(String baseAbilityName) {
+		AbilityConditionCheck container = _inMoveset.get(baseAbilityName);
+		return container != null ? container.conditionCheck : ConditionCheck.NEGATIVE;
 	}
 
 	

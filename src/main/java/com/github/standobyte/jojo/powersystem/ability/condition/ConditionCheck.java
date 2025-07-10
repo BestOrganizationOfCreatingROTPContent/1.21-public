@@ -5,6 +5,7 @@ import javax.annotation.Nullable;
 import com.github.standobyte.jojo.powersystem.ability.Ability;
 
 import net.minecraft.network.chat.Component;
+import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.entity.LivingEntity;
 
 public class ConditionCheck {
@@ -59,13 +60,13 @@ public class ConditionCheck {
 	}
 	
 	public static void sendActionFailedMessage(Ability ability, ConditionCheck result, LivingEntity user) {
-//		if (!user.level().isClientSide() && ability.sendsConditionMessage()) {
-//			Component message = result.getWarning();
-//			
-//			if (message != null && user instanceof ServerPlayer) {
-//				((ServerPlayer) user).displayClientMessage(message, true);
-//			}
-//		}
+		if (!user.level().isClientSide() /* && ability.sendsConditionMessage() */) {
+			Component message = result.getWarning();
+			
+			if (message != null && user instanceof ServerPlayer player) {
+				player.displayClientMessage(message, true);
+			}
+		}
 	}
 
 }

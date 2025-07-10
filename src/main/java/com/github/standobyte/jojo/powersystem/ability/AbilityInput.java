@@ -6,6 +6,9 @@ import javax.annotation.Nullable;
 
 import com.github.standobyte.jojo.core.packet.fromserver.TrAbilityUsePacket;
 import com.github.standobyte.jojo.init.ModDataAttachmentTypes;
+import com.github.standobyte.jojo.powersystem.Power;
+import com.github.standobyte.jojo.powersystem.ability.condition.AvailableAbilities;
+import com.github.standobyte.jojo.powersystem.ability.condition.ConditionCheck;
 import com.github.standobyte.jojo.powersystem.entityaction.EntityActionInputState;
 import com.github.standobyte.jojo.powersystem.entityaction.EntityActionInputState.HeldInputEntry;
 import com.github.standobyte.jojo.powersystem.entityaction.HeldInput;
@@ -16,6 +19,28 @@ import net.minecraft.world.level.Level;
 import net.neoforged.neoforge.network.PacketDistributor;
 
 public class AbilityInput {
+	
+	public static boolean withConditionCheck(Ability ability, LivingEntity user) {
+		if (ability == null || user == null) return false;
+		
+		Power<?> power = ability.abilityId.powerClass().get(user);
+		if (power == null) {
+			return false;
+		}
+		
+		var availableAbilities = power.updateAvailableMoves();
+		return withConditionCheck(ability, availableAbilities, user);
+	}
+	
+	public static boolean withConditionCheck(Ability ability, AvailableAbilities updatedAvailable, LivingEntity user) {
+		ConditionCheck conditionCheck = updatedAvailable.getConditionCheck(ability);
+		boolean canUse = conditionCheck.isPositive();
+		if (!canUse) {
+			ConditionCheck.sendActionFailedMessage(ability, conditionCheck, user);
+		}
+		return canUse;
+	}
+	
 
 	public static void click(Ability ability, LivingEntity user, FriendlyByteBuf extraClientInput, float clickHoldResolveTime) {
 		if (ability == null || user == null) return;
