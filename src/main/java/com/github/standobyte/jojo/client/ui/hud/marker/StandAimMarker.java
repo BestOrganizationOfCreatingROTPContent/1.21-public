@@ -2,10 +2,12 @@ package com.github.standobyte.jojo.client.ui.hud.marker;
 
 import java.util.List;
 
+import com.github.standobyte.jojo.client.input.ClientPowerCache;
 import com.github.standobyte.jojo.client.input.ClientsideAim;
 import com.github.standobyte.jojo.client.ui.hud.AdditionalHud;
 import com.github.standobyte.jojo.client.ui.utils.GuiIcon;
 import com.github.standobyte.jojo.core.JojoMod;
+import com.github.standobyte.jojo.powersystem.PowerClass;
 import com.github.standobyte.jojo.powersystem.standpower.StandPower;
 import com.github.standobyte.jojo.util.target.ActionTarget;
 import com.mojang.blaze3d.vertex.PoseStack;
@@ -21,7 +23,7 @@ public class StandAimMarker extends MarkerRenderer {
 	protected boolean shouldRender() {
 		// TODO (stand aim marker) after fixing the depth issue, enable it in the build
 		if (JojoMod.disableDevStuff() || mc.player == null) return false;
-		StandPower standPower = StandPower.get(mc.player);
+		StandPower standPower = ClientPowerCache.getPower(PowerClass.STAND);
 		return standPower != null && standPower.getSummonedStandEntity() != null;
 	}
 

@@ -1,9 +1,10 @@
 package com.github.standobyte.jojo.client;
 
+import com.github.standobyte.jojo.client.input.ClientPowerCache;
+import com.github.standobyte.jojo.powersystem.PowerClass;
 import com.github.standobyte.jojo.powersystem.standpower.StandPower;
 import com.github.standobyte.jojo.powersystem.standpower.entity.StandEntity;
 import com.github.standobyte.jojo.util.JojoModUtil;
-import com.github.standobyte.jojo.util.StandUtil;
 
 import net.minecraft.client.Minecraft;
 
@@ -15,12 +16,12 @@ public class ClientGlobals {
 
 	public static void tick(Minecraft mc) {
 		if (mc.player != null) {
-			playerStandEntity = StandUtil.getSummonedStand(mc.player);
+			StandPower stand = ClientPowerCache.getPower(PowerClass.STAND);
+			playerStandEntity = stand != null ? stand.getSummonedStandEntity() : null;
 			if (JojoModUtil.isPlayerSpectator(mc.player)) {
 				canSeeStands = true;
 			}
 			else {
-				StandPower stand = StandPower.get(mc.player);
 				canSeeStands = stand != null && stand.hasPower();
 			}
 			canHearStands = canSeeStands;

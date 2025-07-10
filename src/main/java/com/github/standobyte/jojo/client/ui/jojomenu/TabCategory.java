@@ -6,6 +6,7 @@ import java.util.function.Supplier;
 
 import javax.annotation.Nullable;
 
+import com.github.standobyte.jojo.client.input.ClientPowerCache;
 import com.github.standobyte.jojo.client.ui.utils.GuiIcon;
 import com.github.standobyte.jojo.powersystem.Power;
 import com.github.standobyte.jojo.powersystem.PowerClass;
@@ -15,7 +16,6 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.network.chat.Component;
-import net.minecraft.world.entity.player.Player;
 
 public class TabCategory implements IJojoMenuTab {
 	public static final List<TabCategory> ALL_CATEGORIES = new ArrayList<>();
@@ -40,9 +40,7 @@ public class TabCategory implements IJojoMenuTab {
 	
 	public boolean isActive() {
 		if (powerClass != null) {
-			Player player = Minecraft.getInstance().player;
-			if (player == null) return false;
-			Power<?> power = powerClass.get(player);
+			Power<?> power = ClientPowerCache.getPower(powerClass);
 			return power != null && power.hasPower() && (powerType == null || power.getPowerType() == powerType.get());
 		}
 		for (Tab tab : tabs) {
