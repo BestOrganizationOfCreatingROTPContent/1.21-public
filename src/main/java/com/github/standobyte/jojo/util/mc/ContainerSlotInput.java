@@ -29,15 +29,15 @@ public record ContainerSlotInput(
 	}
 
 	public static ItemStack getItem(ContainerSlotInput input, Player player) {
-		if (player.containerMenu.containerId == input.containerId) {
+		if (player.containerMenu.containerId == input.containerId()) {
 			if (!player.containerMenu.stillValid(player)) {
 				JojoMod.getLogger().debug("Player {} interacted with invalid menu {}", player, player.containerMenu);
 			} else {
-				if (!player.containerMenu.isValidSlotIndex(input.slotNum)) {
+				if (!player.containerMenu.isValidSlotIndex(input.slotNum())) {
 					JojoMod.getLogger().debug("Player {} interacted with invalid slot index: {}, available slots: {}", 
-							player.getName(), input.slotNum, player.containerMenu.slots.size());
+							player.getName(), input.slotNum(), player.containerMenu.slots.size());
 				} else {
-					Slot slot = player.containerMenu.getSlot(input.slotNum);
+					Slot slot = player.containerMenu.getSlot(input.slotNum());
 					ItemStack item = slot.getItem();
 
 //					if (input.stateId != player.containerMenu.getStateId()) {
@@ -55,8 +55,8 @@ public record ContainerSlotInput(
 	public static final StreamCodec<? super FriendlyByteBuf, ContainerSlotInput> STREAM_CODEC = new StreamCodec<>() {
 		
 		@Override public void encode(FriendlyByteBuf buffer, ContainerSlotInput value) {
-			buffer.writeContainerId(value.containerId);
-			buffer.writeShort(value.slotNum);
+			buffer.writeContainerId(value.containerId());
+			buffer.writeShort(value.slotNum());
 		}
 		
 		@Override public ContainerSlotInput decode(FriendlyByteBuf buffer) {
