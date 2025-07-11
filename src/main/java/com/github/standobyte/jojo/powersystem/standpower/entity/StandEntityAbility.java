@@ -2,8 +2,8 @@ package com.github.standobyte.jojo.powersystem.standpower.entity;
 
 import com.github.standobyte.jojo.powersystem.PowerClass;
 import com.github.standobyte.jojo.powersystem.ability.AbilityId;
-import com.github.standobyte.jojo.powersystem.ability.AbilityInput.InputType;
 import com.github.standobyte.jojo.powersystem.ability.EntityActionAbility;
+import com.github.standobyte.jojo.powersystem.ability.controls.InputMethod;
 import com.github.standobyte.jojo.powersystem.entityaction.EntityActionInstance;
 import com.github.standobyte.jojo.powersystem.entityaction.HeldInput;
 import com.github.standobyte.jojo.powersystem.standpower.StandPower;
@@ -27,7 +27,7 @@ public class StandEntityAbility extends EntityActionAbility {
 		StandPower power = PowerClass.STAND.get(user); if (power == null) return;
 		StandEntity standEntity = power.getSummonedStandEntity(); if (standEntity == null) return;
 		setStandAction(this, level, user, 
-				power, standEntity, InputType.CLICK, 
+				power, standEntity, InputMethod.CLICK, 
 				extraClientInput, clickHoldResolveTime);
 	}
 	
@@ -39,17 +39,17 @@ public class StandEntityAbility extends EntityActionAbility {
 		StandPower power = PowerClass.STAND.get(user); if (power == null) return null;
 		StandEntity standEntity = power.getSummonedStandEntity(); if (standEntity == null) return null;
 		return setStandAction(this, level, user, 
-				power, standEntity, InputType.HOLD, 
+				power, standEntity, InputMethod.HOLD, 
 				extraClientInput, clickHoldResolveTime);
 	}
 	
 	public static HeldInput setStandAction(StandEntityAbility ability, Level level, LivingEntity user, 
-			StandPower power, StandEntity standEntity, InputType inputType, 
+			StandPower power, StandEntity standEntity, InputMethod inputMethod, 
 			FriendlyByteBuf extraClientInput, float skipWindupTime) {
 		if (level.isClientSide()) return null;
 		
 		EntityActionInstance action = ability.initActionOnAbilityUse(level, user, extraClientInput);
-		HeldInput actionOrQueue = standEntity.getStandActionComponent().bufferOrSetAction(action, user, inputType, skipWindupTime);
+		HeldInput actionOrQueue = standEntity.getStandActionComponent().bufferOrSetAction(action, user, inputMethod, skipWindupTime);
 		return actionOrQueue;
 	}
 

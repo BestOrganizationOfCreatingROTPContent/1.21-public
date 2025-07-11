@@ -3,7 +3,7 @@ package com.github.standobyte.jojo.powersystem.ability;
 import org.jetbrains.annotations.ApiStatus;
 
 import com.github.standobyte.jojo.core.molang.MolangValue;
-import com.github.standobyte.jojo.powersystem.ability.AbilityInput.InputType;
+import com.github.standobyte.jojo.powersystem.ability.controls.InputMethod;
 import com.github.standobyte.jojo.powersystem.entityaction.ActionAnimIdentifier;
 import com.github.standobyte.jojo.powersystem.entityaction.ActionPhase;
 import com.github.standobyte.jojo.powersystem.entityaction.EntityActionInstance;
@@ -30,7 +30,7 @@ public class EntityActionAbility extends Ability implements EntityActionType {
 		if (level.isClientSide()) return;
 		
 		EntityActionInstance action = initActionOnAbilityUse(level, user, extraClientInput);
-		LivingComponentAction.getComponent(user).bufferOrSetAction(action, user, InputType.CLICK, clickHoldResolveTime);
+		LivingComponentAction.getComponent(user).bufferOrSetAction(action, user, InputMethod.CLICK, clickHoldResolveTime);
 	}
 	
 	@Override
@@ -40,7 +40,7 @@ public class EntityActionAbility extends Ability implements EntityActionType {
 
 		EntityActionInstance action = initActionOnAbilityUse(level, user, extraClientInput);
 		HeldInput actionOrQueue = LivingComponentAction.getComponent(user)
-				.bufferOrSetAction(action, user, InputType.HOLD, clickHoldResolveTime);
+				.bufferOrSetAction(action, user, InputMethod.HOLD, clickHoldResolveTime);
 		return actionOrQueue;
 	}
 	

@@ -3,20 +3,18 @@ package com.github.standobyte.jojo;
 import java.util.List;
 
 import com.github.standobyte.jojo.client.input.ClientPowerCache;
-import com.github.standobyte.jojo.client.input.ControlScheme;
-import com.github.standobyte.jojo.client.input.ControlScheme.KeybindNoModifier;
 import com.github.standobyte.jojo.client.input.InputHandler;
+import com.github.standobyte.jojo.client.input.controlscheme.ClientControlScheme;
+import com.github.standobyte.jojo.client.input.controlscheme.ClientControlScheme.BaseKey;
+import com.github.standobyte.jojo.client.input.controlscheme.AllControlSchemes;
 import com.github.standobyte.jojo.client.standskin.StandSkin;
 import com.github.standobyte.jojo.client.standskin.StandSkinsLoader;
 import com.github.standobyte.jojo.core.JojoMod;
-import com.github.standobyte.jojo.init.power.ModPlayerPowers;
 import com.github.standobyte.jojo.powersystem.Power;
-import com.github.standobyte.jojo.powersystem.PowerClass;
 import com.github.standobyte.jojo.powersystem.ability.Ability.AbilityInputActive;
-import com.github.standobyte.jojo.powersystem.ability.AbilityInput.InputType;
 import com.github.standobyte.jojo.powersystem.ability.condition.AvailableAbilities;
+import com.github.standobyte.jojo.powersystem.ability.controls.InputMethod;
 import com.github.standobyte.jojo.powersystem.standpower.StandPower;
-import com.mojang.blaze3d.platform.InputConstants;
 
 import net.minecraft.client.DeltaTracker;
 import net.minecraft.client.Minecraft;
@@ -79,10 +77,7 @@ public class DebugStandHud {
 			
 			Player player = mc.player;
 			Power<?> power = input.getCurPower();
-			
-			if (player == null || power == null) return;
-			
-			KeyModifier modifier = input.getCurModifier();
+			if (player == null || power == null || !power.hasPower()) return;
 			
 			int x = 10;
 			int y = 10;
@@ -96,23 +91,16 @@ public class DebugStandHud {
 				}
 			}
 			
-			ControlScheme controlScheme = null;
-			if (power.getPowerClass() == PowerClass.STAND) {
-				controlScheme = ControlScheme.PROTOTYPE_STAND;
-			}
-			else if (power.getPowerClass() == PowerClass.PLAYER_POWER) {
-				if (power.getPowerType() == ModPlayerPowers.HAMON.get()) {
-					controlScheme = ControlScheme.PROTOTYPE_HAMON;
-				}
-			}
-			
+			ClientControlScheme controlScheme = AllControlSchemes.controls.get(power.getPowerType().getId());
 			if (controlScheme != null) {
+				KeyModifier modifier = input.getCurModifier();
+				
 				AvailableAbilities available = ClientPowerCache.getAvailableMoves(power.getPowerClass(), power);
-				var binds = controlScheme.bindsMapView;
+				var binds = controlScheme.bindsView;
 				for (var bindEntry : binds.entrySet()) {
-					KeybindNoModifier keybind = bindEntry.getKey();
+					BaseKey keybind = bindEntry.getKey();
 					List<String> boundAbilities = bindEntry.getValue().withCurrentModifier(modifier);
-					var ability = ControlScheme.prioritizedAbility(boundAbilities, available, false);
+					var ability = ClientControlScheme.prioritizedAbility(boundAbilities, available, false);
 					if (ability.ability != null) {
 						AbilityInputActive mode = ability.ability.cl_IsInputActive();
 						if (mode.showInHUD && (mode.inContainer == inContainerMenu)) {
@@ -123,8 +111,8 @@ public class DebugStandHud {
 							if (!mode.inputActive) {
 								nameColor &= 0x40FFFFFF;
 							}
-							String bindName = keybind.inputType() == InputType.HOLD ? "Hold " : "";
-							String keyName = ((InputConstants.Key) keybind.key()).getDisplayName().getString();
+							String bindName = keybind.inputMethod() == InputMethod.HOLD ? "Hold " : "";
+							String keyName = keybind.key().keyName().getString();
 							bindName += keyName;
 							guiGraphics.drawString(font, bindName + ": " + ability.ability.abilityId.nameInMoveset(), x, y, nameColor);
 							y += 9;

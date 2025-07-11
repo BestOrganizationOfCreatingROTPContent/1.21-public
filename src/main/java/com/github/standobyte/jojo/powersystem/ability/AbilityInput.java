@@ -113,10 +113,5 @@ public class AbilityInput {
 		PRESS_HOLD,
 		RELEASE
 	}
-	
-	public enum InputType {
-		CLICK,
-		HOLD
-	}
 
 }

@@ -9,6 +9,8 @@ import com.github.standobyte.jojo.jojoimpl.hamon.abilities.HamonSunlightYellowOv
 import com.github.standobyte.jojo.powersystem.MovesetBuilder;
 import com.github.standobyte.jojo.powersystem.ability.Ability;
 import com.github.standobyte.jojo.powersystem.ability.AbilityType;
+import com.github.standobyte.jojo.powersystem.ability.controls.InputKey;
+import com.github.standobyte.jojo.powersystem.ability.controls.InputMethod;
 import com.github.standobyte.jojo.powersystem.playerpower.PlayerPowerType;
 
 import net.minecraft.resources.ResourceLocation;
@@ -27,9 +29,10 @@ public class HamonPowerType extends PlayerPowerType<HamonData> {
 
 	public static final DeferredHolder<PlayerPowerType<?>, HamonPowerType> HAMON = PLAYER_POWERS.register(
 			"hamon", key -> new HamonPowerType(key, new MovesetBuilder()
-					.addAbility("hamon_beat", HAMON_BEAT)
-					.addAbility("sunlight_yellow_overdrive", SUNLIGHT_YELLOW_OVERDRIVE)
-					.addAbility("rebuff_overdrive", REBUFF_OVERDRIVE)));
+					.addAbility("hamon_beat", HAMON_BEAT)									.bind(InputKey.LMB, InputMethod.CLICK)
+					.addAbility("sunlight_yellow_overdrive", SUNLIGHT_YELLOW_OVERDRIVE)		.bind(InputKey.LMB, InputMethod.HOLD)
+					.addAbility("rebuff_overdrive", REBUFF_OVERDRIVE)						.bind(InputKey.RMB, InputMethod.CLICK)
+					));
 
 	
 	protected HamonPowerType(ResourceLocation registryKey, MovesetBuilder abilitySet) {

@@ -9,7 +9,7 @@ import org.jetbrains.annotations.ApiStatus;
 
 import com.github.standobyte.jojo.init.ModDataAttachmentTypes;
 import com.github.standobyte.jojo.powersystem.ability.Ability;
-import com.github.standobyte.jojo.powersystem.ability.AbilityInput.InputType;
+import com.github.standobyte.jojo.powersystem.ability.controls.InputMethod;
 import com.github.standobyte.jojo.powersystem.entityaction.netcode.SyncType;
 import com.github.standobyte.jojo.powersystem.entityaction.type.EntityActionType;
 import com.github.standobyte.jojo.util.entitycomponent.TickingEntityData;
@@ -53,11 +53,11 @@ public class EntityActionInputState implements TickingEntityData {
 	protected Map<LivingEntity, BufferedInputEntry> bufferPerPerformer = new HashMap<>();
 
 	public void bufferClickInput(LivingEntity performer, LivingComponentAction performerAction, EntityActionType ability) {
-		bufferPerPerformer.put(performer, new BufferedInputEntry(performerAction, ability, InputType.CLICK));
+		bufferPerPerformer.put(performer, new BufferedInputEntry(performerAction, ability, InputMethod.CLICK));
 	}
 
 	public HeldInput bufferHeldInput(LivingEntity performer, LivingComponentAction performerAction, EntityActionType ability) {
-		BufferedInputEntry inputBuffer = new BufferedInputEntry(performerAction, ability, InputType.HOLD);
+		BufferedInputEntry inputBuffer = new BufferedInputEntry(performerAction, ability, InputMethod.HOLD);
 		bufferPerPerformer.put(performer, inputBuffer);
 		return inputBuffer;
 	}
@@ -100,7 +100,7 @@ public class EntityActionInputState implements TickingEntityData {
 	public static record BufferedInputEntry(
 			LivingComponentAction performerAction, 
 			EntityActionType entityAbility, 
-			InputType inputType) 
+			InputMethod inputMethod) 
 	implements HeldInput {
 
 		@Override

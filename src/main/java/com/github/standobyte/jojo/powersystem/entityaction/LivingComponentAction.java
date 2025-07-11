@@ -7,7 +7,7 @@ import javax.annotation.Nullable;
 import org.jetbrains.annotations.ApiStatus;
 
 import com.github.standobyte.jojo.init.ModDataAttachmentTypes;
-import com.github.standobyte.jojo.powersystem.ability.AbilityInput.InputType;
+import com.github.standobyte.jojo.powersystem.ability.controls.InputMethod;
 import com.github.standobyte.jojo.powersystem.entityaction.netcode.SyncType;
 import com.github.standobyte.jojo.powersystem.entityaction.netcode.TrEntityActionInstancePacket;
 import com.github.standobyte.jojo.powersystem.standpower.entity.LivingReactToNewAction;
@@ -45,16 +45,16 @@ public class LivingComponentAction implements SynchronizablePlayerData, TickingE
 	}
 	
 	
-	public HeldInput bufferOrSetAction(EntityActionInstance action, LivingEntity user, InputType inputType, float skipWindupTime) {
-		return bufferOrSetAction(action, user, inputType, SyncType.TRACKING_AND_SELF, skipWindupTime);
+	public HeldInput bufferOrSetAction(EntityActionInstance action, LivingEntity user, InputMethod inputMethod, float skipWindupTime) {
+		return bufferOrSetAction(action, user, inputMethod, SyncType.TRACKING_AND_SELF, skipWindupTime);
 	}
 	
-	public HeldInput bufferOrSetAction(EntityActionInstance action, LivingEntity user, InputType inputType, SyncType sync, float skipWindupTime) {
-		if (action != null && action.ability.shouldBufferInput(this) && user != null && inputType != null) {
+	public HeldInput bufferOrSetAction(EntityActionInstance action, LivingEntity user, InputMethod inputMethod, SyncType sync, float skipWindupTime) {
+		if (action != null && action.ability.shouldBufferInput(this) && user != null && inputMethod != null) {
 			HeldInput heldInputObj = null;
 			EntityActionInputState actionInput = user.getData(ModDataAttachmentTypes.ENTITY_ABILITY_INPUT.get());
 			if (actionInput != null) {
-				switch (inputType) {
+				switch (inputMethod) {
 				case CLICK -> actionInput.bufferClickInput(entity, this, action.ability);
 				case HOLD -> heldInputObj = actionInput.bufferHeldInput(entity, this, action.ability);
 				}

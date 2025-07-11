@@ -5,6 +5,8 @@ import java.util.Collections;
 import com.github.standobyte.jojo.core.JojoMod;
 import com.github.standobyte.jojo.core.JojoRegistries;
 import com.github.standobyte.jojo.powersystem.MovesetBuilder;
+import com.github.standobyte.jojo.powersystem.ability.controls.InputKey;
+import com.github.standobyte.jojo.powersystem.ability.controls.InputMethod;
 import com.github.standobyte.jojo.powersystem.entityaction.ActionPhase;
 import com.github.standobyte.jojo.powersystem.standpower.StandStats;
 import com.github.standobyte.jojo.powersystem.standpower.entity.EntityStandType;
@@ -32,24 +34,24 @@ public class ModStands {
 					new MovesetBuilder()
 					.addAbility("punch", 				ModStandAbilities.PUNCH, true, 
 							punch -> Collections.addAll(punch.punchNames, "punch2", "punch3", "punch4")
-					)
+					)																				.bind(InputKey.LMB, InputMethod.CLICK)
 					.addAbility("punch2", 				ModStandAbilities.PUNCH, false)
 					.addAbility("punch3", 				ModStandAbilities.PUNCH, false)
 					.addAbility("punch4", 				ModStandAbilities.PUNCH, false, 
 							punch -> punch.setDefaultPhaseLength(ActionPhase.WINDUP, 5)
 					)
 
-					.addAbility("heavy_punch", 			ModStandAbilities.HEAVY_PUNCH, true)
+					.addAbility("heavy_punch", 			ModStandAbilities.HEAVY_PUNCH, true)		.bind(InputKey.RMB, InputMethod.CLICK)
 					.addAbility("heavy_punch2", 		ModStandAbilities.HEAVY_PUNCH, false)
 					.addAbility("uppercut", 			ModStandAbilities.HEAVY_PUNCH, false)
 					
-					.addAbility("heavy_charged", 		ModStandAbilities.HEAVY_CHARGED, true)
+					.addAbility("heavy_charged", 		ModStandAbilities.HEAVY_CHARGED, true)		.bind(InputKey.RMB, InputMethod.HOLD)
 					
-					.addAbility("barrage", 				ModStandAbilities.BARRAGE, true)
+					.addAbility("barrage", 				ModStandAbilities.BARRAGE, true)			.bind(InputKey.LMB, InputMethod.HOLD)
 					
-					.addAbility("grab", 				ModStandAbilities.GRAB, true)
-					.addAbility("grab_release", 		ModStandAbilities.GRAB_RELEASE)
-					.addAbility("grabbed_throw", 		ModStandAbilities.GRAB_THROW, false)
+					.addAbility("grab", 				ModStandAbilities.GRAB, true)				.bind(InputKey.RMB.withModifier(InputKey.Modifier.CONTROL), InputMethod.CLICK)
+					.addAbility("grab_release", 		ModStandAbilities.GRAB_RELEASE)				.bind(InputKey.RMB.withModifier(InputKey.Modifier.CONTROL), InputMethod.CLICK)
+					.addAbility("grabbed_throw", 		ModStandAbilities.GRAB_THROW, false)		.bind(InputKey.RMB, InputMethod.HOLD)
 //					.addAbility("grab_punch", 			ModStandAbilities.PUNCH, false)
 //					.addAbility("grab_punch2", 			ModStandAbilities.PUNCH, false)
 //					.addAbility("grab_punch3", 			ModStandAbilities.PUNCH, false)
@@ -71,9 +73,11 @@ public class ModStands {
 //					.addAbility("retal_heavy", 			ModStandAbilities.HEAVY_PUNCH, false)
 //					.addAbility("kick_barrage", 		ModStandAbilities.BARRAGE, false)
 					
-//					.addAbility("star_finger", 			ModStandAbilities.SP_STAR_FINGER)
-//					.addAbility("star_finger_swipe", 	ModStandAbilities.SP_STAR_FINGER_SWIPE)
-//					.addAbility("inhale", 				ModStandAbilities.SP_INHALE)
+																									.makeGroup(0, InputKey.Z, InputKey.X)
+																									
+					.addAbility("star_finger", 			ModStandAbilities.SP_STAR_FINGER)			.addToGroup(0, InputMethod.CLICK)
+					.addAbility("star_finger_swipe", 	ModStandAbilities.SP_STAR_FINGER_SWIPE)		.addGroupSlotVariation("star_finger", InputKey.Modifier.CONTROL, InputMethod.CLICK)
+					.addAbility("inhale", 				ModStandAbilities.SP_INHALE)				.addToGroup(0, InputMethod.HOLD)
 //					.addAbility("time_stop", 			ModStandAbilities.TIME_STOP)
 
 					, id));
@@ -90,8 +94,7 @@ public class ModStands {
 					.build(),
 
 					new MovesetBuilder()
-					.addAbility("barrage", 				ModStandAbilities.BARRAGE, true)
-					.addAbility("repair_item", 			ModStandAbilities.CD_REPAIR_ITEM, false)
+					.addAbility("repair_item", 			ModStandAbilities.CD_REPAIR_ITEM, false)	.bind(InputKey.C, InputMethod.HOLD)
 
 					, id));
 }

@@ -9,15 +9,16 @@ import org.jetbrains.annotations.ApiStatus;
 import com.github.standobyte.jojo.powersystem.ability.Ability;
 import com.github.standobyte.jojo.powersystem.ability.AbilityId;
 import com.github.standobyte.jojo.powersystem.ability.config.ConfigAbilityFactory;
+import com.github.standobyte.jojo.powersystem.ability.controls.ControlSchemeTemplate;
 
 import net.minecraft.resources.ResourceLocation;
 
 @ApiStatus.NonExtendable
 public class Moveset {
-	@ApiStatus.Internal
-	public final Map<String, Ability> abilities;
+	@ApiStatus.Internal public final Map<String, Ability> abilities;
+	@ApiStatus.Internal public ControlSchemeTemplate controlScheme = new ControlSchemeTemplate();
 	
-	protected Moveset(Stream<Map.Entry<String, ConfigAbilityFactory<?>>> abilities, PowerClass<?> powerClass, ResourceLocation powerTypeId) {
+	public Moveset(Stream<Map.Entry<String, ConfigAbilityFactory<?>>> abilities, PowerClass<?> powerClass, ResourceLocation powerTypeId) {
 		this.abilities = abilities.collect(Collectors.toMap(
 				Map.Entry::getKey, entry -> entry.getValue().makeAbility(new AbilityId(powerClass, powerTypeId, entry.getKey()))));
 	}

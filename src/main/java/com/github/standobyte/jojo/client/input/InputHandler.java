@@ -14,17 +14,19 @@ import org.lwjgl.glfw.GLFW;
 
 import com.github.standobyte.jojo.client.ClientGlobals;
 import com.github.standobyte.jojo.client.event.PreKeyInputEvent;
+import com.github.standobyte.jojo.client.input.controlscheme.ClientControlScheme;
+import com.github.standobyte.jojo.client.input.controlscheme.ClientKeyWrapper;
+import com.github.standobyte.jojo.client.input.controlscheme.AllControlSchemes;
 import com.github.standobyte.jojo.core.packet.fromclient.ClAbilityInputPacket;
-import com.github.standobyte.jojo.init.power.ModPlayerPowers;
 import com.github.standobyte.jojo.powersystem.Power;
 import com.github.standobyte.jojo.powersystem.PowerClass;
 import com.github.standobyte.jojo.powersystem.ability.Ability;
 import com.github.standobyte.jojo.powersystem.ability.AbilityInput;
 import com.github.standobyte.jojo.powersystem.ability.AbilityInput.InputEventType;
-import com.github.standobyte.jojo.powersystem.ability.AbilityInput.InputType;
 import com.github.standobyte.jojo.powersystem.ability.condition.AvailableAbilities;
 import com.github.standobyte.jojo.powersystem.ability.condition.AvailableAbilities.AbilityConditionCheck;
 import com.github.standobyte.jojo.powersystem.ability.condition.ConditionCheck;
+import com.github.standobyte.jojo.powersystem.ability.controls.InputMethod;
 import com.github.standobyte.jojo.powersystem.entityaction.EntityActionInstance;
 import com.github.standobyte.jojo.powersystem.entityaction.LivingComponentAction;
 import com.github.standobyte.jojo.powersystem.playerpower.PlayerPower;
@@ -79,7 +81,7 @@ public class InputHandler {
 	
 	@Deprecated
 	public static boolean holdingLAlt;
-	public Key lAlt = InputConstants.Type.KEYSYM.getOrCreate(InputConstants.KEY_LALT);
+	public ClientKeyWrapper lAlt = ClientKeyWrapper.make(InputConstants.Type.KEYSYM, InputConstants.KEY_LALT);
 	
 	
 	@SubscribeEvent
@@ -99,11 +101,7 @@ public class InputHandler {
 	}
 
 
-	
-	public static record GeneralizedInput(InputConstants.Type keyType, int keyCode, int action, int modifiers) {
-		public Key getKey() { return keyType.getOrCreate(keyCode); }
-	}
-	
+
 	@SubscribeEvent(priority = EventPriority.LOW)
 	public void handleKeyInput(PreKeyInputEvent event) {
 		if (mc.getConnection() == null) return;
@@ -118,37 +116,37 @@ public class InputHandler {
 			keyType = InputConstants.Type.KEYSYM;
 			keyCode = event.getKey();
 		}
-		GeneralizedInput input = new GeneralizedInput(keyType, keyCode, event.getAction(), event.getModifiers());
-		handleInputEvent(input, event);
+		handleInputEvent(ClientKeyWrapper.make(keyType, keyCode), event.getAction(), event.getModifiers(), event);
 	}
 	
 	@SubscribeEvent(priority = EventPriority.LOW)
 	public void handleMouseInput(InputEvent.MouseButton.Pre event) {
 		if (mc.getConnection() == null) return;
 		
-		GeneralizedInput input = new GeneralizedInput(InputConstants.Type.MOUSE, event.getButton(), event.getAction(), event.getModifiers());
-		handleInputEvent(input, event);
+		handleInputEvent(ClientKeyWrapper.make(InputConstants.Type.MOUSE, event.getButton()), event.getAction(), event.getModifiers(), event);
 	}
 	
-	public void handleInputEvent(GeneralizedInput input, ICancellableEvent event) {
-		if (input.action() == InputConstants.RELEASE && mc.screen instanceof ChatScreen) {
-			keyReleaseEventQueue.add(input);
+	public void handleInputEvent(ClientKeyWrapper key, int action, int modifiers, ICancellableEvent event) {
+		if (action == InputConstants.RELEASE && mc.screen instanceof ChatScreen) {
+			keyReleaseEventQueue.add(new DelayedInput(key, action, modifiers));
 		}
-		else if (input(input)) {
+		else if (input(key, action, modifiers)) {
 			event.setCanceled(true);
 		}
 	}
 	
 	protected void tickReleaseEventQueue() {
 		if (!keyReleaseEventQueue.isEmpty() && mc.getConnection() != null && mc.screen == null) {
-			for (GeneralizedInput keyRelease : keyReleaseEventQueue) {
-				input(keyRelease);
+			for (DelayedInput keyRelease : keyReleaseEventQueue) {
+				input(keyRelease.key, keyRelease.action, keyRelease.modifiers);
 			}
 			keyReleaseEventQueue.clear();
 		}
 	}
 	
-	private Queue<GeneralizedInput> keyReleaseEventQueue = new ArrayDeque<>();
+	public static record DelayedInput(ClientKeyWrapper key, int action, int modifiers) {}
+	
+	private Queue<DelayedInput> keyReleaseEventQueue = new ArrayDeque<>();
 	
 	
 	private FriendlyByteBuf inputBuf = new FriendlyByteBuf(Unpooled.buffer());
@@ -168,16 +166,15 @@ public class InputHandler {
 		return null;
 	}
 	
-	public boolean input(GeneralizedInput input) {
-		Key key = input.getKey();
-		return input(keyId(key), key, key, input.action(), input.modifiers());
+	public boolean input(ClientKeyWrapper key, int action, int modifiers) {
+		return input(key.keyId(), key, action, modifiers);
 	}
 
 	/**
 	 * Handles the direct events of keyboard/mouse inputs to trigger abilities from the player's moveset.
 	 * @return true if the vanilla input should be cancelled.
 	 */
-	public boolean input(short keyId, Object key, @Nullable Key keyboardMouseKey, int inputType, int modifiers) {
+	public boolean input(short keyId, ClientKeyWrapper key, int inputType, int modifiers) {
 		boolean cancelVanilla = false;
 		Power<?> power = getCurPower();
 		
@@ -188,7 +185,7 @@ public class InputHandler {
 				
 				KeyModifier keyModifier = getCurModifier();
 				
-				CurInput input = getInputAbilitiesOnClick(power, key, keyboardMouseKey, keyModifier);
+				CurInput input = getInputAbilitiesOnClick(power, key, keyModifier);
 				@Nullable Ability heldAbility = input.heldAbility.ability;
 				@Nullable Ability clickAbility = input.clickAbility.ability;
 				
@@ -211,7 +208,11 @@ public class InputHandler {
 				}
 				
 				heldKeys.put(key, heldKeyTimer);
-				addKeyModifier(keyboardMouseKey);
+				
+				Key vanillaKey = key.getVanillaKey();
+				if (vanillaKey != null) {
+					addKeyModifier(vanillaKey);
+				}
 			}
 			case InputConstants.RELEASE -> {
 				HeldKeyTimer heldTicks = heldKeys.remove(key);
@@ -224,8 +225,11 @@ public class InputHandler {
 						doInput(InputEventType.RELEASE, keyId, null, null, ConditionCheck.POSITIVE, 0);
 					}
 				}
-				
-				removeKeyModifier(keyboardMouseKey);
+
+				Key vanillaKey = key.getVanillaKey();
+				if (vanillaKey != null) {
+					removeKeyModifier(vanillaKey);
+				}
 			}
 			case InputConstants.REPEAT -> {
 				HeldKeyTimer heldKey = heldKeys.get(key);
@@ -268,16 +272,12 @@ public class InputHandler {
 		return mc.screen != null || heldKeys.containsKey(lAlt);
 	}
 	
-	public static short keyId(Key key) {
-		return (short) ((key.getType().ordinal() & 3) | (key.getValue() << 2));
-	}
-	
 	
 	// Held keys stuff
 	
-	public Map<Object, HeldKeyTimer> heldKeys = new HashMap<>();
+	public Map<ClientKeyWrapper, HeldKeyTimer> heldKeys = new HashMap<>();
 	
-	public boolean isHeld(Object key, @Nullable KeyModifier modifier) {
+	public boolean isHeld(ClientKeyWrapper key, @Nullable KeyModifier modifier) {
 		HeldKeyTimer timer = heldKeys.get(key);
 		if (timer != null) {
 			return modifier == null || timer.modifier == modifier;
@@ -348,41 +348,35 @@ public class InputHandler {
 	
 	// The function that figures out what ability has the player inputed.
 	
+	private CurInput getInputAbilitiesOnClick(Power<?> power, ClientKeyWrapper key, KeyModifier keyModifier) {
+		CurInput input = CurInput.instance;
+		input.heldAbility = AbilityConditionCheck.NULL_ABILITY;
+		input.clickAbility = AbilityConditionCheck.NULL_ABILITY;
+		
+		if (power.hasPower()) {
+			ClientControlScheme controlScheme = AllControlSchemes.controls.get(power.getPowerType().getId());
+			
+			if (controlScheme != null) {
+				List<String> heldBound = controlScheme.getBindsWithModifier(InputMethod.HOLD, key, keyModifier);
+				List<String> clickBound = controlScheme.getBindsWithModifier(InputMethod.CLICK, key, keyModifier);
+				
+				if (!(heldBound.isEmpty() && clickBound.isEmpty())) {
+					AvailableAbilities available = ClientPowerCache.getAvailableMoves(power.getPowerClass(), power);
+	
+					input.heldAbility = ClientControlScheme.prioritizedAbility(heldBound, available, true);
+					input.clickAbility = ClientControlScheme.prioritizedAbility(clickBound, available, true);
+				}
+			}
+		}
+		
+		return input;
+	}
+	
 	static class CurInput {
 		private static CurInput instance = new CurInput();
 		
 		public AbilityConditionCheck heldAbility;
 		public AbilityConditionCheck clickAbility;
-	}
-	
-	private CurInput getInputAbilitiesOnClick(Power<?> power, Object key, @Nullable Key keyboardMouseKey, KeyModifier keyModifier) {
-		CurInput input = CurInput.instance;
-		input.heldAbility = AbilityConditionCheck.NULL_ABILITY;
-		input.clickAbility = AbilityConditionCheck.NULL_ABILITY;
-		
-		ControlScheme controlScheme = null;
-		if (power.getPowerClass() == PowerClass.STAND) {
-			controlScheme = ControlScheme.PROTOTYPE_STAND;
-		}
-		else if (power.getPowerClass() == PowerClass.PLAYER_POWER) {
-			if (power.getPowerType() == ModPlayerPowers.HAMON.get()) {
-				controlScheme = ControlScheme.PROTOTYPE_HAMON;
-			}
-		}
-		
-		if (controlScheme != null) {
-			List<String> heldBound = controlScheme.getBindsWithModifier(InputType.HOLD, key, keyModifier);
-			List<String> clickBound = controlScheme.getBindsWithModifier(InputType.CLICK, key, keyModifier);
-			
-			if (!(heldBound.isEmpty() && clickBound.isEmpty())) {
-				AvailableAbilities available = ClientPowerCache.getAvailableMoves(power.getPowerClass(), power);
-
-				input.heldAbility = ControlScheme.prioritizedAbility(heldBound, available, true);
-				input.clickAbility = ControlScheme.prioritizedAbility(clickBound, available, true);
-			}
-		}
-		
-		return input;
 	}
 	
 	
