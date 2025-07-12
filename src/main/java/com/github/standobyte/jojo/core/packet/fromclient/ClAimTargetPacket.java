@@ -62,8 +62,8 @@ public class ClAimTargetPacket implements CustomPacketPayload {
 				case PLAYER -> {
 					entityActionComponent = LivingComponentAction.getExistingComponent(player);
 					if (entityActionComponent != null) {
-						payload.target.resolveEntityId(player.level());
-						entityActionComponent.entityAim.setTarget(payload.target);
+						ActionTarget target = payload.target.resolveEntityId(player.level());
+						entityActionComponent.entityAim.setTarget(target);
 					}
 				}
 				case STAND -> {

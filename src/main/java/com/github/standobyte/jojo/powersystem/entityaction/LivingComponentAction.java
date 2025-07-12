@@ -107,7 +107,7 @@ public class LivingComponentAction implements SynchronizablePlayerData, TickingE
 		// Resolve entity references
 		
 		if (action != null && action.standRotationTarget != null) {
-			action.standRotationTarget.resolveEntityId(entity.level());
+			action.standRotationTarget = action.standRotationTarget.resolveEntityId(entity.level());
 		}
 		
 		// Action callbacks that may be overriden by specific abilities

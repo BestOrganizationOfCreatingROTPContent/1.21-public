@@ -53,8 +53,8 @@ public class TrAimTargetPacket implements CustomPacketPayload {
 			if (entity instanceof LivingEntity living) {
 				LivingComponentAction entityActionComponent = LivingComponentAction.getComponent(living);
 				if (entityActionComponent != null) {
-					payload.target.resolveEntityId(entity.level());
-					entityActionComponent.entityAim.setTarget(payload.target);
+					ActionTarget target = payload.target.resolveEntityId(entity.level());
+					entityActionComponent.entityAim.setTarget(target);
 				}
 			}
 		}
