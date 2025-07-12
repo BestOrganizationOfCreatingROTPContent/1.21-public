@@ -86,8 +86,6 @@ public class AvailableAbilities {
 	
 	@ApiStatus.Internal
 	public static class AbilityConditionCheck {
-		public static final AbilityConditionCheck NULL_ABILITY = new AbilityConditionCheck(null);
-		
 		public final Ability ability;
 		public ConditionCheck conditionCheck;
 		

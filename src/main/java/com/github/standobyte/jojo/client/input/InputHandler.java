@@ -186,8 +186,8 @@ public class InputHandler {
 				KeyModifier keyModifier = getCurModifier();
 				
 				CurInput input = getInputAbilitiesOnClick(power, key, keyModifier);
-				@Nullable Ability heldAbility = input.heldAbility.ability;
-				@Nullable Ability clickAbility = input.clickAbility.ability;
+				@Nullable Ability heldAbility = input.heldAbility != null ? input.heldAbility.ability : null;
+				@Nullable Ability clickAbility = input.clickAbility != null ? input.clickAbility.ability : null;
 				
 				boolean ambiguousClickOrHold = heldAbility != null && clickAbility != null;
 				cancelVanilla = heldAbility != null || clickAbility != null;
@@ -350,8 +350,8 @@ public class InputHandler {
 	
 	private CurInput getInputAbilitiesOnClick(Power<?> power, ClientKeyWrapper key, KeyModifier keyModifier) {
 		CurInput input = CurInput.instance;
-		input.heldAbility = AbilityConditionCheck.NULL_ABILITY;
-		input.clickAbility = AbilityConditionCheck.NULL_ABILITY;
+		input.heldAbility = null;
+		input.clickAbility = null;
 		
 		if (power.hasPower()) {
 			ClientControlScheme controlScheme = AllControlSchemes.controls.get(power.getPowerType().getId());

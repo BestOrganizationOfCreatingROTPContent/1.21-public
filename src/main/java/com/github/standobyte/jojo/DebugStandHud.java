@@ -1,18 +1,22 @@
 package com.github.standobyte.jojo;
 
 import java.util.List;
+import java.util.Map;
 
 import com.github.standobyte.jojo.client.input.ClientPowerCache;
 import com.github.standobyte.jojo.client.input.InputHandler;
-import com.github.standobyte.jojo.client.input.controlscheme.ClientControlScheme;
-import com.github.standobyte.jojo.client.input.controlscheme.ClientControlScheme.BaseKey;
 import com.github.standobyte.jojo.client.input.controlscheme.AllControlSchemes;
+import com.github.standobyte.jojo.client.input.controlscheme.ClientControlScheme;
+import com.github.standobyte.jojo.client.input.controlscheme.ClientControlScheme.BindsByModifier;
+import com.github.standobyte.jojo.client.input.controlscheme.ClientControlScheme.Hotbar;
+import com.github.standobyte.jojo.client.input.controlscheme.ClientKeyWrapper;
 import com.github.standobyte.jojo.client.standskin.StandSkin;
 import com.github.standobyte.jojo.client.standskin.StandSkinsLoader;
 import com.github.standobyte.jojo.core.JojoMod;
 import com.github.standobyte.jojo.powersystem.Power;
 import com.github.standobyte.jojo.powersystem.ability.Ability.AbilityInputActive;
 import com.github.standobyte.jojo.powersystem.ability.condition.AvailableAbilities;
+import com.github.standobyte.jojo.powersystem.ability.condition.AvailableAbilities.AbilityConditionCheck;
 import com.github.standobyte.jojo.powersystem.ability.controls.InputMethod;
 import com.github.standobyte.jojo.powersystem.standpower.StandPower;
 
@@ -96,32 +100,62 @@ public class DebugStandHud {
 				KeyModifier modifier = input.getCurModifier();
 				
 				AvailableAbilities available = ClientPowerCache.getAvailableMoves(power.getPowerClass(), power);
-				var binds = controlScheme.bindsView;
+				Map<ClientKeyWrapper, Map<InputMethod, BindsByModifier<List<String>>>> binds = controlScheme.binds;
 				for (var bindEntry : binds.entrySet()) {
-					BaseKey keybind = bindEntry.getKey();
-					List<String> boundAbilities = bindEntry.getValue().withCurrentModifier(modifier);
-					var ability = ClientControlScheme.prioritizedAbility(boundAbilities, available, false);
-					if (ability.ability != null) {
-						AbilityInputActive mode = ability.ability.cl_IsInputActive();
-						if (mode.showInHUD && (mode.inContainer == inContainerMenu)) {
-							int nameColor = color;
-							if (!ability.conditionCheck.isPositive()) {
-								nameColor = ARGB.multiply(nameColor, 0xFF606060);
-							}
-							if (!mode.inputActive) {
-								nameColor &= 0x40FFFFFF;
-							}
-							String bindName = keybind.inputMethod() == InputMethod.HOLD ? "Hold " : "";
-							String keyName = keybind.key().keyName().getString();
-							bindName += keyName;
-							guiGraphics.drawString(font, bindName + ": " + ability.ability.abilityId.nameInMoveset(), x, y, nameColor);
+					ClientKeyWrapper key = bindEntry.getKey();
+					for (var byInputMethod : bindEntry.getValue().entrySet()) {
+						List<String> boundAbilities = byInputMethod.getValue().withCurrentModifier(modifier);
+						AbilityConditionCheck ability = ClientControlScheme.prioritizedAbility(boundAbilities, available, false);
+						InputMethod inputMethod = byInputMethod.getKey();
+						if (renderAbilityName(key, inputMethod, ability, x, y, color, guiGraphics, font, inContainerMenu)) {
 							y += 9;
 						}
 					}
 				}
+				
+				for (Hotbar hotbar : controlScheme.hotbars) {
+					y += 5;
+					if (!hotbar.slots.isEmpty()) {
+						ClientKeyWrapper key = hotbar.useAbilityKey;
+						List<Map<InputMethod, BindsByModifier<String>>> slots = hotbar.slots;
+						Map<InputMethod, BindsByModifier<String>> slot = slots.get(hotbar.slotIndex < slots.size() ? hotbar.slotIndex : 0);
+						for (var byInputMethod : slot.entrySet()) {
+							InputMethod inputMethod = byInputMethod.getKey();
+							String ability = byInputMethod.getValue().withCurrentModifier(modifier);
+							if (ability != null) {
+								if (renderAbilityName(key, inputMethod, available._inMoveset.get(ability), 
+										x, y, color, guiGraphics, font, inContainerMenu)) {
+									y += 9;
+								}
+							}
+						}
+					}
+					guiGraphics.drawString(font, "(" + hotbar.switchAbilityKey.keyName().getString() + " to switch)", x, y, color);
+				}
 			}
 		}
-		
+	}
+	
+	private static boolean renderAbilityName(ClientKeyWrapper key, InputMethod inputMethod, AbilityConditionCheck ability, 
+			int x, int y, int color, GuiGraphics guiGraphics, Font font, boolean inContainerMenu) {
+		if (ability != null && ability.ability != null) {
+			AbilityInputActive mode = ability.ability.cl_IsInputActive();
+			if (mode.showInHUD && (mode.inContainer == inContainerMenu)) {
+				int nameColor = color;
+				if (!ability.conditionCheck.isPositive()) {
+					nameColor = ARGB.multiply(nameColor, 0xFF606060);
+				}
+				if (!mode.inputActive) {
+					nameColor &= 0x40FFFFFF;
+				}
+				String bindName = inputMethod == InputMethod.HOLD ? "Hold " : "";
+				String keyName = key.keyName().getString();
+				bindName += keyName;
+				guiGraphics.drawString(font, bindName + ": " + ability.ability.abilityId.nameInMoveset(), x, y, nameColor);
+				return true;
+			}
+		}
+		return false;
 	}
 	
 	

@@ -76,6 +76,7 @@ public class ModStands {
 																									.makeGroup(0, InputKey.Z, InputKey.X)
 																									
 					.addAbility("star_finger", 			ModStandAbilities.SP_STAR_FINGER)			.addToGroup(0, InputMethod.CLICK)
+					.addAbility("star_finger2", 		ModStandAbilities.SP_STAR_FINGER)			.addGroupSlotVariation("star_finger", InputKey.Modifier.CONTROL, InputMethod.HOLD)
 					.addAbility("star_finger_swipe", 	ModStandAbilities.SP_STAR_FINGER_SWIPE)		.addGroupSlotVariation("star_finger", InputKey.Modifier.CONTROL, InputMethod.CLICK)
 					.addAbility("inhale", 				ModStandAbilities.SP_INHALE)				.addToGroup(0, InputMethod.HOLD)
 //					.addAbility("time_stop", 			ModStandAbilities.TIME_STOP)

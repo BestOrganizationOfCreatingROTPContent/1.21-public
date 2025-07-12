@@ -8,6 +8,8 @@ import java.util.Map;
 import java.util.Set;
 import java.util.function.Supplier;
 
+import javax.annotation.Nullable;
+
 import com.github.standobyte.jojo.powersystem.ability.Ability;
 import com.github.standobyte.jojo.powersystem.ability.AbilityType;
 import com.github.standobyte.jojo.powersystem.ability.config.AbilityConfigComponent;
@@ -66,7 +68,7 @@ public class MovesetBuilder {
 		return this;
 	}
 	
-	public MovesetBuilder addGroupSlotVariation(String baseAbility, InputKey.Modifier modifier, InputMethod inputMethod) {
+	public MovesetBuilder addGroupSlotVariation(String baseAbility, @Nullable InputKey.Modifier modifier, InputMethod inputMethod) {
 		controlScheme.addGroupSlotVariation(lastAbility, baseAbility, modifier, inputMethod);
 		return this;
 	}

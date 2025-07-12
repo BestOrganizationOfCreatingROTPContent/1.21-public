@@ -59,8 +59,25 @@ public class ClientKeyWrapper {
 	public short keyId() {
 		return keyId;
 	}
-	
-	
+
+
+	@Override
+	public boolean equals(Object other) {
+		if (this == other) {
+			return true;
+		} else if (other != null && this.getClass() == other.getClass()) {
+			return this.keyId() == ((ClientKeyWrapper) other).keyId();
+		} else {
+			return false;
+		}
+	}
+
+	@Override
+	public int hashCode() {
+		return keyId();
+	}
+
+
 	protected static Short2ObjectMap<ClientKeyWrapper> cache = new Short2ObjectOpenHashMap<>();
 	
 }
