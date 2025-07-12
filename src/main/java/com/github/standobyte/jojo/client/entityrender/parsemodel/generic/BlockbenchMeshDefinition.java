@@ -10,6 +10,8 @@ import javax.annotation.Nullable;
 import org.jetbrains.annotations.ApiStatus;
 import org.joml.Vector3f;
 
+import com.github.standobyte.jojo.client.entityrender.parsemodel.CustomModelCube;
+
 import net.minecraft.client.model.geom.ModelPart;
 import net.minecraft.client.model.geom.ModelPart.Cube;
 import net.minecraft.client.model.geom.builders.CubeDefinition;
@@ -241,7 +243,23 @@ public final class BlockbenchMeshDefinition extends CubeDefinition {
 	
 	@Override
 	public Cube bake(int pTexWidth, int pTexHeight) {
-		Cube cube = super.bake(pTexWidth, pTexHeight);
+		Cube cube = new CustomModelCube(
+				0,
+				0,
+				this.origin.x(),
+				this.origin.y(),
+				this.origin.z(),
+				this.dimensions.x(),
+				this.dimensions.y(),
+				this.dimensions.z(),
+				0,
+				0,
+				0,
+				false,
+				(float)pTexWidth * this.texScale.u(),
+				(float)pTexHeight * this.texScale.v(),
+				NO_DIRECTIONAL_FACES
+				);
 		
 		float texWidth = pTexWidth * texScale.u();
 		float texHeight = pTexHeight * texScale.v();

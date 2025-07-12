@@ -5,6 +5,8 @@ import java.util.Set;
 
 import org.joml.Vector3f;
 
+import com.github.standobyte.jojo.client.entityrender.parsemodel.CustomModelCube;
+
 import net.minecraft.client.model.geom.ModelPart;
 import net.minecraft.client.model.geom.ModelPart.Cube;
 import net.minecraft.client.model.geom.builders.CubeDefinition;
@@ -60,8 +62,24 @@ public final class GeckoBoxCubeDefinition extends CubeDefinition{
 
 	@Override
 	public Cube bake(int pTexWidth, int pTexHeight) {
-		Cube cube = super.bake(pTexWidth, pTexHeight);
-		
+		Cube cube = new CustomModelCube(
+				(int)this.texCoord.u(),
+				(int)this.texCoord.v(),
+				this.origin.x(),
+				this.origin.y(),
+				this.origin.z(),
+				this.dimensions.x(),
+				this.dimensions.y(),
+				this.dimensions.z(),
+				this.grow.x(),
+				this.grow.y(),
+				this.grow.z(),
+				this.mirror,
+				(float)pTexWidth * this.texScale.u(),
+				(float)pTexHeight * this.texScale.v(),
+				this.visibleFaces
+				);
+
 		float texWidth = pTexWidth * texScale.u();
 		float texHeight = pTexHeight * texScale.v();
 		float x0 = origin.x() - grow.x();
