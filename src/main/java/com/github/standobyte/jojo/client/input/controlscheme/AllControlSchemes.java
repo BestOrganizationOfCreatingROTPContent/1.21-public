@@ -36,7 +36,7 @@ public class AllControlSchemes {
 		ResourceLocation id = powerType.getId();
 		Moveset moveset = powerType.getMoveset();
 		ControlSchemeTemplate defaultCtrlScheme = moveset.controlScheme;
-		controls.put(id, ClientControlScheme.create(defaultCtrlScheme));
+		controls.put(id, ClientControlScheme.create(defaultCtrlScheme, powerType));
 	}
 	
 }

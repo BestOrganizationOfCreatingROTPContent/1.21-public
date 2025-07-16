@@ -24,16 +24,16 @@ import net.minecraft.resources.ResourceLocation;
 
 public class MovesetBuilder {
 	protected final Map<String, ConfigAbilityFactory<?>> abilities = new HashMap<>();
-	protected final ControlSchemeTemplate controlScheme = new ControlSchemeTemplate();
+	protected ControlSchemeTemplate controlScheme = new ControlSchemeTemplate();
 	protected final Set<String> disable = new HashSet<>();
 	
-
+	@SuppressWarnings("unchecked")
 	public <A extends Ability> MovesetBuilder addAbility(String abilityName, AbilityType<A> abilityType) {
-		return addAbility(abilityName, abilityType, true);
+		return addAbility(abilityName, abilityType, new AbilityConfigComponent[0]);
 	}
 
 	@SafeVarargs
-	public final <A extends Ability> MovesetBuilder addAbility(String abilityName, AbilityType<A> abilityType, boolean isBaseMove, 
+	public final <A extends Ability> MovesetBuilder addAbility(String abilityName, AbilityType<A> abilityType, 
 			AbilityConfigComponent<A>... setParameters) {
 		abilities.put(abilityName, new ConfigAbilityFactory<>(abilityType, setParameters));
 		lastAbility = abilityName;
@@ -46,32 +46,52 @@ public class MovesetBuilder {
 	}
 	
 	@SafeVarargs
-	public final <A extends Ability> MovesetBuilder addAbility(String abilityName, Supplier<? extends AbilityType<A>> abilityType, boolean isBaseMove, 
+	public final <A extends Ability> MovesetBuilder addAbility(String abilityName, Supplier<? extends AbilityType<A>> abilityType, 
 			AbilityConfigComponent<A>... setParameters) {
-		return addAbility(abilityName, abilityType.get(), isBaseMove, setParameters);
+		return addAbility(abilityName, abilityType.get(), setParameters);
 	}
 	
+	
+	// Control scheme stuff here
 	
 	protected String lastAbility;
-	public MovesetBuilder bind(InputKey key, InputMethod inputMethod) {
-		controlScheme.bind(lastAbility, key, inputMethod);
+	
+	public MovesetBuilder makeMovesetGroup(String name, InputKey toggleHudKey) {
+		controlScheme.makeMovesetGroup(name, toggleHudKey);
 		return this;
 	}
 	
-	public MovesetBuilder makeGroup(int hotbarId, InputKey useAbilityKey, InputKey switchAbilityKey) {
-		controlScheme.makeGroup(hotbarId, useAbilityKey, switchAbilityKey);
+	public MovesetBuilder withBind(InputKey key, InputMethod inputMethod) {
+		return withBind(null, key, inputMethod);
+	}
+	
+	public MovesetBuilder withBind(String movesetGroupName, InputKey key, InputMethod inputMethod) {
+		var group = controlScheme.getMovesetGroup(movesetGroupName);
+		controlScheme.bind(lastAbility, group, key, inputMethod);
 		return this;
 	}
 	
-	public MovesetBuilder addToGroup(int hotbarId, InputMethod inputMethod) {
-		controlScheme.addToGroup(lastAbility, hotbarId, inputMethod);
+	public MovesetBuilder makeHotbar(int hotbarId, InputKey useAbilityKey, InputKey switchAbilityKey) {
+		return makeHotbar(null, hotbarId, useAbilityKey, switchAbilityKey);
+	}
+	
+	public MovesetBuilder makeHotbar(String movesetGroupName, int hotbarId, InputKey useAbilityKey, InputKey switchAbilityKey) {
+		var group = controlScheme.getMovesetGroup(movesetGroupName);
+		controlScheme.makeHotbar(hotbarId, group, useAbilityKey, switchAbilityKey);
 		return this;
 	}
 	
-	public MovesetBuilder addGroupSlotVariation(String baseAbility, @Nullable InputKey.Modifier modifier, InputMethod inputMethod) {
-		controlScheme.addGroupSlotVariation(lastAbility, baseAbility, modifier, inputMethod);
+	public MovesetBuilder inHotbar(int hotbarId, InputMethod inputMethod) {
+		controlScheme.addToHotbar(lastAbility, hotbarId, inputMethod);
 		return this;
 	}
+	
+	public MovesetBuilder inHotbarSlotVariation(String baseAbility, @Nullable InputKey.Modifier modifier, InputMethod inputMethod) {
+		controlScheme.addHotbarSlotVariation(lastAbility, baseAbility, modifier, inputMethod);
+		return this;
+	}
+	
+	// Control scheme stuff over
 	
 	
 	public MovesetBuilder disableAbility(String abilityName) {

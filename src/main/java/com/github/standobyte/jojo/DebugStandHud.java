@@ -97,10 +97,11 @@ public class DebugStandHud {
 			
 			ClientControlScheme controlScheme = AllControlSchemes.controls.get(power.getPowerType().getId());
 			if (controlScheme != null) {
+				ClientControlScheme.MoveGroup curGroup = controlScheme.getCurGroup().getValue();
 				KeyModifier modifier = input.getCurModifier();
 				
 				AvailableAbilities available = ClientPowerCache.getAvailableMoves(power.getPowerClass(), power);
-				Map<ClientKeyWrapper, Map<InputMethod, BindsByModifier<List<String>>>> binds = controlScheme.binds;
+				Map<ClientKeyWrapper, Map<InputMethod, BindsByModifier<List<String>>>> binds = curGroup.binds;
 				for (var bindEntry : binds.entrySet()) {
 					ClientKeyWrapper key = bindEntry.getKey();
 					for (var byInputMethod : bindEntry.getValue().entrySet()) {
@@ -113,7 +114,7 @@ public class DebugStandHud {
 					}
 				}
 				
-				for (Hotbar hotbar : controlScheme.hotbars) {
+				for (Hotbar hotbar : curGroup.hotbars) {
 					y += 5;
 					if (!hotbar.slots.isEmpty()) {
 						ClientKeyWrapper key = hotbar.useAbilityKey;

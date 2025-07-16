@@ -3,6 +3,7 @@ package com.github.standobyte.jojo.powersystem.ability.controls;
 import java.util.ArrayList;
 import java.util.EnumMap;
 import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -15,8 +16,26 @@ import it.unimi.dsi.fastutil.ints.Int2ObjectMap;
 import net.minecraft.Util;
 
 public class ControlSchemeTemplate {
-	public List<Pair<String, Pair<InputMethod, InputKey>>> separateBinds = new ArrayList<>();
-    public Int2ObjectMap<AbilitiesHotbar> groups = new Int2ObjectArrayMap<>();
+	public Map<String, GroupTemplate> groups = new LinkedHashMap<>();
+	public GroupTemplate defaultGroup = new GroupTemplate("moveset_default_group", null);
+    private transient Int2ObjectMap<AbilitiesHotbar> hotbarsById = new Int2ObjectArrayMap<>();
+    
+    public static class GroupTemplate {
+    	public final String name;
+    	@Nullable public final InputKey toggleHudKey;
+    	
+    	public List<Pair<String, Pair<InputMethod, InputKey>>> separateBinds = new ArrayList<>();
+        public List<AbilitiesHotbar> hotbars = new ArrayList<>();
+        
+        public GroupTemplate(String name, InputKey toggleHudKey) {
+        	this.name = name;
+        	this.toggleHudKey = toggleHudKey;
+        }
+        
+        public boolean isEmpty() {
+        	return separateBinds.isEmpty() && hotbars.isEmpty();
+        }
+    }
     
     public static class AbilitiesHotbar {
     	public List<Map<InputKey.Modifier, Map<InputMethod, String>>> slots = new ArrayList<>();
@@ -29,24 +48,42 @@ public class ControlSchemeTemplate {
     	}
     }
     
+    public ControlSchemeTemplate() {
+    	groups.put(defaultGroup.name, defaultGroup);
+    }
     
-	public void bind(String ability, InputKey key, InputMethod inputMethod) {
-		separateBinds.add(Pair.of(ability, Pair.of(inputMethod, key)));
+    
+    public void makeMovesetGroup(String name, InputKey toggleHudKey) {
+    	groups.put(name, new GroupTemplate(name, toggleHudKey));
+    }
+    
+    public GroupTemplate getMovesetGroup(@Nullable String name) {
+    	return name == null ? defaultGroup : groups.get(name);
+    }
+    
+	public void bind(String ability, GroupTemplate group, InputKey key, InputMethod inputMethod) {
+		if (group != null) {
+			group.separateBinds.add(Pair.of(ability, Pair.of(inputMethod, key)));
+		}
 	}
 	
-	public void makeGroup(int hotbarId, InputKey useAbilityKey, InputKey switchAbilityKey) {
-		groups.put(hotbarId, new AbilitiesHotbar(useAbilityKey, switchAbilityKey));
+	public void makeHotbar(int hotbarId, GroupTemplate group, InputKey useAbilityKey, InputKey switchAbilityKey) {
+		if (group != null) {
+			AbilitiesHotbar hotbar = new AbilitiesHotbar(useAbilityKey, switchAbilityKey);
+			hotbarsById.put(hotbarId, hotbar);
+			group.hotbars.add(hotbar);
+		}
 	}
 	
-	public void addToGroup(String ability, int hotbarId, InputMethod inputMethod) {
+	public void addToHotbar(String ability, int hotbarId, InputMethod inputMethod) {
 		Map<InputKey.Modifier, Map<InputMethod, String>> slot = new HashMap<>();
 		slot.put(null, Util.make(new EnumMap<>(InputMethod.class), map -> map.put(inputMethod, ability)));
-		groups.get(hotbarId).slots.add(slot);
+		hotbarsById.get(hotbarId).slots.add(slot);
 	}
 	
-	public void addGroupSlotVariation(String ability, String baseAbility, @Nullable InputKey.Modifier modifier, InputMethod inputMethod) {
-		for (AbilitiesHotbar group : groups.values()) {
-			for (Map<InputKey.Modifier, Map<InputMethod, String>> slot : group.slots) {
+	public void addHotbarSlotVariation(String ability, String baseAbility, @Nullable InputKey.Modifier modifier, InputMethod inputMethod) {
+		for (AbilitiesHotbar hotbar : hotbarsById.values()) {
+			for (Map<InputKey.Modifier, Map<InputMethod, String>> slot : hotbar.slots) {
 				Map<InputMethod, String> baseVariation = slot.get(null);
 				if (baseVariation != null && baseVariation.values().contains(baseAbility)) {
 					Map<InputMethod, String> byInputMethod = slot.computeIfAbsent(modifier, 

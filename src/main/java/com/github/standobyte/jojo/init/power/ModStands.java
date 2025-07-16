@@ -32,53 +32,70 @@ public class ModStands {
 					.build(),
 
 					new MovesetBuilder()
-					.addAbility("punch", 				ModStandAbilities.PUNCH, true, 
-							punch -> Collections.addAll(punch.punchNames, "punch2", "punch3", "punch4")
-					)																				.bind(InputKey.LMB, InputMethod.CLICK)
-					.addAbility("punch2", 				ModStandAbilities.PUNCH, false)
-					.addAbility("punch3", 				ModStandAbilities.PUNCH, false)
-					.addAbility("punch4", 				ModStandAbilities.PUNCH, false, 
+					
+					.addAbility("punch", ModStandAbilities.PUNCH, punch -> 
+						Collections.addAll(punch.punchNames, "punch2", "punch3", "punch4")
+					)
+					.withBind(InputKey.LMB, InputMethod.CLICK)
+					.addAbility("punch2", ModStandAbilities.PUNCH)
+					.addAbility("punch3", ModStandAbilities.PUNCH)
+					.addAbility("punch4", ModStandAbilities.PUNCH, 
 							punch -> punch.setDefaultPhaseLength(ActionPhase.WINDUP, 5)
 					)
 
-					.addAbility("heavy_punch", 			ModStandAbilities.HEAVY_PUNCH, true)		.bind(InputKey.RMB, InputMethod.CLICK)
-					.addAbility("heavy_punch2", 		ModStandAbilities.HEAVY_PUNCH, false)
-					.addAbility("uppercut", 			ModStandAbilities.HEAVY_PUNCH, false)
+					.addAbility("heavy_punch", ModStandAbilities.HEAVY_PUNCH)
+					.withBind(InputKey.RMB, InputMethod.CLICK)
+					.addAbility("heavy_punch2", ModStandAbilities.HEAVY_PUNCH)
+					.addAbility("uppercut", ModStandAbilities.HEAVY_PUNCH)
 					
-					.addAbility("heavy_charged", 		ModStandAbilities.HEAVY_CHARGED, true)		.bind(InputKey.RMB, InputMethod.HOLD)
+					.addAbility("heavy_charged", ModStandAbilities.HEAVY_CHARGED)
+					.withBind(InputKey.RMB, InputMethod.HOLD)
 					
-					.addAbility("barrage", 				ModStandAbilities.BARRAGE, true)			.bind(InputKey.LMB, InputMethod.HOLD)
+					.addAbility("barrage", ModStandAbilities.BARRAGE)
+					.withBind(InputKey.LMB, InputMethod.HOLD)
 					
-					.addAbility("grab", 				ModStandAbilities.GRAB, true)				.bind(InputKey.RMB.withModifier(InputKey.Modifier.CONTROL), InputMethod.CLICK)
-					.addAbility("grab_release", 		ModStandAbilities.GRAB_RELEASE)				.bind(InputKey.RMB.withModifier(InputKey.Modifier.CONTROL), InputMethod.CLICK)
-					.addAbility("grabbed_throw", 		ModStandAbilities.GRAB_THROW, false)		.bind(InputKey.RMB, InputMethod.HOLD)
-//					.addAbility("grab_punch", 			ModStandAbilities.PUNCH, false)
-//					.addAbility("grab_punch2", 			ModStandAbilities.PUNCH, false)
-//					.addAbility("grab_punch3", 			ModStandAbilities.PUNCH, false)
-//					.addAbility("grab_punch4", 			ModStandAbilities.PUNCH, false)
-//					.addAbility("grab_ground_slam", 	ModStandAbilities.HEAVY_PUNCH, false)
-//					.addAbility("grab_barrage", 		ModStandAbilities.BARRAGE, false)
-//					.addAbility("grab_terrain", 		ModStandAbilities.GRAB_TERRAIN)
-//					.addAbility("terrain_throw", 		ModStandAbilities.GRAB_TERRAIN_THROW)
+					.addAbility("grab",ModStandAbilities.GRAB)
+					.withBind(InputKey.RMB.withModifier(InputKey.Modifier.CONTROL), InputMethod.CLICK)
 					
-//					.addAbility("block", 				ModStandAbilities.BLOCK, true)
+					.addAbility("grab_release", ModStandAbilities.GRAB_RELEASE)
+					.withBind(InputKey.RMB.withModifier(InputKey.Modifier.CONTROL), InputMethod.CLICK)
 					
-//					.addAbility("leap", 				ModStandAbilities.STAND_LEAP)
-//					.addAbility("manual_control",	 	ModStandAbilities.MANUAL_CONTROL)
-//					.addAbility("swap_items", 			ModStandAbilities.SWAP_ITEMS)
-//					.addAbility("item_lmb", 			ModStandAbilities.ITEM_LMB)
-//					.addAbility("item_rmb", 			ModStandAbilities.ITEM_RMB)
+					.addAbility("grabbed_throw", ModStandAbilities.GRAB_THROW)
+					.withBind(InputKey.RMB, InputMethod.HOLD)
+					
+//					.addAbility("grab_punch", ModStandAbilities.PUNCH)
+//					.addAbility("grab_punch2", ModStandAbilities.PUNCH)
+//					.addAbility("grab_punch3", ModStandAbilities.PUNCH)
+//					.addAbility("grab_punch4", ModStandAbilities.PUNCH)
+//					.addAbility("grab_ground_slam", ModStandAbilities.HEAVY_PUNCH)
+//					.addAbility("grab_barrage", ModStandAbilities.BARRAGE)
+//					.addAbility("grab_terrain", ModStandAbilities.GRAB_TERRAIN)
+//					.addAbility("terrain_throw", ModStandAbilities.GRAB_TERRAIN_THROW)
+					
+//					.addAbility("block", ModStandAbilities.BLOCK)
+					
+//					.addAbility("leap", ModStandAbilities.STAND_LEAP)
+//					.addAbility("manual_control", ModStandAbilities.MANUAL_CONTROL)
+//					.addAbility("swap_items", ModStandAbilities.SWAP_ITEMS)
+//					.addAbility("item_lmb", ModStandAbilities.ITEM_LMB)
+//					.addAbility("item_rmb", ModStandAbilities.ITEM_RMB)
 
-//					.addAbility("ground_throw", 		ModStandAbilities.HEAVY_PUNCH, false)
-//					.addAbility("retal_heavy", 			ModStandAbilities.HEAVY_PUNCH, false)
-//					.addAbility("kick_barrage", 		ModStandAbilities.BARRAGE, false)
+//					.addAbility("ground_throw", ModStandAbilities.HEAVY_PUNCH)
+//					.addAbility("retal_heavy", ModStandAbilities.HEAVY_PUNCH)
+//					.addAbility("kick_barrage", ModStandAbilities.BARRAGE)
 					
-																									.makeGroup(0, InputKey.Z, InputKey.X)
+					.makeHotbar(0, InputKey.Z, InputKey.X)
 																									
-					.addAbility("star_finger", 			ModStandAbilities.SP_STAR_FINGER)			.addToGroup(0, InputMethod.CLICK)
-					.addAbility("star_finger_swipe", 	ModStandAbilities.SP_STAR_FINGER_SWIPE)		.addGroupSlotVariation("star_finger", InputKey.Modifier.CONTROL, InputMethod.CLICK)
-					.addAbility("inhale", 				ModStandAbilities.SP_INHALE)				.addToGroup(0, InputMethod.HOLD)
-//					.addAbility("time_stop", 			ModStandAbilities.TIME_STOP)
+					.addAbility("star_finger", ModStandAbilities.SP_STAR_FINGER)
+					.inHotbar(0, InputMethod.CLICK)
+					
+					.addAbility("star_finger_swipe", ModStandAbilities.SP_STAR_FINGER_SWIPE)
+					.inHotbarSlotVariation("star_finger", InputKey.Modifier.CONTROL, InputMethod.CLICK)
+					
+					.addAbility("inhale", ModStandAbilities.SP_INHALE)
+					.inHotbar(0, InputMethod.HOLD)
+					
+//					.addAbility("time_stop", ModStandAbilities.TIME_STOP)
 
 					, id));
 	
@@ -94,7 +111,8 @@ public class ModStands {
 					.build(),
 
 					new MovesetBuilder()
-					.addAbility("repair_item", 			ModStandAbilities.CD_REPAIR_ITEM, false)	.bind(InputKey.C, InputMethod.HOLD)
+					.addAbility("repair_item", ModStandAbilities.CD_REPAIR_ITEM)
+					.withBind(InputKey.C, InputMethod.HOLD)
 
 					, id));
 }
