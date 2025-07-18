@@ -81,7 +81,7 @@ public class BlitFloat {
 				(pUOffset + pUWidth) / pTextureWidth, 
 				(pVOffset + 0.0F) / pTextureHeight, 
 				(pVOffset + pVHeight) / pTextureHeight, 
-				-1);
+				color);
 	}
 	
 	public static void innerBlitFloat(GuiGraphics guiGraphics, Minecraft mc, RenderType renderType, 

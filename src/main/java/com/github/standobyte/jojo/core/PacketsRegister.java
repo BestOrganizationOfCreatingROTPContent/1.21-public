@@ -1,5 +1,6 @@
 package com.github.standobyte.jojo.core;
 
+import com.github.standobyte.jojo.client.entitycontrol.stand.ClStandManualMovementPacket;
 import com.github.standobyte.jojo.core.packet.fromclient.ClAbilityInputPacket;
 import com.github.standobyte.jojo.core.packet.fromclient.ClAimTargetPacket;
 import com.github.standobyte.jojo.core.packet.fromclient.ClNoParamsPacket;
@@ -33,6 +34,7 @@ public class PacketsRegister {
 		registerPacket(registrar, PayloadRegistrar::playToServer, new ClNoParamsPacket.Handler(JojoMod.resLoc("clsignal")));
 		registerPacket(registrar, PayloadRegistrar::playToServer, new ClAimTargetPacket.Handler(JojoMod.resLoc("clientaim")));
 		registerPacket(registrar, PayloadRegistrar::playToServer, new ClSetStandSkinPacket.Handler(JojoMod.resLoc("clskin")));
+		registerPacket(registrar, PayloadRegistrar::playToServer, new ClStandManualMovementPacket.Handler(JojoMod.resLoc("clstandmove")));
 
 		registerPacket(registrar, PayloadRegistrar::playToClient, new DatapackStandsPacket.Handler(JojoMod.resLoc("datastands")));
 		registerPacket(registrar, PayloadRegistrar::playToClient, new TrAbilityUsePacket.Handler(JojoMod.resLoc("abilityuse")));

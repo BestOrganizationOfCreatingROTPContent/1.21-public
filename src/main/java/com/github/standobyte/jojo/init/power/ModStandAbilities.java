@@ -8,6 +8,7 @@ import com.github.standobyte.jojo.jojoimpl.stands._entitybase.StandEntityGrabRel
 import com.github.standobyte.jojo.jojoimpl.stands._entitybase.StandEntityGrabThrowAbility;
 import com.github.standobyte.jojo.jojoimpl.stands._entitybase.StandEntityHeavyPunchAbility;
 import com.github.standobyte.jojo.jojoimpl.stands._entitybase.StandEntityHeavyPunchChargedAbility;
+import com.github.standobyte.jojo.jojoimpl.stands._entitybase.StandEntityManualControlToggle;
 import com.github.standobyte.jojo.jojoimpl.stands._entitybase.StandEntityPunchAbility;
 import com.github.standobyte.jojo.jojoimpl.stands.crazydiamond.CrazyDRepairItemAbility;
 import com.github.standobyte.jojo.jojoimpl.stands.starplatinum.InhaleAbility;
@@ -20,6 +21,9 @@ import com.github.standobyte.jojo.powersystem.ability.AbilityType;
 import net.neoforged.neoforge.registries.DeferredHolder;
 
 public final class ModStandAbilities {
+	public static final DeferredHolder<AbilityType<?>, AbilityType<StandEntityManualControlToggle>> MANUAL_CONTROL = ABILITY_TYPES.register(
+			"stand_manual_control", key -> new AbilityType<>(key, StandEntityManualControlToggle::new));
+	
 	public static final DeferredHolder<AbilityType<?>, AbilityType<StandEntityPunchAbility>> PUNCH = ABILITY_TYPES.register(
 			"stand_punch", key -> new AbilityType<>(key, StandEntityPunchAbility::new));
 	

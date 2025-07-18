@@ -1,9 +1,41 @@
 package com.github.standobyte.jojo.client.ui.hud;
 
+import com.github.standobyte.jojo.client.entitycontrol.ClientEntityController;
 import com.github.standobyte.jojo.core.JojoMod;
 
+import net.minecraft.client.DeltaTracker;
+import net.minecraft.client.Minecraft;
+import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.client.gui.LayeredDraw;
 import net.minecraft.resources.ResourceLocation;
+import net.neoforged.api.distmarker.Dist;
+import net.neoforged.bus.api.SubscribeEvent;
+import net.neoforged.fml.common.EventBusSubscriber;
+import net.neoforged.fml.common.EventBusSubscriber.Bus;
+import net.neoforged.neoforge.client.event.RegisterGuiLayersEvent;
 
+@EventBusSubscriber(value = Dist.CLIENT, bus = Bus.MOD)
 public class AdditionalHud {
 	public static final ResourceLocation UI_ELEMENTS = JojoMod.resLoc("textures/hud/ui_elements.png");
+	
+	public static ExtrasHudLayer instance;
+
+	@SubscribeEvent
+	public static void addHud(RegisterGuiLayersEvent event) {
+		event.registerAboveAll(JojoMod.resLoc("extra_hud"), instance = new ExtrasHudLayer());
+	}
+	
+	public static class ExtrasHudLayer implements LayeredDraw.Layer {
+		
+		@Override
+		public void render(GuiGraphics guiGraphics, DeltaTracker deltaTracker) {
+			Minecraft mc = Minecraft.getInstance();
+			if (mc.options.hideGui) return;
+			
+			var entityControl = ClientEntityController.getInstance();
+			if (entityControl != null) {
+				entityControl.renderExtraHud(guiGraphics, deltaTracker);
+			}
+		}
+	}
 }

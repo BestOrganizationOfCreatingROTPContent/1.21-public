@@ -95,6 +95,9 @@ public class ModStands {
 					.addAbility("inhale", ModStandAbilities.SP_INHALE)
 					.inHotbar(0, InputMethod.HOLD)
 					
+					.addAbility("manual_control", ModStandAbilities.MANUAL_CONTROL)
+					.withBind(InputKey.O, InputMethod.CLICK)
+					
 //					.addAbility("time_stop", ModStandAbilities.TIME_STOP)
 
 					, id));

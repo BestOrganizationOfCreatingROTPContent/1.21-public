@@ -1,6 +1,8 @@
 package com.github.standobyte.jojo.client;
 
+import com.github.standobyte.jojo.client.entitycontrol.ClientEntityController;
 import com.github.standobyte.jojo.client.input.ClientsideAim;
+import com.github.standobyte.jojo.client.ui.utils.FadeOut;
 import com.github.standobyte.jojo.core.JojoMod;
 
 import net.minecraft.client.Minecraft;
@@ -16,6 +18,7 @@ public class ClientTickHandler {
 	public static void onClientTick(ClientTickEvent.Pre event) {
 		Minecraft mc = Minecraft.getInstance();
 		ClientGlobals.tick(mc);
+		ClientEntityController.clientTickPre();
 	}
 
 	@SubscribeEvent
@@ -23,5 +26,9 @@ public class ClientTickHandler {
 		Minecraft mc = Minecraft.getInstance();
 		ClientsideAim.updateTarget(mc, 1);
 		ClientsideAim.updateTargetWithServer(mc);
+		ClientEntityController.clientTickPost();
+		if (!mc.isPaused()) {
+			for (var fadeOut : FadeOut.__TO_TICK) fadeOut.__tick();
+		}
 	}
 }

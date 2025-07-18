@@ -12,6 +12,12 @@ public class ModEntityAttributes {
 	public static final DeferredRegister<Attribute> ATTRIBUTES = DeferredRegister.create(Registries.ATTRIBUTE, JojoMod.MOD_ID);
 
 	
+	public static final Holder<Attribute> STAND_EFFECTIVE_RANGE = ATTRIBUTES.register("stand_effective_range", 
+			() -> new RangedAttribute("attribute.name.jojo_ripples.stand_effective_range", 4, 0, Double.MAX_VALUE).setSyncable(true));
+	
+	public static final Holder<Attribute> STAND_MAX_RANGE = ATTRIBUTES.register("stand_max_range", 
+			() -> new RangedAttribute("attribute.name.jojo_ripples.stand_max_range", 2, 0, Double.MAX_VALUE).setSyncable(true));
+	
 	public static final Holder<Attribute> STAND_DURABILITY = ATTRIBUTES.register("stand_durability", 
 			() -> new RangedAttribute("attribute.name.jojo_ripples.stand_durability", 0, 0, 1024).setSyncable(true));
 	

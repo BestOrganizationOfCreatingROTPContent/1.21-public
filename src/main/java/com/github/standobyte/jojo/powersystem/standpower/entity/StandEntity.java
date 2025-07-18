@@ -9,6 +9,7 @@ import javax.annotation.Nullable;
 
 import com.github.standobyte.jojo.client.ClientGlobals;
 import com.github.standobyte.jojo.client.ClientProxy;
+import com.github.standobyte.jojo.client.entitycontrol.ClientEntityController;
 import com.github.standobyte.jojo.core.packet.fromserver.TrSetStandEntityPacket;
 import com.github.standobyte.jojo.init.core.ModEntityAttributes;
 import com.github.standobyte.jojo.mechanics.grab.LivingComponentGrab;
@@ -45,6 +46,7 @@ import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.EquipmentSlot;
 import net.minecraft.world.entity.HumanoidArm;
 import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.entity.MoverType;
 import net.minecraft.world.entity.TamableAnimal;
 import net.minecraft.world.entity.ai.attributes.AttributeSupplier;
 import net.minecraft.world.entity.ai.attributes.Attributes;
@@ -53,6 +55,7 @@ import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.entity.projectile.Projectile;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
+import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec2;
 import net.minecraft.world.phys.Vec3;
 import net.neoforged.neoforge.common.CommonHooks;
@@ -63,7 +66,8 @@ import net.neoforged.neoforge.network.PacketDistributor;
 
 public class StandEntity extends LivingEntity implements SummonedStand, IEntityWithComplexSpawn, LivingReactToNewAction {
 	protected ResourceLocation standId;
-	private static final EntityDataAccessor<Integer> USER_ID = SynchedEntityData.defineId(StandEntity.class, EntityDataSerializers.INT);
+	protected static final EntityDataAccessor<Byte> STAND_FLAGS = SynchedEntityData.defineId(StandEntity.class, EntityDataSerializers.BYTE);
+	protected static final EntityDataAccessor<Integer> USER_ID = SynchedEntityData.defineId(StandEntity.class, EntityDataSerializers.INT);
 	private WeakReference<LivingEntity> userRef = new WeakReference<LivingEntity>(null);
 	protected StandPower userPower;
 	protected final LivingComponentAction standAction;
@@ -78,7 +82,6 @@ public class StandEntity extends LivingEntity implements SummonedStand, IEntityW
 		super(type, level);
 		this.standAction = LivingComponentAction.getComponent(this);
 		this.offsetFromUser = new StandOffsetFromUser(this, DEFAULT_USER_OFFSET, StandOffsetFromUser.OffsetMode.BODY);
-		this.noPhysics = true;
 		setNoGravity(true);
 		if (level.isClientSide()) {
 			this.clientStuff = new ClientStandEntityStuff();
@@ -96,6 +99,33 @@ public class StandEntity extends LivingEntity implements SummonedStand, IEntityW
 	protected void defineSynchedData(SynchedEntityData.Builder builder) {
 		super.defineSynchedData(builder);
 		builder.define(USER_ID, -1);
+		builder.define(STAND_FLAGS, (byte)0);
+	}
+
+	protected void setStandFlag(StandFlag flag, boolean value) {
+		byte i = entityData.get(STAND_FLAGS);
+		if (value) {
+			i |= flag.bit;
+		} else {
+			i &= ~flag.bit;
+		}
+		entityData.set(STAND_FLAGS, i);
+	}
+
+	protected boolean getStandFlag(StandFlag flag) {
+		return (entityData.get(STAND_FLAGS) & flag.bit) != 0;
+	}
+
+	public static enum StandFlag {
+		MANUAL_CONTROL,
+		FIXED_REMOTE_POSITION,
+		BEING_RETRACTED,
+		NO_PHYSICS;
+
+		private final byte bit;
+		private StandFlag() {
+			bit = (byte) (1 << ordinal());
+		}
 	}
 	
 
@@ -121,15 +151,109 @@ public class StandEntity extends LivingEntity implements SummonedStand, IEntityW
 				tickHealth(user);
 			}
 		}
+		yHeadRot = getYRot();
+		yHeadRotO = yRotO;
+	}
+
+	
+	public ResourceLocation getStandId() {
+		return standId;
 	}
 	
-	public void updatePosition(LivingEntity user) {
-		if (user != null) {
-			Vec3 pos = offsetFromUser.getPosition(user);
-			setPos(pos.x, pos.y, pos.z);
-			copyStandUserRotation(user);
+	@Override
+	public void setUserAndPower(LivingEntity user, StandPower power) {
+		if (!level().isClientSide()) {
+			entityData.set(USER_ID, user.getId());
 		}
-		lookAtCurTarget(rotO);
+		this.userPower = power;
+	}
+
+	@Override
+	public void onSyncedDataUpdated(EntityDataAccessor<?> dataParameter) {
+		super.onSyncedDataUpdated(dataParameter);
+		if (STAND_FLAGS.equals(dataParameter)) {
+			noPhysics = getStandFlag(StandFlag.NO_PHYSICS);
+		}
+		else if (USER_ID.equals(dataParameter)) {
+			updateUserFromNetwork(entityData.get(USER_ID));
+		}
+	}
+	
+	@Override
+	public void tickStand(LivingEntity user, StandPower userStand) {
+		if (!user.level().isClientSide() && this.isRemoved()) {
+			userStand.setSummonedStand(null);
+			PacketDistributor.sendToPlayersTrackingEntityAndSelf(user, new TrSetStandEntityPacket(user.getId(), 0));
+		}
+	}
+	
+	@Override
+	public StandEntity getStandEntity() {
+		return this;
+	}
+	
+	/**
+	 * Careful - the user's entity might not always be loaded on client in case of long-ranged Stands.
+	 */
+	@Nullable
+	public LivingEntity getUser() {
+		if (hasUser()) {
+			return userRef == null ? null : userRef.get();
+		}
+		return null;
+	}
+
+	@Nullable
+	public StandPower getUserPower() {
+		if (userPower == null && hasUser()) {
+			LivingEntity user = getUser();
+			if (user != null) {
+				userPower = StandPower.get(user);
+			}
+		}
+		return userPower;
+	}
+
+	protected final boolean hasUser() {
+		return entityData.get(USER_ID) >= 0;
+	}
+	
+	// XXX left-side stand pos config
+	private void updateUserFromNetwork(int userId) {
+		userRef = lookupUser(userId);
+		LivingEntity user = getUser();
+		if (user != null) {
+//			if (user instanceof Player) {
+//				playerSettings = PlayerClientBroadcastedSettings.getPlayerSettings((Player) user);
+//			}
+			if (level().isClientSide()) {
+				StandPower standPower = StandPower.get(user);
+				if (standPower != null && standPower.getSummonedStand() != this) {
+					standPower.setSummonedStand(this);
+				}
+			}
+		}
+	}
+
+	@Nullable
+	private WeakReference<LivingEntity> lookupUser(int userId) {
+		Entity user = level().getEntity(userId);
+		if (user instanceof LivingEntity) {
+			return new WeakReference<LivingEntity>((LivingEntity) user);
+		}
+		return null;
+	}
+	
+	
+	public void updatePosition(LivingEntity user) {
+		if (!isManuallyControlled()) {
+			if (user != null) {
+				Vec3 pos = offsetFromUser.getPosition(user);
+				setPos(pos.x, pos.y, pos.z);
+				copyStandUserRotation(user);
+			}
+			lookAtCurTarget(rotO);
+		}
 	}
 	
 	public void copyStandUserRotation(LivingEntity user) {
@@ -221,91 +345,58 @@ public class StandEntity extends LivingEntity implements SummonedStand, IEntityW
 		}
 		return super.isPickable();
 	}
-
 	
-	public ResourceLocation getStandId() {
-		return standId;
-	}
 	
-	@Override
-	public void setUserAndPower(LivingEntity user, StandPower power) {
-		if (!level().isClientSide()) {
-			entityData.set(USER_ID, user.getId());
+	public boolean isManuallyControlled() {
+		// makes it smoother if you move as soon as you enter manual control, otherwise there is a little stumble
+		if (level().isClientSide() && getUser() == ClientProxy.getClientPlayer()) {
+			ClientEntityController ctrl = ClientEntityController.getInstance();
+			return ctrl != null && ctrl.entity == this;
 		}
-		this.userPower = power;
-	}
-
-	@Override
-	public void onSyncedDataUpdated(EntityDataAccessor<?> dataParameter) {
-		super.onSyncedDataUpdated(dataParameter);
-		if (USER_ID.equals(dataParameter)) {
-			updateUserFromNetwork(entityData.get(USER_ID));
-		}
+		return getStandFlag(StandFlag.MANUAL_CONTROL);
 	}
 	
-	@Override
-	public void tickStand(LivingEntity user, StandPower userStand) {
-		if (!user.level().isClientSide() && this.isRemoved()) {
-			userStand.setSummonedStand(null);
-			PacketDistributor.sendToPlayersTrackingEntityAndSelf(user, new TrSetStandEntityPacket(user.getId(), 0));
-		}
-	}
-	
-	@Override
-	public StandEntity getStandEntity() {
-		return this;
-	}
-	
-	/**
-	 * Careful - the user's entity might not always be loaded on client in case of long-ranged Stands.
-	 */
-	@Nullable
-	public LivingEntity getUser() {
-		if (hasUser()) {
-			return userRef == null ? null : userRef.get();
-		}
-		return null;
-	}
-
-	@Nullable
-	public StandPower getUserPower() {
-		if (userPower == null && hasUser()) {
-			LivingEntity user = getUser();
-			if (user != null) {
-				userPower = StandPower.get(user);
+	public void setManuallyControlled(boolean value) {
+		if (isManuallyControlled() != value) {
+			if (!level().isClientSide()) {
+				setStandFlag(StandFlag.MANUAL_CONTROL, value);
+			}
+			else {
+				setDeltaMovement(Vec3.ZERO);
 			}
 		}
-		return userPower;
 	}
 
-	protected final boolean hasUser() {
-		return entityData.get(USER_ID) >= 0;
-	}
-	
-	// XXX left-side stand pos config
-	private void updateUserFromNetwork(int userId) {
-		userRef = lookupUser(userId);
+	@Override
+	public void move(MoverType type, Vec3 vec) {
+		super.move(type, vec);
 		LivingEntity user = getUser();
-		if (user != null) {
-//			if (user instanceof Player) {
-//				playerSettings = PlayerClientBroadcastedSettings.getPlayerSettings((Player) user);
-//			}
-			if (level().isClientSide()) {
-				StandPower standPower = StandPower.get(user);
-				if (standPower != null && standPower.getSummonedStand() != this) {
-					standPower.setSummonedStand(this);
-				}
+		Level level = this.level();
+		if (user != null && user.level() == level) {
+			double distance = MathUtil.getAABBDistance(this.getBoundingBox(), user.getBoundingBox());
+			double range = getMaxRange();
+			if (distance > range) {
+				Vec3 vecToUser = user.position().subtract(position()).scale(1 - range / distance);
+				moveWithoutCollision(vecToUser);
 			}
 		}
 	}
 
-	@Nullable
-	private WeakReference<LivingEntity> lookupUser(int userId) {
-		Entity user = level().getEntity(userId);
-		if (user instanceof LivingEntity) {
-			return new WeakReference<LivingEntity>((LivingEntity) user);
+	private void moveWithoutCollision(Vec3 moveVec) {
+		AABB bb = getBoundingBox().move(moveVec);
+		setBoundingBox(bb);
+		setPosRaw((bb.minX + bb.maxX) / 2, bb.minY, (bb.minZ + bb.maxZ) / 2);
+	}
+
+	@Override
+	public boolean isControlledByLocalInstance() {
+		if (isManuallyControlled()) {
+			Entity user = getUser();
+			if (user instanceof Player player) {
+				return player.isLocalPlayer();
+			}
 		}
-		return null;
+		return false;
 	}
 	
 	
@@ -338,6 +429,8 @@ public class StandEntity extends LivingEntity implements SummonedStand, IEntityW
 			.add(Attributes.ATTACK_SPEED, 8)
 			.add(Attributes.BLOCK_INTERACTION_RANGE, DEFAULT_ATTACK_RANGE)
 			.add(Attributes.ENTITY_INTERACTION_RANGE, DEFAULT_ATTACK_RANGE)
+			.add(ModEntityAttributes.STAND_EFFECTIVE_RANGE, 2)
+			.add(ModEntityAttributes.STAND_MAX_RANGE, 4)
 			.add(ModEntityAttributes.STAND_DURABILITY, 8)
 			.add(ModEntityAttributes.STAND_PRECISION, 8)
 			.add(Attributes.LUCK)
@@ -352,6 +445,8 @@ public class StandEntity extends LivingEntity implements SummonedStand, IEntityW
 		getAttribute(Attributes.ATTACK_DAMAGE).setBaseValue(stats.power());
 		getAttribute(Attributes.ATTACK_SPEED).setBaseValue(stats.speed());
 		getAttribute(Attributes.MOVEMENT_SPEED).setBaseValue(StandStatFormulas.getMovementSpeed(stats.speed()));
+		getAttribute(ModEntityAttributes.STAND_EFFECTIVE_RANGE).setBaseValue(stats.rangeEffective());
+		getAttribute(ModEntityAttributes.STAND_MAX_RANGE).setBaseValue(stats.rangeMax());
 		getAttribute(ModEntityAttributes.STAND_DURABILITY).setBaseValue(stats.durability());
 		getAttribute(ModEntityAttributes.STAND_PRECISION).setBaseValue(stats.precision());
 	}
@@ -382,6 +477,14 @@ public class StandEntity extends LivingEntity implements SummonedStand, IEntityW
 	public double getPrecision() {
 		double precision = getAttributeValue(ModEntityAttributes.STAND_PRECISION);
 		return precision * getStandEfficiency();
+	}
+	
+	public double getEffectiveRange() {
+		return getAttributeValue(ModEntityAttributes.STAND_EFFECTIVE_RANGE);
+	}
+	
+	public double getMaxRange() {
+		return getAttributeValue(ModEntityAttributes.STAND_MAX_RANGE);
 	}
 	
 	public float getStandEfficiency() {
