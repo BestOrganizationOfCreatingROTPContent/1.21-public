@@ -52,7 +52,7 @@ public class Ability {
 	}
 	
 	/**
-	 * A version of {@link Ability#checkConditions(Power)} with more control, allowing one ability to disable others 
+	 * A version of {@link Ability#checkSpecificConditions(Power)} with more control, allowing one ability to disable others 
 	 * (e.g. if the "Use item" ability is currently available, it can set all punch moves condition to negative)
 	 */
 	public void onConditionCheck(Power<?> context, AvailableAbilities abilities, AbilityConditionCheck thisAbility) {
@@ -61,6 +61,20 @@ public class Ability {
 	}
 	
 	public ConditionCheck checkConditions(Power<?> context) {
+		ConditionCheck check = checkMainModLogicConditions(context);
+		if (check.isPositive()) {
+			check = checkSpecificConditions(context);
+		}
+		return check;
+	}
+	
+	@ApiStatus.Internal
+	public ConditionCheck checkMainModLogicConditions(Power<?> context) {
+		return ConditionCheck.POSITIVE;
+	}
+	
+	@ApiStatus.OverrideOnly
+	public ConditionCheck checkSpecificConditions(Power<?> context) {
 		return ConditionCheck.POSITIVE;
 	}
 	

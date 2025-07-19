@@ -5,11 +5,13 @@ import javax.annotation.Nullable;
 import org.jetbrains.annotations.ApiStatus;
 
 import com.github.standobyte.jojo.client.ClientUtil;
+import com.mojang.blaze3d.vertex.PoseStack;
 
 import net.minecraft.client.DeltaTracker;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.player.LocalPlayer;
+import net.minecraft.client.renderer.MultiBufferSource.BufferSource;
 import net.minecraft.network.protocol.game.ServerboundMovePlayerPacket;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.LivingEntity;
@@ -151,5 +153,12 @@ public abstract class ClientEntityController {
 	}
 
 	public void renderExtraHud(GuiGraphics guiGraphics, DeltaTracker deltaTracker) {}
+
+	/**
+	 * @return true if the vanilla hand render should be canceled entirely
+	 */
+	public boolean renderFirstPerson(float partialTicks, PoseStack poseStack, BufferSource buffer, int combinedLight) {
+		return true;
+	}
 
 }

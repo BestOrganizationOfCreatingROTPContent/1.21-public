@@ -20,6 +20,7 @@
 	"client.entitycontrol.EntityMixinMouseTurn",
 	"client.entitycontrol.GameRendererMixin",
 	"client.entitycontrol.GuiAccessor",
+	"client.entitycontrol.ItemInHandRendererMixin",
     "client.standskin.SoundInstanceMixin",
     "client.barrage.LivingEntityRendererMixin",
     "client.barrage.ModelMixin",

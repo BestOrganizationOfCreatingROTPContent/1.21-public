@@ -56,7 +56,7 @@ public class StandEntityGrabAbility extends StandEntityAbility {
 		@Override
 		public void actionPerformStart() {
 			Level level = level();
-			if (performer instanceof StandEntity standEntity && standEntity.isHandFree(InteractionHand.OFF_HAND)) {
+			if (performer instanceof StandEntity standEntity && standEntity.getHandOccupiedBy(InteractionHand.OFF_HAND) == null) {
 				ActionTarget target = HitResultUtil.clipEntityLook(standEntity, 
 						entity -> !entity.is(standEntity.getUser()) && StandEntityPunchAbility.canStandHit(standEntity, entity) && !(
 								entity instanceof LivingEntity living && (

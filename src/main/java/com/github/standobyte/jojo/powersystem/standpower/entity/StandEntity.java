@@ -27,6 +27,9 @@ import com.github.standobyte.jojo.util.target.ActionTarget;
 import com.github.standobyte.jojo.util.target.ActionTarget.TargetType;
 
 import net.minecraft.commands.arguments.EntityAnchorArgument;
+import net.minecraft.core.NonNullList;
+import net.minecraft.nbt.CompoundTag;
+import net.minecraft.nbt.ListTag;
 import net.minecraft.network.RegistryFriendlyByteBuf;
 import net.minecraft.network.protocol.Packet;
 import net.minecraft.network.protocol.game.ClientGamePacketListener;
@@ -704,6 +707,63 @@ public class StandEntity extends LivingEntity implements SummonedStand, IEntityW
 		}
 		return true;
 	}
+	
+	
+	protected NonNullList<ItemStack> handItems = NonNullList.withSize(2, ItemStack.EMPTY);
+	@Override
+	public Iterable<ItemStack> getHandSlots() {
+		return this.handItems;
+	}
+	
+	@Override
+	public Iterable<ItemStack> getArmorSlots() {
+		return Collections.emptyList();
+	}
+
+	@Override
+	public ItemStack getItemBySlot(EquipmentSlot slot) {
+		return switch (slot.getType()) {
+			case HAND -> this.handItems.get(slot.getIndex());
+			default -> ItemStack.EMPTY;
+		};
+	}
+
+	@Override
+	public void setItemSlot(EquipmentSlot slot, ItemStack stack) {
+		this.verifyEquippedItem(stack);
+		switch (slot.getType()) {
+			case HAND -> {
+				this.onEquipItem(slot, this.handItems.set(slot.getIndex(), stack), stack);
+			}
+			default -> {}
+		}
+	}
+
+	@Override
+	public HumanoidArm getMainArm() {
+		LivingEntity user = getUser();
+		if (user != null) {
+			return user.getMainArm();
+		}
+		return HumanoidArm.RIGHT;
+	}
+	
+	@Nullable
+	public HandOccupied getHandOccupiedBy(InteractionHand hand) {
+		if (hand == InteractionHand.OFF_HAND && LivingComponentGrab.getGrabbedEntity(this) != null) {
+			return HandOccupied.GRABBED_TARGET;
+		}
+		ItemStack heldItem = getItemInHand(hand);
+		if (!heldItem.isEmpty()) {
+			return HandOccupied.ITEM;
+		}
+		return null;
+	}
+	
+	public enum HandOccupied {
+		ITEM,
+		GRABBED_TARGET
+	}
 
 	
 	/**
@@ -734,34 +794,35 @@ public class StandEntity extends LivingEntity implements SummonedStand, IEntityW
 		yBodyRotO = yBodyRot;
 		tickCount = additionalData.readVarInt();
 	}
-	
-	
-	// TODO figure out these (abstract methods from LivingEntity)
-	@Override
-	public Iterable<ItemStack> getArmorSlots() {
-		return Collections.emptyList();
-	}
 
 	@Override
-	public ItemStack getItemBySlot(EquipmentSlot slot) {
-		return ItemStack.EMPTY;
-	}
+	public void addAdditionalSaveData(CompoundTag compound) {
+		super.addAdditionalSaveData(compound);
 
-	@Override
-	public void setItemSlot(EquipmentSlot slot, ItemStack stack) {
-	}
-
-	@Override
-	public HumanoidArm getMainArm() {
-		return HumanoidArm.RIGHT;
-	}
-	
-	public boolean isHandFree(InteractionHand hand) {
-		if (hand == InteractionHand.OFF_HAND && LivingComponentGrab.getGrabbedEntity(this) != null) {
-			return false;
+		ListTag listtag = new ListTag();
+		for (ItemStack item : this.handItems) {
+			if (!item.isEmpty()) {
+				listtag.add(item.save(this.registryAccess()));
+			} else {
+				listtag.add(new CompoundTag());
+			}
 		}
-		ItemStack heldItem = getItemInHand(hand);
-		return heldItem.isEmpty();
+	}
+
+	@Override
+	public void readAdditionalSaveData(CompoundTag compound) {
+		super.readAdditionalSaveData(compound);
+
+		if (compound.contains("HandItems", 9)) {
+			ListTag listtag = compound.getList("HandItems", 10);
+
+			for (int i = 0; i < this.handItems.size(); i++) {
+				CompoundTag itemNbt = listtag.getCompound(i);
+				this.handItems.set(i, ItemStack.parseOptional(this.registryAccess(), itemNbt));
+			}
+		} else {
+			this.handItems.replaceAll(item -> ItemStack.EMPTY);
+		}
 	}
 
 	

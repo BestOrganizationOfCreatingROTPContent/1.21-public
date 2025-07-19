@@ -13,8 +13,8 @@ import org.jetbrains.annotations.ApiStatus;
 
 import com.github.standobyte.jojo.client.entityanim.AnimWithExtras;
 import com.github.standobyte.jojo.client.entityrender.EntityActionRenderState;
+import com.github.standobyte.jojo.client.entityrender.stand.HumanoidPart;
 import com.github.standobyte.jojo.client.entityrender.stand.StandEntityModel;
-import com.github.standobyte.jojo.client.entityrender.stand.VisibilityMode;
 import com.github.standobyte.jojo.client.ui.utils.RGBUtil;
 import com.github.standobyte.jojo.powersystem.entityaction.ActionPhase;
 import com.github.standobyte.jojo.util.MathUtil;
@@ -248,9 +248,10 @@ public class BarrageSwings {
 	public static void setOnlyOneArmVisible(EntityModel<?> model, HumanoidArm side) {
 		switch (model) {
 			case StandEntityModel<?> standModel -> {
-				standModel.updatePartsVisibility(switch (side) {
-					case LEFT -> VisibilityMode.LEFT_ARM_ONLY;
-					case RIGHT -> VisibilityMode.RIGHT_ARM_ONLY;
+				standModel.setAllVisible(true);
+				HumanoidPart.updateVisibility(standModel, switch (side) {
+					case LEFT -> HumanoidPart.LEFT_ARM_ONLY;
+					case RIGHT -> HumanoidPart.RIGHT_ARM_ONLY;
 				});
 			}
 			case HumanoidModel<?> humanoidModel -> {

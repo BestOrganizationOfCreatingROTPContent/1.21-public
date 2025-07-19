@@ -1,14 +1,21 @@
 package com.github.standobyte.jojo.client.entityrender.stand;
 
+import java.util.HashMap;
+import java.util.Map;
+
 import javax.annotation.Nullable;
 
 import com.github.standobyte.jojo.client.entityanim.AnimWithExtras;
+import com.github.standobyte.jojo.client.utils.ModelUtil;
+import com.mojang.blaze3d.vertex.PoseStack;
 
+import net.minecraft.client.model.ArmedModel;
 import net.minecraft.client.model.EntityModel;
 import net.minecraft.client.model.geom.ModelPart;
 import net.minecraft.client.renderer.RenderType;
+import net.minecraft.world.entity.HumanoidArm;
 
-public class StandEntityModel<T extends StandEntityRenderState> extends EntityModel<T> {
+public class StandEntityModel<T extends StandEntityRenderState> extends EntityModel<T> implements ArmedModel {
 	public ModelPart left_arm_xrot;
 	public ModelPart left_arm;
 	public ModelPart right_arm_xrot;
@@ -20,6 +27,7 @@ public class StandEntityModel<T extends StandEntityRenderState> extends EntityMo
 	public ModelPart left_leg;
 	public ModelPart right_leg_xrot;
 	public ModelPart right_leg;
+	protected Map<String, ModelPart[]> inheritanceChains = new HashMap<>();
 
 	public StandEntityModel(ModelPart root) {
 		super(root, RenderType::entityTranslucent);
@@ -34,17 +42,24 @@ public class StandEntityModel<T extends StandEntityRenderState> extends EntityMo
 		left_leg = getAnyDescendantWithName("left_leg").orElse(null);
 		right_leg_xrot = getAnyDescendantWithName("right_leg_xrot").orElse(null);
 		right_leg = getAnyDescendantWithName("right_leg").orElse(null);
+		inheritanceChains = ModelUtil.modelPartInheritanceChains("root", this.root, "left_item", "right_item");
+		// TODO (entity anim) make an array of all model parts that aren't visible by default
 	}
 
 	@Override
 	public void setupAnim(T renderState) {
 		super.setupAnim(renderState);
+
+		this.setAllVisible(true);
+		HumanoidPart.updateVisibility(this, renderState.visibleParts);
 		
 		AnimWithExtras anim = renderState.action.anim;
 		float seconds = renderState.action.timeSeconds;
 		if (anim != null) {
 			anim.animate(this, renderState, seconds, 1);
 		}
+		
+		// TODO (entity anim) iterate over the array of parts invisible by default - if a part was not animated, set visible to false
 	}
 
 	
@@ -54,42 +69,23 @@ public class StandEntityModel<T extends StandEntityRenderState> extends EntityMo
 		}
 	}
 	
-	public void updatePartsVisibility(VisibilityMode mode) {
-		boolean setVisible = !mode.isInverted;
-
-		if (mode.baseMode == VisibilityMode.ALL) {
-			setAllVisible(setVisible);
-		}
-		else {
-			setVisible(head, !setVisible);
-			setVisible(torso_no_arms, !setVisible);
-			setVisible(left_leg_xrot, !setVisible);
-			setVisible(right_leg_xrot, !setVisible);
-			setVisible(torso_lower, !setVisible);
-			switch (mode.baseMode) {
-			case ARMS_ONLY:
-				setVisible(left_arm_xrot, setVisible);
-				setVisible(right_arm_xrot, setVisible);
-				break;
-			case LEFT_ARM_ONLY:
-				setVisible(left_arm_xrot, setVisible);
-				setVisible(right_arm_xrot, !setVisible);
-				break;
-			case RIGHT_ARM_ONLY:
-				setVisible(left_arm_xrot, !setVisible);
-				setVisible(right_arm_xrot, setVisible);
-				break;
-			case NONE:
-				setVisible(left_arm_xrot, !setVisible);
-				setVisible(right_arm_xrot, !setVisible);
-			default:
-				break;
-			}
-		}
-	}
-	
 	public static void setVisible(@Nullable ModelPart modelPart, boolean visible) {
 		if (modelPart != null) modelPart.visible = visible;
+	}
+
+	@Override
+	public void translateToHand(HumanoidArm side, PoseStack poseStack) {
+		var modelParts = switch (side) {
+			case LEFT -> inheritanceChains.get("left_item");
+			case RIGHT -> inheritanceChains.get("right_item");
+		};
+		if (modelParts != null) {
+			for (ModelPart part : modelParts) {
+				part.translateAndRotate(poseStack);
+			}
+			// counteract the vanilla transforms hardcoded in ItemInHandLayer
+			poseStack.translate((float)(side == HumanoidArm.LEFT ? -1 : 1) / 16.0F, -0.5F, 0.125F);
+		}
 	}
 
 }

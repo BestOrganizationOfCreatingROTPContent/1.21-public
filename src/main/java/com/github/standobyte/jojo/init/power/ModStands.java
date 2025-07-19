@@ -98,6 +98,9 @@ public class ModStands {
 					.addAbility("manual_control", ModStandAbilities.MANUAL_CONTROL)
 					.withBind(InputKey.O, InputMethod.CLICK)
 					
+					.addAbility("swap_items", ModStandAbilities.SWAP_ITEMS)
+					.withBind(InputKey.F.withModifier(InputKey.Modifier.CONTROL), InputMethod.CLICK)
+					
 //					.addAbility("time_stop", ModStandAbilities.TIME_STOP)
 
 					, id));
@@ -116,6 +119,12 @@ public class ModStands {
 					new MovesetBuilder()
 					.addAbility("repair_item", ModStandAbilities.CD_REPAIR_ITEM)
 					.withBind(InputKey.C, InputMethod.HOLD)
+					
+					.addAbility("manual_control", ModStandAbilities.MANUAL_CONTROL)
+					.withBind(InputKey.O, InputMethod.CLICK)
+					
+					.addAbility("swap_items", ModStandAbilities.SWAP_ITEMS)
+					.withBind(InputKey.F.withModifier(InputKey.Modifier.CONTROL), InputMethod.CLICK)
 
 					, id));
 }

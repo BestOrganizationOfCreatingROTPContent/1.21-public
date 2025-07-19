@@ -23,13 +23,14 @@ import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.RenderType;
 import net.minecraft.client.renderer.entity.EntityRendererProvider.Context;
 import net.minecraft.client.renderer.entity.LivingEntityRenderer;
+import net.minecraft.client.renderer.entity.layers.ItemInHandLayer;
 import net.minecraft.client.renderer.entity.state.ArmedEntityRenderState;
 import net.minecraft.resources.ResourceLocation;
 
 public class StandEntityRenderer<
 				T extends StandEntity, 
 				S extends StandEntityRenderState, 
-				M extends StandEntityModel<? super S>> 
+				M extends StandEntityModel<S>> 
 		extends LivingEntityRenderer<T, S, M> {
 	protected final S outOfLevelRenderState = createRenderState();
 	protected LazyNullable<M> missingSkinModel;
@@ -42,6 +43,7 @@ public class StandEntityRenderer<
 		super(context, null, shadowRadius);
 		this.missingSkinModel = LazyNullable.of(() -> createStandModel(
 				RotpGeckoModelLoader.getInstance().getModelDefinition(JojoMod.resLoc("stand_default"))));
+		this.addLayer(new ItemInHandLayer<>(this));
 	}
 
 	/**
@@ -76,6 +78,8 @@ public class StandEntityRenderer<
 		renderState.defaultSkin = standSkins.getDefaultSkin(renderState.standId);
 		renderState.skin = standSkins.getSkinFromId(renderState.standId, selectedSkin);
 		if (renderState.skin == null) renderState.skin = renderState.defaultSkin;
+
+		renderState.visibleParts = HumanoidPart.ALL;
 		
 		EntityActionInstance action = entity.getCurStandAction();
 		EntityActionRenderState.extract(renderState.action, 
@@ -101,6 +105,7 @@ public class StandEntityRenderer<
 	public void extractSkinMenuRenderState(S renderState, StandSkin skin, ResourceLocation standId, float ticks) {
 		renderState.defaultSkin = StandSkinsLoader.getInstance().getDefaultSkin(standId);
 		renderState.skin = skin;
+		renderState.visibleParts = HumanoidPart.ALL;
 		renderState.standId = standId;
 		renderState.action.animId = StandEntityRenderer.IDLE_ANIM;
 		renderState.action.time = ticks;
@@ -155,7 +160,6 @@ public class StandEntityRenderer<
 	public void render(S renderState, PoseStack poseStack, MultiBufferSource bufferSource, int light) {
 		setModelFrom(renderState);
 		if (this.model == null) return;
-		this.model.setAllVisible(true);
 		super.render(renderState, poseStack, bufferSource, light);
 	}
 

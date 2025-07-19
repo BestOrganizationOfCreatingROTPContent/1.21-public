@@ -59,9 +59,7 @@ public class AnimWithExtras {
 		evaluateQueries(renderState);
 		for (Map.Entry<String, List<AnimationChannel>> entry : animation.boneAnimations().entrySet()) {
 			ModelPart modelPart = PlayerModelBends.getModelPartForPlayerAnim(humanoidModel, entry.getKey());
-			if (modelPart != null) {
-				animateModelPart(this, modelPart, entry.getValue(), seconds, animSpeed);
-			}
+			animateModelPart(this, modelPart, entry.getValue(), seconds, animSpeed);
 		}
 	}
 	
@@ -139,7 +137,7 @@ public class AnimWithExtras {
 	
 	
 	public static void animateModelPart(AnimWithExtras anim, ModelPart modelPart, List<AnimationChannel> transformations, float seconds, float animSpeed) {
-		if (modelPart == null) return;
+		if (modelPart == null || !modelPart.visible) return;
 		for (AnimationChannel tf : transformations) {
 			Vector3f vec = calcVec(anim, tf, seconds, animSpeed);
 			setTargetValue(modelPart, vec, tf.target());

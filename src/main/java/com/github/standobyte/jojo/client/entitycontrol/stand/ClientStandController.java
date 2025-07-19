@@ -1,15 +1,23 @@
 package com.github.standobyte.jojo.client.entitycontrol.stand;
 
 import com.github.standobyte.jojo.client.entitycontrol.ClientEntityController;
+import com.github.standobyte.jojo.client.entityrender.stand.HumanoidPart;
+import com.github.standobyte.jojo.client.entityrender.stand.StandEntityRenderState;
 import com.github.standobyte.jojo.powersystem.entityaction.EntityActionInstance;
 import com.github.standobyte.jojo.powersystem.entityaction.LivingComponentAction;
+import com.mojang.blaze3d.vertex.PoseStack;
+import com.mojang.math.Axis;
 
 import net.minecraft.client.DeltaTracker;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.player.ClientInput;
+import net.minecraft.client.renderer.MultiBufferSource;
+import net.minecraft.client.renderer.MultiBufferSource.BufferSource;
+import net.minecraft.client.renderer.entity.EntityRenderer;
 import net.minecraft.core.BlockPos;
 import net.minecraft.util.Mth;
+import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.ai.attributes.Attributes;
 import net.minecraft.world.entity.player.Input;
@@ -25,7 +33,6 @@ import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.neoforge.client.event.InputEvent;
 import net.neoforged.neoforge.client.event.MovementInputUpdateEvent;
 import net.neoforged.neoforge.client.event.RenderGuiLayerEvent;
-import net.neoforged.neoforge.client.event.RenderHandEvent;
 import net.neoforged.neoforge.common.NeoForge;
 import net.neoforged.neoforge.network.PacketDistributor;
 
@@ -73,9 +80,26 @@ public class ClientStandController extends ClientEntityController {
 		event.setCanceled(true);
 	}
 
-	@SubscribeEvent(priority = EventPriority.HIGHEST)
-	public void cancelPlayerHandRender(RenderHandEvent event) {
-		event.setCanceled(true);
+	@Override
+	public boolean renderFirstPerson(float partialTicks, PoseStack poseStack, BufferSource buffer, int combinedLight) {
+		EntityRenderer<?, ?> renderer = Minecraft.getInstance().getEntityRenderDispatcher().getRenderer(entityAsLiving);
+		render_fuckingGenerics(entityAsLiving, partialTicks, poseStack, buffer, combinedLight, renderer);
+		buffer.endBatch();
+		return true;
+	}
+
+	private <E extends Entity, S extends StandEntityRenderState> void render_fuckingGenerics(E entity, float partialTick,
+			PoseStack poseStack, MultiBufferSource bufferSource, int packedLight, EntityRenderer<?, ?> renderer) {
+		EntityRenderer<? super E, S> entityRenderer = (EntityRenderer<? super E, S>) renderer;
+		S renderState = entityRenderer.createRenderState(entity, partialTick);
+		renderState.visibleParts = HumanoidPart.reduce(renderState.visibleParts, HumanoidPart.ARMS_ONLY);
+		
+		poseStack.pushPose();
+		poseStack.mulPose(Axis.XP.rotationDegrees(renderState.xRot));
+		poseStack.mulPose(Axis.YP.rotationDegrees(180 + renderState.bodyRot));
+		poseStack.translate(0, -entity.getEyeHeight(), 0);
+		entityRenderer.render(renderState, poseStack, bufferSource, packedLight);
+		poseStack.popPose();
 	}
 
 	@Override

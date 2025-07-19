@@ -146,7 +146,7 @@ public class StandSkin {
 	public 
 		<T extends StandEntity, 
 		S extends StandEntityRenderState, 
-		M extends StandEntityModel<? super S>> 
+		M extends StandEntityModel<S>> 
 	M getStandModel(
 			StandEntityRenderer<T, S, M> entityRenderer, StandSkin defaultSkin) {
 		if (this.createdStandModelCache != null) {
