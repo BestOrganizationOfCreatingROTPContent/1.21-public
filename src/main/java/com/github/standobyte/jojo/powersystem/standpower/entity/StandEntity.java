@@ -20,6 +20,7 @@ import com.github.standobyte.jojo.powersystem.standpower.StandStats;
 import com.github.standobyte.jojo.powersystem.standpower.type.StandType;
 import com.github.standobyte.jojo.powersystem.standpower.type.SummonedStand;
 import com.github.standobyte.jojo.util.MathUtil;
+import com.github.standobyte.jojo.util.UtilFunctions;
 import com.github.standobyte.jojo.util.damage.DamageUtil;
 import com.github.standobyte.jojo.util.damage.StandLinkDamageSource;
 import com.github.standobyte.jojo.util.mc.PrevRotations;
@@ -54,6 +55,7 @@ import net.minecraft.world.entity.TamableAnimal;
 import net.minecraft.world.entity.ai.attributes.AttributeSupplier;
 import net.minecraft.world.entity.ai.attributes.Attributes;
 import net.minecraft.world.entity.animal.Animal;
+import net.minecraft.world.entity.item.ItemEntity;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.entity.projectile.Projectile;
 import net.minecraft.world.item.ItemStack;
@@ -156,6 +158,14 @@ public class StandEntity extends LivingEntity implements SummonedStand, IEntityW
 		}
 		yHeadRot = getYRot();
 		yHeadRotO = yRotO;
+	}
+	
+	@Override
+	public void onRemoval(Entity.RemovalReason reason) {
+		if (level() instanceof ServerLevel level) {
+			dropEquipment(level);
+		}
+		super.onRemoval(reason);
 	}
 
 	
@@ -760,8 +770,37 @@ public class StandEntity extends LivingEntity implements SummonedStand, IEntityW
 		return null;
 	}
 	
+	@Override
+	protected void dropEquipment(ServerLevel level) {
+		for (EquipmentSlot slot : EquipmentSlot.values()) {
+			dropItem(slot);
+		}
+	}
+	
+	public void dropItem(EquipmentSlot slot) {
+		Level level = level();
+		if (!level.isClientSide()) {
+			ItemStack item = getItemBySlot(slot);
+			if (!item.isEmpty()) {
+				Vec3 itemPos = position();
+				InteractionHand hand = slot == EquipmentSlot.MAINHAND ? InteractionHand.MAIN_HAND
+						: slot == EquipmentSlot.OFFHAND ? InteractionHand.OFF_HAND
+								: null;
+				Vec3 offset = new Vec3(
+						hand != null ? getBbWidth() * 0.5 * (UtilFunctions.getHandSide(this, hand) == HumanoidArm.LEFT ? -1 : 1) : 0, 
+						getBbHeight() * 0.4, 
+						0);
+				itemPos = itemPos.add(offset.yRot((180 - getYRot()) * MathUtil.DEG_TO_RAD));
+				ItemEntity itemEntity = new ItemEntity(level, itemPos.x, itemPos.y, itemPos.z, item.copy());
+				setItemSlot(slot, ItemStack.EMPTY);
+				level.addFreshEntity(itemEntity);
+			}
+		}
+	}
+	
 	public enum HandOccupied {
 		ITEM,
+		BLOCK,
 		GRABBED_TARGET
 	}
 
