@@ -70,14 +70,10 @@ public class ClientControlScheme {
 	
 	public static class BindsByModifier<T> {
 		private final T empty;
-		private final Map<KeyModifier, T> movesByModifier = new HashMap<>(); // allows null key
+		public final Map<KeyModifier, T> movesByModifier = new HashMap<>(); // allows null key
 		
 		public BindsByModifier(T empty) {
 			this.empty = empty;
-		}
-		
-		void put(KeyModifier key, T value) {
-			movesByModifier.put(key, value);
 		}
 		
 		public T withCurrentModifier(@Nonnull KeyModifier curModifier) {
