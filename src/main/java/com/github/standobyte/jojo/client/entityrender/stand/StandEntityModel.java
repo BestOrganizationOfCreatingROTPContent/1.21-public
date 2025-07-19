@@ -50,8 +50,7 @@ public class StandEntityModel<T extends StandEntityRenderState> extends EntityMo
 	public void setupAnim(T renderState) {
 		super.setupAnim(renderState);
 
-		this.setAllVisible(true);
-		HumanoidPart.updateVisibility(this, renderState.visibleParts);
+		HumanoidPart.setPartsVisible(this, renderState.visibleParts);
 		
 		AnimWithExtras anim = renderState.action.anim;
 		float seconds = renderState.action.timeSeconds;

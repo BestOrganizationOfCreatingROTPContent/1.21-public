@@ -248,8 +248,7 @@ public class BarrageSwings {
 	public static void setOnlyOneArmVisible(EntityModel<?> model, HumanoidArm side) {
 		switch (model) {
 			case StandEntityModel<?> standModel -> {
-				standModel.setAllVisible(true);
-				HumanoidPart.updateVisibility(standModel, switch (side) {
+				HumanoidPart.setPartsVisible(standModel, switch (side) {
 					case LEFT -> HumanoidPart.LEFT_ARM_ONLY;
 					case RIGHT -> HumanoidPart.RIGHT_ARM_ONLY;
 				});
