@@ -110,7 +110,7 @@ public class Ability {
 	// 
 	
 	
-	public void writeExtraInput(FriendlyByteBuf serverboundBuf, LivingEntity user) {}
+	public void writeExtraInput(FriendlyByteBuf serverboundBuf, LivingEntity user, boolean isClientPlayer) {}
 
 	// Input stuff below is called in AbilityInput
 	

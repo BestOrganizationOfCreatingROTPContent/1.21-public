@@ -27,6 +27,7 @@ import net.minecraft.server.level.ServerLevel;
 import net.minecraft.util.Mth;
 import net.minecraft.world.damagesource.DamageSource;
 import net.minecraft.world.entity.Entity;
+import net.minecraft.world.entity.EquipmentSlot;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.ai.Brain;
 import net.minecraft.world.entity.ai.memory.MemoryModuleType;
@@ -202,6 +203,17 @@ public class EntityActionInstance implements HeldInput {
 	public final boolean isUserCreative() {
 		LivingEntity user = getPowerUser();
 		return user instanceof Player player && player.getAbilities().instabuild;
+	}
+	
+	public void tossStandHeldItems(EquipmentSlot... slots) {
+		Level level = level();
+		if (!level.isClientSide() && performer instanceof StandEntity stand) {
+			LivingEntity user = powerUser.getEntityLiving(level);
+			Vec3 tossVec = user != null ? user.position().subtract(stand.getEyePosition()) : stand.getLookAngle();
+			for (EquipmentSlot slot : slots) {
+				stand.tossItem(slot, tossVec);
+			}
+		}
 	}
 	
 	protected Level level() {

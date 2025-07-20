@@ -19,6 +19,7 @@ import com.github.standobyte.jojo.util.target.AimingEntity;
 import com.github.standobyte.jojo.util.target.HitResultUtil;
 
 import net.minecraft.world.damagesource.DamageSource;
+import net.minecraft.world.entity.EquipmentSlot;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.level.Level;
 
@@ -50,6 +51,7 @@ public class StandEntityHeavyPunchAbility extends StandEntityAbility {
 			setStandOffset(0, 2, StandOffsetFromUser.OffsetMode.HEAD_XY, false);
 			keepStandAimedAtTarget();
 			aimAs = AimingEntity.STAND;
+			tossStandHeldItems(EquipmentSlot.OFFHAND, EquipmentSlot.MAINHAND);
 		}
 		
 		@Override

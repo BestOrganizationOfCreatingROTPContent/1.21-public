@@ -16,7 +16,7 @@ import com.github.standobyte.jojo.util.target.ActionTarget.TargetType;
 import com.github.standobyte.jojo.util.target.AimingEntity;
 import com.github.standobyte.jojo.util.target.HitResultUtil;
 
-import net.minecraft.world.InteractionHand;
+import net.minecraft.world.entity.EquipmentSlot;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.level.Level;
 
@@ -51,12 +51,13 @@ public class StandEntityGrabAbility extends StandEntityAbility {
 			setStandOffset(0, 2, StandOffsetFromUser.OffsetMode.HEAD_XY, false);
 			keepStandAimedAtTarget();
 			aimAs = AimingEntity.STAND;
+			tossStandHeldItems(EquipmentSlot.OFFHAND);
 		}
 
 		@Override
 		public void actionPerformStart() {
 			Level level = level();
-			if (performer instanceof StandEntity standEntity && standEntity.getHandOccupiedBy(InteractionHand.OFF_HAND) == null) {
+			if (performer instanceof StandEntity standEntity) {
 				ActionTarget target = HitResultUtil.clipEntityLook(standEntity, 
 						entity -> !entity.is(standEntity.getUser()) && StandEntityPunchAbility.canStandHit(standEntity, entity) && !(
 								entity instanceof LivingEntity living && (

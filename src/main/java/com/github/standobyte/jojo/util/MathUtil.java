@@ -47,6 +47,13 @@ public final class MathUtil {
 	}
 
 	
+	public static Vec2 lookAngles(Vec3 lookVec) {
+		double xzProjLen = Math.sqrt(lookVec.x * lookVec.x + lookVec.z * lookVec.z);
+		float xRot = Mth.wrapDegrees((float)(-(Mth.atan2(lookVec.y, xzProjLen) * RAD_TO_DEG)));
+		float yRot = Mth.wrapDegrees((float)(Mth.atan2(lookVec.z, lookVec.x) * RAD_TO_DEG) - 90);
+		return new Vec2(xRot, yRot);
+	}
+	
 	public static Vec2 lookAnglesTowards(Vec3 targetPos, Entity lookingEntity, EntityAnchorArgument.Anchor lookingAnchor) {
 		Vec3 entityPos = lookingAnchor.apply(lookingEntity);
 		Vec3 vecToTarget = targetPos.subtract(entityPos);

@@ -33,6 +33,12 @@ public class ModStands {
 
 					new MovesetBuilder()
 					
+					// has a higher priority than regular item usage (added in addHumanoidStandStuff()) or charged heavy
+					.addAbility("bearing_shot", ModStandAbilities.BEARING_SHOT)
+					.withBind(InputKey.RMB, InputMethod.HOLD)
+					
+					.addHumanoidStandStuff()
+					
 					.addAbility("punch", ModStandAbilities.PUNCH, punch -> 
 						Collections.addAll(punch.punchNames, "punch2", "punch3", "punch4")
 					)
@@ -84,6 +90,7 @@ public class ModStands {
 //					.addAbility("retal_heavy", ModStandAbilities.HEAVY_PUNCH)
 //					.addAbility("kick_barrage", ModStandAbilities.BARRAGE)
 					
+					
 					.makeHotbar(0, InputKey.Z, InputKey.X)
 																									
 					.addAbility("star_finger", ModStandAbilities.SP_STAR_FINGER)
@@ -94,12 +101,6 @@ public class ModStands {
 					
 					.addAbility("inhale", ModStandAbilities.SP_INHALE)
 					.inHotbar(0, InputMethod.HOLD)
-					
-					.addAbility("manual_control", ModStandAbilities.MANUAL_CONTROL)
-					.withBind(InputKey.O, InputMethod.CLICK)
-					
-					.addAbility("swap_items", ModStandAbilities.SWAP_ITEMS)
-					.withBind(InputKey.F.withModifier(InputKey.Modifier.CONTROL), InputMethod.CLICK)
 					
 //					.addAbility("time_stop", ModStandAbilities.TIME_STOP)
 
@@ -117,14 +118,11 @@ public class ModStands {
 					.build(),
 
 					new MovesetBuilder()
+					
+					.addHumanoidStandStuff()
+					
 					.addAbility("repair_item", ModStandAbilities.CD_REPAIR_ITEM)
 					.withBind(InputKey.C, InputMethod.HOLD)
-					
-					.addAbility("manual_control", ModStandAbilities.MANUAL_CONTROL)
-					.withBind(InputKey.O, InputMethod.CLICK)
-					
-					.addAbility("swap_items", ModStandAbilities.SWAP_ITEMS)
-					.withBind(InputKey.F.withModifier(InputKey.Modifier.CONTROL), InputMethod.CLICK)
 
 					, id));
 }

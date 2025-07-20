@@ -246,7 +246,7 @@ public class InputHandler {
 				if (ability == null || player == null) return;
 
 				if (conditionCheck.isPositive()) {
-					ability.writeExtraInput(inputBuf, player);
+					ability.writeExtraInput(inputBuf, player, true);
 					AbilityInput.click(ability, player, inputBuf, timeTookToResolve);
 				}
 				PacketDistributor.sendToServer(ClAbilityInputPacket.click(player, power, ability, timeTookToResolve));
@@ -255,7 +255,7 @@ public class InputHandler {
 				if (ability == null || player == null) return;
 
 				if (conditionCheck.isPositive()) {
-					ability.writeExtraInput(inputBuf, player);
+					ability.writeExtraInput(inputBuf, player, true);
 					AbilityInput.startHolding(keyId, ability, player, inputBuf, timeTookToResolve);
 				}
 				PacketDistributor.sendToServer(ClAbilityInputPacket.startHold(keyId, player, power, ability, timeTookToResolve));

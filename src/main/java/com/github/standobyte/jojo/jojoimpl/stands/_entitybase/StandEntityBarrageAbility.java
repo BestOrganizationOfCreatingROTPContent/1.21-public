@@ -20,6 +20,7 @@ import com.github.standobyte.jojo.util.target.AimingEntity;
 import com.github.standobyte.jojo.util.target.HitResultUtil;
 
 import net.minecraft.world.damagesource.DamageSource;
+import net.minecraft.world.entity.EquipmentSlot;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.level.Level;
 
@@ -48,13 +49,14 @@ public class StandEntityBarrageAbility extends StandEntityAbility {
 			setStandOffset(0, 1.5, StandOffsetFromUser.OffsetMode.HEAD_XY, true);
 			aimAs = AimingEntity.STAND;
 			Level level = performer.level();
-			if (level.isClientSide()) {
-				if (performer instanceof StandEntity stand) {
+			if (performer instanceof StandEntity stand) {
+				if (level.isClientSide()) {
 					EntityStoppableSoundInstance sound = new EntityStoppableSoundInstance(ClientsideSoundsHelper.withStandSkin(
 							ModSoundEvents.STAND_BARRAGE_CRY.get(), stand.getStandId(), stand.getStandSkin()), 
 							stand.getSoundSource(), 1, 1, stand, level.random.nextLong(), () -> this.phase != ActionPhase.PERFORM);
 					ClientsideSoundsHelper.playNonVanillaClassSound(sound);
 				}
+				tossStandHeldItems(EquipmentSlot.OFFHAND, EquipmentSlot.MAINHAND);
 			}
 		}
 		

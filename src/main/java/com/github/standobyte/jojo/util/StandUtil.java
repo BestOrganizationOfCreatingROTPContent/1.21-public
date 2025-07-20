@@ -25,6 +25,11 @@ public class StandUtil {
     	StandPower standPower = StandPower.get(standUser);
     	return standPower != null ? standPower.getSummonedStandEntity() : null;
     }
+
+    public static StandEntity getSummonedStand(Power<?> standPower) {
+    	StandPower _standPower = PowerClass.STAND.cast(standPower);
+    	return _standPower != null ? _standPower.getSummonedStandEntity() : null;
+    }
     
     public static boolean isEntityStandUser(LivingEntity entity) {
     	StandPower standData = StandPower.get(entity);

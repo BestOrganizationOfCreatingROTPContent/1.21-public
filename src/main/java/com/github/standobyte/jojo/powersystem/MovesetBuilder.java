@@ -10,6 +10,7 @@ import java.util.function.Supplier;
 
 import javax.annotation.Nullable;
 
+import com.github.standobyte.jojo.init.power.ModStandAbilities;
 import com.github.standobyte.jojo.powersystem.ability.Ability;
 import com.github.standobyte.jojo.powersystem.ability.AbilityType;
 import com.github.standobyte.jojo.powersystem.ability.config.AbilityConfigComponent;
@@ -49,6 +50,49 @@ public class MovesetBuilder {
 	public final <A extends Ability> MovesetBuilder addAbility(String abilityName, Supplier<? extends AbilityType<A>> abilityType, 
 			AbilityConfigComponent<A>... setParameters) {
 		return addAbility(abilityName, abilityType.get(), setParameters);
+	}
+
+	
+	// shortcuts for some common abilities
+	
+	public MovesetBuilder addHumanoidStandStuff() {
+		addManualControl();
+		addItemUsage();
+		addBlockUsage();
+		return this;
+	}
+	
+	public MovesetBuilder addManualControl() {
+		addAbility("manual_control", ModStandAbilities.MANUAL_CONTROL)
+		.withBind(InputKey.O, InputMethod.CLICK);
+		
+		return this;
+	}
+	
+	public MovesetBuilder addItemUsage() {
+		addAbility("items_swap_w_user", ModStandAbilities.ITEMS_SWAP_W_USER)
+		.withBind(InputKey.F.withModifier(InputKey.Modifier.CONTROL), InputMethod.CLICK);
+		
+		addAbility("items_swap_hands", ModStandAbilities.ITEMS_SWAP_HANDS)
+		.withBind(InputKey.F, InputMethod.CLICK);
+		
+		addAbility("item_toss", ModStandAbilities.ITEM_TOSS)
+		.withBind(InputKey.Q, InputMethod.CLICK);
+		
+		addAbility("item_attack", ModStandAbilities.ITEM_ATTACK)
+		.withBind(InputKey.LMB, InputMethod.HOLD);
+		
+		addAbility("item_use", ModStandAbilities.ITEM_USE)
+		.withBind(InputKey.RMB, InputMethod.HOLD);
+		
+		return this;
+	}
+	
+	public MovesetBuilder addBlockUsage() {
+		addAbility("block_use", ModStandAbilities.BLOCK_USE)
+		.withBind(InputKey.RMB, InputMethod.CLICK);
+		
+		return this;
 	}
 	
 	

@@ -74,7 +74,7 @@ public class TrAbilityUsePacket implements CustomPacketPayload {
 				AbilityInputNetwork.encodeInput(buf, packet.abilityEncode, null);
 				buf.writeFloat(packet.timeTookToResolve);
 				if (packet.abilityEncode != null) {
-					packet.abilityEncode.writeExtraInput(buf, packet.senderUser);
+					packet.abilityEncode.writeExtraInput(buf, packet.senderUser, false);
 				}	
 			}
 		}

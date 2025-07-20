@@ -74,7 +74,7 @@ public class ClAbilityInputPacket implements CustomPacketPayload {
 				AbilityInputNetwork.encodeInput(buf, packet.abilityEncode, packet.clUserPower);
 				if (packet.abilityEncode != null) {
 					buf.writeFloat(packet.timeTookToResolve);
-					packet.abilityEncode.writeExtraInput(buf, packet.clUser);
+					packet.abilityEncode.writeExtraInput(buf, packet.clUser, true);
 				}	
 			}
 		}

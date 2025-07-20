@@ -797,6 +797,59 @@ public class StandEntity extends LivingEntity implements SummonedStand, IEntityW
 			}
 		}
 	}
+
+	@Nullable
+	public ItemEntity tossItem(InteractionHand hand, boolean singleItem) {
+		EquipmentSlot slot = switch (hand) {
+			case MAIN_HAND -> EquipmentSlot.MAINHAND;
+			case OFF_HAND -> EquipmentSlot.OFFHAND;
+		};
+		return tossItem(slot, getXRot(), getYRot(), singleItem ? 1 : Integer.MAX_VALUE);
+	}
+
+	@Nullable
+	public ItemEntity tossItem(EquipmentSlot slot, Vec3 tossVec) {
+		Vec2 angles = MathUtil.lookAngles(tossVec);
+		float xRot = angles.x;
+		float yRot = angles.y;
+		return tossItem(slot, xRot, yRot, Integer.MAX_VALUE);
+	}
+
+	@Nullable
+	public ItemEntity tossItem(EquipmentSlot slot, float xRot, float yRot, int maxCount) {
+		Level level = level();
+		if (level.isClientSide()) return null;
+
+		ItemStack item = getItemBySlot(slot);
+		if (item.isEmpty()) return null;
+		
+		if (maxCount < item.getCount()) {
+			item = item.split(maxCount);
+		}
+		else {
+			setItemSlot(slot, ItemStack.EMPTY);
+		}
+
+		ItemEntity itemEntity = new ItemEntity(this.level(), this.getX(), this.getEyeY() - 0.3F, this.getZ(), item);
+//		itemEntity.setPickUpDelay(40);
+		itemEntity.setThrower(this);
+
+		float f8 = Mth.sin(xRot * MathUtil.DEG_TO_RAD);
+		float f2 = Mth.cos(xRot * MathUtil.DEG_TO_RAD);
+		float f3 = Mth.sin(yRot * MathUtil.DEG_TO_RAD);
+		float f4 = Mth.cos(yRot * MathUtil.DEG_TO_RAD);
+		float f5 = this.random.nextFloat() * (float) (Math.PI * 2);
+		float f6 = 0.02F * this.random.nextFloat();
+		itemEntity.setDeltaMovement(
+				(double)(-f3 * f2 * 0.3F) + Math.cos((double)f5) * (double)f6,
+				(double)(-f8 * 0.3F + 0.1F + (this.random.nextFloat() - this.random.nextFloat()) * 0.1F),
+				(double)(f4 * f2 * 0.3F) + Math.sin((double)f5) * (double)f6
+				);
+
+		swing(slot == EquipmentSlot.OFFHAND ? InteractionHand.OFF_HAND : InteractionHand.MAIN_HAND);
+		level.addFreshEntity(itemEntity);
+		return itemEntity;
+	}
 	
 	public enum HandOccupied {
 		ITEM,

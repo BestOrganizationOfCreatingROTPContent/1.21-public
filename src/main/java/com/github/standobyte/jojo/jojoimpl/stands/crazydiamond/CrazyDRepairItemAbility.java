@@ -7,7 +7,6 @@ import java.util.Optional;
 
 import javax.annotation.Nullable;
 
-import com.github.standobyte.jojo.client.ClientProxy;
 import com.github.standobyte.jojo.client.input.InputHandler;
 import com.github.standobyte.jojo.powersystem.ability.AbilityId;
 import com.github.standobyte.jojo.powersystem.entityaction.ActionPhase;
@@ -68,8 +67,8 @@ public class CrazyDRepairItemAbility extends StandEntityAbility {
 	}
 
 	@Override
-	public void writeExtraInput(FriendlyByteBuf serverboundBuf, LivingEntity user) {
-		if (user != null && user.level().isClientSide() && user == ClientProxy.getClientPlayer()) {
+	public void writeExtraInput(FriendlyByteBuf serverboundBuf, LivingEntity user, boolean isClientPlayer) {
+		if (isClientPlayer) {
 			ContainerSlotInput hoveredItem = ContainerSlotInput.cl_HoveredSlot();
 			NetworkUtil.writeOptionally(hoveredItem, serverboundBuf, ContainerSlotInput.STREAM_CODEC);
 		}
