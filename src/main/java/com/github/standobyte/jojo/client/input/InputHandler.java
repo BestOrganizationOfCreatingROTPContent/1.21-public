@@ -221,9 +221,7 @@ public class InputHandler {
 					if (heldTicks.clickHoldResolve != null) {
 						clickHeldOnRelease(heldTicks, keyId);
 					}
-					else {
-						doInput(InputEventType.RELEASE, keyId, null, null, ConditionCheck.POSITIVE, 0);
-					}
+					doInput(InputEventType.RELEASE, keyId, null, null, ConditionCheck.POSITIVE, 0);
 				}
 
 				Key vanillaKey = key.getVanillaKey();
