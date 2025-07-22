@@ -19,8 +19,7 @@ public class StandEntityManualControlToggle extends Ability {
 	}
 	
 	@Override
-	public void onClick(Level level, LivingEntity user, 
-			FriendlyByteBuf extraClientInput, float clickHoldResolveTime) {
+	public void onClick(Level level, LivingEntity user, FriendlyByteBuf extraClientInput) {
 		StandEntity stand = StandUtil.getSummonedStand(user);
 		if (stand != null) {
 			if (!stand.isManuallyControlled()) {

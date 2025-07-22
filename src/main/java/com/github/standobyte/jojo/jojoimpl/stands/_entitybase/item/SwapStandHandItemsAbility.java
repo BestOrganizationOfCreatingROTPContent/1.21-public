@@ -32,8 +32,7 @@ public class SwapStandHandItemsAbility extends Ability {
 	}
 	
 	@Override
-	public void onClick(Level level, LivingEntity user, 
-			FriendlyByteBuf extraClientInput, float clickHoldResolveTime) {
+	public void onClick(Level level, LivingEntity user, FriendlyByteBuf extraClientInput) {
 		if (!level.isClientSide()) {
 			StandEntity standEntity = StandUtil.getSummonedStand(user);
 			if (standEntity != null) {

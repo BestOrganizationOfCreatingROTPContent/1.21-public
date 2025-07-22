@@ -20,26 +20,14 @@ public class StandEntityAbility extends EntityActionAbility {
 	
 	
 	@Override
-	public void onClick(Level level, LivingEntity user, 
-			FriendlyByteBuf extraClientInput, float clickHoldResolveTime) {
-		if (level.isClientSide()) return;
-		
-		StandPower power = PowerClass.STAND.get(user); if (power == null) return;
-		StandEntity standEntity = power.getSummonedStandEntity(); if (standEntity == null) return;
-		setStandAction(this, level, user, 
-				power, standEntity, InputMethod.CLICK, 
-				extraClientInput, clickHoldResolveTime);
-	}
-	
-	@Override
-	public HeldInput onButtonStartHold(Level level, LivingEntity user, 
-			FriendlyByteBuf extraClientInput, float clickHoldResolveTime) {
+	public HeldInput onKeyPress(Level level, LivingEntity user, FriendlyByteBuf extraClientInput, 
+			InputMethod inputMethod, float clickHoldResolveTime) {
 		if (level.isClientSide()) return null;
 		
 		StandPower power = PowerClass.STAND.get(user); if (power == null) return null;
 		StandEntity standEntity = power.getSummonedStandEntity(); if (standEntity == null) return null;
 		return setStandAction(this, level, user, 
-				power, standEntity, InputMethod.HOLD, 
+				power, standEntity, inputMethod, 
 				extraClientInput, clickHoldResolveTime);
 	}
 	

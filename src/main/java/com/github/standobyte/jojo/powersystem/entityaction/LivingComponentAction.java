@@ -55,8 +55,8 @@ public class LivingComponentAction implements SynchronizablePlayerData, TickingE
 			EntityActionInputState actionInput = user.getData(ModDataAttachmentTypes.ENTITY_ABILITY_INPUT.get());
 			if (actionInput != null) {
 				switch (inputMethod) {
-				case CLICK -> actionInput.bufferClickInput(entity, this, action.ability);
-				case HOLD -> heldInputObj = actionInput.bufferHeldInput(entity, this, action.ability);
+					case CLICK -> actionInput.bufferClickInput(entity, this, action.ability);
+					case HOLD -> heldInputObj = actionInput.bufferHeldInput(entity, this, action.ability);
 				}
 			}
 			return heldInputObj;

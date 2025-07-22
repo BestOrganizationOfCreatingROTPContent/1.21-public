@@ -29,27 +29,11 @@ public class StandRightClickBlockAbility extends Ability {
 	}
 	
 	@Override
-	public void onClick(Level level, LivingEntity user, 
-			FriendlyByteBuf extraClientInput, float clickHoldResolveTime) {
+	public void onClick(Level level, LivingEntity user, FriendlyByteBuf extraClientInput) {
 		if (!level.isClientSide()) {
 			StandEntity standEntity = StandUtil.getSummonedStand(user);
 			if (standEntity != null) {
-//				ItemStack lUserItem = user.getOffhandItem();
-//				ItemStack rUserItem = user.getMainHandItem();
-//				ItemStack lStandItem = standEntity.getOffhandItem();
-//				ItemStack rStandItem = standEntity.getMainHandItem();
-//				
-//				if (!lUserItem.isEmpty()) {
-//					LivingComponentGrab standGrab = standEntity.getData(ModDataAttachmentTypes.LIVING_GRAB.get());
-//					if (standGrab != null) {
-//						standGrab.setGrabbedEntity(null);
-//					}
-//				}
-//				
-//				standEntity.setItemInHand(InteractionHand.OFF_HAND, lUserItem);
-//				standEntity.setItemInHand(InteractionHand.MAIN_HAND, rUserItem);
-//				user.setItemInHand(InteractionHand.OFF_HAND, lStandItem);
-//				user.setItemInHand(InteractionHand.MAIN_HAND, rStandItem);
+				
 			}
 		}
 	}

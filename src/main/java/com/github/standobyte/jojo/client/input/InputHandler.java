@@ -242,26 +242,17 @@ public class InputHandler {
 	private void doInput(InputEventType type, short keyId, Power<?> power, Ability ability, ConditionCheck conditionCheck, float timeTookToResolve) {
 		Player player = mc.player;
 		switch (type) {
-			case PRESS_CLICK -> {
+			case PRESS_CLICK, PRESS_HOLD -> {
 				if (ability == null || player == null) return;
 
 				if (conditionCheck.isPositive()) {
 					ability.writeExtraInput(inputBuf, player, true);
-					AbilityInput.click(ability, player, inputBuf, timeTookToResolve);
+					AbilityInput.keyPress(keyId, ability, player, inputBuf, type.inputMethod, timeTookToResolve);
 				}
-				PacketDistributor.sendToServer(ClAbilityInputPacket.click(player, power, ability, timeTookToResolve));
-			}
-			case PRESS_HOLD -> {
-				if (ability == null || player == null) return;
-
-				if (conditionCheck.isPositive()) {
-					ability.writeExtraInput(inputBuf, player, true);
-					AbilityInput.startHolding(keyId, ability, player, inputBuf, timeTookToResolve);
-				}
-				PacketDistributor.sendToServer(ClAbilityInputPacket.startHold(keyId, player, power, ability, timeTookToResolve));
+				PacketDistributor.sendToServer(ClAbilityInputPacket.keyPress(keyId, player, power, ability, type, timeTookToResolve));
 			}
 			case RELEASE -> {
-				AbilityInput.releaseHolding(keyId, player);
+				AbilityInput.keyRelease(keyId, player);
 				PacketDistributor.sendToServer(ClAbilityInputPacket.releaseHold(keyId));
 			}
 		}

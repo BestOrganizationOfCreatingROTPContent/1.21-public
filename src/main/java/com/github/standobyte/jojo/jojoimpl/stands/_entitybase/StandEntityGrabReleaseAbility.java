@@ -5,7 +5,6 @@ import com.github.standobyte.jojo.mechanics.grab.LivingComponentGrab;
 import com.github.standobyte.jojo.powersystem.Power;
 import com.github.standobyte.jojo.powersystem.ability.Ability;
 import com.github.standobyte.jojo.powersystem.ability.AbilityId;
-import com.github.standobyte.jojo.powersystem.standpower.StandPower;
 import com.github.standobyte.jojo.powersystem.standpower.entity.StandEntity;
 import com.github.standobyte.jojo.util.StandUtil;
 
@@ -25,17 +24,13 @@ public class StandEntityGrabReleaseAbility extends Ability {
 	}
 
 	@Override
-	public void onClick(Level level, LivingEntity user, 
-			FriendlyByteBuf extraClientInput, float clickHoldResolveTime) {
+	public void onClick(Level level, LivingEntity user, FriendlyByteBuf extraClientInput) {
 		if (!level.isClientSide()) {
-			StandPower standPower = StandPower.get(user);
-			if (standPower != null) {
-				StandEntity standEntity = standPower.getSummonedStandEntity();
-				if (standEntity != null) {
-					LivingComponentGrab standGrab = standEntity.getData(ModDataAttachmentTypes.LIVING_GRAB.get());
-					if (standGrab != null) {
-						standGrab.setGrabbedEntity(null);
-					}
+			StandEntity standEntity = StandUtil.getSummonedStand(user);
+			if (standEntity != null) {
+				LivingComponentGrab standGrab = standEntity.getData(ModDataAttachmentTypes.LIVING_GRAB.get());
+				if (standGrab != null) {
+					standGrab.setGrabbedEntity(null);
 				}
 			}
 		}

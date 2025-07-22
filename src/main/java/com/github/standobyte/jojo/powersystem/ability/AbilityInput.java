@@ -9,6 +9,7 @@ import com.github.standobyte.jojo.init.ModDataAttachmentTypes;
 import com.github.standobyte.jojo.powersystem.Power;
 import com.github.standobyte.jojo.powersystem.ability.condition.AvailableAbilities;
 import com.github.standobyte.jojo.powersystem.ability.condition.ConditionCheck;
+import com.github.standobyte.jojo.powersystem.ability.controls.InputMethod;
 import com.github.standobyte.jojo.powersystem.entityaction.EntityActionInputState;
 import com.github.standobyte.jojo.powersystem.entityaction.EntityActionInputState.HeldInputEntry;
 import com.github.standobyte.jojo.powersystem.entityaction.HeldInput;
@@ -41,54 +42,36 @@ public class AbilityInput {
 		return canUse;
 	}
 	
-
-	public static void click(Ability ability, LivingEntity user, FriendlyByteBuf extraClientInput, float clickHoldResolveTime) {
-		if (ability == null || user == null) return;
-
-		Level level = user.level();
-		ability.onClick(level, user, extraClientInput, clickHoldResolveTime);
-		if (!level.isClientSide()) {
-			PacketDistributor.sendToPlayersTrackingEntity(user, 
-					TrAbilityUsePacket.click(user.getId(), ability, clickHoldResolveTime, user));
-		}
-	}
-
-	public static void clickMob(Ability ability, LivingEntity user, FriendlyByteBuf extraData) {
-		click(ability, user, extraData, 0);
-	}
-
+	
 	/* 
 	 * FIXME ability inputs that are currently controlled purely by the client
 	 * 	barrage can refresh its duration via a client-sent packet
 	 * 	the client can use abilities from other movesets
 	 */
 	@Nullable
-	public static HeldInputEntry startHolding(short keyId, Ability ability, 
-			LivingEntity user, FriendlyByteBuf extraClientInput, float clickHoldResolveTime) {
+	public static HeldInputEntry keyPress(short keyId, Ability ability, 
+			LivingEntity user, FriendlyByteBuf extraClientInput, InputMethod inputMethod, float clickHoldResolveTime) {
 		if (ability == null || user == null) return null;
-
-		EntityActionInputState inputHandler = user.getData(ModDataAttachmentTypes.ENTITY_ABILITY_INPUT.get());
-		if (inputHandler == null) return null;
 		
 		Level level = user.level();
-		HeldInput action = ability.onButtonStartHold(level, user, extraClientInput, clickHoldResolveTime);
+		HeldInput action = ability.onKeyPress(level, user, extraClientInput, inputMethod, clickHoldResolveTime);
 		if (!level.isClientSide()) {
 			PacketDistributor.sendToPlayersTrackingEntity(user, 
-					TrAbilityUsePacket.startHold(user.getId(), keyId, ability, clickHoldResolveTime, user));
+					TrAbilityUsePacket.keyPress(user.getId(), keyId, ability, inputMethod, clickHoldResolveTime, user));
 		}
 		
-		HeldInputEntry heldInput = new HeldInputEntry(keyId, ability, action);
-		inputHandler.heldKeys.put(keyId, heldInput);
-		return heldInput;
+		if (action != null) {
+			EntityActionInputState inputHandler = user.getData(ModDataAttachmentTypes.ENTITY_ABILITY_INPUT.get());
+			if (inputHandler != null) {
+				HeldInputEntry heldInput = new HeldInputEntry(keyId, ability, action);
+				inputHandler.heldKeys.put(keyId, heldInput);
+				return heldInput;
+			}
+		}
+		return null;
 	}
-	
-	public static HeldInputEntry startHoldingMob(Ability ability, LivingEntity user, FriendlyByteBuf extraData) {
-		short keyId = (short) pseudoKey.incrementAndGet();
-		return startHolding(keyId, ability, user, extraData, 0);
-	}
-	private static final AtomicInteger pseudoKey = new AtomicInteger();
 
-	public static void releaseHolding(short keyId, LivingEntity user) {
+	public static void keyRelease(short keyId, LivingEntity user) {
 		EntityActionInputState inputHandler = user.getData(ModDataAttachmentTypes.ENTITY_ABILITY_INPUT.get());
 		if (inputHandler != null) {
 			HeldInputEntry heldAction = inputHandler.heldKeys.remove(keyId);
@@ -97,7 +80,7 @@ public class AbilityInput {
 				Level level = user.level();
 
 				if (action != null) {
-					action.onStopHeld(user);
+					action.onKeyRelease(user);
 				}
 				if (!level.isClientSide()) {
 					PacketDistributor.sendToPlayersTrackingEntity(user, 
@@ -106,12 +89,25 @@ public class AbilityInput {
 			}
 		}
 	}
+
+	@Nullable
+	public static HeldInputEntry keyPressMob(Ability ability, LivingEntity user, FriendlyByteBuf extraData, InputMethod inputMethod) {
+		short keyId = (short) pseudoKey.incrementAndGet();
+		return keyPress(keyId, ability, user, extraData, inputMethod, 0);
+	}
+	private static final AtomicInteger pseudoKey = new AtomicInteger();
 	
 
 	public enum InputEventType {
-		PRESS_CLICK,
-		PRESS_HOLD,
-		RELEASE
+		PRESS_CLICK(InputMethod.CLICK),
+		PRESS_HOLD(InputMethod.HOLD),
+		RELEASE(InputMethod.HOLD);
+		
+		public final InputMethod inputMethod;
+
+		InputEventType(InputMethod inputMethod) {
+			this.inputMethod = inputMethod;
+		}
 	}
 
 }

@@ -365,7 +365,7 @@ public class EntityActionInstance implements HeldInput {
 	
 	@Override
 	@ApiStatus.Internal
-	public void onStopHeld(LivingEntity user) {
+	public void onKeyRelease(LivingEntity user) {
 		if (!this.isOver()) {
 			onButtonStopHold();
 		}

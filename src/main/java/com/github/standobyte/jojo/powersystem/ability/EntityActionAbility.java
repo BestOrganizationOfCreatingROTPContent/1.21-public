@@ -23,24 +23,15 @@ public class EntityActionAbility extends Ability implements EntityActionType {
 		anim = ActionAnimIdentifier.getOrCreate(abilityId);
 	}
 	
-
-	@Override
-	public void onClick(Level level, LivingEntity user, 
-			FriendlyByteBuf extraClientInput, float clickHoldResolveTime) {
-		if (level.isClientSide()) return;
-		
-		EntityActionInstance action = initActionOnAbilityUse(level, user, extraClientInput);
-		LivingComponentAction.getComponent(user).bufferOrSetAction(action, user, InputMethod.CLICK, clickHoldResolveTime);
-	}
 	
 	@Override
-	public HeldInput onButtonStartHold(Level level, LivingEntity user, 
-			FriendlyByteBuf extraClientInput, float clickHoldResolveTime) {
+	public HeldInput onKeyPress(Level level, LivingEntity user, FriendlyByteBuf extraClientInput, 
+			InputMethod inputMethod, float clickHoldResolveTime) {
 		if (level.isClientSide()) return null;
 
 		EntityActionInstance action = initActionOnAbilityUse(level, user, extraClientInput);
 		HeldInput actionOrQueue = LivingComponentAction.getComponent(user)
-				.bufferOrSetAction(action, user, InputMethod.HOLD, clickHoldResolveTime);
+				.bufferOrSetAction(action, user, inputMethod, clickHoldResolveTime);
 		return actionOrQueue;
 	}
 	

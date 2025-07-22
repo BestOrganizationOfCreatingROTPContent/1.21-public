@@ -104,17 +104,19 @@ public class EntityActionInputState implements TickingEntityData {
 	implements HeldInput {
 
 		@Override
-		public void onStopHeld(LivingEntity user) {
+		public void onKeyRelease(LivingEntity user) {
 			// Remove itself from the input buffer, if the key was released before the queued action could start
 
-			EntityActionInputState inputState = user.getData(ModDataAttachmentTypes.ENTITY_ABILITY_INPUT.get());
-			if (inputState != null) {
-				var entryIter = inputState.bufferPerPerformer.entrySet().iterator();
-				while (entryIter.hasNext()) {
-					var entry = entryIter.next();
-					if (entry.getValue() == this) {
-						entryIter.remove();
-						break;
+			if (inputMethod == InputMethod.HOLD) {
+				EntityActionInputState inputState = user.getData(ModDataAttachmentTypes.ENTITY_ABILITY_INPUT.get());
+				if (inputState != null) {
+					var entryIter = inputState.bufferPerPerformer.entrySet().iterator();
+					while (entryIter.hasNext()) {
+						var entry = entryIter.next();
+						if (entry.getValue() == this) {
+							entryIter.remove();
+							break;
+						}
 					}
 				}
 			}

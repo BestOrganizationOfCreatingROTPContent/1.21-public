@@ -5,9 +5,10 @@ import javax.annotation.Nullable;
 import com.github.standobyte.jojo.client.ClientProxy;
 import com.github.standobyte.jojo.core.PacketsRegister;
 import com.github.standobyte.jojo.powersystem.ability.Ability;
-import com.github.standobyte.jojo.powersystem.ability.AbilityInput;
 import com.github.standobyte.jojo.powersystem.ability.AbilityId.AbilityInputNetwork;
+import com.github.standobyte.jojo.powersystem.ability.AbilityInput;
 import com.github.standobyte.jojo.powersystem.ability.AbilityInput.InputEventType;
+import com.github.standobyte.jojo.powersystem.ability.controls.InputMethod;
 
 import net.minecraft.network.RegistryFriendlyByteBuf;
 import net.minecraft.network.protocol.common.custom.CustomPacketPayload;
@@ -26,12 +27,13 @@ public class TrAbilityUsePacket implements CustomPacketPayload {
 	private final LivingEntity senderUser;
 	private RegistryFriendlyByteBuf extraData;
 	
-	public static TrAbilityUsePacket click(int entityId, Ability ability, float timeTookToResolve, LivingEntity serverUser) {
-		return new TrAbilityUsePacket(entityId, (short) 0, InputEventType.PRESS_CLICK, ability, null, timeTookToResolve, serverUser);
-	}
-	
-	public static TrAbilityUsePacket startHold(int entityId, short key, Ability ability, float timeTookToResolve, LivingEntity serverUser) {
-		return new TrAbilityUsePacket(entityId, key, InputEventType.PRESS_HOLD, ability, null, timeTookToResolve, serverUser);
+	public static TrAbilityUsePacket keyPress(int entityId, short key, 
+			Ability ability, InputMethod inputMethod, float timeTookToResolve, LivingEntity serverUser) {
+		InputEventType inputEvent = switch (inputMethod) {
+			case CLICK -> InputEventType.PRESS_CLICK;
+			case HOLD -> InputEventType.PRESS_HOLD;
+		};
+		return new TrAbilityUsePacket(entityId, key, inputEvent, ability, null, timeTookToResolve, serverUser);
 	}
 	
 	public static TrAbilityUsePacket releaseHold(int entityId, short key) {
@@ -102,16 +104,12 @@ public class TrAbilityUsePacket implements CustomPacketPayload {
 			Entity entity = ClientProxy.getEntityById(payload.entityId);
 			if (entity instanceof LivingEntity living) {
 				switch (payload.inputType) {
-					case PRESS_CLICK -> {
+					case PRESS_CLICK, PRESS_HOLD -> {
 						Ability ability = payload.abilityDecoded.getAbility(living);
-						AbilityInput.click(ability, living, payload.extraData, payload.timeTookToResolve);
-					}
-					case PRESS_HOLD -> {
-						Ability ability = payload.abilityDecoded.getAbility(living);
-						AbilityInput.startHolding(payload.key, ability, living, payload.extraData, payload.timeTookToResolve);
+						AbilityInput.keyPress(payload.key, ability, living, payload.extraData, payload.inputType.inputMethod, payload.timeTookToResolve);
 					}
 					case RELEASE -> {
-						AbilityInput.releaseHolding(payload.key, living);
+						AbilityInput.keyRelease(payload.key, living);
 					}
 				}
 			}

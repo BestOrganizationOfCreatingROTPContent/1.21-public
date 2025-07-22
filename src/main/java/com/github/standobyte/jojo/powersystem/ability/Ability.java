@@ -9,6 +9,7 @@ import com.github.standobyte.jojo.client.input.InputHandler;
 import com.github.standobyte.jojo.powersystem.Power;
 import com.github.standobyte.jojo.powersystem.ability.condition.AvailableAbilities;
 import com.github.standobyte.jojo.powersystem.ability.condition.AvailableAbilities.AbilityConditionCheck;
+import com.github.standobyte.jojo.powersystem.ability.controls.InputMethod;
 import com.github.standobyte.jojo.powersystem.ability.condition.ConditionCheck;
 import com.github.standobyte.jojo.powersystem.entityaction.HeldInput;
 
@@ -112,17 +113,23 @@ public class Ability {
 	
 	public void writeExtraInput(FriendlyByteBuf serverboundBuf, LivingEntity user, boolean isClientPlayer) {}
 
-	// Input stuff below is called in AbilityInput
 	
-	@ApiStatus.OverrideOnly
-	public void onClick(Level level, LivingEntity user, 
-			FriendlyByteBuf extraClientInput, float clickHoldResolveTime) {}
-	
+	/**
+	 * Is called in {@link com.github.standobyte.jojo.powersystem.ability.AbilityInput}
+	 */
 	@ApiStatus.OverrideOnly
 	@Nullable
-	public HeldInput onButtonStartHold(Level level, LivingEntity user, 
-			FriendlyByteBuf extraClientInput, float clickHoldResolveTime) {
+	public HeldInput onKeyPress(Level level, LivingEntity user, FriendlyByteBuf extraClientInput, 
+			InputMethod inputMethod, float clickHoldResolveTime) {
+		onClick(level, user, extraClientInput);
 		return null;
 	}
+
+	/**
+	 * A simplified version of {@link Ability#onKeyPress(Level, LivingEntity, FriendlyByteBuf, InputMethod, float)}, 
+	 * when all you want is to just do something the moment user clicks the ability
+	 */
+	@ApiStatus.OverrideOnly
+	public void onClick(Level level, LivingEntity user, FriendlyByteBuf extraClientInput) {}
 	
 }
