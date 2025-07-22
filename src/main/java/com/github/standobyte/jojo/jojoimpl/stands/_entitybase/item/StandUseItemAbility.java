@@ -112,16 +112,16 @@ public class StandUseItemAbility extends StandEntityAbility {
 			}
 		}
 
-		/**
-		 * {@link net.minecraft.world.item.BowItem#releaseUsing(ItemStack, Level, LivingEntity, int)}
-		 * {@link net.minecraft.world.item.TridentItem#releaseUsing(ItemStack, Level, LivingEntity, int)}
-		 */
 		@Override
 		public void onButtonStopHold() {
 			if (getPhase() != ActionPhase.RECOVERY) {
 				startPhase(ActionPhase.RECOVERY);
 				syncPhaseChanges();
-				performer.releaseUsingItem();
+				
+				ItemStack usedItem = performer.getUseItem();
+				if (!usedItem.isEmpty()) {
+					LivingUseItem.releaseUsingItem(performer, powerUser.getEntity(level()) instanceof ServerPlayer player ? player : null);
+				}
 			}
 		}
 

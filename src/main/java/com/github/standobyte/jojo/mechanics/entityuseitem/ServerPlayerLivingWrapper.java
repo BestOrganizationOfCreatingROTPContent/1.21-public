@@ -41,6 +41,8 @@ public class ServerPlayerLivingWrapper extends FakePlayer implements EntityWrapp
 		fakeInventory.offhand.set(0, actualEntity.getOffhandItem());
 		fakeInventory.selected = 0;
 		fakeInventory.setItem(fakeInventory.selected, actualEntity.getMainHandItem());
+		
+		fakePl.updateUseItem();
 
 		return fakePl;
 	}
@@ -103,9 +105,49 @@ public class ServerPlayerLivingWrapper extends FakePlayer implements EntityWrapp
 		actualEntity.setItemSlot(slot, item);
 	}
 	
+	public void checkInventoryChanges() {
+		Inventory inventory = this.getInventory();
+		actualEntity.setItemSlot(EquipmentSlot.OFFHAND, inventory.offhand.get(0));
+		actualEntity.setItemSlot(EquipmentSlot.MAINHAND, inventory.getSelected());
+		for (EquipmentSlot armorSlot : EquipmentSlot.values()) {
+			if (armorSlot.getType() == EquipmentSlot.Type.HUMANOID_ARMOR) {
+				actualEntity.setItemSlot(armorSlot, inventory.armor.get(armorSlot.getIndex()));
+			}
+		}
+	}
+	
+	
 	@Override
     public void startUsingItem(InteractionHand hand) {
 		actualEntity.startUsingItem(hand);
+		updateUseItem();
+	}
+	
+	@Override
+    public void stopUsingItem() {
+		actualEntity.stopUsingItem();
+		updateUseItem();
+	}
+	
+	@Override
+    public ItemStack getUseItem() {
+		return actualEntity.getUseItem();
+	}
+	
+	@Override
+    public int getUseItemRemainingTicks() {
+		return actualEntity.getUseItemRemainingTicks();
+	}
+	
+	protected void updateUseItem() {
+		this.useItem = actualEntity.getUseItem();
+		this.useItemRemaining = actualEntity.getUseItemRemainingTicks();
+	}
+
+	
+	@Override
+	public ItemStack getProjectile(ItemStack shootable) {
+		return actualEntity.getProjectile(shootable);
 	}
 
 	@Override
