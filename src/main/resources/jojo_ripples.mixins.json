@@ -6,7 +6,8 @@
   "minVersion": "0.8.5",
   "mixins": [
     "DamageSourceMixin",
-    "grab.LivingEntityMixin"
+    "grab.LivingEntityMixin",
+    "standuseitems.ProjectileMixin"
   ],
   "client": [
     "client.ModelAnimOptimization",

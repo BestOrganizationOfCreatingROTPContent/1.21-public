@@ -49,13 +49,13 @@ public class ModStands {
 							punch -> punch.setDefaultPhaseLength(ActionPhase.WINDUP, 5)
 					)
 
-					.addAbility("heavy_punch", ModStandAbilities.HEAVY_PUNCH)
-					.withBind(InputKey.RMB, InputMethod.CLICK)
-					.addAbility("heavy_punch2", ModStandAbilities.HEAVY_PUNCH)
-					.addAbility("uppercut", ModStandAbilities.HEAVY_PUNCH)
-					
-					.addAbility("heavy_charged", ModStandAbilities.HEAVY_CHARGED)
-					.withBind(InputKey.RMB, InputMethod.HOLD)
+//					.addAbility("heavy_punch", ModStandAbilities.HEAVY_PUNCH)
+//					.withBind(InputKey.RMB, InputMethod.CLICK)
+//					.addAbility("heavy_punch2", ModStandAbilities.HEAVY_PUNCH)
+//					.addAbility("uppercut", ModStandAbilities.HEAVY_PUNCH)
+//					
+//					.addAbility("heavy_charged", ModStandAbilities.HEAVY_CHARGED)
+//					.withBind(InputKey.RMB, InputMethod.HOLD)
 					
 					.addAbility("barrage", ModStandAbilities.BARRAGE)
 					.withBind(InputKey.LMB, InputMethod.HOLD)

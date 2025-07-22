@@ -197,6 +197,7 @@ public class ClientControlScheme {
     	return switch (modifier) {
     		case SHIFT -> KeyModifier.SHIFT;
     		case CONTROL -> KeyModifier.CONTROL;
+    		case ALT -> KeyModifier.ALT;
     	};
     }
 	

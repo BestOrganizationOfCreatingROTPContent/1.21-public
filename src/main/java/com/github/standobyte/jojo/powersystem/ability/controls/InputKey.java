@@ -170,7 +170,8 @@ public class InputKey {
     
     public static enum Modifier {
     	SHIFT,
-    	CONTROL;
+    	CONTROL,
+    	ALT;
     }
     
 }

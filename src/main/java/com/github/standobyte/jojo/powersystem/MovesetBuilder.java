@@ -79,18 +79,18 @@ public class MovesetBuilder {
 		addAbility("item_toss", ModStandAbilities.ITEM_TOSS)
 		.withBind(InputKey.Q, InputMethod.CLICK);
 		
-		addAbility("item_attack", ModStandAbilities.ITEM_ATTACK)
-		.withBind(InputKey.LMB, InputMethod.HOLD);
+//		addAbility("item_attack", ModStandAbilities.ITEM_ATTACK)
+//		.withBind(InputKey.LMB, InputMethod.CLICK);
 		
 		addAbility("item_use", ModStandAbilities.ITEM_USE)
-		.withBind(InputKey.RMB, InputMethod.HOLD);
+		.withBind(InputKey.RMB, InputMethod.CLICK);
 		
 		return this;
 	}
 	
 	public MovesetBuilder addBlockUsage() {
 		addAbility("block_use", ModStandAbilities.BLOCK_USE)
-		.withBind(InputKey.RMB, InputMethod.CLICK);
+		.withBind(InputKey.RMB.withModifier(InputKey.Modifier.ALT), InputMethod.CLICK);
 		
 		return this;
 	}
