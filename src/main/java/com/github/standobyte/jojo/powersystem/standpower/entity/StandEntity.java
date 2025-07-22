@@ -3,6 +3,7 @@ package com.github.standobyte.jojo.powersystem.standpower.entity;
 import java.lang.ref.WeakReference;
 import java.util.Collections;
 import java.util.Optional;
+import java.util.function.Predicate;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
@@ -59,6 +60,7 @@ import net.minecraft.world.entity.item.ItemEntity;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.entity.projectile.Projectile;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.ProjectileWeaponItem;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec2;
@@ -855,6 +857,31 @@ public class StandEntity extends LivingEntity implements SummonedStand, IEntityW
 		ITEM,
 		BLOCK,
 		GRABBED_TARGET
+	}
+
+	@Override
+	public ItemStack getProjectile(ItemStack shootable) {
+		if (!(shootable.getItem() instanceof ProjectileWeaponItem)) {
+			return ItemStack.EMPTY;
+		} else {
+			ProjectileWeaponItem weaponItem = (ProjectileWeaponItem) shootable.getItem();
+			Predicate<ItemStack> projectileCondition = weaponItem.getSupportedHeldProjectiles(shootable);
+			ItemStack projectile = ProjectileWeaponItem.getHeldProjectile(this, projectileCondition);
+			if (!projectile.isEmpty()) {
+				return CommonHooks.getProjectile(this, shootable, projectile);
+			} else {
+				projectileCondition = weaponItem.getAllSupportedProjectiles(shootable);
+
+				for (InteractionHand hand : InteractionHand.values()) {
+					ItemStack item = this.getItemInHand(hand);
+					if (projectileCondition.test(item)) {
+						return CommonHooks.getProjectile(this, shootable, item);
+					}
+				}
+
+				return CommonHooks.getProjectile(this, shootable, ItemStack.EMPTY);
+			}
+		}
 	}
 
 	

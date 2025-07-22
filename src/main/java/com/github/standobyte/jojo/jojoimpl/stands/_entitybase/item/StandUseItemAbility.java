@@ -115,7 +115,6 @@ public class StandUseItemAbility extends StandEntityAbility {
 		/**
 		 * {@link net.minecraft.world.item.BowItem#releaseUsing(ItemStack, Level, LivingEntity, int)}
 		 * {@link net.minecraft.world.item.TridentItem#releaseUsing(ItemStack, Level, LivingEntity, int)}
-		 * {@link net.minecraft.world.entity.LivingEntity#getProjectile(ItemStack)}
 		 */
 		@Override
 		public void onButtonStopHold() {
