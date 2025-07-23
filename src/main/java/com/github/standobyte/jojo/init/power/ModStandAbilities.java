@@ -11,8 +11,6 @@ import com.github.standobyte.jojo.jojoimpl.stands._entitybase.StandEntityHeavyPu
 import com.github.standobyte.jojo.jojoimpl.stands._entitybase.StandEntityHeavyPunchChargedAbility;
 import com.github.standobyte.jojo.jojoimpl.stands._entitybase.StandEntityManualControlToggle;
 import com.github.standobyte.jojo.jojoimpl.stands._entitybase.StandEntityPunchAbility;
-import com.github.standobyte.jojo.jojoimpl.stands._entitybase.item.StandRightClickBlockAbility;
-import com.github.standobyte.jojo.jojoimpl.stands._entitybase.item.StandUseItemAbility;
 import com.github.standobyte.jojo.jojoimpl.stands._entitybase.item.SwapStandHandItemsAbility;
 import com.github.standobyte.jojo.jojoimpl.stands._entitybase.item.SwapUserStandItemsAbility;
 import com.github.standobyte.jojo.jojoimpl.stands._entitybase.item.TossStandItemAbility;
@@ -42,12 +40,6 @@ public final class ModStandAbilities {
 	
 //	public static final DeferredHolder<AbilityType<?>, AbilityType<StandAttackWithItemAbility>> ITEM_ATTACK = ABILITY_TYPES.register(
 //			"stand_item_attack", key -> new AbilityType<>(key, StandAttackWithItemAbility::new));
-	
-	public static final DeferredHolder<AbilityType<?>, AbilityType<StandUseItemAbility>> ITEM_USE = ABILITY_TYPES.register(
-			"stand_item_use", key -> new AbilityType<>(key, StandUseItemAbility::new));
-	
-	public static final DeferredHolder<AbilityType<?>, AbilityType<StandRightClickBlockAbility>> BLOCK_USE = ABILITY_TYPES.register(
-			"stand_block_use", key -> new AbilityType<>(key, StandRightClickBlockAbility::new));
 	
 	
 	public static final DeferredHolder<AbilityType<?>, AbilityType<StandEntityPunchAbility>> PUNCH = ABILITY_TYPES.register(

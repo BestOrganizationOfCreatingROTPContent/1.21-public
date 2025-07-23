@@ -2,6 +2,7 @@ package com.github.standobyte.jojo.client;
 
 import javax.annotation.Nullable;
 
+import com.github.standobyte.jojo.mechanics.entityuseitem.ClientSideStandClick;
 import com.github.standobyte.jojo.powersystem.Power;
 import com.github.standobyte.jojo.powersystem.PowerClass;
 import com.github.standobyte.jojo.powersystem.ability.condition.AvailableAbilities;
@@ -44,6 +45,8 @@ public class ClientPowerCache {
 				Power<?> power = powersCache[i];
 				if (power != null) {
 					availableAbilitiesCache[i] = power.updateAvailableMoves();
+					
+					ClientSideStandClick.onMovesUpdate(power, availableAbilitiesCache[i]);
 				}
 			}
 		}

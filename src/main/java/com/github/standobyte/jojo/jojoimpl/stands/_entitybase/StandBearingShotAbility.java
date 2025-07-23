@@ -1,5 +1,7 @@
 package com.github.standobyte.jojo.jojoimpl.stands._entitybase;
 
+import com.github.standobyte.jojo.client.input.AbilityInputState;
+import com.github.standobyte.jojo.core.JojoMod;
 import com.github.standobyte.jojo.powersystem.Power;
 import com.github.standobyte.jojo.powersystem.ability.AbilityId;
 import com.github.standobyte.jojo.powersystem.entityaction.ActionPhase;
@@ -16,6 +18,7 @@ public class StandBearingShotAbility extends StandEntityAbility {
 
 	public StandBearingShotAbility(AbilityId abilityId) {
 		super(abilityId);
+		setDefaultPhaseLength(ActionPhase.PERFORM, 999999);
 	}
 	
 	@Override
@@ -31,75 +34,38 @@ public class StandBearingShotAbility extends StandEntityAbility {
 		return false;
 	}
 	
+	@Override
+	public AbilityInputState cl_abilityInputState(Power<?> context) {
+		AbilityInputState state = super.cl_abilityInputState(context);
+		state.setFlag(AbilityInputState.WITH_ITEM_HELD, true);
+		return state;
+	}
+	
 	
 	@Override
 	public EntityActionInstance createActionObj() {
-		return new StandItemUse(this);
+		return new StandBearingShot(this);
 	}
 	
-	public static class StandItemUse extends EntityActionInstance {
+	public static class StandBearingShot extends EntityActionInstance {
 
-		public StandItemUse(EntityActionType ability) {
+		public StandBearingShot(EntityActionType ability) {
 			super(ability);
 		}
-		
-		@Override
-		public void onActionSet(EntityActionInstance prevAction) {
-//			setStandOffset(0, 1.5, StandOffsetFromUser.OffsetMode.HEAD_XY, true);
-//			aimAs = AimingEntity.STAND;
-//			Level level = performer.level();
-//			if (performer instanceof StandEntity stand) {
-//				if (level.isClientSide()) {
-//					EntityStoppableSoundInstance sound = new EntityStoppableSoundInstance(ClientsideSoundsHelper.withStandSkin(
-//							ModSoundEvents.STAND_BARRAGE_CRY.get(), stand.getStandId(), stand.getStandSkin()), 
-//							stand.getSoundSource(), 1, 1, stand, level.random.nextLong(), () -> this.phase != ActionPhase.PERFORM);
-//					ClientsideSoundsHelper.playNonVanillaClassSound(sound);
-//				}
-//				tossStandHeldItems(EquipmentSlot.OFFHAND, EquipmentSlot.MAINHAND);
-//			}
-		}
-		
-		@Override
-		public void onSetPhase(ActionPhase newPhase) {
-//			userWalkSpeed = newPhase == ActionPhase.PERFORM ? 0.6f : 1;
-		}
 
 		@Override
-		public void actionTick() {
-//			if (getPhase() == ActionPhase.PERFORM && performer instanceof StandEntity stand) {
-//				Level level = performer.level();
-//				if (level.isClientSide()) {
-//					if (ClientGlobals.canHearStands) {
-//						level.playLocalSound(stand.getX(), stand.getEyeY(), stand.getZ(), ClientsideSoundsHelper.withStandSkin(
-//								ModSoundEvents.STAND_PUNCH_BARRAGE_SWING.get(), stand.getStandId(), stand.getStandSkin()), 
-//								stand.getSoundSource(), 1, 1, false);
-//					}
-//				}
-//				else {
-//					ActionTarget target = HitResultUtil.clipEntityLook(stand, entity -> StandEntityPunchAbility.canStandHit(stand, entity), 0);
-//					if (target.getType() == TargetType.ENTITY && target.getEntity() instanceof LivingEntity targetLiving) {
-//						var damageType = DamageUtil.type(level, ModDamageTypes.STAND_ATTACK);
-//						DamageSource dmgSource = new DamageSource(damageType, performer);
-//						((RipplesModifiedDamageSource) dmgSource).jojo_ripples$modifyKnockback(0, 0.1f);
-//						float dmgAmount = 1;
-//						standEntityAttack(stand, targetLiving, dmgSource, dmgAmount);
-//					}
-//				}
-//			}
-		}
-		
-		@Override
 		public void onButtonStopHold() {
-//			if (getPhase() != ActionPhase.RECOVERY) {
-//				startPhase(ActionPhase.RECOVERY);
-//				syncPhaseChanges();
-//			}
+			if (getPhase() != ActionPhase.RECOVERY) {
+				startPhase(ActionPhase.RECOVERY);
+				syncPhaseChanges();
+				
+				JojoMod.LOGGER.debug("pew");
+			}
 		}
-		
+
 		@Override
 		public boolean canBeCancelledInto(EntityActionType cancellingAbility) {
 			return true;
-//			return cancellingAbility != this.ability;
 		}
 		
 	}

@@ -78,12 +78,6 @@ public class MovesetBuilder {
 		addAbility("item_toss", ModStandAbilities.ITEM_TOSS)
 		.withBind(InputKey.Q, InputMethod.CLICK);
 		
-//		addAbility("item_attack", ModStandAbilities.ITEM_ATTACK)
-//		.withBind(InputKey.LMB, InputMethod.CLICK);
-		
-		addAbility("item_use", ModStandAbilities.ITEM_USE)
-		.withBind(InputKey.RMB, InputMethod.CLICK);
-		
 		return this;
 	}
 	

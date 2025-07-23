@@ -32,9 +32,10 @@ import net.neoforged.neoforge.common.CommonHooks;
 import net.neoforged.neoforge.common.util.TriState;
 import net.neoforged.neoforge.event.entity.player.PlayerInteractEvent;
 
-public class LivingUseItem {
+public class ServerSideLivingClick {
 	
-	public static boolean serverSideRightClick(LivingEntity entity, @Nullable ServerPlayer actualPlayer, HitResult hitResult) {
+	public static boolean rightClick(LivingEntity entity, @Nullable ServerPlayer actualPlayer, 
+			HitResult hitResult, InteractionHand... hands) {
 		Level level = entity.level(); if (level.isClientSide()) return false;
 		
 		ServerPlayerLivingWrapper entityWrapper = ServerPlayerLivingWrapper.create(entity, actualPlayer);
@@ -42,7 +43,8 @@ public class LivingUseItem {
 		if (actualPlayer != null) {
 			actualPlayer.resetLastActionTime();
 		}
-		for (InteractionHand hand : InteractionHand.values()) {
+		if (hands.length == 0) hands = InteractionHand.values();
+		for (InteractionHand hand : hands) {
 			ItemStack item = entity.getItemInHand(hand);
 			if (!item.isItemEnabled(level.enabledFeatures())) {
 				continue;
@@ -263,6 +265,10 @@ public class LivingUseItem {
 				return interactionResult;
 			}
 		}
+	}
+	
+	public static boolean isEntityHoldingAnItem(LivingEntity entity) {
+		return entity != null && (!entity.getMainHandItem().isEmpty() || !entity.getOffhandItem().isEmpty());
 	}
 
 

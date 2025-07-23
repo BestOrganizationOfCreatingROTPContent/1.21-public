@@ -1,5 +1,6 @@
 package com.github.standobyte.jojo.jojoimpl.stands._entitybase.item;
 
+import com.github.standobyte.jojo.client.input.AbilityInputState;
 import com.github.standobyte.jojo.client.input.InputHandler;
 import com.github.standobyte.jojo.powersystem.Power;
 import com.github.standobyte.jojo.powersystem.ability.Ability;
@@ -31,6 +32,13 @@ public class TossStandItemAbility extends Ability {
 			}
 		}
 		return false;
+	}
+	
+	@Override
+	public AbilityInputState cl_abilityInputState(Power<?> context) {
+		AbilityInputState state = super.cl_abilityInputState(context);
+		state.setFlag(AbilityInputState.WITH_ITEM_HELD, true);
+		return state;
 	}
 	
 	@Override
