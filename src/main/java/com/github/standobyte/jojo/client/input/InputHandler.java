@@ -352,8 +352,8 @@ public class InputHandler {
 				if (!(heldBound.isEmpty() && clickBound.isEmpty())) {
 					AvailableAbilities available = ClientPowerCache.getAvailableMoves(power.getPowerClass(), power);
 	
-					input.heldAbility = ClientControlScheme.prioritizedAbility(heldBound, available, true);
-					input.clickAbility = ClientControlScheme.prioritizedAbility(clickBound, available, true);
+					input.heldAbility = ClientControlScheme.prioritizedAbility(heldBound, available, power, true);
+					input.clickAbility = ClientControlScheme.prioritizedAbility(clickBound, available, power, true);
 				}
 			}
 		}

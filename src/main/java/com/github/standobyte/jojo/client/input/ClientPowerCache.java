@@ -34,8 +34,16 @@ public class ClientPowerCache {
 					Power<?> power = powerClass.get(mc.player);
 					if (power != null) {
 						powersCache[i] = power;
-						availableAbilitiesCache[i] = power.updateAvailableMoves();
 					}
+				}
+			}
+		}
+		
+		if (mc.player != null) {
+			for (int i = 0; i < PowerClass.VALUES.length; i++) {
+				Power<?> power = powersCache[i];
+				if (power != null) {
+					availableAbilitiesCache[i] = power.updateAvailableMoves();
 				}
 			}
 		}

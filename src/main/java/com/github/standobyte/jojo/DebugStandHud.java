@@ -6,6 +6,7 @@ import java.util.Map;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 
+import com.github.standobyte.jojo.client.input.AbilityInputState;
 import com.github.standobyte.jojo.client.input.ClientPowerCache;
 import com.github.standobyte.jojo.client.input.InputHandler;
 import com.github.standobyte.jojo.client.input.controlscheme.AllControlSchemes;
@@ -17,7 +18,6 @@ import com.github.standobyte.jojo.client.standskin.StandSkin;
 import com.github.standobyte.jojo.client.standskin.StandSkinsLoader;
 import com.github.standobyte.jojo.core.JojoMod;
 import com.github.standobyte.jojo.powersystem.Power;
-import com.github.standobyte.jojo.powersystem.ability.Ability.AbilityInputActive;
 import com.github.standobyte.jojo.powersystem.ability.condition.AvailableAbilities;
 import com.github.standobyte.jojo.powersystem.ability.condition.AvailableAbilities.AbilityConditionCheck;
 import com.github.standobyte.jojo.powersystem.ability.controls.InputMethod;
@@ -102,6 +102,7 @@ public class DebugStandHud {
 			if (controlScheme != null) {
 				ClientControlScheme.MoveGroup curGroup = controlScheme.getCurGroup().getValue();
 				@Nonnull KeyModifier modifier = input.getCurModifier();
+				if (modifier == KeyModifier.ALT) modifier = KeyModifier.NONE;
 				AvailableAbilities availableAbilities = ClientPowerCache.getAvailableMoves(power.getPowerClass(), power);
 				
 				Map<ClientKeyWrapper, Map<InputMethod, BindsByModifier<List<String>>>> binds = curGroup.binds;
@@ -111,7 +112,7 @@ public class DebugStandHud {
 					for (var byInputMethod : bindEntry.getValue().entrySet()) {
 						InputMethod inputMethod = byInputMethod.getKey();
 						BindsByModifier<List<String>> bindsForInputMethod = byInputMethod.getValue();
-						if (renderBind(inputMethod, bindsForInputMethod, 
+						if (renderBind(inputMethod, bindsForInputMethod, power, 
 								modifier, availableAbilities, key, false, 
 								x, y, color, guiGraphics, font, inContainerMenu)) {
 							y += 9;
@@ -119,7 +120,7 @@ public class DebugStandHud {
 						else if (modifier == KeyModifier.NONE) {
 							// if you aren't pressing Ctrl or Shift, but there is no ability keybind to render, render the Ctrl and Shift ones instead
 							for (KeyModifier otherModifier : KeyModifier.values()) {
-								if (otherModifier != modifier && renderBind(inputMethod, bindsForInputMethod, 
+								if (otherModifier != modifier && renderBind(inputMethod, bindsForInputMethod, power, 
 										otherModifier, availableAbilities, key, true, 
 										x, y, color, guiGraphics, font, inContainerMenu)) {
 									y += 9;
@@ -139,7 +140,8 @@ public class DebugStandHud {
 							InputMethod inputMethod = byInputMethod.getKey();
 							String ability = byInputMethod.getValue().withCurrentModifier(modifier);
 							if (ability != null) {
-								if (renderAbilityName(key, null, inputMethod, availableAbilities._inMoveset.get(ability), 
+								if (renderAbilityName(key, null, 
+										inputMethod, availableAbilities._inMoveset.get(ability), power, 
 										x, y, color, guiGraphics, font, inContainerMenu)) {
 									y += 9;
 								}
@@ -152,28 +154,34 @@ public class DebugStandHud {
 		}
 	}
 	
-	private static boolean renderBind(InputMethod inputMethod, BindsByModifier<List<String>> binds, 
+	private static boolean renderBind(InputMethod inputMethod, BindsByModifier<List<String>> binds, Power<?> abilityCtx, 
 			@Nonnull KeyModifier modifier, AvailableAbilities available, ClientKeyWrapper key, boolean withModifierName, 
 			int x, int y, int color, GuiGraphics guiGraphics, Font font, boolean inContainerMenu) {
 		List<String> boundAbilities = binds.withCurrentModifier(modifier);
 		if (boundAbilities.isEmpty()) {
 			return false;
 		}
-		AbilityConditionCheck ability = ClientControlScheme.prioritizedAbility(boundAbilities, available, false);
-		return renderAbilityName(key, withModifierName ? modifier : null, inputMethod, ability, x, y, color, guiGraphics, font, inContainerMenu);
+		AbilityConditionCheck ability = ClientControlScheme.prioritizedAbility(boundAbilities, available, abilityCtx, false);
+		return renderAbilityName(key, withModifierName ? modifier : null, inputMethod, ability, abilityCtx, x, y, color, guiGraphics, font, inContainerMenu);
 	}
 	
 	private static boolean renderAbilityName(ClientKeyWrapper key, @Nullable KeyModifier modifier, 
-			InputMethod inputMethod, AbilityConditionCheck ability, 
+			InputMethod inputMethod, AbilityConditionCheck ability, Power<?> abilityCtx, 
 			int x, int y, int color, GuiGraphics guiGraphics, Font font, boolean inContainerMenu) {
 		if (ability != null && ability.ability != null) {
-			AbilityInputActive mode = ability.ability.cl_IsInputActive();
-			if (mode.showInHUD && (mode.inContainer == inContainerMenu)) {
+			AbilityInputState state = AbilityInputState.withValue(ability.clientInputState);
+			
+			boolean showAbility = state.flag(AbilityInputState.IS_ACTIVE)
+					|| state.flag(AbilityInputState.VISIBLE_EVEN_INACTIVE)
+					|| state.flag(AbilityInputState.VISIBLE_TRANSLUCENT);
+			showAbility &= state.flag(AbilityInputState.ONLY_IN_CONTAINER) == inContainerMenu;
+			
+			if (showAbility) {
 				int nameColor = color;
 				if (!ability.conditionCheck.isPositive()) {
 					nameColor = ARGB.multiply(nameColor, 0xFF606060);
 				}
-				if (!mode.inputActive) {
+				if (state.flag(AbilityInputState.VISIBLE_TRANSLUCENT)) {
 					nameColor &= 0x40FFFFFF;
 				}
 				

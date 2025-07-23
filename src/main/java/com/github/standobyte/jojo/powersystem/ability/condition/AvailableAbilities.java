@@ -55,7 +55,7 @@ public class AvailableAbilities {
 	public void setConditionCheck(String baseAbilityName, ConditionCheck check) {
 		AbilityConditionCheck container = _inMoveset.get(baseAbilityName);
 		if (container != null) {
-			container.setConditionCheck(check);
+			container.conditionCheck = check;
 		}
 	}
 	
@@ -88,6 +88,7 @@ public class AvailableAbilities {
 	public static class AbilityConditionCheck {
 		public final Ability ability;
 		public ConditionCheck conditionCheck;
+		public int clientInputState;
 		
 		private AbilityConditionCheck(Ability ability) {
 			this.ability = ability;
@@ -96,10 +97,6 @@ public class AvailableAbilities {
 		
 		private void clear() {
 			this.conditionCheck = ConditionCheck.POSITIVE;
-		}
-		
-		public void setConditionCheck(ConditionCheck check) {
-			this.conditionCheck = check;
 		}
 	}
 	

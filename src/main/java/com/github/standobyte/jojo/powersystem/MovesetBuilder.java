@@ -58,7 +58,6 @@ public class MovesetBuilder {
 	public MovesetBuilder addHumanoidStandStuff() {
 		addManualControl();
 		addItemUsage();
-		addBlockUsage();
 		return this;
 	}
 	
@@ -84,13 +83,6 @@ public class MovesetBuilder {
 		
 		addAbility("item_use", ModStandAbilities.ITEM_USE)
 		.withBind(InputKey.RMB, InputMethod.CLICK);
-		
-		return this;
-	}
-	
-	public MovesetBuilder addBlockUsage() {
-		addAbility("block_use", ModStandAbilities.BLOCK_USE)
-		.withBind(InputKey.RMB.withModifier(InputKey.Modifier.ALT), InputMethod.CLICK);
 		
 		return this;
 	}

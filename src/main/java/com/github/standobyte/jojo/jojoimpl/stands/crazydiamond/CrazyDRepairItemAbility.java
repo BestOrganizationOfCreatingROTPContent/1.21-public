@@ -1,13 +1,12 @@
 package com.github.standobyte.jojo.jojoimpl.stands.crazydiamond;
 
-import static com.github.standobyte.jojo.powersystem.ability.Ability.AbilityInputActive.ACTIVE_IN_CONTAINER;
-import static com.github.standobyte.jojo.powersystem.ability.Ability.AbilityInputActive.INACTIVE_IN_CONTAINER;
-
 import java.util.Optional;
 
 import javax.annotation.Nullable;
 
+import com.github.standobyte.jojo.client.input.AbilityInputState;
 import com.github.standobyte.jojo.client.input.InputHandler;
+import com.github.standobyte.jojo.powersystem.Power;
 import com.github.standobyte.jojo.powersystem.ability.AbilityId;
 import com.github.standobyte.jojo.powersystem.entityaction.ActionPhase;
 import com.github.standobyte.jojo.powersystem.entityaction.EntityActionInstance;
@@ -49,7 +48,10 @@ public class CrazyDRepairItemAbility extends StandEntityAbility {
 	}
 
 	@Override
-	public AbilityInputActive cl_IsInputActive() {
+	public AbilityInputState cl_abilityInputState(Power<?> context) {
+		AbilityInputState state = AbilityInputState.init();
+		state.setFlag(AbilityInputState.ONLY_IN_CONTAINER, true);
+		
 		Screen screen = Minecraft.getInstance().screen;
 		if (screen instanceof AbstractContainerScreen invScreen) {
 			boolean active = false;
@@ -60,10 +62,13 @@ public class CrazyDRepairItemAbility extends StandEntityAbility {
 					active = canBeRepaired(item);
 				}
 			}
-			return active ? ACTIVE_IN_CONTAINER : INACTIVE_IN_CONTAINER;
+			if (!active) {
+				state.setFlag(AbilityInputState.IS_ACTIVE, false);
+				state.setFlag(AbilityInputState.VISIBLE_TRANSLUCENT, true);
+			}
 		}
 
-		return ACTIVE_IN_CONTAINER;
+		return state;
 	}
 
 	@Override

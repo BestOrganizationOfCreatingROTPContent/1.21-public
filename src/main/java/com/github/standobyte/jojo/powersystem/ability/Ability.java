@@ -5,12 +5,14 @@ import javax.annotation.Nullable;
 
 import org.jetbrains.annotations.ApiStatus;
 
+import com.github.standobyte.jojo.client.ClientProxy;
+import com.github.standobyte.jojo.client.input.AbilityInputState;
 import com.github.standobyte.jojo.client.input.InputHandler;
 import com.github.standobyte.jojo.powersystem.Power;
 import com.github.standobyte.jojo.powersystem.ability.condition.AvailableAbilities;
 import com.github.standobyte.jojo.powersystem.ability.condition.AvailableAbilities.AbilityConditionCheck;
-import com.github.standobyte.jojo.powersystem.ability.controls.InputMethod;
 import com.github.standobyte.jojo.powersystem.ability.condition.ConditionCheck;
+import com.github.standobyte.jojo.powersystem.ability.controls.InputMethod;
 import com.github.standobyte.jojo.powersystem.entityaction.HeldInput;
 
 import net.minecraft.client.Minecraft;
@@ -53,12 +55,16 @@ public class Ability {
 	}
 	
 	/**
-	 * A version of {@link Ability#checkSpecificConditions(Power)} with more control, allowing one ability to disable others 
-	 * (e.g. if the "Use item" ability is currently available, it can set all punch moves condition to negative)
+	 * A version of {@link Ability#checkSpecificConditions(Power)} with more control, allowing one ability to disable others dynamically
 	 */
 	public void onConditionCheck(Power<?> context, AvailableAbilities abilities, AbilityConditionCheck thisAbility) {
 		ConditionCheck check = checkConditions(context);
-		thisAbility.setConditionCheck(check);
+		thisAbility.conditionCheck = check;
+		
+		LivingEntity user = context.getUser();
+		if (user != null && user.level().isClientSide() && user == ClientProxy.getClientPlayer()) {
+			thisAbility.clientInputState = cl_abilityInputState(context)._value;
+		}
 	}
 	
 	public ConditionCheck checkConditions(Power<?> context) {
@@ -86,26 +92,13 @@ public class Ability {
 	 * don't show up in the HUD regularly, but are active when you're hovering over a fitting item.
 	 * This method is only called on the client, so it can reference client-only classes and methods.
 	 */
-	public AbilityInputActive cl_IsInputActive() {
-		return !InputHandler.holdingLAlt && Minecraft.getInstance().screen == null ? AbilityInputActive.ACTIVE : AbilityInputActive.INACTIVE_SHOW_TRANSLUCENT;
-	}
-	
-	public enum AbilityInputActive {
-		ACTIVE(						true, 	true, 	false),
-		INACTIVE_SHOW_TRANSLUCENT(	true, 	false, 	false),
-		INACTIVE_HIDE(				false, 	false, 	false),
-		ACTIVE_IN_CONTAINER(		true, 	true, 	true),
-		INACTIVE_IN_CONTAINER(		true, 	false, 	true);
-		
-		public final boolean showInHUD;
-		public final boolean inputActive;
-		public final boolean inContainer;
-		
-		private AbilityInputActive(boolean showInHUD, boolean inputActive, boolean inContainer) {
-			this.showInHUD = showInHUD;
-			this.inputActive = inputActive;
-			this.inContainer = inContainer;
+	public AbilityInputState cl_abilityInputState(Power<?> context) {
+		AbilityInputState state = AbilityInputState.init();
+		if (InputHandler.holdingLAlt || Minecraft.getInstance().screen != null) {
+			state.setFlag(AbilityInputState.IS_ACTIVE, false);
+			state.setFlag(AbilityInputState.VISIBLE_TRANSLUCENT, true);
 		}
+		return state;
 	}
 	
 	// 

@@ -9,12 +9,16 @@ import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
+import java.util.stream.Stream;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 
 import org.jetbrains.annotations.ApiStatus;
 
+import com.github.standobyte.jojo.client.input.AbilityInputState;
+import com.github.standobyte.jojo.powersystem.Power;
 import com.github.standobyte.jojo.powersystem.PowerClass;
 import com.github.standobyte.jojo.powersystem.PowerType;
 import com.github.standobyte.jojo.powersystem.ability.condition.AvailableAbilities;
@@ -23,6 +27,8 @@ import com.github.standobyte.jojo.powersystem.ability.controls.ControlSchemeTemp
 import com.github.standobyte.jojo.powersystem.ability.controls.ControlSchemeTemplate.AbilitiesHotbar;
 import com.github.standobyte.jojo.powersystem.ability.controls.InputKey;
 import com.github.standobyte.jojo.powersystem.ability.controls.InputMethod;
+import com.github.standobyte.jojo.powersystem.standpower.entity.StandEntity;
+import com.github.standobyte.jojo.util.StandUtil;
 import com.mojang.blaze3d.platform.InputConstants;
 import com.mojang.datafixers.util.Pair;
 
@@ -112,12 +118,28 @@ public class ClientControlScheme {
 	}
 	
 	@Nullable
-	public static AbilityConditionCheck prioritizedAbility(List<String> abilityNames, AvailableAbilities available, boolean onlyWithInputActive) {
-		return abilityNames.stream()
+	public static AbilityConditionCheck prioritizedAbility(List<String> abilityNames, AvailableAbilities available, Power<?> abilityCtx, boolean onlyWithInputActive) {
+		Stream<AbilityConditionCheck> stream = abilityNames.stream()
 				.map(abilityName -> available._inMoveset.get(abilityName))
-				.filter(a -> a != null && (!onlyWithInputActive || a.ability.cl_IsInputActive().inputActive))
-				.sorted(Comparator.comparingInt(a -> a.conditionCheck.isPositive() ? 0 : 1))
+				.filter(Objects::nonNull);
+		if (onlyWithInputActive) {
+			stream = stream.filter(a -> AbilityInputState.withValue(a.clientInputState).flag(AbilityInputState.IS_ACTIVE));
+		}
+		
+		StandEntity standEntity = StandUtil.getSummonedStand(abilityCtx);
+		boolean standHoldingItem = standEntity != null && 
+				(!standEntity.getMainHandItem().isEmpty() || !standEntity.getOffhandItem().isEmpty());
+		
+		return stream
+				.sorted(Comparator.comparingInt(a -> abilityPriority(a, abilityCtx, standHoldingItem)))
 				.findFirst().orElse(null);
+	}
+	
+	protected static int abilityPriority(AbilityConditionCheck ability, Power<?> abilityCtx, boolean standHoldingItem) {
+		if (!ability.conditionCheck.isPositive()) {
+			return 2;
+		}
+		return AbilityInputState.withValue(ability.clientInputState).flag(AbilityInputState.HIGH_PRIORITY) ? 0 : 1;
 	}
 	
 	
@@ -197,7 +219,6 @@ public class ClientControlScheme {
     	return switch (modifier) {
     		case SHIFT -> KeyModifier.SHIFT;
     		case CONTROL -> KeyModifier.CONTROL;
-    		case ALT -> KeyModifier.ALT;
     	};
     }
 	
