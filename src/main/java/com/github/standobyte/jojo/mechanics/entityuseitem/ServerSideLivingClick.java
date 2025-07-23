@@ -23,6 +23,7 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.context.UseOnContext;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.level.gameevent.GameEvent;
 import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.BlockHitResult;
 import net.minecraft.world.phys.EntityHitResult;
@@ -30,6 +31,7 @@ import net.minecraft.world.phys.HitResult;
 import net.minecraft.world.phys.Vec3;
 import net.neoforged.neoforge.common.CommonHooks;
 import net.neoforged.neoforge.common.util.TriState;
+import net.neoforged.neoforge.event.EventHooks;
 import net.neoforged.neoforge.event.entity.player.PlayerInteractEvent;
 
 public class ServerSideLivingClick {
@@ -107,6 +109,26 @@ public class ServerSideLivingClick {
 					interactionResult = CommonHooks.onInteractEntity(entityWrapper, targetEntity, hand);
 					if (interactionResult == null) {
 						interactionResult = targetEntity.interact(entityWrapper, hand);
+						
+						if (interactionResult.consumesAction()) {
+							if (item.isEmpty()) {
+								EventHooks.onPlayerDestroyItem(entityWrapper, originalItemCopy, hand);
+							}
+						}
+						else {
+							if (!item.isEmpty() && targetEntity instanceof LivingEntity targetLiving) {
+								interactionResult = item.interactLivingEntity(entityWrapper, targetLiving, hand);
+								if (interactionResult.consumesAction()) {
+									level.gameEvent(GameEvent.ENTITY_INTERACT, targetEntity.position(), GameEvent.Context.of(entityWrapper));
+									if (item.isEmpty()) {
+										EventHooks.onPlayerDestroyItem(entityWrapper, originalItemCopy, hand);
+										entity.setItemInHand(hand, ItemStack.EMPTY);
+									}
+								}
+							}
+
+							interactionResult = InteractionResult.PASS;
+						}
 					}
 	
 					if (actualPlayer != null && interactionResult instanceof InteractionResult.Success success) {
