@@ -3,7 +3,7 @@ package com.github.standobyte.jojo.client.entitycontrol.stand;
 import java.util.Collection;
 import java.util.List;
 
-import com.github.standobyte.jojo.client.input.ClientPowerCache;
+import com.github.standobyte.jojo.client.ClientPowerCache;
 import com.github.standobyte.jojo.client.standskin.StandSkin;
 import com.github.standobyte.jojo.client.standskin.StandSkinsLoader;
 import com.github.standobyte.jojo.client.ui.utils.BlitFloat;

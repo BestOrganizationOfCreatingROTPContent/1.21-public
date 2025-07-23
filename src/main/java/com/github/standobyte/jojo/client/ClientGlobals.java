@@ -1,6 +1,5 @@
 package com.github.standobyte.jojo.client;
 
-import com.github.standobyte.jojo.client.input.ClientPowerCache;
 import com.github.standobyte.jojo.powersystem.PowerClass;
 import com.github.standobyte.jojo.powersystem.standpower.StandPower;
 import com.github.standobyte.jojo.powersystem.standpower.entity.StandEntity;

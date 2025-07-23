@@ -1,4 +1,4 @@
-package com.github.standobyte.jojo.client.input;
+package com.github.standobyte.jojo.client;
 
 import javax.annotation.Nullable;
 

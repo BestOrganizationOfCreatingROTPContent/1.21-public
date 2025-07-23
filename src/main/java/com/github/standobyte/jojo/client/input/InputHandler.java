@@ -13,6 +13,7 @@ import javax.annotation.Nullable;
 import org.lwjgl.glfw.GLFW;
 
 import com.github.standobyte.jojo.client.ClientGlobals;
+import com.github.standobyte.jojo.client.ClientPowerCache;
 import com.github.standobyte.jojo.client.event.PreKeyInputEvent;
 import com.github.standobyte.jojo.client.input.controlscheme.ClientControlScheme;
 import com.github.standobyte.jojo.client.input.controlscheme.ClientKeyWrapper;

@@ -2,7 +2,7 @@ package com.github.standobyte.jojo.client.ui.hud.marker;
 
 import java.util.List;
 
-import com.github.standobyte.jojo.client.input.ClientPowerCache;
+import com.github.standobyte.jojo.client.ClientPowerCache;
 import com.github.standobyte.jojo.client.input.ClientsideAim;
 import com.github.standobyte.jojo.client.ui.hud.AdditionalHud;
 import com.github.standobyte.jojo.client.ui.utils.GuiIcon;
