@@ -145,7 +145,7 @@ public class StandEntity extends LivingEntity implements SummonedStand, IEntityW
 		Level level = level();
 		if (!level.isClientSide()) {
 			if (requiresUser() && (user == null || user.isRemoved())) {
-				this.remove(user.getRemovalReason());
+				this.remove(user != null ? user.getRemovalReason() : RemovalReason.DISCARDED);
 				return;
 			}
 		}
