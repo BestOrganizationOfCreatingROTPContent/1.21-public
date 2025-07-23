@@ -77,7 +77,7 @@ public class NetworkUtil {
 			public List<T> decode(B buffer) {
 				int size = ByteBufCodecs.VAR_INT.decode(buffer);
 				if (size <= 0) return Collections.emptyList();
-				List<T> list = new ArrayList<>();
+				List<T> list = new ArrayList<>(size);
 				for (int i = 0; i < size; i++) {
 					list.add(elementCodec.decode(buffer));
 				}
