@@ -2,6 +2,7 @@ package com.github.standobyte.jojo.powersystem.standpower.entity;
 
 import java.lang.ref.WeakReference;
 import java.util.Collections;
+import java.util.List;
 import java.util.Optional;
 import java.util.function.Predicate;
 
@@ -42,6 +43,8 @@ import net.minecraft.network.syncher.SynchedEntityData;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerEntity;
 import net.minecraft.server.level.ServerLevel;
+import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.stats.Stats;
 import net.minecraft.tags.DamageTypeTags;
 import net.minecraft.util.Mth;
 import net.minecraft.world.InteractionHand;
@@ -58,7 +61,10 @@ import net.minecraft.world.entity.ai.attributes.Attributes;
 import net.minecraft.world.entity.animal.Animal;
 import net.minecraft.world.entity.item.ItemEntity;
 import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.entity.projectile.AbstractArrow;
 import net.minecraft.world.entity.projectile.Projectile;
+import net.minecraft.world.entity.projectile.ThrownTrident;
+import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.ProjectileWeaponItem;
 import net.minecraft.world.level.Level;
@@ -67,6 +73,7 @@ import net.minecraft.world.phys.Vec2;
 import net.minecraft.world.phys.Vec3;
 import net.neoforged.neoforge.common.CommonHooks;
 import net.neoforged.neoforge.common.damagesource.DamageContainer;
+import net.neoforged.neoforge.common.util.TriState;
 import net.neoforged.neoforge.entity.IEntityWithComplexSpawn;
 import net.neoforged.neoforge.event.entity.living.LivingKnockBackEvent;
 import net.neoforged.neoforge.network.PacketDistributor;
@@ -160,6 +167,12 @@ public class StandEntity extends LivingEntity implements SummonedStand, IEntityW
 		}
 		yHeadRot = getYRot();
 		yHeadRotO = yRotO;
+	}
+	
+	@Override
+	public void aiStep() {
+		super.aiStep();
+		pickUpItemEntities();
 	}
 	
 	@Override
@@ -722,6 +735,7 @@ public class StandEntity extends LivingEntity implements SummonedStand, IEntityW
 	
 	
 	protected NonNullList<ItemStack> handItems = NonNullList.withSize(2, ItemStack.EMPTY);
+	protected HandItemsAsInventory pseudoInventory = new HandItemsAsInventory(handItems);
 	@Override
 	public Iterable<ItemStack> getHandSlots() {
 		return this.handItems;
@@ -770,6 +784,13 @@ public class StandEntity extends LivingEntity implements SummonedStand, IEntityW
 			return HandOccupied.ITEM;
 		}
 		return null;
+	}
+
+	/**
+	 * @return false it's not possible to place the entire stack in the inventory.
+	 */
+	public boolean addItem(ItemStack item) {
+		return pseudoInventory.add(item);
 	}
 	
 	@Override
@@ -882,6 +903,82 @@ public class StandEntity extends LivingEntity implements SummonedStand, IEntityW
 				return CommonHooks.getProjectile(this, shootable, ItemStack.EMPTY);
 			}
 		}
+	}
+	
+	protected void pickUpItemEntities() {
+		Level level = this.level();
+		if (!level.isClientSide() && this.isManuallyControlled() && getCurStandAction() == null && this.getHealth() > 0) {
+			AABB aabb;
+			if (this.isPassenger() && !this.getVehicle().isRemoved()) {
+				aabb = this.getBoundingBox().minmax(this.getVehicle().getBoundingBox()).inflate(1.0, 0.0, 1.0);
+			} else {
+				aabb = this.getBoundingBox().inflate(1.0, 0.5, 1.0);
+			}
+
+			List<Entity> list = this.level().getEntities(this, aabb);
+
+			for (Entity entity : list) {
+				if (!entity.isRemoved()) {
+					this.touch(entity);
+				}
+			}
+		}
+	}
+	
+	protected void touch(Entity entity) {
+		switch (entity) {
+			case ItemEntity itemEntity -> {
+				ItemStack itemStack = itemEntity.getItem();
+				Item item = itemStack.getItem();
+				int count = itemStack.getCount();
+	
+				// Neo: Fire item pickup pre/post and adjust handling logic to adhere to the event result.
+//				TriState result = EventHooks.fireItemPickupPre(itemEntity, this).canPickup();
+				TriState result = TriState.DEFAULT;
+				if (result.isFalse()) {
+					return;
+				}
+	
+				// Make a copy of the original stack for use in ItemEntityPickupEvent.Post
+				ItemStack originalCopy = itemStack.copy();
+				// Subvert the vanilla conditions (pickup delay and target check) if the result is true.
+				if ((itemEntity.getOwner() != this || !itemEntity.hasPickUpDelay() && itemEntity.tickCount > 40)
+						&& (itemEntity.getTarget() == null || itemEntity.getTarget().equals(this.getUUID()))) {
+					result = TriState.TRUE;
+				}
+				if (result.isTrue()) {
+					boolean tookEntireStack = this.addItem(itemStack);
+					if (tookEntireStack) {
+						// Fire ItemEntityPickupEvent.Post
+//						EventHooks.fireItemPickupPost(itemEntity, this, originalCopy);
+						// Update `i` to reflect the actual pickup amount. Vanilla is wrong here and always reports the whole stack.
+						count = originalCopy.getCount() - itemStack.getCount();
+
+						this.take(itemEntity, count);
+						if (itemStack.isEmpty()) {
+							itemEntity.discard();
+							itemStack.setCount(count);
+						}
+
+						if (getUser() instanceof ServerPlayer player) {
+							player.awardStat(Stats.ITEM_PICKED_UP.get(item), count);
+						}
+						this.onItemPickup(itemEntity);
+					}
+				}
+			}
+			case AbstractArrow arrow -> {
+				if (!(arrow instanceof ThrownTrident trident && !(trident.ownedBy(this) || trident.getOwner() == null))
+						&& (arrow.isInGround() || arrow.isNoPhysics()) && arrow.shakeTime <= 0) {
+					if (arrow.pickup == AbstractArrow.Pickup.ALLOWED && this.addItem(arrow.getPickupItem())) {
+						this.take(arrow, 1);
+						arrow.discard();
+					}
+				}
+			}
+			default -> {}
+		}
+
 	}
 
 	

@@ -1,0 +1,112 @@
+package com.github.standobyte.jojo.powersystem.standpower.entity;
+
+import java.util.List;
+
+import net.minecraft.core.NonNullList;
+import net.minecraft.world.item.ItemStack;
+
+/* this shit was copypasted from net.minecraft.world.entity.player.Inventory
+ * and i ain't spending my braincells on rewriting that
+ */
+public class HandItemsAsInventory {
+	public List<ItemStack> handItems = NonNullList.withSize(2, ItemStack.EMPTY);
+	
+	public HandItemsAsInventory(List<ItemStack> handItemsList) {
+		this.handItems = handItemsList;
+	}
+
+	/**
+	 * Adds the stack to the first empty slot in the player's inventory. Returns {@code false} if it's not possible to place the entire stack in the inventory.
+	 */
+	public boolean add(ItemStack stack) {
+		if (stack.isEmpty()) {
+			return false;
+		} else {
+			if (stack.isDamaged()) {
+				int slot = this.getFreeSlot();
+
+				if (slot >= 0) {
+					this.handItems.set(slot, stack.copyAndClear());
+					this.handItems.get(slot).setPopTime(5);
+					return true;
+				} else {
+					return false;
+				}
+			} else {
+				int i;
+				do {
+					i = stack.getCount();
+					stack.setCount(this.addResource(stack));
+				} while (!stack.isEmpty() && stack.getCount() < i);
+
+				return stack.getCount() < i;
+			}
+		}
+	}
+
+	public int getFreeSlot() {
+		for (int i = 0; i < this.handItems.size(); i++) {
+			if (this.handItems.get(i).isEmpty()) {
+				return i;
+			}
+		}
+
+		return -1;
+	}
+
+	/**
+	 * This function stores as many items of an ItemStack as possible in a matching slot and returns the quantity of left over items.
+	 */
+	private int addResource(ItemStack stack) {
+		int i = this.getSlotWithRemainingSpace(stack);
+		if (i == -1) {
+			i = this.getFreeSlot();
+		}
+
+		return i == -1 ? stack.getCount() : this.addResource(i, stack);
+	}
+
+	/**
+	 * Stores a stack in the player's inventory. It first tries to place it in the selected slot in the player's hotbar, then the offhand slot, then any available/empty slot in the player's inventory.
+	 */
+	public int getSlotWithRemainingSpace(ItemStack stack) {
+		for (int i = 0; i < this.handItems.size(); i++) {
+			if (this.hasRemainingSpaceForItem(this.handItems.get(i), stack)) {
+				return i;
+			}
+		}
+
+		return -1;
+	}
+
+	private boolean hasRemainingSpaceForItem(ItemStack destination, ItemStack origin) {
+		return !destination.isEmpty()
+				&& ItemStack.isSameItemSameComponents(destination, origin)
+				&& destination.isStackable()
+				&& destination.getCount() < this.getMaxStackSize(destination);
+	}
+
+	private int addResource(int slot, ItemStack stack) {
+		int i = stack.getCount();
+		ItemStack itemstack = handItems.get(slot);
+		if (itemstack.isEmpty()) {
+			itemstack = stack.copyWithCount(0);
+			handItems.set(slot, itemstack);
+		}
+
+		int j = this.getMaxStackSize(itemstack) - itemstack.getCount();
+		int k = Math.min(i, j);
+		if (k == 0) {
+			return i;
+		} else {
+			i -= k;
+			itemstack.grow(k);
+			itemstack.setPopTime(5);
+			return i;
+		}
+	}
+
+	int getMaxStackSize(ItemStack stack) {
+		return Math.min(99, stack.getMaxStackSize());
+	}
+}
