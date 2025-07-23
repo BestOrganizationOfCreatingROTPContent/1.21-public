@@ -171,17 +171,17 @@ public class DebugStandHud {
 		if (ability != null && ability.ability != null) {
 			AbilityInputState state = AbilityInputState.withValue(ability.clientInputState);
 			
-			boolean showAbility = state.flag(AbilityInputState.IS_ACTIVE)
-					|| state.flag(AbilityInputState.VISIBLE_EVEN_INACTIVE)
-					|| state.flag(AbilityInputState.VISIBLE_TRANSLUCENT);
-			showAbility &= state.flag(AbilityInputState.ONLY_IN_CONTAINER) == inContainerMenu;
+			boolean showAbility = state.getFlag(AbilityInputState.IS_ACTIVE)
+					|| state.getFlag(AbilityInputState.VISIBLE_EVEN_INACTIVE)
+					|| state.getFlag(AbilityInputState.VISIBLE_TRANSLUCENT);
+			showAbility &= state.getFlag(AbilityInputState.ONLY_IN_CONTAINER) == inContainerMenu;
 			
 			if (showAbility) {
 				int nameColor = color;
 				if (!ability.conditionCheck.isPositive()) {
 					nameColor = ARGB.multiply(nameColor, 0xFF606060);
 				}
-				if (state.flag(AbilityInputState.VISIBLE_TRANSLUCENT)) {
+				if (state.getFlag(AbilityInputState.VISIBLE_TRANSLUCENT)) {
 					nameColor &= 0x40FFFFFF;
 				}
 				

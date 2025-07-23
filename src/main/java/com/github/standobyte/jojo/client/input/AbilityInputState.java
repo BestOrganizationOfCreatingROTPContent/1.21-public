@@ -12,7 +12,7 @@ public class AbilityInputState {
 		this._value = _setBit(this._value, flag, value);
 	}
 
-	public boolean flag(int flag) {
+	public boolean getFlag(int flag) {
 		return _getBit(this._value, flag);
 	}
 
@@ -23,7 +23,8 @@ public class AbilityInputState {
 	public static final int VISIBLE_TRANSLUCENT = 2;
 
 	public static final int ONLY_IN_CONTAINER = 3;
-	public static final int HIGH_PRIORITY = 4;
+	public static final int WITH_ITEM_HELD = 4;
+	public static final int HIGH_PRIORITY = 5;
 
 
 	@ApiStatus.Internal protected static AbilityInputState instance = new AbilityInputState();

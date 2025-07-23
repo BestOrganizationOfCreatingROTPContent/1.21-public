@@ -123,7 +123,7 @@ public class ClientControlScheme {
 				.map(abilityName -> available._inMoveset.get(abilityName))
 				.filter(Objects::nonNull);
 		if (onlyWithInputActive) {
-			stream = stream.filter(a -> AbilityInputState.withValue(a.clientInputState).flag(AbilityInputState.IS_ACTIVE));
+			stream = stream.filter(a -> AbilityInputState.withValue(a.clientInputState).getFlag(AbilityInputState.IS_ACTIVE));
 		}
 		
 		StandEntity standEntity = StandUtil.getSummonedStand(abilityCtx);
@@ -139,7 +139,7 @@ public class ClientControlScheme {
 		if (!ability.conditionCheck.isPositive()) {
 			return 2;
 		}
-		return AbilityInputState.withValue(ability.clientInputState).flag(AbilityInputState.HIGH_PRIORITY) ? 0 : 1;
+		return AbilityInputState.withValue(ability.clientInputState).getFlag(AbilityInputState.HIGH_PRIORITY) ? 0 : 1;
 	}
 	
 	
