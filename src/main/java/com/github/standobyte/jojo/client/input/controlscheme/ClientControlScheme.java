@@ -10,6 +10,7 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
+import java.util.TreeMap;
 import java.util.stream.Stream;
 
 import javax.annotation.Nonnull;
@@ -53,7 +54,8 @@ public class ClientControlScheme {
 		@ApiStatus.Internal public final Component name;
 		@ApiStatus.Internal public final ClientKeyWrapper toggleHudKey;
 		
-		@ApiStatus.Internal public final Map<ClientKeyWrapper, Map<InputMethod, BindsByModifier<List<String>>>> binds = new LinkedHashMap<>();
+		@ApiStatus.Internal public final Map<ClientKeyWrapper, Map<InputMethod, BindsByModifier<List<String>>>> binds = 
+				new TreeMap<>(Comparator.comparingInt(ClientKeyWrapper::keyId));
 		@ApiStatus.Internal public final List<Hotbar> hotbars = new ArrayList<>();
 		
 		public MoveGroup(Component name, ClientKeyWrapper toggleHudKey) {
