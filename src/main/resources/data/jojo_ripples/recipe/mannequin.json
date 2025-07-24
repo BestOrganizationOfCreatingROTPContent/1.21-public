@@ -1,0 +1,17 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "misc",
+  "pattern": [
+    " p ",
+    "pap",
+    " p "
+  ],
+  "key": {
+    "a": "minecraft:armor_stand",
+    "p": "#minecraft:planks"
+  },
+  "result": {
+    "count": 1,
+    "id": "jojo_ripples:mannequin"
+  }
+}
