@@ -11,31 +11,32 @@ import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.phys.Vec3;
 
 public class StandOffsetFromUser {
-	private LivingEntity standEntity;
+	private StandEntity standEntity;
 	
 	public Vec3 idleOffset;
-	public OffsetMode idleOffsetMode;
+	public Rotations idleRotations;
 	
 	private Vec3 relativeOffset;
-	private OffsetMode offsetMode;
+	private Rotations rotations;
 	@Nullable public EntityActionType standAbility;
 	
 	private Vec3 prevAbsoluteOffset;
-	private OffsetMode prevOffsetMode;
+	private Rotations prevRotations;
 	private float prevBodyRotDiff;
 	private int changedTimestamp;
 	
-	public StandOffsetFromUser(LivingEntity standEntity, Vec3 idleOffset, OffsetMode idleOffsetMode) {
+	public StandOffsetFromUser(StandEntity standEntity, Vec3 idleOffset, Rotations idleRotations) {
 		this.standEntity = standEntity;
 		this.idleOffset = idleOffset;
-		this.idleOffsetMode = idleOffsetMode;
-		setOffset(idleOffset, idleOffsetMode, null);
+		this.idleRotations = idleRotations;
+		setOffset(idleOffset, idleRotations);
 	}
 	
-	public void setOffset(Vec3 offset, OffsetMode offsetMode, LivingEntity userEntity) {
-		if (this.relativeOffset == null || this.offsetMode == null || 
+	public void setOffset(Vec3 offset, Rotations rotations) {
+		if (this.relativeOffset == null || this.rotations == null || 
 				offset.x != this.relativeOffset.x || offset.y != this.relativeOffset.y || offset.z != this.relativeOffset.z || 
-				offsetMode != this.offsetMode) {
+				rotations != this.rotations) {
+			LivingEntity userEntity = standEntity.getUser();
 			if (userEntity != null) {
 				this.prevAbsoluteOffset = getAbsoluteOffset(userEntity, false);
 				this.prevBodyRotDiff = userEntity.yBodyRot - userEntity.getYRot();
@@ -43,21 +44,21 @@ public class StandOffsetFromUser {
 			else {
 				this.prevAbsoluteOffset = null;
 			}
-			this.prevOffsetMode = this.offsetMode != null ? this.offsetMode : offsetMode;
+			this.prevRotations = this.rotations != null ? this.rotations : rotations;
 			
 			this.relativeOffset = offset;
-			this.offsetMode = offsetMode;
+			this.rotations = rotations;
 			this.changedTimestamp = standEntity.tickCount;
 		}
 	}
 	
-	public void resetToIdle(LivingEntity userEntity) {
-		setOffset(idleOffset, idleOffsetMode, userEntity);
+	public void resetToIdle() {
+		setOffset(idleOffset, idleRotations);
 		this.standAbility = null;
 	}
 	
 	public boolean isIdle() {
-		return offsetMode == idleOffsetMode && relativeOffset.equals(idleOffset);
+		return rotations == idleRotations && relativeOffset.equals(idleOffset);
 	}
 	
 	public Vec3 getPosition(LivingEntity userEntity) {
@@ -71,10 +72,10 @@ public class StandOffsetFromUser {
 		}
 		
 		Vec3 absoluteOffset = relativeOffset;
-		if (offsetMode == OffsetMode.HEAD_XY) {
+		if (rotations == Rotations.HEAD_XY) {
 			absoluteOffset = relativeOffset.xRot(-userEntity.getXRot() * MathUtil.DEG_TO_RAD);
 		}
-		float userYRot = offsetMode == OffsetMode.BODY ? userEntity.yBodyRot : userEntity.getYRot();
+		float userYRot = rotations == Rotations.BODY ? userEntity.yBodyRot : userEntity.getYRot();
 		absoluteOffset = absoluteOffset.yRot(-userYRot * MathUtil.DEG_TO_RAD);
 		
 		if (lerp) {
@@ -96,10 +97,10 @@ public class StandOffsetFromUser {
 		standEntity.yHeadRotO = userEntity.yHeadRotO;
 		
 		// this shit so ass
-		boolean isBodyRot = offsetMode == OffsetMode.BODY;
+		boolean isBodyRot = rotations == Rotations.BODY;
 		float bodyRotAmount = isBodyRot ? 1 : 0;
 		if (lerp) {
-			boolean wasBodyRot = prevOffsetMode == OffsetMode.BODY;
+			boolean wasBodyRot = prevRotations == Rotations.BODY;
 			if (isBodyRot != wasBodyRot) {
 				float lerpAmount = getLerpAmount();
 				bodyRotAmount = isBodyRot ? lerpAmount : (1 - lerpAmount);
@@ -132,7 +133,7 @@ public class StandOffsetFromUser {
 	public static final int LERP_TIME = 4;
 	
 	
-	public enum OffsetMode {
+	public enum Rotations {
 		HEAD,
 		BODY,
 		HEAD_XY

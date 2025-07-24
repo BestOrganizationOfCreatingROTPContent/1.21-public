@@ -95,7 +95,7 @@ public class StandEntity extends LivingEntity implements SummonedStand, IEntityW
 	public StandEntity(EntityType<? extends StandEntity> type, Level level) {
 		super(type, level);
 		this.standAction = LivingComponentAction.getComponent(this);
-		this.offsetFromUser = new StandOffsetFromUser(this, DEFAULT_USER_OFFSET, StandOffsetFromUser.OffsetMode.BODY);
+		this.offsetFromUser = new StandOffsetFromUser(this, DEFAULT_USER_OFFSET, StandOffsetFromUser.Rotations.BODY);
 		setNoGravity(true);
 		if (level.isClientSide()) {
 			this.clientStuff = new ClientStandEntityStuff();
@@ -273,15 +273,17 @@ public class StandEntity extends LivingEntity implements SummonedStand, IEntityW
 	}
 	
 	
-	public void updatePosition(LivingEntity user) {
-		if (!isManuallyControlled()) {
+	public boolean updatePosition(LivingEntity user) {
+		if (isFollowingUser()) {
 			if (user != null) {
 				Vec3 pos = offsetFromUser.getPosition(user);
 				setPos(pos.x, pos.y, pos.z);
 				copyStandUserRotation(user);
 			}
 			lookAtCurTarget(rotO);
+			return true;
 		}
+		return false;
 	}
 	
 	public void copyStandUserRotation(LivingEntity user) {
@@ -441,7 +443,7 @@ public class StandEntity extends LivingEntity implements SummonedStand, IEntityW
 	@Override
 	public boolean onActionSet(EntityActionInstance action) {
 		if (action == null) {
-			offsetFromUser.resetToIdle(getUser());
+			offsetFromUser.resetToIdle();
 		}
 		return false;
 	}

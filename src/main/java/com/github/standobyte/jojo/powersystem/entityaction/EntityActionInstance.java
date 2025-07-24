@@ -131,14 +131,15 @@ public class EntityActionInstance implements HeldInput {
 	
 	// Some helper methods to write less boilerplate in Stand abilities
 	
-	protected void setStandOffset(double left, double front, StandOffsetFromUser.OffsetMode offsetMode, boolean changeOnlyIfIdle) {
+	public void setStandOffset(double left, double front, StandOffsetFromUser.Rotations rotations, boolean changeOnlyIfIdle) {
+		setStandOffset(new Vec3(left, StandEntity.Y_OFFSET, front), rotations, changeOnlyIfIdle);
+	}
+	
+	public void setStandOffset(Vec3 relativeOffset, StandOffsetFromUser.Rotations rotations, boolean changeOnlyIfIdle) {
 		if (performer instanceof StandEntity standEntity) {
-			LivingEntity user = getPowerUser();
+			LivingEntity user = standEntity.getUser();
 			if (user != null && (!changeOnlyIfIdle || standEntity.offsetFromUser.isIdle())) {
-				standEntity.offsetFromUser.setOffset(
-						new Vec3(left, StandEntity.Y_OFFSET, front), 
-						offsetMode, 
-						user);
+				standEntity.offsetFromUser.setOffset(relativeOffset, rotations);
 				standEntity.offsetFromUser.standAbility = this.ability;
 			}
 		}

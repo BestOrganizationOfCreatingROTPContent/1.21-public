@@ -65,14 +65,9 @@ public class StandEntityGrabThrowAbility extends StandEntityAbility {
 		@Override
 		public void actionPerformStart() {
 			if (performer instanceof StandEntity standEntity) {
-				LivingEntity user = getPowerUser();
-				if (user != null) {
-					standEntity.offsetFromUser.setOffset(
-							new Vec3(0, StandEntity.Y_OFFSET, Math.max(standEntity.offsetFromUser.getRelativeOffset().z, 0) + 2), 
-							StandOffsetFromUser.OffsetMode.HEAD_XY, 
-							user);
-					standEntity.offsetFromUser.standAbility = this.ability;
-				}
+				setStandOffset(0, Math.max(standEntity.offsetFromUser.getRelativeOffset().z, 0) + 2,
+						StandOffsetFromUser.Rotations.HEAD_XY,
+						false);
 				
 				Level level = performer.level();
 				if (level.isClientSide() && ClientGlobals.canHearStands) {

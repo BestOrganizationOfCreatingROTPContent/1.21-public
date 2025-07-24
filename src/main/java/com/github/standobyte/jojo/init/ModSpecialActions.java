@@ -4,6 +4,7 @@ import java.util.function.Supplier;
 
 import com.github.standobyte.jojo.core.JojoMod;
 import com.github.standobyte.jojo.core.JojoRegistries;
+import com.github.standobyte.jojo.mechanics.entityuseitem.VanillaItemClickAsAction;
 import com.github.standobyte.jojo.mechanics.entityuseitem.VanillaItemUseAsAction;
 import com.github.standobyte.jojo.powersystem.entityaction.type.SpecialEntityActionType;
 
@@ -14,5 +15,8 @@ public class ModSpecialActions {
 	
 	public static final Supplier<SpecialEntityActionType> RMB_USING_ITEM = ACTIONS.register("rmb_using_item", 
 			key -> new VanillaItemUseAsAction(key));
+	
+	public static final Supplier<SpecialEntityActionType> RMB_CLICK_ITEM = ACTIONS.register("rmb_click_item", 
+			key -> new VanillaItemClickAsAction(key));
 	
 }

@@ -13,7 +13,7 @@ import net.minecraft.world.entity.LivingEntity;
  * Can be used for stuff like special weapon attacks or item abilities.
  */
 public abstract class SpecialEntityActionType implements EntityActionType {
-	protected final ResourceLocation id;
+	public final ResourceLocation id;
 	protected ResourceLocation animSet;
 	protected ActionAnimIdentifier anim;
 	

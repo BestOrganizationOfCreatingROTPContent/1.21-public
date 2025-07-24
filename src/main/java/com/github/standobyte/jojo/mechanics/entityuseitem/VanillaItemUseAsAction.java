@@ -47,6 +47,7 @@ public class VanillaItemUseAsAction extends SpecialEntityActionType {
 		protected ItemUsingInstance(EntityActionType ability) {
 			super(ability);
 			phasesLength.put(ActionPhase.PERFORM, 72000f);
+			phasesLength.put(ActionPhase.RECOVERY, 10f);
 		}
 		
 		@Override
@@ -57,8 +58,8 @@ public class VanillaItemUseAsAction extends SpecialEntityActionType {
 		
 		@Override
 		public void actionTick() { // force stop the action if the entity has stopped using the item
-			if (!level().isClientSide() && !performer.isUsingItem()) {
-				forceStop();
+			if (!level().isClientSide() && phase == ActionPhase.PERFORM && !performer.isUsingItem()) {
+				setPhase(ActionPhase.RECOVERY, 0);
 				syncPhaseChanges();
 			}
 		}
@@ -67,7 +68,7 @@ public class VanillaItemUseAsAction extends SpecialEntityActionType {
 		public void onButtonStopHold() { // lets stands shoot bows and throw tridents when the client releases RMB
 			if (!level().isClientSide() && !isPlayerEntity) {
 				ServerSideLivingClick.releaseUsingItem(performer, standUserPlayer);
-				forceStop();
+				setPhase(ActionPhase.RECOVERY, 0);
 				syncPhaseChanges();
 			}
 		}
@@ -78,5 +79,5 @@ public class VanillaItemUseAsAction extends SpecialEntityActionType {
 		}
 		
 	}
-
+	
 }

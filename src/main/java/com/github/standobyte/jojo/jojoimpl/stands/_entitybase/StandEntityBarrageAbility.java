@@ -46,7 +46,7 @@ public class StandEntityBarrageAbility extends StandEntityAbility {
 		
 		@Override
 		public void onActionSet(EntityActionInstance prevAction) {
-			setStandOffset(0, 1.5, StandOffsetFromUser.OffsetMode.HEAD_XY, true);
+			setStandOffset(0, 1.5, StandOffsetFromUser.Rotations.HEAD_XY, true);
 			aimAs = AimingEntity.STAND;
 			Level level = performer.level();
 			if (performer instanceof StandEntity stand) {

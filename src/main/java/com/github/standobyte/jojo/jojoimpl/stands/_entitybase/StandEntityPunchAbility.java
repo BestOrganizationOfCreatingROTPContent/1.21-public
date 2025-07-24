@@ -96,7 +96,7 @@ public class StandEntityPunchAbility extends StandEntityAbility {
 		@Override
 		public void onActionSet(EntityActionInstance prevAction) {
 			playedStandCrySound = prevAction != null;
-			setStandOffset(0, 2, StandOffsetFromUser.OffsetMode.HEAD_XY, false);
+			setStandOffset(0, 2, StandOffsetFromUser.Rotations.HEAD_XY, false);
 			keepStandAimedAtTarget();
 			aimAs = AimingEntity.STAND;
 			tossStandHeldItems(EquipmentSlot.OFFHAND, EquipmentSlot.MAINHAND);
