@@ -124,7 +124,7 @@ public class StandHudElements {
 			int center = guiGraphics.guiWidth() / 2;
 			int xLeft = center;
 			int xRight = center;
-			renderStandHeldItems(stand, guiGraphics, gui, deltaTracker, mc, xLeft, xRight);
+			renderStandHeldItems(stand, guiGraphics, gui, deltaTracker, mc, xLeft, xRight, true);
 		}
 	}
 	
@@ -149,7 +149,7 @@ public class StandHudElements {
 	            case RIGHT -> xItemsCenter + 2;
             };
 			
-			renderStandHeldItems(stand, guiGraphics, gui, deltaTracker, mc, xItemsCenter, xItemsCenter);
+			renderStandHeldItems(stand, guiGraphics, gui, deltaTracker, mc, xItemsCenter, xItemsCenter, false);
 		}
 	}
 	
@@ -373,10 +373,11 @@ public class StandHudElements {
 	
 	
 	
-	private void renderStandHeldItems(LivingEntity stand, GuiGraphics guiGraphics, GuiAccessor gui, DeltaTracker deltaTracker, Minecraft mc, int xLeft, int xRight) {
+	private void renderStandHeldItems(LivingEntity stand, GuiGraphics guiGraphics, GuiAccessor gui, DeltaTracker deltaTracker, Minecraft mc, 
+			int xLeft, int xRight, boolean renderEmpty) {
 		ItemStack itemLeft = stand.getItemHeldByArm(HumanoidArm.LEFT);
 		ItemStack itemRight = stand.getItemHeldByArm(HumanoidArm.RIGHT);
-		if (itemLeft.isEmpty() && itemRight.isEmpty()) return;
+		if (!renderEmpty && itemLeft.isEmpty() && itemRight.isEmpty()) return;
 
 		int y = guiGraphics.guiHeight() - 16 - 3;
 		guiGraphics.pose().pushPose();
