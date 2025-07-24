@@ -1,14 +1,14 @@
-package com.github.standobyte.jojo.mechanics.entityuseitem;
+package com.github.standobyte.jojo.client.input;
 
 import java.util.List;
 
 import com.github.standobyte.jojo.client.ClientGlobals;
-import com.github.standobyte.jojo.client.input.AbilityInputState;
-import com.github.standobyte.jojo.client.input.InputHandler;
 import com.github.standobyte.jojo.client.input.controlscheme.AllControlSchemes;
 import com.github.standobyte.jojo.client.input.controlscheme.ClientControlScheme;
 import com.github.standobyte.jojo.client.input.controlscheme.ClientKeyWrapper;
 import com.github.standobyte.jojo.core.JojoMod;
+import com.github.standobyte.jojo.mechanics.entityuseitem.ClStandClickPacket;
+import com.github.standobyte.jojo.mechanics.entityuseitem.ServerSideLivingClick;
 import com.github.standobyte.jojo.powersystem.Power;
 import com.github.standobyte.jojo.powersystem.PowerClass;
 import com.github.standobyte.jojo.powersystem.ability.condition.AvailableAbilities;
@@ -28,25 +28,28 @@ import net.neoforged.neoforge.client.settings.KeyModifier;
 import net.neoforged.neoforge.network.PacketDistributor;
 
 @EventBusSubscriber(modid = JojoMod.MOD_ID, value = Dist.CLIENT)
-public class ClientSideStandClick {
+public class StandVanillaClickInput {
 
 	@SubscribeEvent
-	public static void onMcClickInput(InteractionKeyMappingTriggered event) {
-		if (event.isUseItem() && standCanRightClickItems) {
-			StandEntity stand = ClientGlobals.playerStandEntity;
-			if (stand != null) {
-				if (stand.isManuallyControlled() || !InputHandler.holdingLAlt && ServerSideLivingClick.isEntityHoldingAnItem(stand)) {
-					event.setCanceled(true);
-					event.setSwingHand(false);
-					
-					HitResult target = Minecraft.getInstance().hitResult;
-					if (event.isUseItem()) {
-						PacketDistributor.sendToServer(new ClStandClickPacket(target, InteractionHand.MAIN_HAND, InteractionHand.OFF_HAND));
-					}
-					else {
-						PacketDistributor.sendToServer(new ClStandClickPacket(target, event.getHand()));
+	public static void onVanillaClickInput(InteractionKeyMappingTriggered event) {
+		StandEntity stand = ClientGlobals.playerStandEntity;
+		if (stand != null) {
+			int keyCode = event.isAttack() ? 0 : event.isUseItem() ? 1 : 2;
+			switch (keyCode) {
+				case 0 -> {} // LMB
+				case 1 -> { // RMB
+					if (standCanRightClickItems && (stand.isManuallyControlled() || !InputHandler.holdingLAlt && ServerSideLivingClick.isEntityHoldingAnItem(stand))) {
+						event.setCanceled(true);
+						event.setSwingHand(false);
+						
+						ClientKeyWrapper key = ClientKeyWrapper.make(InputConstants.Type.MOUSE, keyCode);
+						InputHandler.getInstance().heldKeys.put(key, new HeldKeyTimer(key, false, KeyModifier.NONE));
+
+						HitResult target = Minecraft.getInstance().hitResult;
+						PacketDistributor.sendToServer(new ClStandClickPacket(target, key.keyId(), InteractionHand.MAIN_HAND, InteractionHand.OFF_HAND));
 					}
 				}
+				default -> {}
 			}
 		}
 	}

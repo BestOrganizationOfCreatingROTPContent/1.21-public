@@ -54,8 +54,8 @@ public class StandEntityPunchAbility extends StandEntityAbility {
 			StandEntity standEntity = standPower.getSummonedStandEntity();
 			if (standEntity != null) {
 				EntityActionInstance standAction = standEntity.getCurStandAction();
-				if (standAction != null) {
-					String actionName = ((Ability) standAction.ability).abilityId.nameInMoveset();
+				if (standAction != null && standAction.ability instanceof Ability curAbility) {
+					String actionName = curAbility.abilityId.nameInMoveset();
 					for (int i = 0; i < punchNames.size(); i++) {
 						if (punchNames.get(i).equals(actionName)) {
 							startFromPunch = i + 1;

@@ -64,6 +64,11 @@ public class EntityActionInstance implements HeldInput {
 	}
 	
 	public void setPhaseZero() {
+		for (ActionPhase phase : ActionPhase.values()) {
+			if (!phasesLength.containsKey(phase)) {
+				phasesLength.put(phase, 0f);
+			}
+		}
 		startPhase(ActionPhase.values()[0]);
 	}
 	

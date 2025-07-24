@@ -63,7 +63,7 @@ public class AbilityInput {
 		if (action != null) {
 			EntityActionInputState inputHandler = user.getData(ModDataAttachmentTypes.ENTITY_ABILITY_INPUT.get());
 			if (inputHandler != null) {
-				HeldInputEntry heldInput = new HeldInputEntry(keyId, ability, action);
+				HeldInputEntry heldInput = new HeldInputEntry(keyId, action);
 				inputHandler.heldKeys.put(keyId, heldInput);
 				return heldInput;
 			}

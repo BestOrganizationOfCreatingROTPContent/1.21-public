@@ -8,7 +8,6 @@ import javax.annotation.Nullable;
 import org.jetbrains.annotations.ApiStatus;
 
 import com.github.standobyte.jojo.init.ModDataAttachmentTypes;
-import com.github.standobyte.jojo.powersystem.ability.Ability;
 import com.github.standobyte.jojo.powersystem.ability.controls.InputMethod;
 import com.github.standobyte.jojo.powersystem.entityaction.netcode.SyncType;
 import com.github.standobyte.jojo.powersystem.entityaction.type.EntityActionType;
@@ -42,7 +41,7 @@ public class EntityActionInputState implements TickingEntityData {
 		public final short keyId;
 		@Nullable public HeldInput action;
 
-		public HeldInputEntry(short keyId, Ability ability, HeldInput action) {
+		public HeldInputEntry(short keyId, HeldInput action) {
 			this.keyId = keyId;
 			this.action = action;
 		}

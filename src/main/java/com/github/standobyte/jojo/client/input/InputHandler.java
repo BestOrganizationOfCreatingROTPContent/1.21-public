@@ -167,17 +167,14 @@ public class InputHandler {
 		return null;
 	}
 	
-	public boolean input(ClientKeyWrapper key, int action, int modifiers) {
-		return input(key.keyId(), key, action, modifiers);
-	}
-
 	/**
 	 * Handles the direct events of keyboard/mouse inputs to trigger abilities from the player's moveset.
 	 * @return true if the vanilla input should be cancelled.
 	 */
-	public boolean input(short keyId, ClientKeyWrapper key, int inputType, int modifiers) {
+	public boolean input(ClientKeyWrapper key, int inputType, int modifiers) {
 		boolean cancelVanilla = false;
 		Power<?> power = getCurPower();
+		short keyId = key.keyId();
 		
 		switch (inputType) {
 			case InputConstants.PRESS -> {
@@ -193,7 +190,7 @@ public class InputHandler {
 				boolean ambiguousClickOrHold = heldAbility != null && clickAbility != null;
 				cancelVanilla = heldAbility != null || clickAbility != null;
 
-				HeldKeyTimer heldKeyTimer = new HeldKeyTimer(keyId, cancelVanilla, keyModifier);
+				HeldKeyTimer heldKeyTimer = new HeldKeyTimer(key, cancelVanilla, keyModifier);
 				if (ambiguousClickOrHold) {
 					// TODO (!!!!) only do this if both abilities have a windup (if not, then idfk, it's 2AM rn)
 					// also consider that the windup might be shorted than 4 ticks
@@ -301,7 +298,7 @@ public class InputHandler {
 							Ability ability = keyResolution.heldAbility;
 							ConditionCheck conditionCheck = ClientPowerCache.getAvailableMoves(power.getPowerClass(), power).getConditionCheck(ability);
 							float ticksToResolveHeld = changedState.timeTook();
-							doInput(InputEventType.PRESS_HOLD, timer.keyId, power, ability, conditionCheck, ticksToResolveHeld);
+							doInput(InputEventType.PRESS_HOLD, timer.key.keyId(), power, ability, conditionCheck, ticksToResolveHeld);
 							timer.clickHoldResolve = null;
 						}
 						default -> {}
