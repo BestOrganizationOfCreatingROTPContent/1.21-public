@@ -6,6 +6,7 @@ import com.github.standobyte.jojo.powersystem.entityaction.type.EntityActionType
 import com.github.standobyte.jojo.util.MathUtil;
 
 import net.minecraft.util.Mth;
+import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.phys.Vec3;
 
@@ -50,10 +51,6 @@ public class StandOffsetFromUser {
 		}
 	}
 	
-	public void setOffset(Vec3 offset, LivingEntity userEntity) {
-		setOffset(offset, OffsetMode.HEAD, userEntity);
-	}
-	
 	public void resetToIdle(LivingEntity userEntity) {
 		setOffset(idleOffset, idleOffsetMode, userEntity);
 		this.standAbility = null;
@@ -65,10 +62,7 @@ public class StandOffsetFromUser {
 	
 	public Vec3 getPosition(LivingEntity userEntity) {
 		Vec3 offset = getAbsoluteOffset(userEntity, standEntity.level().isClientSide());
-		Vec3 userCenter = userEntity.getBoundingBox().getCenter();
-		Vec3 standCenter = userCenter.add(offset);
-		Vec3 pos = standCenter.subtract(0, standEntity.getBoundingBox().getYsize() / 2, 0);
-		return pos;
+		return AlignBy.EYE_POS.align(userEntity, standEntity, offset);
 	}
 	
 	public Vec3 getAbsoluteOffset(LivingEntity userEntity, boolean lerp) {
@@ -142,6 +136,34 @@ public class StandOffsetFromUser {
 		HEAD,
 		BODY,
 		HEAD_XY
+	}
+	
+	public enum AlignBy {
+		CENTER,
+		BOTTOM,
+		EYE_POS;
+		
+		public Vec3 align(Entity entity1, Entity entity2, Vec3 offset) {
+			return switch (this) {
+				case CENTER -> {
+					Vec3 userCenter = entity1.getBoundingBox().getCenter();
+					Vec3 standCenter = userCenter.add(offset);
+					Vec3 pos = standCenter.subtract(0, entity2.getBoundingBox().getYsize() / 2, 0);
+					yield pos;
+				}
+				case BOTTOM -> {
+					Vec3 userPos = entity1.position();
+					Vec3 standPos = userPos.add(offset);
+					yield standPos;
+				}
+				case EYE_POS -> {
+					Vec3 userEyePos = entity1.getEyePosition();
+					Vec3 standEyePos = userEyePos.add(offset);
+					Vec3 pos = standEyePos.subtract(0, entity2.getEyeHeight(), 0);
+					yield pos;
+				}
+			};
+		}
 	}
 	
 	
