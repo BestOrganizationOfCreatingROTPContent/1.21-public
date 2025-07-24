@@ -39,7 +39,7 @@ public interface EntityActionType {
 	default EntityActionInstance initActionOnAbilityUse(Level level, LivingEntity user, @Nullable FriendlyByteBuf extraInput) {
 		EntityActionInstance action = createActionObj();
 		initActionFromConfig(action, level, user);
-		action.setPhaseZero();
+		action.start();
 		if (extraInput != null) {
 			action.extraClientInput(extraInput);
 		}

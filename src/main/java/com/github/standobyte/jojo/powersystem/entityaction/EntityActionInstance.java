@@ -63,7 +63,10 @@ public class EntityActionInstance implements HeldInput {
 		this.phasesLength = new EnumMap<>(ActionPhase.class);
 	}
 	
-	public void setPhaseZero() {
+	/**
+	 * After the phase lengths have been initialized properly, this sets up the action's starting phase
+	 */
+	public void start() {
 		for (ActionPhase phase : ActionPhase.values()) {
 			if (!phasesLength.containsKey(phase)) {
 				phasesLength.put(phase, 0f);
