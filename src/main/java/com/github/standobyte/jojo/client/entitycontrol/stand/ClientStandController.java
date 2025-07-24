@@ -3,6 +3,9 @@ package com.github.standobyte.jojo.client.entitycontrol.stand;
 import com.github.standobyte.jojo.client.entitycontrol.ClientEntityController;
 import com.github.standobyte.jojo.client.entityrender.stand.HumanoidPart;
 import com.github.standobyte.jojo.client.entityrender.stand.StandEntityRenderState;
+import com.github.standobyte.jojo.client.ui.utils.BlitFloat;
+import com.github.standobyte.jojo.client.ui.utils.ElementTransparency;
+import com.github.standobyte.jojo.core.JojoMod;
 import com.github.standobyte.jojo.powersystem.entityaction.EntityActionInstance;
 import com.github.standobyte.jojo.powersystem.entityaction.LivingComponentAction;
 import com.mojang.blaze3d.vertex.PoseStack;
@@ -14,8 +17,11 @@ import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.player.ClientInput;
 import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.MultiBufferSource.BufferSource;
+import net.minecraft.client.renderer.RenderType;
 import net.minecraft.client.renderer.entity.EntityRenderer;
 import net.minecraft.core.BlockPos;
+import net.minecraft.resources.ResourceLocation;
+import net.minecraft.util.ARGB;
 import net.minecraft.util.Mth;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.LivingEntity;
@@ -32,16 +38,13 @@ import net.neoforged.bus.api.EventPriority;
 import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.neoforge.client.event.InputEvent;
 import net.neoforged.neoforge.client.event.MovementInputUpdateEvent;
-import net.neoforged.neoforge.client.event.RenderGuiLayerEvent;
 import net.neoforged.neoforge.common.NeoForge;
 import net.neoforged.neoforge.network.PacketDistributor;
 
 public class ClientStandController extends ClientEntityController {
-	protected StandControlHud hud;
 	
 	public ClientStandController(LivingEntity entity) {
 		super(entity);
-		this.hud = new StandControlHud();
 	}
 
 
@@ -76,7 +79,7 @@ public class ClientStandController extends ClientEntityController {
 	@SubscribeEvent(priority = EventPriority.HIGHEST)
 	public void onMouseScroll(InputEvent.MouseScrollingEvent event) {
 		manualMovementSpeed = Mth.clamp(manualMovementSpeed + 0.025f * (float) event.getScrollDeltaY(), 0, 1);
-		hud.movementSpeedBarTranslucency.reset();
+		movementSpeedBarTranslucency.reset();
 		event.setCanceled(true);
 	}
 
@@ -171,15 +174,34 @@ public class ClientStandController extends ClientEntityController {
 		}
 	}
 
-
-	@SubscribeEvent(priority = EventPriority.LOW)
-	public void renderHudElements(RenderGuiLayerEvent.Pre event) {
-		hud.renderHudElements(event, entityAsLiving);
-	}
+	public static ElementTransparency movementSpeedBarTranslucency = new ElementTransparency();
+	public static final ResourceLocation SPEED_BAR_EMPTY = JojoMod.resLoc("textures/hud/stand_movement_speed_0.png");
+	public static final ResourceLocation SPEED_BAR_FULL = JojoMod.resLoc("textures/hud/stand_movement_speed_1.png");
 	
 	@Override
 	public void renderExtraHud(GuiGraphics guiGraphics, DeltaTracker deltaTracker) {
-		hud.renderExtraHud(guiGraphics, deltaTracker);
+		if (movementSpeedBarTranslucency.shouldRender()) {
+			float partialTick = deltaTracker.getGameTimeDeltaPartialTick(false);
+			float alpha = movementSpeedBarTranslucency.getAlpha(partialTick);
+			int color = ARGB.colorFromFloat(alpha, 1, 1, 1);
+			Minecraft mc = Minecraft.getInstance();
+			int x = guiGraphics.guiWidth() / 2 + 4;
+			int y = guiGraphics.guiHeight() / 2 - 8;
+
+			BlitFloat.innerBlitFloat(guiGraphics, mc, RenderType.crosshair(SPEED_BAR_EMPTY),
+					x, x + 16, y, y + 16,
+					0, 1, 0, 1, 
+					color);
+
+			float speed = ClientStandController.manualMovementSpeed;
+			if (speed > 1E-4) {
+				float height = speed == 1 ? 1 : Math.min(speed, 1f - 1f / (16 * mc.options.guiScale().get()));
+				BlitFloat.innerBlitFloat(guiGraphics, mc, RenderType.guiTextured(SPEED_BAR_FULL),
+						x, x + 16, y + 16 * (1 - height), y + 16,
+						0, 1, 1 - height, 1, 
+						color);
+			}
+		}
 	}
 
 }

@@ -1,5 +1,6 @@
 package com.github.standobyte.jojo.client;
 
+import com.github.standobyte.jojo.client.entitycontrol.stand.StandHudElements;
 import com.github.standobyte.jojo.client.input.InputHandler;
 import com.github.standobyte.jojo.client.ui.hud.marker.MarkerRenderer;
 import com.github.standobyte.jojo.client.ui.hud.marker.StandAimMarker;
@@ -25,6 +26,7 @@ public class ClientSetup {
 	public static void onClientSetup(FMLClientSetupEvent event) {
 //		Minecraft mc = Minecraft.getInstance();
 		registerMarkers();
+		StandHudElements.init();
 	}
 	
 	private static void registerMarkers() {
