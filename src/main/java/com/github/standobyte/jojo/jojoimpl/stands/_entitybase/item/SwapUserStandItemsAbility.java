@@ -22,25 +22,37 @@ public class SwapUserStandItemsAbility extends Ability {
 	@Override
 	public void onClick(Level level, LivingEntity user, FriendlyByteBuf extraClientInput) {
 		if (!level.isClientSide()) {
-			StandEntity standEntity = StandUtil.getSummonedStand(user);
-			if (standEntity != null) {
+			StandEntity stand = StandUtil.getSummonedStand(user);
+			if (stand != null) {
 				ItemStack lUserItem = user.getOffhandItem();
 				ItemStack rUserItem = user.getMainHandItem();
-				ItemStack lStandItem = standEntity.getOffhandItem();
-				ItemStack rStandItem = standEntity.getMainHandItem();
+
+				 // if the player is holding any items, give them to the stand
+				if (!lUserItem.isEmpty() || !rUserItem.isEmpty()) {
+					stand.addItem(rUserItem);
+					stand.addItem(lUserItem);
+				}
 				
-				if (!lUserItem.isEmpty()) {
-					LivingComponentGrab standGrab = standEntity.getData(ModDataAttachmentTypes.LIVING_GRAB.get());
+				// or, if the player's hands are empty, *take* both items from the stand
+				else {
+					swapItemsInHand(stand, user, InteractionHand.OFF_HAND);
+					swapItemsInHand(stand, user, InteractionHand.MAIN_HAND);
+				}
+
+				if (!stand.getOffhandItem().isEmpty()) {
+					LivingComponentGrab standGrab = stand.getData(ModDataAttachmentTypes.LIVING_GRAB.get());
 					if (standGrab != null) {
 						standGrab.setGrabbedEntity(null);
 					}
 				}
-				
-				standEntity.setItemInHand(InteractionHand.OFF_HAND, lUserItem);
-				standEntity.setItemInHand(InteractionHand.MAIN_HAND, rUserItem);
-				user.setItemInHand(InteractionHand.OFF_HAND, lStandItem);
-				user.setItemInHand(InteractionHand.MAIN_HAND, rStandItem);
 			}
 		}
+	}
+	
+	public static void swapItemsInHand(LivingEntity stand, LivingEntity user, InteractionHand hand) {
+		ItemStack userItem = user.getItemInHand(hand);
+		ItemStack standItem = stand.getItemInHand(hand);
+		stand.setItemInHand(hand, userItem);
+		user.setItemInHand(hand, standItem);
 	}
 }
