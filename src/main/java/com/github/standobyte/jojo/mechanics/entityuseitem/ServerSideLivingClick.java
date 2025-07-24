@@ -41,7 +41,6 @@ public class ServerSideLivingClick {
 		Level level = entity.level(); if (level.isClientSide()) return false;
 		
 		ServerPlayerLivingWrapper entityWrapper = ServerPlayerLivingWrapper.create(entity, actualPlayer);
-		ItemCooldowns cooldowns = actualPlayer != null ? actualPlayer.getCooldowns() : null;
 		if (actualPlayer != null) {
 			actualPlayer.resetLastActionTime();
 		}
@@ -54,11 +53,11 @@ public class ServerSideLivingClick {
 
 			InteractionResult result = null;
 			if (hitResult != null) {
-				result = _interactWithTarget(entity, entityWrapper, actualPlayer, cooldowns, item, hand, hitResult);
+				result = _interactWithTarget(entity, entityWrapper, actualPlayer, item, hand, hitResult);
 			}
 
 			if ((result == null || !result.consumesAction()) && !item.isEmpty()) {
-				result = _useItemNoTarget(entity, entityWrapper, cooldowns, item, hand);
+				result = _useItemNoTarget(entity, entityWrapper, item, hand);
 			}
 
 			if (result instanceof InteractionResult.Success success) {
@@ -73,8 +72,7 @@ public class ServerSideLivingClick {
 	}
 
 	public static InteractionResult _interactWithTarget(LivingEntity entity, Player entityWrapper, 
-			@Nullable ServerPlayer actualPlayer, @Nullable ItemCooldowns cooldowns, 
-			ItemStack item, InteractionHand hand, HitResult hitResult) {
+			@Nullable ServerPlayer actualPlayer, ItemStack item, InteractionHand hand, HitResult hitResult) {
 		Level level = entity.level();
 		ItemStack originalItemCopy = item.copy();
 
@@ -166,11 +164,12 @@ public class ServerSideLivingClick {
 				}
 	
 	
-				InteractionResult interactionResult = _useItemOnBlock(entity, entityWrapper, actualPlayer, cooldowns, level, item, hand, blockHitResult);
+				InteractionResult interactionResult = _useItemOnBlock(entity, entityWrapper, actualPlayer, level, item, hand, blockHitResult);
 				if (actualPlayer != null && interactionResult.consumesAction()) {
 					CriteriaTriggers.ANY_BLOCK_USE.trigger(actualPlayer, blockHitResult.getBlockPos(), item.copy());
 				}
-	
+
+				ItemCooldowns cooldowns = entityWrapper.getCooldowns();
 				if (actualPlayer != null
 						&& blockHitResult.getDirection() == Direction.UP
 						&& !interactionResult.consumesAction()
@@ -187,8 +186,7 @@ public class ServerSideLivingClick {
 	}
 
 	public static InteractionResult _useItemOnBlock(LivingEntity entity, Player entityWrapper, 
-			@Nullable ServerPlayer actualPlayer, @Nullable ItemCooldowns cooldowns, 
-			Level level, ItemStack item, InteractionHand hand, BlockHitResult targetBlock) {
+			@Nullable ServerPlayer actualPlayer, Level level, ItemStack item, InteractionHand hand, BlockHitResult targetBlock) {
 		BlockPos blockPos = targetBlock.getBlockPos();
 		BlockState blockState = level.getBlockState(blockPos);
 		if (!blockState.getBlock().isEnabled(level.enabledFeatures())) {
@@ -229,6 +227,7 @@ public class ServerSideLivingClick {
 			}
 		}
 
+		ItemCooldowns cooldowns = entityWrapper.getCooldowns();
 		if (event.getUseItem().isTrue() || (!item.isEmpty() && (cooldowns == null || !cooldowns.isOnCooldown(item)))) {
 			if (event.getUseItem().isFalse()) return InteractionResult.PASS;
 			InteractionResult interactionResult = item.useOn(context);
@@ -243,8 +242,8 @@ public class ServerSideLivingClick {
 		}
 	}
 
-	public static InteractionResult _useItemNoTarget(LivingEntity entity, Player entityWrapper, 
-			@Nullable ItemCooldowns cooldowns, ItemStack item, InteractionHand hand) {
+	public static InteractionResult _useItemNoTarget(LivingEntity entity, Player entityWrapper, ItemStack item, InteractionHand hand) {
+		ItemCooldowns cooldowns = entityWrapper.getCooldowns();
 		if (cooldowns != null && cooldowns.isOnCooldown(item)) {
 			return InteractionResult.PASS;
 		} else {

@@ -15,6 +15,7 @@ import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EquipmentSlot;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.player.Inventory;
+import net.minecraft.world.item.ItemCooldowns;
 import net.minecraft.world.item.ItemStack;
 import net.neoforged.neoforge.common.util.FakePlayer;
 
@@ -153,6 +154,11 @@ public class ServerPlayerLivingWrapper extends FakePlayer implements EntityWrapp
 	@Override
 	public void teleportTo(double x, double y, double z) {
 		actualEntity.teleportTo(x, y, z);
+	}
+
+	@Override
+	public ItemCooldowns getCooldowns() {
+		return playerStandUser != null ? playerStandUser.getCooldowns() : super.getCooldowns();
 	}
 
 
