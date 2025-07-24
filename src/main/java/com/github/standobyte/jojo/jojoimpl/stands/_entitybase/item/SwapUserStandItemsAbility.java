@@ -42,15 +42,21 @@ public class SwapUserStandItemsAbility extends Ability {
 			if (stand != null) {
 				ItemStack lUserItem = user.getOffhandItem();
 				ItemStack rUserItem = user.getMainHandItem();
+				int lUserItemCount = lUserItem.getCount();
+				int rUserItemCount = rUserItem.getCount();
+				
+				boolean takeStandItems = true;
 
 				 // if the player is holding any items, give them to the stand
 				if (!lUserItem.isEmpty() || !rUserItem.isEmpty()) {
 					stand.addItem(rUserItem);
 					stand.addItem(lUserItem);
+					boolean gaveSomethingToStand = lUserItem.getCount() < lUserItemCount || rUserItem.getCount() < rUserItemCount;
+					takeStandItems = !gaveSomethingToStand;
 				}
 				
-				// or, if the player's hands are empty, *take* both items from the stand
-				else {
+				// or, if the player's hands are empty (or stand's hands are occupied), *take* both items from the stand
+				if (takeStandItems) {
 					swapItemsInHand(stand, user, InteractionHand.OFF_HAND);
 					swapItemsInHand(stand, user, InteractionHand.MAIN_HAND);
 				}
