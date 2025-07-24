@@ -351,7 +351,7 @@ public class StandEntity extends LivingEntity implements SummonedStand, IEntityW
 	}
 	
 	public boolean isFollowingUser() {
-		return true;
+		return !isManuallyControlled();
 	}
 	
 	@Override

@@ -2,9 +2,12 @@ package com.github.standobyte.jojo.jojoimpl.stands._entitybase.item;
 
 import com.github.standobyte.jojo.init.ModDataAttachmentTypes;
 import com.github.standobyte.jojo.mechanics.grab.LivingComponentGrab;
+import com.github.standobyte.jojo.powersystem.Power;
 import com.github.standobyte.jojo.powersystem.ability.Ability;
 import com.github.standobyte.jojo.powersystem.ability.AbilityId;
+import com.github.standobyte.jojo.powersystem.ability.condition.ConditionCheck;
 import com.github.standobyte.jojo.powersystem.standpower.entity.StandEntity;
+import com.github.standobyte.jojo.util.MathUtil;
 import com.github.standobyte.jojo.util.StandUtil;
 
 import net.minecraft.network.FriendlyByteBuf;
@@ -17,6 +20,19 @@ public class SwapUserStandItemsAbility extends Ability {
 
 	public SwapUserStandItemsAbility(AbilityId abilityId) {
 		super(abilityId);
+	}
+	
+	@Override
+	public ConditionCheck checkSpecificConditions(Power<?> context) {
+		StandEntity stand = StandUtil.getSummonedStand(context);
+		LivingEntity user = context.getUser();
+		if (stand == null || user == null) return ConditionCheck.NEGATIVE;
+		
+		if (!stand.isFollowingUser() && MathUtil.getAABBDistance(stand.getBoundingBox(), user.getBoundingBox()) > 4.5) {
+			return ConditionCheck.createNegative("stand_user_too_far");
+		}
+		
+		return super.checkSpecificConditions(context);
 	}
 	
 	@Override

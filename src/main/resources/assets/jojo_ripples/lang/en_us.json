@@ -44,6 +44,8 @@
   "moveset_group.stand.tooltip": "This enables the controls of your Stand without immediately summoning it - some of the abilies let you summon just your Stand's arms this way.",
   
   "stand.unknown": "Unknown Stand: %s",
+
+  "jojo.message.action_condition.stand_user_too_far": "You and your Stand are too far away from each other",
   
   "jojo_ripples.subtitle.stand_summon": "Stand summoned",
   "jojo_ripples.subtitle.stand_unsummon": "Stand unsummoned",

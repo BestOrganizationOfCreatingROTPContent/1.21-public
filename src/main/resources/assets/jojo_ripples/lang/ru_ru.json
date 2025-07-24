@@ -1,0 +1,61 @@
+{
+  "itemGroup.jojo_ripples.main": "ДжоДжо",
+  
+  "jojo.ui.player_menu": "Меню игрока (NYI)",
+  "jojo_ripples.menu.player.profile": "Профиль персонажа (NYI)",
+  "jojo_ripples.menu.player.group": "Группа (NYI)",
+  "jojo_ripples.menu.player.story_arcs": "Сюжетные арки (NYI)",
+  "jojo_ripples.menu.player.clothes": "Одежда (NYI)",
+  
+  "jojo.screen.edit_hud_layout": "Настройки управления (NYI)",
+  
+  "jojo_ripples.story_part.p1": "Phantom Blood",
+  "jojo_ripples.story_part.p2": "Battle Tendency",
+  "jojo_ripples.story_part.p3": "Stardust Crusaders",
+  "jojo_ripples.story_part.p4": "Diamond is Unbreakable",
+  "jojo_ripples.story_part.p5": "Golden Wind",
+  "jojo_ripples.story_part.p6": "Stone Ocean",
+  "jojo_ripples.story_part.p7": "Steel Ball Run",
+  "jojo_ripples.story_part.p8": "JoJolion",
+  "jojo_ripples.story_part.p9": "The JOJOLands",
+  
+  "ripples_clothes_split": "ПКМ: разделить на %s и %s",
+  "ripples_clothes_combine": "ЛКМ: объединить с %s в %s",
+  
+  
+  "jojo_ripples.power.hamon": "Хамон",
+  "hamon.intro.tab": "Вступление",
+  "hamon.stats.tab": "Характеристики",
+  "hamon.strength_skills.tab": "Боевые навыки",
+  "hamon.control_skills.tab": "Навыки поддержки",
+  "hamon.techniques.tab": "Техники",
+  "moveset_group.hamon.combat": "Хамон: бой",
+  "moveset_group.hamon.utility": "Хамон: поддержка",
+  
+  
+  "jojo_ripples.power.vampirism": "Вампиризм",
+  "jojo_ripples.vampirism.skills": "Навыки",
+  
+  
+  "jojo_ripples.menu.stand.info": "Информация о Стенде (NYI)",
+  "jojo_ripples.menu.stand.skills": "Навыки (NYI)",
+  "jojo_ripples.menu.stand.skins": "Скины Стенда",
+  "moveset_default_group": "Способности",
+  "moveset_group.stand.tooltip": "Эта клавиша активирует управление Стендом, но не призывает его сразу же - с помощью этого некоторые из способностей можно использовать, призвав только руки Стенда.",
+  
+  "stand.unknown": "Неизвестный Стенд: %s",
+
+  "jojo.message.action_condition.stand_user_too_far": "Вы и ваш Стенд слишком далеко друг от друга",
+  
+  "jojo_ripples.subtitle.stand_summon": "Стенд призван",
+  "jojo_ripples.subtitle.stand_unsummon": "Стенд отозван",
+  "jojo_ripples.subtitle.stand_attack_light": "Удар",
+  "jojo_ripples.subtitle.stand_attack_strong": "Сильный удар",
+  "jojo_ripples.subtitle.stand_attack_barrage": "Удар",
+  "jojo_ripples.subtitle.stand_punch_swing": "Замах",
+  "jojo_ripples.subtitle.stand_damage_block": "Урон заблокирован",
+  "jojo_ripples.subtitle.ora": "ОРА",
+  "jojo_ripples.subtitle.ora_rush": "ОРА ОРА ОРА",
+  "jojo_ripples.subtitle.muda": "МУДА",
+  "jojo_ripples.subtitle.muda_rush": "МУДА МУДА МУДА"
+}
