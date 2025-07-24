@@ -155,6 +155,12 @@ public class ServerPlayerLivingWrapper extends FakePlayer implements EntityWrapp
 	public void teleportTo(double x, double y, double z) {
 		actualEntity.teleportTo(x, y, z);
 	}
+	
+//	@Override
+//	public ServerPlayer teleport(TeleportTransition transition) {
+//		actualEntity.teleport(transition);
+//		return this;
+//	}
 
 	@Override
 	public ItemCooldowns getCooldowns() {
