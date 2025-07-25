@@ -65,6 +65,10 @@ public class DebugStandHud {
 		
 	}
 	
+	public static boolean isInContainerScreen() {
+		return Minecraft.getInstance().screen instanceof AbstractContainerScreen;
+	}
+	
 	public static class PrototypeAbilityHud implements LayeredDraw.Layer {
 		
 		@Override
