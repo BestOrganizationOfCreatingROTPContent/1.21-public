@@ -20,14 +20,19 @@ import com.github.standobyte.v1_21_4_stuff.renderstate.RenderStateCrutches;
 import com.mojang.blaze3d.vertex.PoseStack;
 
 import net.minecraft.client.Minecraft;
+import net.minecraft.client.model.ArmedModel;
+import net.minecraft.client.model.EntityModel;
 import net.minecraft.client.model.HumanoidModel;
 import net.minecraft.client.model.Model;
 import net.minecraft.client.model.geom.builders.LayerDefinition;
+import net.minecraft.client.renderer.ItemInHandRenderer;
 import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.entity.EntityRendererProvider.Context;
 import net.minecraft.client.renderer.entity.LivingEntityRenderer;
+import net.minecraft.client.renderer.entity.RenderLayerParent;
 import net.minecraft.client.renderer.entity.layers.ItemInHandLayer;
 import net.minecraft.resources.ResourceLocation;
+import net.minecraft.world.entity.LivingEntity;
 
 public class StandEntityRenderer<
 				T extends StandEntity, 
@@ -47,7 +52,7 @@ public class StandEntityRenderer<
 		super(context, null, shadowRadius);
 		this.missingSkinModel = LazyNullable.of(() -> createStandModel(
 				RotpGeckoModelLoader.getInstance().getModelDefinition(JojoMod.resLoc("stand_default"))));
-		this.addLayer(new ItemInHandLayer<>(this, context.getItemInHandRenderer()));
+		this.addLayer(new StandItemInHandLayer<>(this, context.getItemInHandRenderer()));
 	}
 	
 	public final S createRenderState(T entity, float partialTick) {
@@ -199,6 +204,7 @@ public class StandEntityRenderer<
 
 		setModelFrom(renderState);
 		
+		StandItemInHandLayer.itemBufferSource = bufferSource;
 		if (renderState.mayObstructView) {
 			bufferSource = FirstPersonStandTranslucentShader.standTranslucencyBufferSource;
 			FirstPersonStandTranslucentShader.usedThisFrame = true;
@@ -214,6 +220,28 @@ public class StandEntityRenderer<
 	@Override
 	protected boolean shouldShowName(T entity/*, double distSqr*/) {
 		return false;
+	}
+	
+	
+	/* If i try to render ItemInHandLayer using the FirstPersonStandTranslucentShader.standTranslucencyBufferSource
+	 * (in order to render the Stand entity on a separate buffer to apply a shader to the entire buffer),
+	 * instead it makes it so that the Stand model does not render at all, only the held items do.
+	 * Couldn't fix it, so to not waste too much time, I'll just leave this crutch here - the items just won't be translucent, so in terms of gameplay it's fine.
+	 */
+	protected static class StandItemInHandLayer<T extends LivingEntity, M extends EntityModel<T> & ArmedModel> extends ItemInHandLayer<T, M> {
+		protected static MultiBufferSource itemBufferSource;
+		
+	    public StandItemInHandLayer(RenderLayerParent<T, M> renderer, ItemInHandRenderer itemInHandRenderer) {
+	        super(renderer, itemInHandRenderer);
+	    }
+
+	    @Override
+	    public void render(PoseStack poseStack, MultiBufferSource buffer, int light, T livingEntity, 
+	    		float limbSwing, float limbSwingAmount, float partialTicks, float ageInTicks, float netHeadYaw, float headPitch) {
+	    	buffer = itemBufferSource;
+	    	super.render(poseStack, buffer, light, livingEntity, 
+	    			limbSwing, limbSwingAmount, partialTicks, ageInTicks, netHeadYaw, headPitch);
+	    }
 	}
 
 }
