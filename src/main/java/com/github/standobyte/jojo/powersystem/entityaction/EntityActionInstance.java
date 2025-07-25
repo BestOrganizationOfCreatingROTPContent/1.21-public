@@ -152,11 +152,6 @@ public class EntityActionInstance implements HeldInput {
 			if (target instanceof LivingEntity targetLiving) {
 				LivingEntity user = stand.getUser();
 				if (user != null) {
-					if (user instanceof Player player) {
-						targetLiving.setLastHurtByPlayer(player);
-						targetLiving.lastHurtByPlayerTime = 100;
-					}
-					
 					LivingEntity aggroTo = stand.isFollowingUser() || targetLiving.hasLineOfSight(user) ? user : 
 						StandUtil.isEntityStandUser(targetLiving) ? stand : null;
 					if (aggroTo != null && aggroTo != dmgSource.getEntity()) {

@@ -1,4 +1,4 @@
-package com.github.standobyte.jojo.mixin;
+package com.github.standobyte.jojo.mixin.damage;
 
 import org.spongepowered.asm.mixin.Mixin;
 
