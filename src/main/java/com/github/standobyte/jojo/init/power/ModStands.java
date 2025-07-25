@@ -91,16 +91,16 @@ public class ModStands {
 //					.addAbility("kick_barrage", ModStandAbilities.BARRAGE)
 					
 					
-					.makeHotbar(0, InputKey.Z, InputKey.X)
-																									
-					.addAbility("star_finger", ModStandAbilities.SP_STAR_FINGER)
-					.inHotbar(0, InputMethod.CLICK)
-					
-					.addAbility("star_finger_swipe", ModStandAbilities.SP_STAR_FINGER_SWIPE)
-					.inHotbarSlotVariation("star_finger", InputKey.Modifier.CONTROL, InputMethod.CLICK)
-					
-					.addAbility("inhale", ModStandAbilities.SP_INHALE)
-					.inHotbar(0, InputMethod.HOLD)
+//					.makeHotbar(0, InputKey.Z, InputKey.X)
+//																									
+//					.addAbility("star_finger", ModStandAbilities.SP_STAR_FINGER)
+//					.inHotbar(0, InputMethod.CLICK)
+//					
+//					.addAbility("star_finger_swipe", ModStandAbilities.SP_STAR_FINGER_SWIPE)
+//					.inHotbarSlotVariation("star_finger", InputKey.Modifier.CONTROL, InputMethod.CLICK)
+//					
+//					.addAbility("inhale", ModStandAbilities.SP_INHALE)
+//					.inHotbar(0, InputMethod.HOLD)
 					
 //					.addAbility("time_stop", ModStandAbilities.TIME_STOP)
 
