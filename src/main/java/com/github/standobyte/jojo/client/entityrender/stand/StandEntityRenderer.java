@@ -18,7 +18,6 @@ import com.mojang.blaze3d.vertex.PoseStack;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.model.HumanoidModel;
 import net.minecraft.client.renderer.MultiBufferSource;
-import net.minecraft.client.renderer.RenderType;
 import net.minecraft.client.renderer.entity.EntityRendererProvider.Context;
 import net.minecraft.client.renderer.entity.LivingEntityRenderer;
 import net.minecraft.client.renderer.entity.state.ArmedEntityRenderState;
@@ -136,14 +135,6 @@ public class StandEntityRenderer<
 		
 		super.render(renderState, poseStack, bufferSource, light);
 	}
-	
-	@Override
-    protected RenderType getRenderType(S renderState, boolean isVisible, boolean renderTranslucent, boolean appearsGlowing) {
-    	if (renderState.mayObstructView) {
-    		return FirstPersonStandTranslucentShader.ENTITY_TRANSLUCENT_RENDER_TYPE.apply(getTextureLocation(renderState), appearsGlowing);
-    	}
-    	return super.getRenderType(renderState, isVisible, renderTranslucent, appearsGlowing);
-    }
 
 	@Override
 	protected boolean shouldShowName(T entity, double distSqr) {
