@@ -11,6 +11,7 @@ import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.ModifyVariable;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
+import com.github.standobyte.jojo.mechanics.entityuseitem.StandCallbackWhenShooting;
 import com.github.standobyte.jojo.util.EntityWrapper;
 import com.github.standobyte.jojo.util.StandUtil;
 
@@ -20,6 +21,7 @@ import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.TraceableEntity;
 import net.minecraft.world.entity.projectile.Projectile;
 import net.minecraft.world.level.Level;
+import net.minecraft.world.phys.Vec3;
 
 @Mixin(Projectile.class)
 public abstract class ProjectileMixin extends Entity implements TraceableEntity {
@@ -49,5 +51,15 @@ public abstract class ProjectileMixin extends Entity implements TraceableEntity 
 				ci.setReturnValue(true);
 			}
 		}
+	}
+	
+	
+	@ModifyVariable(method = "shoot", at = @At(value = "STORE", ordinal = 0), ordinal = 0)
+	public Vec3 jojo_ripples$onProjectileShot(Vec3 movementVec, double x, double y, double z, float velocity, float inaccuracy) {
+		Vec3 newVec = StandCallbackWhenShooting.onStandShooting((Projectile) (Entity) this, x, y, z, velocity, inaccuracy);
+		if (newVec != null) {
+			return newVec;
+		}
+		return movementVec;
 	}
 }
