@@ -155,8 +155,6 @@ public class EntityActionInstance implements HeldInput {
 					LivingEntity aggroTo = stand.isFollowingUser() || targetLiving.hasLineOfSight(user) ? user : 
 						StandUtil.isEntityStandUser(targetLiving) ? stand : null;
 					if (aggroTo != null && aggroTo != dmgSource.getEntity()) {
-						targetLiving.setLastHurtByMob(aggroTo);
-						
 						Brain<?> brain = targetLiving.getBrain();
 						Optional<LivingEntity> brainAttackTarget = brain.getMemoryInternal(MemoryModuleType.ATTACK_TARGET);
 						if (brainAttackTarget != null && brainAttackTarget.filter(t -> t == dmgSource.getEntity()).isPresent()) {

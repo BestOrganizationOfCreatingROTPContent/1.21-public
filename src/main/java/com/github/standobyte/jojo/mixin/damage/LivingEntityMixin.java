@@ -1,9 +1,12 @@
 package com.github.standobyte.jojo.mixin.damage;
 
+import javax.annotation.Nullable;
+
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
+import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
 import com.github.standobyte.jojo.powersystem.standpower.entity.StandEntity;
@@ -21,8 +24,19 @@ public abstract class LivingEntityMixin extends Entity {
 		super(entityType, level);
 	}
 
+	@Shadow protected LivingEntity lastHurtByMob;
 	@Shadow protected Player lastHurtByPlayer;
 	@Shadow public int lastHurtByPlayerTime;
+
+	@Inject(method = "setLastHurtByMob", at = @At("TAIL"))
+	public void jojo_ripples$entityResposibleForStandAttack(@Nullable LivingEntity attacker, CallbackInfo ci) {
+		if (attacker instanceof StandEntity stand) {
+			LivingEntity user = stand.getUser();
+			if (user != null) {
+				this.lastHurtByMob = user;
+			}
+		}
+	}
 
 	@Inject(method = "resolvePlayerResponsibleForDamage", at = @At("TAIL"), cancellable = true)
 	public void jojo_ripples$playerResposibleForStandAttack(DamageSource damageSource, CallbackInfoReturnable<Player> ci) {
