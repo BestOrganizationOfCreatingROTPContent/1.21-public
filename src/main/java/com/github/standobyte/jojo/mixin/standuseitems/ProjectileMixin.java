@@ -56,7 +56,7 @@ public abstract class ProjectileMixin extends Entity implements TraceableEntity 
 	
 	@ModifyVariable(method = "shoot", at = @At(value = "STORE", ordinal = 0), ordinal = 0)
 	public Vec3 jojo_ripples$onProjectileShot(Vec3 movementVec, double x, double y, double z, float velocity, float inaccuracy) {
-		Vec3 newVec = StandCallbackWhenShooting.onStandShooting((Projectile) (Entity) this, x, y, z, velocity, inaccuracy);
+		Vec3 newVec = StandCallbackWhenShooting.onStandShootingItemVanilla((Projectile) (Entity) this, x, y, z, velocity, inaccuracy);
 		if (newVec != null) {
 			return newVec;
 		}

@@ -1,6 +1,7 @@
 package com.github.standobyte.jojo.init;
 
 import com.github.standobyte.jojo.core.JojoMod;
+import com.github.standobyte.jojo.mc.entity.projectile.ThrownNuggetBearingEntity;
 import com.github.standobyte.jojo.mechanics.clothes.mannequin.MannequinEntity;
 import com.github.standobyte.jojo.powersystem.standpower.entity.StandEntity;
 
@@ -44,6 +45,14 @@ public final class ModEntityTypes {
 			.sized(0.5F, 1.975F)
 			.eyeHeight(1.7775F)
 			.clientTrackingRange(10)
+			.build(createIDFor(key)));
+	
+	public static final DeferredHolder<EntityType<?>, EntityType<ThrownNuggetBearingEntity>> NUGGET_BEARING = ENTITY_TYPES.register("nugget_bearing", key -> 
+			EntityType.Builder.<ThrownNuggetBearingEntity>of(ThrownNuggetBearingEntity::new, MobCategory.MISC)
+			.noLootTable()
+			.sized(0.125F, 0.125F)
+			.clientTrackingRange(4)
+			.updateInterval(10)
 			.build(createIDFor(key)));
 	
 	

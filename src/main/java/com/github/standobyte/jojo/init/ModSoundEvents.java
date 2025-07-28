@@ -28,6 +28,7 @@ public class ModSoundEvents {
 	public static final DeferredHolder<SoundEvent, SoundEvent> STAR_PLATINUM_ZOOM = SOUNDS.register("star_platinum_zoom", SoundEvent::createVariableRangeEvent);
 	public static final DeferredHolder<SoundEvent, SoundEvent> STAR_PLATINUM_ZOOM_CLICK = SOUNDS.register("star_platinum_zoom_click", SoundEvent::createVariableRangeEvent);
 	public static final DeferredHolder<SoundEvent, SoundEvent> STAR_PLATINUM_INHALE = SOUNDS.register("star_platinum_inhale", SoundEvent::createVariableRangeEvent);
+	public static final DeferredHolder<SoundEvent, SoundEvent> BEARING_SHOT = SOUNDS.register("bearing_shot", SoundEvent::createVariableRangeEvent);
 	public static final DeferredHolder<SoundEvent, SoundEvent> TIME_STOP = SOUNDS.register("time_stop", SoundEvent::createVariableRangeEvent);
 	public static final DeferredHolder<SoundEvent, SoundEvent> TIME_RESUME = SOUNDS.register("time_resume", SoundEvent::createVariableRangeEvent);
 	public static final DeferredHolder<SoundEvent, SoundEvent> TIME_STOP_BLINK = SOUNDS.register("time_stop_blink", SoundEvent::createVariableRangeEvent);

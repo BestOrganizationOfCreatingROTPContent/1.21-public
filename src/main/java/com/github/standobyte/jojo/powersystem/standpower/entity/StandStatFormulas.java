@@ -109,6 +109,21 @@ public class StandStatFormulas {
 		float f = (float) ((rangeMax - rangeEffective) / (2 * rangeEffective - rangeMax - distance));
 		return Math.max(f * f, 0.25f);
 	}
+	
+	// * 8.5618
+	public static float projectileVelocityScaling(double strength, float velocity) {
+		if (strength > 8) {
+			float multiplier = ((float) strength - 8) / 12f + 1;
+			velocity *= multiplier;
+		}
+		return velocity;
+	}
+	
+	public static float projectileInaccuracyScaling(double precision, float inaccuracy) {
+		// 8 - 1; 12 - 2/3; 16 - 1/3; 20 - 0
+		float inaccuracyMultiplier = (float) Math.max((-precision / 12.0 + 5.0 / 3.0), 0);
+		return inaccuracy * inaccuracyMultiplier;
+	}
 
 //	public static double projectileFireRateScaling(StandEntity standEntity, IStandPower standPower) {
 //		return standEntity.getAttackSpeed() / standPower.getType().getDefaultStats().getBaseAttackSpeed();

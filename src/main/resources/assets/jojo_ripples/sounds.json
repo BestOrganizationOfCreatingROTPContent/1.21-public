@@ -54,5 +54,9 @@
         "pitch" : 1.0
       }
     ]
+  },
+  "bearing_shot": {
+    "subtitle": "jojo_ripples.subtitle.shot",
+    "sounds": [ "jojo_ripples:bearing_shot", "jojo_ripples:bearing_shot_2", "jojo_ripples:bearing_shot_3", "jojo_ripples:bearing_shot_4" ]
   }
 }

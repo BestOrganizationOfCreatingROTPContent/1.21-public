@@ -2,6 +2,7 @@ package com.github.standobyte.jojo.powersystem.standpower.entity;
 
 import javax.annotation.Nullable;
 
+import com.github.standobyte.jojo.core.packet.fromserver.TrSyncStandOffsetPacket;
 import com.github.standobyte.jojo.powersystem.entityaction.type.EntityActionType;
 import com.github.standobyte.jojo.util.MathUtil;
 
@@ -9,6 +10,7 @@ import net.minecraft.util.Mth;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.phys.Vec3;
+import net.neoforged.neoforge.network.PacketDistributor;
 
 public class StandOffsetFromUser {
 	private StandEntity standEntity;
@@ -49,6 +51,12 @@ public class StandOffsetFromUser {
 			this.relativeOffset = offset;
 			this.rotations = rotations;
 			this.changedTimestamp = standEntity.tickCount;
+		}
+	}
+	
+	public void syncToTracking() {
+		if (!standEntity.level().isClientSide()) {
+			PacketDistributor.sendToPlayersTrackingEntityAndSelf(standEntity, new TrSyncStandOffsetPacket(standEntity.getId(), relativeOffset, rotations));
 		}
 	}
 	
