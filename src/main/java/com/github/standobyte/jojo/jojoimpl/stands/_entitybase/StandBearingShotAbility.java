@@ -78,15 +78,8 @@ public class StandBearingShotAbility extends StandEntityAbility {
 				Level level = level();
 				if (level instanceof ServerLevel serverLevel) {
 					ItemStack itemStack = performer.getMainHandItem();
-					level.playSound(
-							null,
-							performer.getX(),
-							performer.getY(),
-							performer.getZ(),
-							ModSoundEvents.BEARING_SHOT.get(),
-							SoundSource.NEUTRAL,
-							0.5F,
-							0.4F / (level.getRandom().nextFloat() * 0.4F + 0.8F));
+					level.playSound(null, performer.getX(), performer.getY(), performer.getZ(),
+							ModSoundEvents.BEARING_SHOT.get(), SoundSource.NEUTRAL, 0.5F, 1.0f);
 					StandCallbackWhenShooting.shootProjectileWithStandStats(ThrownNuggetBearingEntity::new, 
 							serverLevel, itemStack, performer, stand, 0, ThrownNuggetBearingEntity.shotVelocity(itemStack), 1.0f);
 					
