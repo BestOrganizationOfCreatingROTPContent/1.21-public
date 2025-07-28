@@ -6,6 +6,7 @@ import com.github.standobyte.jojo.core.packet.fromclient.ClAimTargetPacket;
 import com.github.standobyte.jojo.core.packet.fromclient.ClNoParamsPacket;
 import com.github.standobyte.jojo.core.packet.fromclient.ClSetStandSkinPacket;
 import com.github.standobyte.jojo.core.packet.fromserver.DatapackStandsPacket;
+import com.github.standobyte.jojo.core.packet.fromserver.ProjectileHighSpeedPacket;
 import com.github.standobyte.jojo.core.packet.fromserver.StandEntitySoundPacket;
 import com.github.standobyte.jojo.core.packet.fromserver.TrAbilityUsePacket;
 import com.github.standobyte.jojo.core.packet.fromserver.TrAimTargetPacket;
@@ -52,6 +53,7 @@ public class PacketsRegister {
 		registerPacket(registrar, PayloadRegistrar::playToClient, new TrSyncStandOffsetPacket.Handler(JojoMod.resLoc("standoffset")));
 		registerPacket(registrar, PayloadRegistrar::playToClient, new TrClothesItemsPacket.Handler(JojoMod.resLoc("clothes")));
 		registerPacket(registrar, PayloadRegistrar::playToClient, new TrSetGrabbedEntityPacket.Handler(JojoMod.resLoc("grab")));
+		registerPacket(registrar, PayloadRegistrar::playToClient, new ProjectileHighSpeedPacket.Handler(JojoMod.resLoc("projfix")));
 	}
 
 	
