@@ -29,6 +29,7 @@
 	"client.entitycontrol.ItemInHandRendererMixin",
     "client.standskin.SoundInstanceMixin",
     "client.aim.GameRendererMixin",
-    "client.aim.HitboxRenderingMixin"
+    "client.aim.HitboxRenderingMixin",
+    "client.standshader.MinecraftMixin"
   ]
 }

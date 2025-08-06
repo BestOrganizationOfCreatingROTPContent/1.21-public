@@ -6,6 +6,7 @@ import com.github.standobyte.jojo.client.ClientGlobals;
 import com.github.standobyte.jojo.client.RotpGeckoModelLoader;
 import com.github.standobyte.jojo.client.entityanim.AnimWithExtras;
 import com.github.standobyte.jojo.client.entityrender.EntityActionRenderState;
+import com.github.standobyte.jojo.client.shader.FirstPersonStandTranslucentShader;
 import com.github.standobyte.jojo.client.standskin.StandSkin;
 import com.github.standobyte.jojo.client.standskin.StandSkinsLoader;
 import com.github.standobyte.jojo.core.JojoMod;
@@ -18,6 +19,7 @@ import com.github.standobyte.v1_21_4_stuff.renderstate.LivingEntityRenderState;
 import com.github.standobyte.v1_21_4_stuff.renderstate.RenderStateCrutches;
 import com.mojang.blaze3d.vertex.PoseStack;
 
+import net.minecraft.client.Minecraft;
 import net.minecraft.client.model.HumanoidModel;
 import net.minecraft.client.model.Model;
 import net.minecraft.client.model.geom.builders.LayerDefinition;
@@ -110,6 +112,9 @@ public class StandEntityRenderer<
 		}
 		
 		renderState.tint = -1;
+		
+		Minecraft mc = Minecraft.getInstance();
+		renderState.mayObstructView = mc.options.getCameraType().isFirstPerson() && mc.player != null && entity.getUser() == mc.player;
 	}
 	
 	public void extractSkinMenuRenderState(S renderState, StandSkin skin, ResourceLocation standId, float ticks) {
@@ -185,17 +190,25 @@ public class StandEntityRenderer<
 	
 	@Override
 	public void render(T entity, float entityYaw, float partialTicks, PoseStack poseStack, MultiBufferSource bufferSource, int light) {
-        S s = this.createRenderState(entity, partialTicks);
-        render(entity, s, entityYaw, partialTicks, poseStack, bufferSource, light);
+		S s = this.createRenderState(entity, partialTicks);
+		render(entity, s, entityYaw, partialTicks, poseStack, bufferSource, light);
 	}
 
 	public void render(T entity, S renderState, float entityYaw, float partialTicks, PoseStack poseStack, MultiBufferSource bufferSource, int light) {
-        RenderStateCrutches.currentEntityRenderState = renderState;
+		RenderStateCrutches.currentEntityRenderState = renderState;
+
 		setModelFrom(renderState);
+		
+		if (renderState.mayObstructView) {
+			bufferSource = FirstPersonStandTranslucentShader.standTranslucencyBufferSource;
+			FirstPersonStandTranslucentShader.usedThisFrame = true;
+		}
+		
 		if (this.model != null) {
 			super.render(entity, entityYaw, partialTicks, poseStack, bufferSource, light);
 		}
-        RenderStateCrutches.currentEntityRenderState = null;
+		RenderStateCrutches.currentEntityRenderState = null;
+
 	}
 
 	@Override
