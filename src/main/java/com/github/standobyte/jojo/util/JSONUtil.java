@@ -19,7 +19,7 @@ import com.google.gson.JsonParseException;
 import com.google.gson.JsonPrimitive;
 import com.google.gson.JsonSerializationContext;
 import com.google.gson.JsonSerializer;
-import com.google.gson.Strictness;
+import com.github.standobyte.v1_21_4_stuff.missingmethods.Strictness;
 import com.google.gson.TypeAdapter;
 import com.google.gson.stream.JsonReader;
 import com.google.gson.stream.JsonToken;
@@ -59,7 +59,10 @@ public class JSONUtil {
 	public static <T> T fromJson(Gson pGson, Reader pReader, Class<T> pAdapter, Strictness strictness) {
 		try {
 			JsonReader jsonreader = new JsonReader(pReader);
-			jsonreader.setStrictness(strictness);
+			if (strictness == Strictness.LENIENT) {
+				jsonreader.setLenient(true);
+			}
+//			jsonreader.setStrictness(strictness);
 			return pGson.getAdapter(pAdapter).read(jsonreader);
 		} catch (IOException ioexception) {
 			throw new JsonParseException(ioexception);
@@ -140,7 +143,7 @@ public class JSONUtil {
 				ResourceLocation id = context.deserialize(json, ResourceLocation.class);
 				Registry<V> registry = registrySupplier.get();
 				if (!registry.containsKey(id)) throw new JsonParseException("Unknown " + typeName + " : " + id.toString());
-				V value = registry.getValue(id);
+				V value = registry.get(id);
 				return value;
 			}
 			

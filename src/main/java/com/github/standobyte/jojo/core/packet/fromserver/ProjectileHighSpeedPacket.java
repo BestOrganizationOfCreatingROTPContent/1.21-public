@@ -10,6 +10,7 @@ import net.minecraft.network.protocol.common.custom.CustomPacketPayload;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.phys.Vec3;
+import com.github.standobyte.v1_21_4_stuff.missingmethods._Vec3;
 import net.neoforged.neoforge.network.handling.IPayloadContext;
 
 public record ProjectileHighSpeedPacket(int entityId, Vec3 deltaMovement) implements CustomPacketPayload {
@@ -35,7 +36,7 @@ public record ProjectileHighSpeedPacket(int entityId, Vec3 deltaMovement) implem
 		
 		public static final StreamCodec<RegistryFriendlyByteBuf, ProjectileHighSpeedPacket> STREAM_CODEC = StreamCodec.composite(
 				ByteBufCodecs.INT, ProjectileHighSpeedPacket::entityId,
-				Vec3.STREAM_CODEC, ProjectileHighSpeedPacket::deltaMovement,
+				_Vec3.STREAM_CODEC, ProjectileHighSpeedPacket::deltaMovement,
 				ProjectileHighSpeedPacket::new);
 
 		@Override

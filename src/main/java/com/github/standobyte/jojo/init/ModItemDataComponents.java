@@ -5,9 +5,11 @@ import java.util.function.Supplier;
 import com.github.standobyte.jojo.core.JojoMod;
 import com.github.standobyte.jojo.mc.item.component.StandWrittenOnDisc;
 import com.github.standobyte.jojo.mechanics.clothes.itemdata.ClothesDataComponent;
+import com.github.standobyte.v1_21_4_stuff.missingmethods.__ItemModelComponent;
 
 import net.minecraft.core.component.DataComponentType;
 import net.minecraft.core.registries.Registries;
+import net.minecraft.resources.ResourceLocation;
 import net.neoforged.neoforge.registries.DeferredRegister;
 
 public class ModItemDataComponents {
@@ -24,4 +26,7 @@ public class ModItemDataComponents {
 			.persistent(ClothesDataComponent.CODEC)
 			.networkSynchronized(ClothesDataComponent.STREAM_CODEC)
 			.cacheEncoding());
+
+	public static final Supplier<DataComponentType<ResourceLocation>> ITEM_MODEL = DATA_COMPONENT_TYPES.registerComponentType("item_model", 
+			__ItemModelComponent.builder());
 }

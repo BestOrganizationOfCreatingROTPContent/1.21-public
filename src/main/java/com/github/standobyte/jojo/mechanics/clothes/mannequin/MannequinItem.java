@@ -13,7 +13,7 @@ import net.minecraft.sounds.SoundEvents;
 import net.minecraft.sounds.SoundSource;
 import net.minecraft.util.Mth;
 import net.minecraft.world.InteractionResult;
-import net.minecraft.world.entity.EntitySpawnReason;
+import net.minecraft.world.entity.MobSpawnType;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
@@ -44,7 +44,7 @@ public class MannequinItem extends Item {
 					entity.setYRot(direction.toYRot());
 					entity.setSlim(slim);
 				}, world, pStack, null);
-				MannequinEntity armorstand = ModEntityTypes.MANNEQUIN.get().spawn(world, consumer, blockPos, EntitySpawnReason.DISPENSER, false, false);
+				MannequinEntity armorstand = ModEntityTypes.MANNEQUIN.get().spawn(world, consumer, blockPos, MobSpawnType.DISPENSER, false, false);
 				if (armorstand != null) {
 					pStack.shrink(1);
 				}
@@ -70,7 +70,7 @@ public class MannequinItem extends Item {
 					Consumer<MannequinEntity> consumer = EntityType.appendDefaultStackConfig(entity -> {
 						entity.setSlim(slim);
 					}, serverWorld, itemStack, context.getPlayer());
-					MannequinEntity armorstand = ModEntityTypes.MANNEQUIN.get().create(serverWorld, consumer, clickedPos, EntitySpawnReason.SPAWN_ITEM_USE, true, true);
+					MannequinEntity armorstand = ModEntityTypes.MANNEQUIN.get().create(serverWorld, consumer, clickedPos, MobSpawnType.SPAWN_EGG/*SPAWN_ITEM_USE*/, true, true);
 					if (armorstand == null) {
 						return InteractionResult.FAIL;
 					}

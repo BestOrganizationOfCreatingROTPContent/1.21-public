@@ -1,4 +1,4 @@
-package com.github.standobyte.jojo.mixin.client.playeranim;
+package com.github.standobyte.jojo.mixin.client.v1_21_1_modelanim.player;
 
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
@@ -8,10 +8,11 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.VertexConsumer;
 
-import net.minecraft.client.model.Model;
+import net.minecraft.client.model.AgeableListModel;
+import net.minecraft.client.model.EntityModel;
 
-@Mixin(Model.class)
-public abstract class ModelMixin {
+@Mixin(AgeableListModel.class)
+public abstract class AgeableModelMixinSuperclass extends EntityModel {
 
 	@Inject(method = "renderToBuffer("
 			+ "Lcom/mojang/blaze3d/vertex/PoseStack;"
@@ -20,7 +21,11 @@ public abstract class ModelMixin {
 	public void jojo_ripples$renderWithBends(PoseStack poseStack, VertexConsumer buffer, 
 			int packedLight, int packedOverlay, int color, CallbackInfo ci) {}
 
-	@Inject(method = "resetPose()V", at = @At("HEAD"))
-	public void jojo_ripples$resetPose(CallbackInfo ci) {}
-	
+	@Inject(method = "renderToBuffer("
+			+ "Lcom/mojang/blaze3d/vertex/PoseStack;"
+			+ "Lcom/mojang/blaze3d/vertex/VertexConsumer;"
+			+ "III)V", at = @At("TAIL"))
+	public void jojo_ripples$thenRenderBarrageSwings(PoseStack poseStack, VertexConsumer buffer, 
+			int packedLight, int packedOverlay, int color, CallbackInfo ci) {}
+
 }

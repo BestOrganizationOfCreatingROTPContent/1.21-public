@@ -3,30 +3,31 @@ package com.github.standobyte.jojo.client.entitycontrol.stand;
 import com.github.standobyte.jojo.client.entitycontrol.ClientEntityController;
 import com.github.standobyte.jojo.client.entityrender.stand.HumanoidPart;
 import com.github.standobyte.jojo.client.entityrender.stand.StandEntityRenderState;
+import com.github.standobyte.jojo.client.entityrender.stand.StandEntityRenderer;
 import com.github.standobyte.jojo.client.ui.utils.BlitFloat;
 import com.github.standobyte.jojo.client.ui.utils.ElementTransparency;
 import com.github.standobyte.jojo.core.JojoMod;
 import com.github.standobyte.jojo.powersystem.entityaction.EntityActionInstance;
 import com.github.standobyte.jojo.powersystem.entityaction.LivingComponentAction;
+import com.github.standobyte.jojo.powersystem.standpower.entity.StandEntity;
+import com.mojang.blaze3d.platform.GlStateManager;
+import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.math.Axis;
 
 import net.minecraft.client.DeltaTracker;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphics;
-import net.minecraft.client.player.ClientInput;
+import net.minecraft.client.player.Input;
 import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.MultiBufferSource.BufferSource;
-import net.minecraft.client.renderer.RenderType;
 import net.minecraft.client.renderer.entity.EntityRenderer;
 import net.minecraft.core.BlockPos;
 import net.minecraft.resources.ResourceLocation;
-import net.minecraft.util.ARGB;
+import net.minecraft.util.FastColor.ARGB32;
 import net.minecraft.util.Mth;
-import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.ai.attributes.Attributes;
-import net.minecraft.world.entity.player.Input;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.GameType;
 import net.minecraft.world.level.block.state.BlockState;
@@ -60,9 +61,10 @@ public class ClientStandController extends ClientEntityController {
 
 	@SubscribeEvent(priority = EventPriority.HIGHEST)
 	public void onInputUpdate(MovementInputUpdateEvent event) {
-		ClientInput input = event.getInput();
+		Input input = event.getInput();
 		moveStandManually(entityAsLiving, input.leftImpulse, input.forwardImpulse, 
-				input.keyPresses.jump(), input.keyPresses.shift());
+//				input.keyPresses.jump(), input.keyPresses.shift());
+				input.jumping, input.shiftKeyDown);
 		// FIXME (1.16) (stand manual control) do not reset deltaMovement in manual control
 		PacketDistributor.sendToServer(new ClStandManualMovementPacket(
 				entity.getX(), entity.getY(), entity.getZ(), entity.getXRot(), entity.getYRot(), prevTickInput));
@@ -70,8 +72,14 @@ public class ClientStandController extends ClientEntityController {
 
 	@SubscribeEvent(priority = EventPriority.LOWEST)
 	public void clearInput(MovementInputUpdateEvent event) { // prevents the player from sneaking on shift, and flying in creative on double space
-		ClientInput input = event.getInput();
-		input.keyPresses = Input.EMPTY;
+		Input input = event.getInput();
+//		input.keyPresses = Input.EMPTY;
+		input.up = false;
+		input.down = false;
+		input.left = false;
+		input.right = false;
+		input.jumping = false;
+		input.shiftKeyDown = false;
 		input.forwardImpulse = 0;
 		input.leftImpulse = 0;
 	}
@@ -85,23 +93,25 @@ public class ClientStandController extends ClientEntityController {
 
 	@Override
 	public boolean renderFirstPerson(float partialTicks, PoseStack poseStack, BufferSource buffer, int combinedLight) {
-		EntityRenderer<?, ?> renderer = Minecraft.getInstance().getEntityRenderDispatcher().getRenderer(entityAsLiving);
-		render_fuckingGenerics(entityAsLiving, partialTicks, poseStack, buffer, combinedLight, renderer);
+		EntityRenderer<?> renderer = Minecraft.getInstance().getEntityRenderDispatcher().getRenderer(entityAsLiving);
+		render_fuckMyLife(entityAsLiving, partialTicks, poseStack, buffer, combinedLight, renderer);
 		buffer.endBatch();
 		return true;
 	}
 
-	private <E extends Entity, S extends StandEntityRenderState> void render_fuckingGenerics(E entity, float partialTick,
-			PoseStack poseStack, MultiBufferSource bufferSource, int packedLight, EntityRenderer<?, ?> renderer) {
-		EntityRenderer<? super E, S> entityRenderer = (EntityRenderer<? super E, S>) renderer;
-		S renderState = entityRenderer.createRenderState(entity, partialTick);
+	private <E extends StandEntity, S extends StandEntityRenderState> void render_fuckMyLife(LivingEntity entity, float partialTick,
+			PoseStack poseStack, MultiBufferSource bufferSource, int packedLight, EntityRenderer<?> renderer) {
+		StandEntityRenderer<E, S, ?> entityRenderer = (StandEntityRenderer<E, S, ?>) renderer;
+		E _entity = (E) entity;
+		S renderState = entityRenderer.createRenderState(_entity, partialTick);
 		renderState.visibleParts = HumanoidPart.reduce(renderState.visibleParts, HumanoidPart.ARMS_ONLY);
 		
 		poseStack.pushPose();
 		poseStack.mulPose(Axis.XP.rotationDegrees(renderState.xRot));
 		poseStack.mulPose(Axis.YP.rotationDegrees(180 + renderState.bodyRot));
 		poseStack.translate(0, -entity.getEyeHeight(), 0);
-		entityRenderer.render(renderState, poseStack, bufferSource, packedLight);
+//		entityRenderer.render(renderState, poseStack, bufferSource, packedLight);
+		entityRenderer.render(_entity, renderState, 0, partialTick, poseStack, bufferSource, packedLight);
 		poseStack.popPose();
 	}
 
@@ -183,22 +193,30 @@ public class ClientStandController extends ClientEntityController {
 		if (movementSpeedBarTranslucency.shouldRender()) {
 			float partialTick = deltaTracker.getGameTimeDeltaPartialTick(false);
 			float alpha = movementSpeedBarTranslucency.getAlpha(partialTick);
-			int color = ARGB.colorFromFloat(alpha, 1, 1, 1);
+			int color = ARGB32.colorFromFloat(alpha, 1, 1, 1);
 			Minecraft mc = Minecraft.getInstance();
 			int x = guiGraphics.guiWidth() / 2 + 4;
 			int y = guiGraphics.guiHeight() / 2 - 8;
+			float SPRITE_WIDTH = 16;
+			float SPRITE_HEIGHT = 16;
 
-			BlitFloat.innerBlitFloat(guiGraphics, mc, RenderType.crosshair(SPEED_BAR_EMPTY),
-					x, x + 16, y, y + 16,
-					0, 1, 0, 1, 
-					color);
+			RenderSystem.blendFuncSeparate(
+					GlStateManager.SourceFactor.ONE_MINUS_DST_COLOR,
+					GlStateManager.DestFactor.ONE_MINUS_SRC_COLOR,
+					GlStateManager.SourceFactor.ONE,
+					GlStateManager.DestFactor.ZERO);
+			BlitFloat.blit(guiGraphics.pose(), Minecraft.getInstance(), SPEED_BAR_EMPTY, 
+					x, y, SPRITE_WIDTH, SPRITE_HEIGHT, 0, 
+					BlitFloat.NO_TINT);
+            RenderSystem.defaultBlendFunc();
 
 			float speed = ClientStandController.manualMovementSpeed;
 			if (speed > 1E-4) {
 				float height = speed == 1 ? 1 : Math.min(speed, 1f - 1f / (16 * mc.options.guiScale().get()));
-				BlitFloat.innerBlitFloat(guiGraphics, mc, RenderType.guiTextured(SPEED_BAR_FULL),
-						x, x + 16, y + 16 * (1 - height), y + 16,
-						0, 1, 1 - height, 1, 
+				float fillY = SPRITE_HEIGHT * (1 - height);
+				BlitFloat.blit(guiGraphics.pose(), Minecraft.getInstance(), SPEED_BAR_FULL, 
+						x, y + fillY, SPRITE_WIDTH, SPRITE_HEIGHT - fillY, 0, 
+						0, fillY,     SPRITE_WIDTH, SPRITE_HEIGHT - fillY, SPRITE_WIDTH, SPRITE_HEIGHT, 
 						color);
 			}
 		}

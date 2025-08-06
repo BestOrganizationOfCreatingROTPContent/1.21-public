@@ -27,9 +27,14 @@ import net.minecraft.client.animation.AnimationDefinition;
 import net.minecraft.client.animation.Keyframe;
 import net.minecraft.client.model.HumanoidModel;
 import net.minecraft.client.model.Model;
+
+import com.github.standobyte.v1_21_4_stuff.OldPlayerModelJank;
+import com.github.standobyte.v1_21_4_stuff.missingmethods.Model_1_21_2plus;
 import net.minecraft.client.model.geom.ModelPart;
 import net.minecraft.client.model.geom.PartPose;
-import net.minecraft.client.renderer.entity.state.LivingEntityRenderState;
+
+import com.github.standobyte.v1_21_4_stuff.missingmethods._PartPose;
+import com.github.standobyte.v1_21_4_stuff.renderstate.LivingEntityRenderState;
 import net.minecraft.util.Mth;
 
 public class AnimWithExtras {
@@ -47,9 +52,10 @@ public class AnimWithExtras {
 
 
 	public void animate(Model model, LivingEntityRenderState renderState, float seconds, float animSpeed) {
+		Model_1_21_2plus _model = (Model_1_21_2plus) model;
 		evaluateQueries(renderState);
 		for (Map.Entry<String, List<AnimationChannel>> entry : animation.boneAnimations().entrySet()) {
-			model.getAnyDescendantWithName(entry.getKey()).ifPresent(modelPart -> {
+			_model.jojo_ripples$getAnyDescendantWithName(entry.getKey()).ifPresent(modelPart -> {
 				animateModelPart(this, modelPart, entry.getValue(), seconds, animSpeed);
 			});
 		}
@@ -60,6 +66,7 @@ public class AnimWithExtras {
 		for (Map.Entry<String, List<AnimationChannel>> entry : animation.boneAnimations().entrySet()) {
 			ModelPart modelPart = PlayerModelBends.getModelPartForPlayerAnim(humanoidModel, entry.getKey());
 			animateModelPart(this, modelPart, entry.getValue(), seconds, animSpeed);
+			OldPlayerModelJank._onAnimate(humanoidModel);
 		}
 	}
 	
@@ -178,19 +185,19 @@ public class AnimWithExtras {
 		PartPose initialPose = modelPart.getInitialPose();
 		// this ain't an enum
 		if (target == AnimationChannel.Targets.ROTATION) {
-			modelPart.xRot = initialPose.xRot();
-			modelPart.yRot = initialPose.yRot();
-			modelPart.zRot = initialPose.zRot();
+			modelPart.xRot = initialPose.xRot;
+			modelPart.yRot = initialPose.yRot;
+			modelPart.zRot = initialPose.zRot;
 		}
 		else if (target == AnimationChannel.Targets.POSITION) {
-			modelPart.x = initialPose.x();
-			modelPart.y = initialPose.y();
-			modelPart.z = initialPose.z();
+			modelPart.x = initialPose.x;
+			modelPart.y = initialPose.y;
+			modelPart.z = initialPose.z;
 		}
 		else if (target == AnimationChannel.Targets.SCALE) {
-			modelPart.xScale = initialPose.xScale();
-			modelPart.yScale = initialPose.yScale();
-			modelPart.zScale = initialPose.zScale();
+			modelPart.xScale = _PartPose.xScale(initialPose);
+			modelPart.yScale = _PartPose.yScale(initialPose);
+			modelPart.zScale = _PartPose.zScale(initialPose);
 		}
 	}
 	

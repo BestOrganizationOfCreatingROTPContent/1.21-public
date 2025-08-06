@@ -1,0 +1,59 @@
+package com.github.standobyte.jojo.mixin.client.v1_21_1_modelanim.player;
+
+import org.spongepowered.asm.mixin.Mixin;
+import org.spongepowered.asm.mixin.injection.At;
+import org.spongepowered.asm.mixin.injection.Inject;
+import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
+
+import com.github.standobyte.jojo.client.entityanim.RipplesPlayerRenderState;
+import com.github.standobyte.jojo.client.entityanim.RipplesPlayerRenderState.RipplesRenderStateExtensionMixin;
+import com.github.standobyte.v1_21_4_stuff.renderstate.HumanoidRenderState;
+import com.github.standobyte.v1_21_4_stuff.renderstate.RenderStateCrutches;
+import com.mojang.blaze3d.vertex.PoseStack;
+
+import net.minecraft.client.model.geom.ModelPart;
+import net.minecraft.client.player.AbstractClientPlayer;
+import net.minecraft.client.renderer.MultiBufferSource;
+import net.minecraft.client.renderer.entity.player.PlayerRenderer;
+
+@Mixin(PlayerRenderer.class)
+public class PlayerRendererMixin {
+	private HumanoidRenderState jojo_ripples$reusedState = new HumanoidRenderState();
+
+	@Inject(method = "render", at = @At(value = "INVOKE", 
+	target = "Lnet/minecraft/client/renderer/entity/LivingEntityRenderer;"
+			+ "render("
+			+ "Lnet/minecraft/world/entity/LivingEntity;"
+			+ "FF"
+			+ "Lcom/mojang/blaze3d/vertex/PoseStack;"
+			+ "Lnet/minecraft/client/renderer/MultiBufferSource;"
+			+ "I)V"))
+	public void jojo_ripples$extractPlayerRenderState(AbstractClientPlayer entity, float entityYaw, float partialTick, 
+			PoseStack poseStack, MultiBufferSource buffer, int light, CallbackInfo ci) {
+		final HumanoidRenderState reusedState = jojo_ripples$reusedState;
+		HumanoidRenderState.extractHumanoidRenderState(entity, reusedState, partialTick);
+		RipplesPlayerRenderState.extract(entity, reusedState, ((RipplesRenderStateExtensionMixin) reusedState).get(), partialTick);
+        RenderStateCrutches.currentEntityRenderState = reusedState;
+	}
+
+	@Inject(method = "render", at = @At(value = "INVOKE", 
+	target = "Lnet/minecraft/client/renderer/entity/LivingEntityRenderer;"
+			+ "render("
+			+ "Lnet/minecraft/world/entity/LivingEntity;"
+			+ "FF"
+			+ "Lcom/mojang/blaze3d/vertex/PoseStack;"
+			+ "Lnet/minecraft/client/renderer/MultiBufferSource;"
+			+ "I)V", shift = At.Shift.AFTER))
+	public void jojo_ripples$resetPlayerRenderState(AbstractClientPlayer entity, float entityYaw, float partialTick, 
+			PoseStack poseStack, MultiBufferSource buffer, int light, CallbackInfo ci) {
+        RenderStateCrutches.currentEntityRenderState = null;
+	}
+	
+	
+	@Inject(method = "renderHand", at = @At("HEAD"))
+	public void jojo_ripples$fix1stPersonArmBend(PoseStack poseStack, MultiBufferSource buffer, int combinedLight, 
+			AbstractClientPlayer player, ModelPart rendererArm, ModelPart rendererArmwear, CallbackInfo ci) {
+		rendererArm.resetPose();
+		rendererArmwear.resetPose();
+	}
+}

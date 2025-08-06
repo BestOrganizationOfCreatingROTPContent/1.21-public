@@ -34,7 +34,7 @@ public class StandSkin {
 	protected Map<ResourceLocation, LayerDefinition> models = new HashMap<>();
 	protected LayerDefinition standModel;
 	protected Map<ResourceLocation, Optional<Model>> createdModelsCache = new HashMap<>();
-	protected Optional<StandEntityModel<?>> createdStandModelCache;
+	protected Optional<StandEntityModel<?, ?>> createdStandModelCache;
 	
 	protected Map<ResourceLocation, AnimationSet> animations = new HashMap<>();
 	protected AnimationSet standEntityAnims;
@@ -146,7 +146,7 @@ public class StandSkin {
 	public 
 		<T extends StandEntity, 
 		S extends StandEntityRenderState, 
-		M extends StandEntityModel<S>> 
+		M extends StandEntityModel<T, S>> 
 	M getStandModel(
 			StandEntityRenderer<T, S, M> entityRenderer, StandSkin defaultSkin) {
 		if (this.createdStandModelCache != null) {

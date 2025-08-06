@@ -22,8 +22,10 @@ public interface GuiAccessor {
 	@Accessor("HOTBAR_OFFHAND_RIGHT_SPRITE") public static ResourceLocation getHOTBAR_OFFHAND_RIGHT_SPRITE() { throw new AssertionError(); }
 	@Accessor("EFFECT_BACKGROUND_AMBIENT_SPRITE") public static ResourceLocation getEFFECT_BACKGROUND_AMBIENT_SPRITE() { throw new AssertionError(); }
 	@Accessor("EFFECT_BACKGROUND_SPRITE") public static ResourceLocation getEFFECT_BACKGROUND_SPRITE() { throw new AssertionError(); }
+	@Accessor("AIR_SPRITE") public static ResourceLocation getAIR_SPRITE() { throw new AssertionError(); }
+	@Accessor("AIR_BURSTING_SPRITE") public static ResourceLocation getAIR_BURSTING_SPRITE() { throw new AssertionError(); }
 
 	@Invoker("renderHeart") void invokeRenderHeart(GuiGraphics guiGraphics, Gui.HeartType heartType, int x, int y, boolean hardcore, boolean halfHeart, boolean blinking);
 	@Invoker("renderFood") void invokeRenderFood(GuiGraphics guiGraphics, Player player, int y, int x);
-	@Invoker("renderAirBubbles") void invokeRenderAirBubbles(GuiGraphics guiGraphics, Player player, int vehicleMaxHealth, int y, int x);
+//	@Invoker("renderAirBubbles") void invokeRenderAirBubbles(GuiGraphics guiGraphics, Player player, int vehicleMaxHealth, int y, int x);
 }

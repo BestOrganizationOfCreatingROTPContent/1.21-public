@@ -16,7 +16,7 @@ public class StandLinkDamageSource extends DamageSource {
 	public final DamageSource actualSource;
 
 	public StandLinkDamageSource(Level level, Entity standEntity, DamageSource actualSource) {
-		super(level.damageSources().damageTypes.getOrThrow(ModDamageTypes.STAND_HEALTH_LINK));
+		super(DamageUtil.type(level, ModDamageTypes.STAND_HEALTH_LINK));
 		this.standEntity = standEntity;
 		this.actualSource = actualSource;
 	}

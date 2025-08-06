@@ -55,27 +55,24 @@ import net.minecraft.server.packs.resources.ResourceManager;
 import net.minecraft.server.packs.resources.SimplePreparableReloadListener;
 import net.minecraft.util.RandomSource;
 import net.minecraft.util.profiling.ProfilerFiller;
-import net.minecraft.util.profiling.Zone;
+
+import com.github.standobyte.v1_21_4_stuff.missingmethods.Zone;
+import com.github.standobyte.v1_21_4_stuff.missingmethods._ProfilerFiller;
+
 import net.minecraft.util.valueproviders.MultipliedFloats;
-import net.neoforged.neoforge.client.event.AddClientReloadListenersEvent;
-import net.neoforged.neoforge.client.resources.VanillaClientListeners;
+import net.neoforged.neoforge.client.event.RegisterClientReloadListenersEvent;
 
 public class StandSkinsLoader extends SimplePreparableReloadListener<Map<ResourceLocation, StandSkinResourceBuilder>> {
 	private static StandSkinsLoader instance;
 	
 	@ApiStatus.Internal
-	public static void init(AddClientReloadListenersEvent event) {
+	public static void init(/*AddClientReloadListenersEvent*/RegisterClientReloadListenersEvent event) {
 		if (instance == null) {
 			instance = new StandSkinsLoader();
 		}
-		ResourceLocation id = JojoMod.resLoc("standskins");
-		event.addListener(id, instance);
-		// We need to add the sound resources from skins to SoundManager#soundCache, otherwise these sounds won't play.
-		// SoundManager#apply clears that map, so we need to apply the Stand skins after SoundManager does its logic.
-		// In case of 1.21.1 backport: 
-		//     the Stand-specific sounds will have to be in the main assets folder and have unique names; 
-		//     adding new sounds via Stand skins will require a sounds.json inside the skin.
-		event.addDependency(VanillaClientListeners.SOUNDS, id);
+//		ResourceLocation id = JojoMod.resLoc("standskins");
+//		event.addListener(id, instance);
+		event.registerReloadListener(instance);
 	}
 	
 	public static StandSkinsLoader getInstance() {
@@ -146,7 +143,7 @@ public class StandSkinsLoader extends SimplePreparableReloadListener<Map<Resourc
 	protected Map<ResourceLocation, StandSkinResourceBuilder> prepare(ResourceManager resourceManager, ProfilerFiller profiler) {
 		Map<ResourceLocation, StandSkinResourceBuilder> skins = new HashMap<>();
 
-		try (Zone zone = profiler.zone(JojoMod.MOD_ID + "_stand_skins")) {
+		try (Zone zone = _ProfilerFiller.zone(profiler, JojoMod.MOD_ID + "_stand_skins")) {
 			Map<ResourceLocation, List<Resource>> allResourcesMap = resourceManager.listResourceStacks("stand_skins", path -> true);
 			for (var resourceEntry : allResourcesMap.entrySet()) {
 				/*

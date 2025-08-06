@@ -25,6 +25,7 @@ import com.github.standobyte.jojo.client.entityrender.parsemodel.generic.Blockbe
 import com.github.standobyte.jojo.client.entityrender.parsemodel.generic.BlockbenchMeshDefinition.MeshBuilder.MeshFaceBuilder;
 import com.github.standobyte.jojo.core.JojoMod;
 import com.github.standobyte.jojo.util.MathUtil;
+import com.github.standobyte.v1_21_4_stuff.missingmethods._PartDefinition;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.JsonDeserializationContext;
@@ -277,7 +278,7 @@ public class GenericModelFormat {
 		List<CubeDefinition> cubes = new ArrayList<>();
 		
 		PartDefinition modelPart = new PartDefinition(cubes, partPose);
-		parent.addOrReplaceChild(boneParsed.name, modelPart);
+		_PartDefinition.addOrReplaceChild(parent, boneParsed.name, modelPart);
 		for (BlockbenchObj child : boneParsed.children) {
 			switch (child) {
 				case GroupParsed childModelPart -> {

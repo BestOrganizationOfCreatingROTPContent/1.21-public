@@ -5,10 +5,10 @@ import javax.annotation.Nullable;
 import com.github.standobyte.jojo.client.entityrender.EntityActionRenderState;
 import com.github.standobyte.jojo.powersystem.entityaction.EntityActionInstance;
 import com.github.standobyte.jojo.powersystem.entityaction.LivingComponentAction;
+import com.github.standobyte.v1_21_4_stuff.renderstate.HumanoidRenderState;
 
 import net.minecraft.client.model.HumanoidModel;
-import net.minecraft.client.renderer.entity.state.HumanoidRenderState;
-import net.minecraft.client.renderer.item.ItemModelResolver;
+//import net.minecraft.client.renderer.item.ItemModelResolver;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.LivingEntity;
 
@@ -17,7 +17,7 @@ public class RipplesPlayerRenderState {
 	public EntityActionRenderState entityAction = new EntityActionRenderState();
 
 	public static void extract(LivingEntity entity, HumanoidRenderState vanillaRenderState, RipplesPlayerRenderState modRenderState, 
-			float partialTick, ItemModelResolver itemModelResolver) {
+			float partialTick/*, ItemModelResolver itemModelResolver*/) {
 		EntityActionInstance action = LivingComponentAction.getCurEntityAction(entity);
 		EntityActionRenderState.extract(modRenderState.entityAction, entity, action, partialTick);
 		

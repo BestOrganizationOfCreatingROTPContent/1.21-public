@@ -6,11 +6,13 @@ import org.joml.Quaternionf;
 import org.joml.Vector3f;
 
 import com.github.standobyte.jojo.util.MathUtil;
+import com.github.standobyte.v1_21_4_stuff.OldPlayerModelJank;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.VertexConsumer;
 
 import net.minecraft.Util;
 import net.minecraft.client.model.HumanoidModel;
+import net.minecraft.client.model.PlayerModel;
 import net.minecraft.client.model.geom.ModelPart;
 
 // TODO (entity animation) fix model bends with smaller child cubes
@@ -29,43 +31,46 @@ public class PlayerModelBends {
 	
 	public static ModelPart getModelPartForPlayerAnim(HumanoidModel<?> playerModel, String animBoneName) {
 		return switch (animBoneName) {
-			case "body" -> 				((IPlayerPseudoModelParts) playerModel).jojo_ripples$animMainBody();
-			case "torso" -> 			((IPlayerPseudoModelParts) playerModel).jojo_ripples$animTorso();
+			case "body" -> 				((IPlayerBendModel) playerModel).jojo_ripples$animMainBody();
+			case "torso" -> 			((IPlayerBendModel) playerModel).jojo_ripples$animTorso();
 			case "left_arm" -> 			playerModel.leftArm;
 			case "right_arm" -> 		playerModel.rightArm;
 			case "left_leg" ->			playerModel.leftLeg;
 			case "right_leg" -> 		playerModel.rightLeg;
 			case "head" -> 				playerModel.head;
-			case "torso_bend" -> 		((IPlayerPseudoModelParts) playerModel).jojo_ripples$animTorsoBend();
-			case "left_arm_bend" -> 	((IPlayerPseudoModelParts) playerModel).jojo_ripples$animLeftArmBend();
-			case "right_arm_bend" -> 	((IPlayerPseudoModelParts) playerModel).jojo_ripples$animRightArmBend();
-			case "left_leg_bend" -> 	((IPlayerPseudoModelParts) playerModel).jojo_ripples$animLeftLegBend();
-			case "right_leg_bend" -> 	((IPlayerPseudoModelParts) playerModel).jojo_ripples$animRightLegBend();
-			case "leftItem" -> 			((IPlayerPseudoModelParts) playerModel).jojo_ripples$animLeftItem();
-			case "rightItem" -> 		((IPlayerPseudoModelParts) playerModel).jojo_ripples$animRightItem();
+			case "torso_bend" -> 		((IPlayerBendModel) playerModel).jojo_ripples$animTorsoBend();
+			case "left_arm_bend" -> 	((IPlayerBendModel) playerModel).jojo_ripples$animLeftArmBend();
+			case "right_arm_bend" -> 	((IPlayerBendModel) playerModel).jojo_ripples$animRightArmBend();
+			case "left_leg_bend" -> 	((IPlayerBendModel) playerModel).jojo_ripples$animLeftLegBend();
+			case "right_leg_bend" -> 	((IPlayerBendModel) playerModel).jojo_ripples$animRightLegBend();
+			case "leftItem" -> 			((IPlayerBendModel) playerModel).jojo_ripples$animLeftItem();
+			case "rightItem" -> 		((IPlayerBendModel) playerModel).jojo_ripples$animRightItem();
 			case "cape" -> 				playerModel.body.children.get("cape");
-			case "cape_bend" -> 		((IPlayerPseudoModelParts) playerModel).jojo_ripples$animCapeBend();
+			case "cape_bend" -> 		((IPlayerBendModel) playerModel).jojo_ripples$animCapeBend();
 			default -> null;
 		};
 	}
 
-	public static void renderWithBends(HumanoidModel<?> model, IPlayerPseudoModelParts animModel, 
+	public static void renderWithBends(HumanoidModel<?> model, IPlayerBendModel animModel, 
 			PoseStack poseStack, VertexConsumer buffer, 
 			int packedLight, int packedOverlay, int color) {
+		PlayerModel<?> playerModel = model instanceof PlayerModel pm/*o*/ ? pm : null;
 		poseStack.pushPose();
 			ModelPart part = animModel.jojo_ripples$animMainBody();
 			part.translateAndRotate(poseStack);
-			poseStack.translate(0, -part.getInitialPose().y() / 16, 0);
+			poseStack.translate(0, -part.getInitialPose().y / 16, 0);
 			
 			model.leftLeg.render(poseStack, buffer, packedLight, packedOverlay, color);
+			if (playerModel != null && playerModel.leftPants != null) OldPlayerModelJank._renderOuterLayer(playerModel.leftPants, poseStack, buffer, packedLight, packedOverlay, color);
 			model.rightLeg.render(poseStack, buffer, packedLight, packedOverlay, color);
+			if (playerModel != null && playerModel.rightPants != null) OldPlayerModelJank._renderOuterLayer(playerModel.rightPants, poseStack, buffer, packedLight, packedOverlay, color);
 			poseStack.pushPose();
 				part = animModel.jojo_ripples$animTorso();
-				poseStack.translate(0, -part.getInitialPose().y() / 16, 0);
+				poseStack.translate(0, -part.getInitialPose().y / 16, 0);
 				part.translateAndRotate(poseStack);
 				
 				part = animModel.jojo_ripples$animTorsoBend();
-				poseStack.translate(0, -part.getInitialPose().y() / 16, 0);
+				poseStack.translate(0, -part.getInitialPose().y / 16, 0);
 				poseStack.translate(part.x / 16.0F * 2, part.y / 16.0F * 2, part.z / 16.0F * 2);
 				if (part.xRot != 0.0F || part.yRot != 0.0F || part.zRot != 0.0F) {
 					poseStack.mulPose(new Quaternionf().rotationZYX(part.zRot, part.yRot, part.xRot));
@@ -73,9 +78,13 @@ public class PlayerModelBends {
 				poseStack.translate(-part.x / 16.0F, -part.y / 16.0F, -part.z / 16.0F);
 				
 				model.body.render(poseStack, buffer, packedLight, packedOverlay, color);
+				if (playerModel != null && playerModel.jacket != null) OldPlayerModelJank._renderOuterLayer(playerModel.jacket, poseStack, buffer, packedLight, packedOverlay, color);
 				model.head.render(poseStack, buffer, packedLight, packedOverlay, color);
-				model.leftArm.render(poseStack, buffer, packedLight, packedOverlay, color);
-				model.rightArm.render(poseStack, buffer, packedLight, packedOverlay, color);
+				if (playerModel != null && playerModel.hat != null) OldPlayerModelJank._renderOuterLayer(playerModel.hat, poseStack, buffer, packedLight, packedOverlay, color);
+				animModel.jojo_ripples$leftArm().render(poseStack, buffer, packedLight, packedOverlay, color);
+				if (playerModel != null && playerModel.leftSleeve != null) OldPlayerModelJank._renderOuterLayer(playerModel.leftSleeve, poseStack, buffer, packedLight, packedOverlay, color);
+				animModel.jojo_ripples$rightArm().render(poseStack, buffer, packedLight, packedOverlay, color);
+				if (playerModel != null && playerModel.rightSleeve != null) OldPlayerModelJank._renderOuterLayer(playerModel.rightSleeve, poseStack, buffer, packedLight, packedOverlay, color);
 			poseStack.popPose();
 		poseStack.popPose();
 	}
@@ -112,9 +121,9 @@ public class PlayerModelBends {
 			float bendOffsetX, float bendOffsetY, float bendOffsetZ, 
 			VertexConsumer buffer, int packedLight, int packedOverlay, int color) {
 		for (ModelPart.Polygon polygon : polygons) {
-			Vector3f normal = polygon.normal();
+			Vector3f normal = polygon.normal;
 			
-			ModelPart.Vertex[] vertices = polygon.vertices();
+			ModelPart.Vertex[] vertices = polygon.vertices;
 			int vert = vertices.length;
 			MutablePolygon upperRectangle = vert == 4 ? RECTANGLE1 : new MutablePolygon(vert);
 			MutablePolygon lowerRectangle = vert == 4 ? RECTANGLE2 : new MutablePolygon(vert);
@@ -123,7 +132,7 @@ public class PlayerModelBends {
 			boolean upperHalf = fillCutRectangle(vertices, upperRectangle, -Float.MAX_VALUE, bendY);
 			boolean lowerHalf = fillCutRectangle(vertices, lowerRectangle, bendY, Float.MAX_VALUE);
 			if (upperHalf && lowerHalf) {
-				float width = Math.abs(vertices[0].pos().z / 16);
+				float width = Math.abs(vertices[0].pos.z / 16);
 				float yDiff = width * MathUtil.tan(bend.xRot / 2);
 				for (var vertex : upperRectangle.vertices) {
 					if (vertex.y == bendY) {
@@ -144,7 +153,7 @@ public class PlayerModelBends {
 			}
 			poseStack.pushPose();
 			bend.translateAndRotate(poseStack);
-			poseStack.translate(0, -bend.getInitialPose().y() / 16, 0);
+			poseStack.translate(0, -bend.getInitialPose().y / 16, 0);
 			if (lowerHalf) {
 				renderPolygon(poseStack.last(), normal, lowerRectangle.vertices, 
 						buffer, packedLight, packedOverlay, color);
@@ -162,12 +171,12 @@ public class PlayerModelBends {
 		for (int i = 0; i < vertices.length; i++) {
 			ModelPart.Vertex vertex = vertices[i];
 			BendVertex target = targetArr[i];
-			Vector3f vertexPos = vertex.pos();
+			Vector3f vertexPos = vertex.pos;
 			target.x = vertexPos.x / 16.0F;
 			target.y = vertexPos.y / 16.0F;
 			target.z = vertexPos.z / 16.0F;
-			target.u = vertex.u();
-			target.v = vertex.v();
+			target.u = vertex.u;
+			target.v = vertex.v;
 			minY = Math.min(minY, target.y);
 			maxY = Math.max(maxY, target.y);
 			minV = Math.min(minV, target.v);

@@ -1,32 +1,32 @@
 package com.github.standobyte.jojo.client.ui.utils;
 
-import net.minecraft.util.ARGB;
+import net.minecraft.util.FastColor.ARGB32;
 
 public class RGBUtil {
 	
 	public static float[] argb(int color) {
 		return new float[] {
-				ARGB.alpha(color) / 255F, 
-				ARGB.red(color) / 255F, 
-				ARGB.green(color) / 255F, 
-				ARGB.blue(color) / 255F
+				ARGB32.alpha(color) / 255F, 
+				ARGB32.red(color) / 255F, 
+				ARGB32.green(color) / 255F, 
+				ARGB32.blue(color) / 255F
 		};
 	}
 	
 	public static float[] rgb(int color) {
 		return new float[] {
-				ARGB.red(color) / 255F, 
-				ARGB.green(color) / 255F, 
-				ARGB.blue(color) / 255F
+				ARGB32.red(color) / 255F, 
+				ARGB32.green(color) / 255F, 
+				ARGB32.blue(color) / 255F
 		};
 	}
 	
 	public static int[] argbInt(int color) {
 		return new int[] {
-				ARGB.alpha(color), 
-				ARGB.red(color), 
-				ARGB.green(color), 
-				ARGB.blue(color)
+				ARGB32.alpha(color), 
+				ARGB32.red(color), 
+				ARGB32.green(color), 
+				ARGB32.blue(color)
 		};
 	}
 	
@@ -39,11 +39,11 @@ public class RGBUtil {
 	}
 
 	public static int scaleAlpha(int argbColor, float alphaScale) {
-		return ARGB.color(
-				Math.clamp(((int) (ARGB.alpha(argbColor) * alphaScale)), 0, 255),
-				ARGB.red(argbColor),
-				ARGB.green(argbColor),
-				ARGB.blue(argbColor)
+		return ARGB32.color(
+				Math.clamp(((int) (ARGB32.alpha(argbColor) * alphaScale)), 0, 255),
+				ARGB32.red(argbColor),
+				ARGB32.green(argbColor),
+				ARGB32.blue(argbColor)
 				);
 	}
 }

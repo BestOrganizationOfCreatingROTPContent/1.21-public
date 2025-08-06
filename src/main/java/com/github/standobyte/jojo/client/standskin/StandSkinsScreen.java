@@ -10,7 +10,6 @@ import org.joml.Quaternionf;
 import org.lwjgl.glfw.GLFW;
 
 import com.github.standobyte.jojo.client.ClientProxy;
-import com.github.standobyte.jojo.client.entityrender.EntityActionRenderState;
 import com.github.standobyte.jojo.client.entityrender.stand.StandEntityRenderState;
 import com.github.standobyte.jojo.client.entityrender.stand.StandEntityRenderer;
 import com.github.standobyte.jojo.client.input.InputHandler;
@@ -18,6 +17,7 @@ import com.github.standobyte.jojo.client.ui.jojomenu.IJojoMenuScreen;
 import com.github.standobyte.jojo.client.ui.jojomenu.JojoMenuTabs;
 import com.github.standobyte.jojo.client.ui.jojomenu.Tab;
 import com.github.standobyte.jojo.client.ui.jojomenu.TabCategory;
+import com.github.standobyte.jojo.client.ui.utils.BlitFloat;
 import com.github.standobyte.jojo.client.ui.utils.GuiIcon;
 import com.github.standobyte.jojo.core.JojoMod;
 import com.github.standobyte.jojo.core.packet.fromclient.ClSetStandSkinPacket;
@@ -36,7 +36,6 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.components.Renderable;
 import net.minecraft.client.gui.screens.Screen;
-import net.minecraft.client.renderer.RenderType;
 import net.minecraft.client.renderer.entity.EntityRenderDispatcher;
 import net.minecraft.network.chat.CommonComponents;
 import net.minecraft.resources.ResourceLocation;
@@ -205,7 +204,10 @@ public class StandSkinsScreen extends Screen implements IJojoMenuScreen {
 		int y = getWindowY(this);
 		int width = getWindowWidth();
 		int height = getWindowHeight();
-		gui.blit(RenderType::guiTextured, TEXTURE_BG, x, y, 0.0F, 0.0F, width, height, 256, 256);
+		BlitFloat.blit(gui.pose(), Minecraft.getInstance(), TEXTURE_BG, 
+				x, y, width, height, 0, 
+				0, 0, width, height, 256, 256, 
+				BlitFloat.NO_TINT);
 	}
 	
 	private void renderContents(GuiGraphics gui, int mouseX, int mouseY, float partialTick) {
@@ -420,7 +422,7 @@ public class StandSkinsScreen extends Screen implements IJojoMenuScreen {
 			GuiIcon skinBox = skinBoxRow[column];
 
 			int color = isHovered ? skin.getColor() : 0x80FFFFFF;
-			skinBox.render(gui, x, y, color);
+			skinBox.render(gui.pose(), x, y, color);
 
 			StandType standType = standCap.getPowerType();
 			if (standType instanceof EntityStandType) {
@@ -433,7 +435,10 @@ public class StandSkinsScreen extends Screen implements IJojoMenuScreen {
 		public void renderAdditional(GuiGraphics gui, int mouseX, int mouseY, 
 				float ticks, boolean isHovered) {
 			if (isSkinSelected(skin)) {
-				gui.blit(RenderType::guiTextured, TEXTURE_ELEMENTS, x + 1, y + 2, 213, 18, 16, 16, 512, 512);
+				BlitFloat.blit(gui.pose(), Minecraft.getInstance(), TEXTURE_ELEMENTS, 
+						x + 1, y + 2, 16, 16, 0, 
+						213,   18,    16, 16, 512, 512, 
+						BlitFloat.NO_TINT);
 			}
 		}
 	}
@@ -469,7 +474,11 @@ public class StandSkinsScreen extends Screen implements IJojoMenuScreen {
 			}
 			
 			if (isSkinSelected(skin)) {
-				gui.blit(RenderType::guiTextured, TEXTURE_ELEMENTS, WINDOW_INSIDE_WIDTH - 20, 4, 213, 18, 16, 16, 512, 512);
+				BlitFloat.blit(gui.pose(), Minecraft.getInstance(), TEXTURE_ELEMENTS, 
+						WINDOW_INSIDE_WIDTH - 20, 4,  16, 16, 0, 
+						213,                      18, 16, 16, 512, 512, 
+						BlitFloat.NO_TINT);
+
 			}
 
 			RenderSystem.enableBlend();
@@ -543,9 +552,12 @@ public class StandSkinsScreen extends Screen implements IJojoMenuScreen {
 		
 		StandEntityRenderer<?, S, ?> renderer = (StandEntityRenderer<?, S, ?>) renderManager.renderers.get(standType.getEntityType());
 		renderManager.setRenderShadow(false);
-		gui.drawSpecial(bufferSource -> renderer.renderWithRenderState(renderState -> {
-			renderer.extractSkinMenuRenderState(renderState, standSkin, standType.getId(), ticks);
-		}, gui.pose(), bufferSource, 0xF000F0));
+//		gui.drawSpecial(bufferSource -> renderer.renderWithRenderState(renderState -> {
+//			renderer.extractSkinMenuRenderState(renderState, standSkin, standType.getId(), ticks);
+//		}, gui.pose(), bufferSource, 0xF000F0));
+//		RenderSystem.runAsFancy(() -> renderer.render(entity, entityYaw, partialTicks, 
+//				gui.pose(), Minecraft.getInstance().renderBuffers().bufferSource(), 0xF000F0));
+		
 		gui.flush();
 		renderManager.setRenderShadow(true);
 		gui.pose().popPose();

@@ -7,8 +7,8 @@
     " p "
   ],
   "key": {
-    "a": "minecraft:armor_stand",
-    "p": "#minecraft:planks"
+    "a": { "item": "minecraft:armor_stand" },
+    "p": { "tag": "minecraft:planks" }
   },
   "result": {
     "count": 1,

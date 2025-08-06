@@ -2,26 +2,30 @@ package com.github.standobyte.jojo.client.entityrender.clothes;
 
 import javax.annotation.Nonnull;
 
-import net.minecraft.client.model.HumanoidModel;
 import net.minecraft.client.model.geom.builders.LayerDefinition;
-import net.minecraft.client.renderer.entity.state.LivingEntityRenderState;
+
+import com.github.standobyte.v1_21_4_stuff.Reminder;
 import net.minecraft.resources.ResourceLocation;
 
 public class ClothesModelEntry {
 	private final ResourceLocation path;
-	private final HumanoidClothesModel adultModel;
-	private final HumanoidClothesModel babyModel;
+	private final HumanoidClothesModel model;
+//	private final HumanoidClothesModel adultModel;
+//	private final HumanoidClothesModel babyModel;
 	public final ResourceLocation texPath;
 	
 	public ClothesModelEntry(ResourceLocation path, LayerDefinition modelDefinition) {
 		this.path = path;
-		this.adultModel = new HumanoidClothesModel(modelDefinition.bakeRoot());
-		this.babyModel = new HumanoidClothesModel(modelDefinition.apply(HumanoidModel.BABY_TRANSFORMER).bakeRoot());
+		Reminder.toCreateBabyModels();
+//		this.adultModel = new HumanoidClothesModel(modelDefinition.bakeRoot());
+//		this.babyModel = new HumanoidClothesModel(modelDefinition.apply(HumanoidModel.BABY_TRANSFORMER).bakeRoot());
+		this.model = new HumanoidClothesModel(modelDefinition.bakeRoot());
 		this.texPath = path.withPath(p -> "textures/clothes/" + p + ".png");
 	}
 	
 	@Nonnull
-	public HumanoidClothesModel getModel(LivingEntityRenderState renderState) {
-		return renderState.isBaby ? babyModel : adultModel;
+	public HumanoidClothesModel getModel(/*LivingEntityRenderState renderState*/) {
+//		return renderState.isBaby ? babyModel : adultModel;
+		return model;
 	}
 }

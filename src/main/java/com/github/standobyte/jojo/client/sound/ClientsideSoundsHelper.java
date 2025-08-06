@@ -62,7 +62,7 @@ public class ClientsideSoundsHelper {
 	public static void onSoundPlayed(PlaySoundEvent event) {
 		if (standSkin_soundEvent != null) {
 			SoundInstance sound = event.getSound();
-			if (sound != null && standSkin_soundEvent.location().equals(sound.getLocation())) {
+			if (sound != null && standSkin_soundEvent.getLocation().equals(sound.getLocation())) {
 				if (sound instanceof SoundInstanceWithStandSkin withSkin) {
 					withSkin.jojo_ripples$setStandSkin(standSkin_standId, standSkin_standSkin);
 				}

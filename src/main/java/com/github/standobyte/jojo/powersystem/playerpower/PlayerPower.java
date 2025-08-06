@@ -92,7 +92,7 @@ public class PlayerPower extends Power<PlayerPower> {
 	@Override
 	public void deserializeNBT(HolderLookup.Provider provider, CompoundTag nbt) {
 		super.deserializeNBT(provider, nbt);
-		PlayerPowerType<?> powerType = JojoRegistries.PLAYER_POWER_TYPES_REG.getValue(
+		PlayerPowerType<?> powerType = JojoRegistries.PLAYER_POWER_TYPES_REG.get(
 				ResourceLocation.parse(nbt.getString("PowerType")));
 		initPowerTypeData(powerType);
 		powerData.ifPresent(data -> NBTUtil.getCompoundOptional(nbt, "PowerData").ifPresent(

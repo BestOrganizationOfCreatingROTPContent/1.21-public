@@ -10,13 +10,18 @@ import org.apache.commons.lang3.ArrayUtils;
 import org.jetbrains.annotations.ApiStatus;
 
 import com.github.standobyte.jojo.client.utils.ModelUtil;
+import com.github.standobyte.jojo.core.JojoMod;
 import com.github.standobyte.jojo.mechanics.clothes.itemdata.ClothesSlotType;
+import com.github.standobyte.v1_21_4_stuff.Reminder;
+import com.github.standobyte.v1_21_4_stuff.missingmethods.Model_1_21_2plus;
+import com.google.common.collect.ImmutableList;
+import com.google.common.collect.Iterables;
 
 import net.minecraft.client.model.HumanoidModel;
 import net.minecraft.client.model.geom.ModelPart;
-import net.minecraft.client.renderer.entity.state.HumanoidRenderState;
+import net.minecraft.world.entity.HumanoidArm;
 
-public class HumanoidClothesModel extends HumanoidModel<HumanoidRenderState> {
+public class HumanoidClothesModel extends HumanoidModel/*<HumanoidRenderState>*/ {
 	private Map<ClothesSlotType, List<ModelPart>> byClothesPart = new EnumMap<>(ClothesSlotType.class);
 	public final ModelPart rightArmSlim;
 	public final ModelPart leftArmSlim;
@@ -26,7 +31,8 @@ public class HumanoidClothesModel extends HumanoidModel<HumanoidRenderState> {
 		for (String basePartName : BASE_HUMANOID_PARTS) {
 			root.children.putIfAbsent(basePartName, new ModelPart(new ArrayList<>(), new HashMap<>()));
 		}
-		root.getChild("head").children.putIfAbsent("hat", new ModelPart(new ArrayList<>(), new HashMap<>()));
+		Reminder.thatHatIsHeadChildNow();
+		root/*.getChild("head")*/.children.putIfAbsent("hat", new ModelPart(new ArrayList<>(), new HashMap<>()));
 		return root;
 	}
 
@@ -63,6 +69,20 @@ public class HumanoidClothesModel extends HumanoidModel<HumanoidRenderState> {
 		}
 	}
 
+	@Override
+	protected Iterable<ModelPart> bodyParts() {
+		return Iterables.concat(super.bodyParts(), ImmutableList.of(rightArmSlim, leftArmSlim));
+	}
+
+	@Override
+	protected ModelPart getArm(HumanoidArm side) {
+		JojoMod.LOGGER.debug("{} {} {} {} {}", side, leftArm.visible, leftArmSlim.visible, rightArm.visible, rightArmSlim.visible);
+		return switch (side) {
+			case LEFT -> !leftArm.visible && leftArmSlim.visible ? leftArmSlim : leftArm;
+			case RIGHT -> !rightArm.visible && rightArmSlim.visible ? rightArmSlim : rightArm;
+		};
+	}
+
 
 	public void poseClothes(HumanoidModel<?> originalModel) {
 		this.head.copyFrom(originalModel.head);
@@ -85,7 +105,7 @@ public class HumanoidClothesModel extends HumanoidModel<HumanoidRenderState> {
 	
 	
 	public void initClothesSlots() {
-		var modelParts = ModelUtil.getAllNamedModelParts(root);
+		var modelParts = ModelUtil.getAllNamedModelParts(((Model_1_21_2plus) this).jojo_ripples$root());
 		for (Map.Entry<String, ModelPart> modelPart : modelParts.entrySet()) {
 			String name = modelPart.getKey();
 			if (name.length() >= 5 && name.startsWith("slot")) {

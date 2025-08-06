@@ -132,7 +132,7 @@ public record AbilityId(PowerClass<?> powerClass, ResourceLocation powerTypeId, 
 				}
 				case DEFAULT_ABILITY_INSTANCE -> {
 					ResourceLocation abilityTypeId = ResourceLocation.parse(abilityName);
-					AbilityType<?> abilityType = JojoRegistries.ABILITY_TYPES_REG.getValue(abilityTypeId);
+					AbilityType<?> abilityType = JojoRegistries.ABILITY_TYPES_REG.get(abilityTypeId);
 					
 					yield abilityType != null ? abilityType._defaultAbilityInstance : null;
 				}

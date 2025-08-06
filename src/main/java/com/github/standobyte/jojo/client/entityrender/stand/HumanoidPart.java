@@ -14,7 +14,7 @@ public enum HumanoidPart {
 	public static final HumanoidPart[] LEFT_ARM_ONLY = new HumanoidPart[] { LEFT_ARM };
 	public static final HumanoidPart[] RIGHT_ARM_ONLY = new HumanoidPart[] { RIGHT_ARM };
 	
-	public static void setPartsVisible(StandEntityModel<?> model, HumanoidPart... parts) {
+	public static void setPartsVisible(StandEntityModel<?, ?> model, HumanoidPart... parts) {
 		model.setAllVisible(true);
 		byte mask = 0;
 		for (HumanoidPart part : parts) {

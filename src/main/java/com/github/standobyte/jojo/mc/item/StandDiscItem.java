@@ -10,7 +10,7 @@ import com.github.standobyte.jojo.powersystem.standpower.StandPower;
 
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.InteractionHand;
-import net.minecraft.world.InteractionResult;
+import net.minecraft.world.InteractionResultHolder;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
@@ -35,20 +35,20 @@ public class StandDiscItem extends Item {
 	}
 
 	@Override
-	public InteractionResult use(Level level, Player player, InteractionHand hand) {
+	public InteractionResultHolder<ItemStack> use(Level level, Player player, InteractionHand hand) {
+		ItemStack discItem = player.getItemInHand(hand);
 		if (!level.isClientSide()) {
-			ItemStack discItem = player.getItemInHand(hand);
 			StandWrittenOnDisc discStand = discItem.get(ModItemDataComponents.DISC_STAND.get());
-			if (discStand == null || !discStand.isValid()) return InteractionResult.FAIL;
+			if (discStand == null || !discStand.isValid()) return InteractionResultHolder.fail(discItem);
 			
 			PowerClass.STAND.attachPower(player);
 			StandPower stand = PowerClass.STAND.get(player);
 			if (stand != null) {
 				stand.setStandInstance(Optional.of(discStand.copyStandInstance()));
 			}
-			return InteractionResult.SUCCESS_SERVER;
+			return InteractionResultHolder.success(discItem);
 		}
-		return InteractionResult.CONSUME;
+		return InteractionResultHolder.consume(discItem);
 	}
 
 }

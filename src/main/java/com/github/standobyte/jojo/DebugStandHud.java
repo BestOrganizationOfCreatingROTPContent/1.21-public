@@ -29,7 +29,7 @@ import net.minecraft.client.gui.Font;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.LayeredDraw;
 import net.minecraft.client.gui.screens.inventory.AbstractContainerScreen;
-import net.minecraft.util.ARGB;
+import net.minecraft.util.FastColor.ARGB32;
 import net.minecraft.world.entity.player.Player;
 import net.neoforged.api.distmarker.Dist;
 import net.neoforged.bus.api.SubscribeEvent;
@@ -59,7 +59,7 @@ public class DebugStandHud {
 			AbstractContainerScreen<?> screen = event.getContainerScreen();
 			graphics.pose().pushPose();
 			graphics.pose().translate(-screen.getGuiLeft(), -screen.getGuiTop(), 0.0F);
-			abilityHUDInstance.renderAbilitiesHUD(graphics, Minecraft.getInstance().getDeltaTracker(), true);
+			abilityHUDInstance.renderAbilitiesHUD(graphics, Minecraft.getInstance().getTimer()/*getDeltaTracker()*/, true);
 			graphics.pose().popPose();
 		}
 		
@@ -183,7 +183,7 @@ public class DebugStandHud {
 			if (showAbility) {
 				int nameColor = color;
 				if (!ability.conditionCheck.isPositive()) {
-					nameColor = ARGB.multiply(nameColor, 0xFF606060);
+					nameColor = ARGB32.multiply(nameColor, 0xFF606060);
 				}
 				if (state.getFlag(AbilityInputState.VISIBLE_TRANSLUCENT)) {
 					nameColor &= 0x40FFFFFF;

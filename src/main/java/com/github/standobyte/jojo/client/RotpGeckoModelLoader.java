@@ -18,18 +18,22 @@ import net.minecraft.server.packs.resources.Resource;
 import net.minecraft.server.packs.resources.ResourceManager;
 import net.minecraft.server.packs.resources.SimplePreparableReloadListener;
 import net.minecraft.util.profiling.ProfilerFiller;
-import net.minecraft.util.profiling.Zone;
-import net.neoforged.neoforge.client.event.AddClientReloadListenersEvent;
+
+import com.github.standobyte.v1_21_4_stuff.missingmethods.Zone;
+import com.github.standobyte.v1_21_4_stuff.missingmethods._ProfilerFiller;
+
+import net.neoforged.neoforge.client.event.RegisterClientReloadListenersEvent;
 
 public class RotpGeckoModelLoader extends SimplePreparableReloadListener<Map<ResourceLocation, LayerDefinition>> {
 	private static RotpGeckoModelLoader instance;
 	
 	@ApiStatus.Internal
-	public static void init(AddClientReloadListenersEvent event) {
+	public static void init(/*AddClientReloadListenersEvent*/RegisterClientReloadListenersEvent event) {
 		if (instance == null) {
 			instance = new RotpGeckoModelLoader();
 		}
-		event.addListener(JojoMod.resLoc("ripples_models"), instance);
+//		event.addListener(JojoMod.resLoc("ripples_models"), instance);
+		event.registerReloadListener(instance);
 	}
 	
 	public static RotpGeckoModelLoader getInstance() {
@@ -51,7 +55,7 @@ public class RotpGeckoModelLoader extends SimplePreparableReloadListener<Map<Res
 	protected Map<ResourceLocation, LayerDefinition> prepare(ResourceManager resourceManager, ProfilerFiller profiler) {
 		Map<ResourceLocation, LayerDefinition> models = new HashMap<>();
 
-		try (Zone zone = profiler.zone(JojoMod.MOD_ID)) {
+		try (Zone zone = _ProfilerFiller.zone(profiler, JojoMod.MOD_ID)) {
 			Map<ResourceLocation, Resource> resources = resourceManager.listResources(DIR, path -> path.getPath().endsWith(EXTENSION));
 			for (var resourceEntry : resources.entrySet()) {
 				ResourceLocation resourcePathFull = resourceEntry.getKey();

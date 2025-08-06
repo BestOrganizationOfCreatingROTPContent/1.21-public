@@ -24,9 +24,10 @@ import com.mojang.blaze3d.vertex.VertexConsumer;
 import net.minecraft.Util;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.model.EntityModel;
+import com.github.standobyte.v1_21_4_stuff.missingmethods.Model_1_21_2plus;
 import net.minecraft.client.model.HumanoidModel;
 import net.minecraft.client.model.geom.ModelPart;
-import net.minecraft.client.renderer.entity.state.LivingEntityRenderState;
+import com.github.standobyte.v1_21_4_stuff.renderstate.LivingEntityRenderState;
 import net.minecraft.util.Mth;
 import net.minecraft.world.entity.HumanoidArm;
 import net.minecraft.world.phys.Vec3;
@@ -54,7 +55,7 @@ public class BarrageSwings {
 
 	public void frameUpdateSwings(Minecraft mc) {
 		if (!mc.isPaused() && !barrageSwings.isEmpty()) {
-			float timeDelta = mc.getDeltaTracker().getGameTimeDeltaTicks();
+			float timeDelta = mc.getTimer().getGameTimeDeltaTicks();
 			Iterator<BarrageSwing> iter = barrageSwings.iterator();
 			while (iter.hasNext()) {
 				BarrageSwing swing = iter.next();
@@ -221,7 +222,7 @@ public class BarrageSwings {
 			arm.zRot = arm.zRot + zMult * zRot;
 			// XXX (barrage anim) some layers are not translucent (armor, clothes, mannequin model, etc.)
 			color = RGBUtil.scaleAlpha(color, 0.75f);
-			model.root().render(poseStack, buffer, packedLight, packedOverlay, color);
+			((Model_1_21_2plus) model).jojo_ripples$root().render(poseStack, buffer, packedLight, packedOverlay, color);
 			poseStack.popPose();
 		}
 	}
@@ -229,7 +230,7 @@ public class BarrageSwings {
 	
 	public static ModelPart getNoXRotArm(EntityModel<?> model, HumanoidArm side) {
 		return switch (model) {
-			case StandEntityModel<?> standModel -> {
+			case StandEntityModel<?, ?> standModel -> {
 				yield switch (side) {
 					case LEFT -> standModel.left_arm;
 					case RIGHT -> standModel.right_arm;
@@ -247,7 +248,7 @@ public class BarrageSwings {
 	
 	public static void setOnlyOneArmVisible(EntityModel<?> model, HumanoidArm side) {
 		switch (model) {
-			case StandEntityModel<?> standModel -> {
+			case StandEntityModel<?, ?> standModel -> {
 				HumanoidPart.setPartsVisible(standModel, switch (side) {
 					case LEFT -> HumanoidPart.LEFT_ARM_ONLY;
 					case RIGHT -> HumanoidPart.RIGHT_ARM_ONLY;
@@ -266,7 +267,7 @@ public class BarrageSwings {
 	
 	public static void restoreVisibility(EntityModel<?> model) {
 		switch (model) {
-			case StandEntityModel<?> standModel -> {
+			case StandEntityModel<?, ?> standModel -> {
 				standModel.setAllVisible(true);
 			}
 			case HumanoidModel<?> humanoidModel -> {

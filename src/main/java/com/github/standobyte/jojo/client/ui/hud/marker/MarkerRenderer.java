@@ -7,7 +7,6 @@ import java.util.Optional;
 
 import com.github.standobyte.jojo.client.ui.hud.AdditionalHud;
 import com.github.standobyte.jojo.client.ui.utils.GuiIcon;
-import com.github.standobyte.jojo.client.ui.utils.RGBUtil;
 import com.github.standobyte.jojo.core.JojoMod;
 import com.github.standobyte.jojo.powersystem.standpower.StandEffectInstance;
 import com.github.standobyte.jojo.util.MathUtil;
@@ -28,7 +27,8 @@ public abstract class MarkerRenderer {
 //	protected ResourceLocation iconTexture;
 //	protected Ability iconAbility;
 	private final List<MarkerInstance> positions = new ArrayList<>();
-	protected boolean renderThroughBlocks = true; // FIXME (marker) does not render through blocks (though it always renders through blocks in fabulous mode)
+	// somewhere between 1.21.2 and 1.21.4, the markers stop rendering through blocks except in fabulous mode
+	protected boolean renderThroughBlocks = true;
 	protected final Minecraft mc = Minecraft.getInstance();
 	
 	public static void registerMarkerRenderer(MarkerRenderer markerRenderer) {
@@ -65,7 +65,6 @@ public abstract class MarkerRenderer {
 				poseStack.mulPose(Axis.XP.rotationDegrees(camera.getXRot()));
 				poseStack.mulPose(Axis.YP.rotationDegrees(camera.getYRot()));
 
-				int[] argb = RGBUtil.argbInt(getColor());
 				positions.forEach(marker -> {
 					if (renderThroughBlocks) {
 						RenderSystem.disableDepthTest();
@@ -76,7 +75,7 @@ public abstract class MarkerRenderer {
 							.yRot(camera.getYRot() * MathUtil.DEG_TO_RAD)
 							.xRot(camera.getXRot() * MathUtil.DEG_TO_RAD)
 							.zRot(camera.getRoll() * MathUtil.DEG_TO_RAD);
-					renderAt(poseStack, marker, camera, diff, partialTick, argb);
+					renderAt(poseStack, marker, camera, diff, partialTick, getColor());
 				});
 				RenderSystem.enableDepthTest();
 
@@ -85,7 +84,7 @@ public abstract class MarkerRenderer {
 		}
 	}
 
-	protected void renderAt(PoseStack poseStack, MarkerInstance marker, Camera camera, Vec3 diff, float partialTick, int[] argb) {
+	protected void renderAt(PoseStack poseStack, MarkerInstance marker, Camera camera, Vec3 diff, float partialTick, int color) {
 		poseStack.pushPose();
 
 		double distance = diff.length();
@@ -101,7 +100,7 @@ public abstract class MarkerRenderer {
 		poseStack.translate(-8, -28, 0);
 		renderIcon(poseStack, marker, partialTick);
 		poseStack.popPose();
-		renderBorder(poseStack, marker, partialTick, argb);
+		renderBorder(poseStack, marker, partialTick, color);
 
 		poseStack.pushPose();
 		poseStack.translate(-8, -28, 0);
@@ -125,10 +124,10 @@ public abstract class MarkerRenderer {
 	public static final GuiIcon MARKER_BORDER = new GuiIcon(AdditionalHud.UI_ELEMENTS, 0, 0, 32, 32, 256, 256);
 	public static final GuiIcon MARKER_BORDER_OUTLINE = new GuiIcon(AdditionalHud.UI_ELEMENTS, 32, 0, 32, 32, 256, 256);
 
-	protected void renderBorder(PoseStack poseStack, MarkerInstance marker, float partialTick, int[] argb) {
-        MARKER_BORDER.render(poseStack, -16, -32, argb[1], argb[2], argb[3], 255);
+	protected void renderBorder(PoseStack poseStack, MarkerInstance marker, float partialTick, int color) {
+        MARKER_BORDER.render(poseStack, -16, -32, color);
         if (marker.outlined) {
-        	MARKER_BORDER_OUTLINE.render(poseStack, -16, -32, 255, 255, 255, 255);
+        	MARKER_BORDER_OUTLINE.render(poseStack, -16, -32);
         }
 	}
 
@@ -139,7 +138,7 @@ public abstract class MarkerRenderer {
 
 	// XXX (marker) UI color (current stand color)
 	protected int getColor() {
-		return 0xFFFFFF;
+		return 0xFFFFFFFF;
 	}
 
 	@EventBusSubscriber(modid = JojoMod.MOD_ID, value = Dist.CLIENT)

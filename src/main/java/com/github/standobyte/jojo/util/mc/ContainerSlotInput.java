@@ -3,6 +3,7 @@ package com.github.standobyte.jojo.util.mc;
 import javax.annotation.Nullable;
 
 import com.github.standobyte.jojo.core.JojoMod;
+import com.github.standobyte.v1_21_4_stuff.missingmethods._FriendlyByteBuf;
 
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.screens.inventory.AbstractContainerScreen;
@@ -55,12 +56,12 @@ public record ContainerSlotInput(
 	public static final StreamCodec<? super FriendlyByteBuf, ContainerSlotInput> STREAM_CODEC = new StreamCodec<>() {
 		
 		@Override public void encode(FriendlyByteBuf buffer, ContainerSlotInput value) {
-			buffer.writeContainerId(value.containerId());
+			_FriendlyByteBuf.writeContainerId(buffer, value.containerId());
 			buffer.writeShort(value.slotNum());
 		}
 		
 		@Override public ContainerSlotInput decode(FriendlyByteBuf buffer) {
-			int containerId = buffer.readContainerId();
+			int containerId = _FriendlyByteBuf.readContainerId(buffer);
 			int slotNum = buffer.readShort();
 			return new ContainerSlotInput(containerId, slotNum);
 		}

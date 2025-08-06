@@ -2,7 +2,7 @@ package com.github.standobyte.jojo.client.entityanim.playerbend;
 
 import net.minecraft.client.model.geom.ModelPart;
 
-public interface IPlayerPseudoModelParts {
+public interface IPlayerBendModel {
 	ModelPart jojo_ripples$animMainBody();
 	ModelPart jojo_ripples$animTorso();
 	ModelPart jojo_ripples$animTorsoBend();
@@ -13,4 +13,7 @@ public interface IPlayerPseudoModelParts {
 	ModelPart jojo_ripples$animRightItem();
 	ModelPart jojo_ripples$animLeftItem();
 	ModelPart jojo_ripples$animCapeBend();
+	ModelPart jojo_ripples$leftArm();
+	ModelPart jojo_ripples$rightArm();
+	void jojo_ripples_v1_21_1$onResetPose();
 }

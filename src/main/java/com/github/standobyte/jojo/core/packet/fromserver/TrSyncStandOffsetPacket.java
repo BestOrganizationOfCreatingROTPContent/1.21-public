@@ -4,6 +4,7 @@ import com.github.standobyte.jojo.client.ClientProxy;
 import com.github.standobyte.jojo.core.PacketsRegister;
 import com.github.standobyte.jojo.powersystem.standpower.entity.StandEntity;
 import com.github.standobyte.jojo.powersystem.standpower.entity.StandOffsetFromUser;
+import com.github.standobyte.v1_21_4_stuff.missingmethods._Vec3;
 
 import net.minecraft.network.RegistryFriendlyByteBuf;
 import net.minecraft.network.codec.ByteBufCodecs;
@@ -37,7 +38,7 @@ public record TrSyncStandOffsetPacket(int standEntityId, Vec3 absoluteOffset, St
 		
 		public static final StreamCodec<RegistryFriendlyByteBuf, TrSyncStandOffsetPacket> STREAM_CODEC = StreamCodec.composite(
 				ByteBufCodecs.INT, TrSyncStandOffsetPacket::standEntityId,
-				Vec3.STREAM_CODEC, TrSyncStandOffsetPacket::absoluteOffset,
+				_Vec3.STREAM_CODEC, TrSyncStandOffsetPacket::absoluteOffset,
 				NeoForgeStreamCodecs.enumCodec(StandOffsetFromUser.Rotations.class), TrSyncStandOffsetPacket::rotations,
 				TrSyncStandOffsetPacket::new);
 

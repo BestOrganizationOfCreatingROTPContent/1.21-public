@@ -1,10 +1,11 @@
 package com.github.standobyte.jojo.client.ui.jojomenu;
 
+import com.github.standobyte.jojo.client.ui.utils.BlitFloat;
 import com.github.standobyte.jojo.core.JojoMod;
 
+import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.screens.Screen;
-import net.minecraft.client.renderer.RenderType;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
 
@@ -44,7 +45,10 @@ public class PlaceholderScreen extends Screen implements IJojoMenuScreen {
 		int y = getWindowY(this);
 		int width = getWindowWidth();
 		int height = getWindowHeight();
-		guiGraphics.blit(RenderType::guiTextured, texture, x, y, 0.0F, 0.0F, width, height, 256, 256);
+		BlitFloat.blit(guiGraphics.pose(), Minecraft.getInstance(), texture, 
+				x, y, width, height, 0, 
+				0, 0, width, height, 256, 256, 
+				BlitFloat.NO_TINT);
 		
 		renderTabs(guiGraphics, this);
 		renderTabTooltip(guiGraphics, this, mouseX, mouseY);

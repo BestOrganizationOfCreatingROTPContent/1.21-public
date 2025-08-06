@@ -6,6 +6,7 @@ import java.util.Optional;
 import javax.annotation.Nonnull;
 
 import com.github.standobyte.jojo.util.network.NetworkUtil;
+import com.github.standobyte.v1_21_4_stuff.missingmethods._Vec3;
 
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
@@ -173,7 +174,7 @@ public class ActionTarget {
 		
 		@Override public ActionTarget decode(FriendlyByteBuf buffer) {
 			TargetType type = buffer.readEnum(TargetType.class);
-			Optional<Vec3> clipPos = NetworkUtil.readOptional(buffer, Vec3.STREAM_CODEC);
+			Optional<Vec3> clipPos = NetworkUtil.readOptional(buffer, _Vec3.STREAM_CODEC);
 			return switch (type) {
 				case ENTITY -> new ActionTarget(buffer.readInt()).withClipPos(clipPos);
 				case BLOCK -> new ActionTarget(buffer.readBlockPos(), buffer.readEnum(Direction.class)).withClipPos(clipPos);
@@ -184,7 +185,7 @@ public class ActionTarget {
 		@Override public void encode(FriendlyByteBuf buffer, ActionTarget value) {
 			TargetType type = value.getType();
 			buffer.writeEnum(type);
-			NetworkUtil.writeOptional(value.clipPos, buffer, Vec3.STREAM_CODEC);
+			NetworkUtil.writeOptional(value.clipPos, buffer, _Vec3.STREAM_CODEC);
 			switch (type) {
 				case ENTITY -> {
 					buffer.writeInt(value.entityId);

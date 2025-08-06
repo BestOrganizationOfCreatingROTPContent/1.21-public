@@ -12,6 +12,7 @@ import org.joml.Vector3f;
 import com.github.standobyte.jojo.client.entityrender.parsemodel.gecko.GeckoModelFormat;
 import com.github.standobyte.jojo.client.entityrender.parsemodel.generic.GenericModelFormat;
 import com.github.standobyte.jojo.core.JojoMod;
+import com.github.standobyte.v1_21_4_stuff.missingmethods._PartDefinition;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonDeserializationContext;
 import com.google.gson.JsonDeserializer;
@@ -54,7 +55,7 @@ public class ParseModEntityModel {
 	
 	protected static void mergeModelParts(PartDefinition dest, PartDefinition src) {
 		dest.cubes.addAll(src.cubes);
-		for (var srcChildEntry : src.getChildren()) {
+		for (var srcChildEntry : src.children.entrySet()) {
 			String modelPartName = srcChildEntry.getKey();
 			PartDefinition destChild = dest.getChild(modelPartName);
 			PartDefinition srcChild = srcChildEntry.getValue();
@@ -62,7 +63,7 @@ public class ParseModEntityModel {
 				mergeModelParts(destChild, srcChild);
 			}
 			else {
-				dest.addOrReplaceChild(modelPartName, srcChild);
+				_PartDefinition.addOrReplaceChild(dest, modelPartName, srcChild);
 			}
 		}
 	}
@@ -78,14 +79,14 @@ public class ParseModEntityModel {
 		public void addModelPart(String name, PartDefinition modelPart, @Nullable String parentName) {
 			allModelParts.put(name, modelPart);
 			if (parentName == null) {
-				vanillaGeomDefinition.getRoot().addOrReplaceChild(name, modelPart);
+				_PartDefinition.addOrReplaceChild(vanillaGeomDefinition.getRoot(), name, modelPart);
 			}
 			else {
 				if (parentName.equals(name)) throw new IllegalArgumentException();
 				
 				PartDefinition parent = allModelParts.get(parentName);
 				if (parent != null) {
-					parent.addOrReplaceChild(name, modelPart);
+					_PartDefinition.addOrReplaceChild(parent, name, modelPart);
 				}
 				else {
 					orphanage.put(modelPart, parentName);
@@ -97,7 +98,7 @@ public class ParseModEntityModel {
 				while (orphanIter.hasNext()) {
 					Map.Entry<PartDefinition, String> orphan = orphanIter.next();
 					if (orphan.getValue().equals(name)) {
-						modelPart.addOrReplaceChild(orphan.getValue(), orphan.getKey());
+						_PartDefinition.addOrReplaceChild(modelPart, orphan.getValue(), orphan.getKey());
 						orphanIter.remove();
 					}
 				}

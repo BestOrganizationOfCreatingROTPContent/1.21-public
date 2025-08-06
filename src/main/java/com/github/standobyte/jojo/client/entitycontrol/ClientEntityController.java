@@ -95,7 +95,7 @@ public abstract class ClientEntityController {
 			player.connection
 			.send(new ServerboundMovePlayerPacket.PosRot(
 					player.getX(), player.getY(), player.getZ(), 
-					player.getYRot(), player.getXRot(), player.onGround(), player.horizontalCollision));
+					player.getYRot(), player.getXRot(), player.onGround()/*, player.horizontalCollision*/));
 		}
 	}
 

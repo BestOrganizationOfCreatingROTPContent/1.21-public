@@ -19,7 +19,7 @@ public class GameRendererMixin {
 	@Inject(method = "renderLevel", at = @At(value = "INVOKE_STRING", target = 
 			"Lnet/minecraft/util/profiling/ProfilerFiller;push(Ljava/lang/String;)V", args = "ldc=center"))
 	public void jojo_ripples$afterAimTargetPick(CallbackInfo ci) {
-		ClientsideAim.updateTarget(minecraft, minecraft.getDeltaTracker().getGameTimeDeltaPartialTick(true));
+		ClientsideAim.updateTarget(minecraft, minecraft.getTimer().getGameTimeDeltaPartialTick(true));
 	}
 
 }

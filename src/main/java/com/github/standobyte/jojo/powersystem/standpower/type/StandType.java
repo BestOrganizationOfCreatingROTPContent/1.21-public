@@ -115,7 +115,7 @@ public class StandType extends PowerType {
 	public static StandType fromId(ResourceLocation id) {
 		StandType stand = DataDrivenStandsLoader.getDatapackStand(id);
 		if (stand == null) {
-			stand = JojoRegistries.DEFAULT_STANDS_REG.getValue(id);
+			stand = JojoRegistries.DEFAULT_STANDS_REG.get(id);
 		}
 		if (stand != null && !stand.isEnabled()) {
 			stand = null;

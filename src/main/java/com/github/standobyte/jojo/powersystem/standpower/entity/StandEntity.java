@@ -176,11 +176,11 @@ public class StandEntity extends LivingEntity implements SummonedStand, IEntityW
 	}
 	
 	@Override
-	public void onRemoval(Entity.RemovalReason reason) {
-		if (level() instanceof ServerLevel level) {
-			dropEquipment(level);
+	public void remove(Entity.RemovalReason reason) {
+		if (reason.shouldDestroy() && level() instanceof ServerLevel level) {
+			dropEquipment(/*level*/);
 		}
-		super.onRemoval(reason);
+		super.remove(reason);
 	}
 
 	
@@ -551,13 +551,13 @@ public class StandEntity extends LivingEntity implements SummonedStand, IEntityW
 	}
 	
 	@Override
-	public boolean isInvulnerableTo(ServerLevel level, DamageSource damageSource) {
+	public boolean isInvulnerableTo(/*ServerLevel level, */DamageSource damageSource) {
 		LivingEntity user = getUser();
 		return user != null && (
-					user.isInvulnerableTo(level, damageSource)
+					user.isInvulnerableTo(/*level, */damageSource)
 					|| user instanceof Player player && player.getAbilities().invulnerable && !damageSource.is(DamageTypeTags.BYPASSES_INVULNERABILITY))
 				|| canOnlyHurtFromStands() && !DamageUtil.canHurtStands(damageSource)
-				|| super.isInvulnerableTo(level, damageSource);
+				|| super.isInvulnerableTo(/*level, */damageSource);
 	}
 	
 	@Override
@@ -628,7 +628,7 @@ public class StandEntity extends LivingEntity implements SummonedStand, IEntityW
 			if (user != null) {
 				DamageContainer currentlyTakingDamage = !damageContainers.empty() ? damageContainers.peek() : null;
 				if (currentlyTakingDamage != null && this.getHealth() - currentlyTakingDamage.getNewDamage() == newHealthValue) { // this means it is *very* likely being called in LivingEntity#actuallyHurt
-					user.hurtServer(level, new StandLinkDamageSource(level, this, currentlyTakingDamage.getSource()), currentlyTakingDamage.getNewDamage());
+					user.hurt(new StandLinkDamageSource(level, this, currentlyTakingDamage.getSource()), currentlyTakingDamage.getNewDamage());
 				}
 				else {
 					user.setHealth(newHealthValue);
@@ -796,7 +796,7 @@ public class StandEntity extends LivingEntity implements SummonedStand, IEntityW
 	}
 	
 	@Override
-	protected void dropEquipment(ServerLevel level) {
+	protected void dropEquipment(/*ServerLevel level*/) {
 		for (EquipmentSlot slot : EquipmentSlot.values()) {
 			dropItem(slot);
 		}
@@ -971,7 +971,7 @@ public class StandEntity extends LivingEntity implements SummonedStand, IEntityW
 			}
 			case AbstractArrow arrow -> {
 				if (!(arrow instanceof ThrownTrident trident && !(trident.ownedBy(this) || trident.getOwner() == null))
-						&& (arrow.isInGround() || arrow.isNoPhysics()) && arrow.shakeTime <= 0) {
+						&& (/*arrow.isInGround()*/ arrow.inGround || arrow.isNoPhysics()) && arrow.shakeTime <= 0) {
 					if (arrow.pickup == AbstractArrow.Pickup.ALLOWED && this.addItem(arrow.getPickupItem())) {
 						this.take(arrow, 1);
 						arrow.discard();

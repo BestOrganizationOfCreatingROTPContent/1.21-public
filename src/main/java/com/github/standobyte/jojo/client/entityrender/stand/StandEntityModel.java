@@ -6,8 +6,15 @@ import java.util.Map;
 import javax.annotation.Nullable;
 
 import com.github.standobyte.jojo.client.entityanim.AnimWithExtras;
+import com.github.standobyte.jojo.client.entityanim.barrage.BarrageSwings;
 import com.github.standobyte.jojo.client.utils.ModelUtil;
+import com.github.standobyte.jojo.powersystem.standpower.entity.StandEntity;
+import com.github.standobyte.v1_21_4_stuff.Reminder;
+import com.github.standobyte.v1_21_4_stuff.missingmethods.Model_1_21_2plus;
+import com.github.standobyte.v1_21_4_stuff.renderstate.EntityRenderState;
+import com.github.standobyte.v1_21_4_stuff.renderstate.RenderStateCrutches;
 import com.mojang.blaze3d.vertex.PoseStack;
+import com.mojang.blaze3d.vertex.VertexConsumer;
 
 import net.minecraft.client.model.ArmedModel;
 import net.minecraft.client.model.EntityModel;
@@ -15,7 +22,7 @@ import net.minecraft.client.model.geom.ModelPart;
 import net.minecraft.client.renderer.RenderType;
 import net.minecraft.world.entity.HumanoidArm;
 
-public class StandEntityModel<T extends StandEntityRenderState> extends EntityModel<T> implements ArmedModel {
+public class StandEntityModel<T extends StandEntity, S extends StandEntityRenderState> extends EntityModel<T> implements ArmedModel {
 	public ModelPart left_arm_xrot;
 	public ModelPart left_arm;
 	public ModelPart right_arm_xrot;
@@ -30,25 +37,29 @@ public class StandEntityModel<T extends StandEntityRenderState> extends EntityMo
 	protected Map<String, ModelPart[]> inheritanceChains = new HashMap<>();
 
 	public StandEntityModel(ModelPart root) {
-		super(root, RenderType::entityTranslucent);
-		left_arm_xrot = getAnyDescendantWithName("left_arm_xrot").orElse(null);
-		left_arm = getAnyDescendantWithName("left_arm").orElse(null);
-		right_arm_xrot = getAnyDescendantWithName("right_arm_xrot").orElse(null);
-		right_arm = getAnyDescendantWithName("right_arm").orElse(null);
-		head = getAnyDescendantWithName("head").orElse(null);
-		torso_no_arms = getAnyDescendantWithName("torso_no_arms").orElse(null);
-		torso_lower = getAnyDescendantWithName("torso_lower").orElse(null);
-		left_leg_xrot = getAnyDescendantWithName("left_leg_xrot").orElse(null);
-		left_leg = getAnyDescendantWithName("left_leg").orElse(null);
-		right_leg_xrot = getAnyDescendantWithName("right_leg_xrot").orElse(null);
-		right_leg = getAnyDescendantWithName("right_leg").orElse(null);
-		inheritanceChains = ModelUtil.modelPartInheritanceChains("root", this.root, "left_item", "right_item");
+//		super(root, RenderType::entityTranslucent);
+		super(RenderType::entityTranslucent);
+		Model_1_21_2plus _this = (Model_1_21_2plus) this;
+		_this.jojo_ripples$initRoot(root);
+		left_arm_xrot = _this.jojo_ripples$getAnyDescendantWithName("left_arm_xrot").orElse(null);
+		left_arm = _this.jojo_ripples$getAnyDescendantWithName("left_arm").orElse(null);
+		right_arm_xrot = _this.jojo_ripples$getAnyDescendantWithName("right_arm_xrot").orElse(null);
+		right_arm = _this.jojo_ripples$getAnyDescendantWithName("right_arm").orElse(null);
+		head = _this.jojo_ripples$getAnyDescendantWithName("head").orElse(null);
+		torso_no_arms = _this.jojo_ripples$getAnyDescendantWithName("torso_no_arms").orElse(null);
+		torso_lower = _this.jojo_ripples$getAnyDescendantWithName("torso_lower").orElse(null);
+		left_leg_xrot = _this.jojo_ripples$getAnyDescendantWithName("left_leg_xrot").orElse(null);
+		left_leg = _this.jojo_ripples$getAnyDescendantWithName("left_leg").orElse(null);
+		right_leg_xrot = _this.jojo_ripples$getAnyDescendantWithName("right_leg_xrot").orElse(null);
+		right_leg = _this.jojo_ripples$getAnyDescendantWithName("right_leg").orElse(null);
+		inheritanceChains = ModelUtil.modelPartInheritanceChains("root", ((Model_1_21_2plus) this).jojo_ripples$root(), "left_item", "right_item");
 		// TODO (entity anim) make an array of all model parts that aren't visible by default
 	}
 
-	@Override
-	public void setupAnim(T renderState) {
-		super.setupAnim(renderState);
+//	@Override // 1.21.2+
+	public void setupAnim(S renderState) {
+//		super.setupAnim(renderState); // 1.21.2+
+		EntityRenderState.resetPose(this);
 
 		HumanoidPart.setPartsVisible(this, renderState.visibleParts);
 		
@@ -60,10 +71,30 @@ public class StandEntityModel<T extends StandEntityRenderState> extends EntityMo
 		
 		// TODO (entity anim) iterate over the array of parts invisible by default - if a part was not animated, set visible to false
 	}
+	
+	@Deprecated
+	@Override
+    public void setupAnim(StandEntity entity, float limbSwing, float limbSwingAmount, 
+    		float ageInTicks, float netHeadYaw, float headPitch) {
+    	if (RenderStateCrutches.currentEntityRenderState != null) {
+    		setupAnim((S) RenderStateCrutches.currentEntityRenderState);
+    	}
+    }
+	
+	@Override
+	public void renderToBuffer(PoseStack poseStack, VertexConsumer buffer, int packedLight, int packedOverlay, int color) {
+		((Model_1_21_2plus) this).jojo_ripples$root().render(poseStack, buffer, packedLight, packedOverlay, color);
+		Reminder.thatThisShouldBeInAnEntityModelMixinInstead();
+		if (BarrageSwings.currentlyRendering != null) {
+			BarrageSwings.currentlyRendering.renderLayerBarrage((EntityModel<?>) (Object) this, 
+					poseStack, buffer, packedLight, packedOverlay, color);
+		}
+	}
 
 	
 	public void setAllVisible(boolean visible) {
-		for (ModelPart modelPart : allParts()) {
+//		for (ModelPart modelPart : allParts()) {
+		for (ModelPart modelPart : ((Model_1_21_2plus) this).jojo_ripples$allParts()) {
 			modelPart.visible = visible;
 		}
 	}

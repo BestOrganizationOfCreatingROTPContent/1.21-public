@@ -5,15 +5,16 @@ import com.github.standobyte.jojo.powersystem.standpower.datapack.DataDrivenStan
 
 import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.fml.common.EventBusSubscriber;
-import net.neoforged.neoforge.event.AddServerReloadListenersEvent;
+import net.neoforged.neoforge.event.AddReloadListenerEvent;
 import net.neoforged.neoforge.event.OnDatapackSyncEvent;
 
 @EventBusSubscriber(modid = JojoMod.MOD_ID)
 public class ModDataPackResources {
 
 	@SubscribeEvent
-	public static void addDataPackManagers(AddServerReloadListenersEvent event) {
-		event.addListener(JojoMod.resLoc("stands"), DataDrivenStandsLoader.getDatapackStandsLoader());
+	public static void addDataPackManagers(/*AddServerReloadListenersEvent*/AddReloadListenerEvent event) {
+//		event.addListener(JojoMod.resLoc("stands"), DataDrivenStandsLoader.getDatapackStandsLoader());
+		event.addListener(DataDrivenStandsLoader.getDatapackStandsLoader());
 	}
 	
 	@SubscribeEvent

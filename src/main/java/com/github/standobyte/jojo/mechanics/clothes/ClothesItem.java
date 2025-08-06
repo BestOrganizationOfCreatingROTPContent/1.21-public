@@ -8,6 +8,7 @@ import com.github.standobyte.jojo.init.ModItemDataComponents;
 import com.github.standobyte.jojo.mechanics.StoryPart;
 import com.github.standobyte.jojo.mechanics.clothes.itemdata.ClothesDataComponent;
 import com.github.standobyte.jojo.mechanics.clothes.itemdata.ClothesPiece.SubClothingPiece;
+import com.github.standobyte.v1_21_4_stuff.missingmethods._ItemStack;
 
 import net.minecraft.ChatFormatting;
 import net.minecraft.core.component.DataComponents;
@@ -37,7 +38,7 @@ public class ClothesItem extends Item {
 		
 		ResourceLocation itemModel = clothesData.getPiece().itemModel;
 		if (itemModel != null) {
-			stack.set(DataComponents.ITEM_MODEL, itemModel);
+			stack.set(ModItemDataComponents.ITEM_MODEL.get()/*DataComponents.ITEM_MODEL*/, itemModel);
 		}
 		
 		Component itemName = clothesData.getPiece().itemName;
@@ -63,9 +64,9 @@ public class ClothesItem extends Item {
 		var splitPieces = clothes.splitInto(null);
 		if (splitPieces != null) {
 			tooltipComponents.add(Component.translatable("ripples_clothes_split", 
-					splitPieces.getFirst().getStyledHoverName()
+					_ItemStack.getStyledHoverName(splitPieces.getFirst())
 							.copy().withStyle(style -> style.withColor(ChatFormatting.GRAY)), 
-					splitPieces.getSecond().getStyledHoverName()
+					_ItemStack.getStyledHoverName(splitPieces.getSecond())
 							.copy().withStyle(style -> style.withColor(ChatFormatting.GRAY)))
 					.withStyle(ChatFormatting.DARK_GRAY));
 		}
@@ -75,7 +76,7 @@ public class ClothesItem extends Item {
 			tooltipComponents.add(Component.translatable("ripples_clothes_combine", 
 					canCombinePieces.getSecond().itemName
 							.copy().withStyle(style -> style.withColor(ChatFormatting.GRAY)), 
-					canCombinePieces.getFirst().getStyledHoverName()
+					_ItemStack.getStyledHoverName(canCombinePieces.getFirst())
 							.copy().withStyle(style -> style.withColor(ChatFormatting.GRAY)))
 					.withStyle(ChatFormatting.DARK_GRAY));
 		}

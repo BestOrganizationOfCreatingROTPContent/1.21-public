@@ -7,9 +7,9 @@
     " p "
   ],
   "key": {
-    "a": "minecraft:armor_stand",
-    "p": "#minecraft:planks",
-    "s": "#minecraft:wooden_slabs"
+    "a": { "item": "minecraft:armor_stand" },
+    "p": { "tag": "minecraft:planks" },
+    "s": { "tag": "minecraft:wooden_slabs" }
   },
   "result": {
     "count": 1,

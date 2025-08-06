@@ -188,7 +188,7 @@ public class HitResultUtil {
 				}, 
 				(ClipContext ctx) -> {
 					Vec3 clipVec = ctx.getFrom().subtract(ctx.getTo());
-					return BlockHitResult.miss(ctx.getTo(), Direction.getApproximateNearest(clipVec.x, clipVec.y, clipVec.z), BlockPos.containing(ctx.getTo()));
+					return BlockHitResult.miss(ctx.getTo(), Direction./*getApproximateNearest*/getNearest(clipVec.x, clipVec.y, clipVec.z), BlockPos.containing(ctx.getTo()));
 				});
 	}
 

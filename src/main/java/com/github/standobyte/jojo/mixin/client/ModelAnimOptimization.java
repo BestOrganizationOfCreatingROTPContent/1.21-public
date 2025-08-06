@@ -3,31 +3,27 @@ package com.github.standobyte.jojo.mixin.client;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
-import java.util.function.Function;
 
-import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;
-import org.spongepowered.asm.mixin.Overwrite;
-import org.spongepowered.asm.mixin.Shadow;
-import org.spongepowered.asm.mixin.injection.At;
-import org.spongepowered.asm.mixin.injection.Inject;
-import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
+
+import com.github.standobyte.v1_21_4_stuff.missingmethods.Model_1_21_2plus;
 
 import net.minecraft.client.model.Model;
 import net.minecraft.client.model.geom.ModelPart;
-import net.minecraft.client.renderer.RenderType;
-import net.minecraft.resources.ResourceLocation;
 
-// i really hope this doesn't break any other mods, but why the hell do i even have to do this just to make my model animations not tank the FPS??
 @Mixin(Model.class)
-public class ModelAnimOptimization {
-	@Shadow @Final ModelPart root;
-	private Map<String, Optional<ModelPart>> jojo_ripples$allModelParts = new HashMap<>();
+public abstract class ModelAnimOptimization implements Model_1_21_2plus {
+	private Map<String, Optional<ModelPart>> jojo_ripples$allModelParts;
 
-	@Inject(method = "<init>("
-			+ "Lnet/minecraft/client/model/geom/ModelPart;"
-			+ "Ljava/util/function/Function;)V", at = @At("RETURN"))
-	public void jojo_ripples$initModelPartsCache(ModelPart root, Function<ResourceLocation, RenderType> renderType, CallbackInfo ci) {
+//	@Inject(method = "<init>("
+//			+ "Lnet/minecraft/client/model/geom/ModelPart;"
+//			+ "Ljava/util/function/Function;)V", at = @At("RETURN"))
+//	public void jojo_ripples$onInit(ModelPart root, Function<ResourceLocation, RenderType> renderType, CallbackInfo ci) {
+//		jojo_ripples$initModelPartsCache(root);
+//	}
+	
+	public void jojo_ripples$initModelPartsCache(ModelPart root) {
+		jojo_ripples$allModelParts = new HashMap<>();
 		jojo_ripples$recursionTime(root, "root", jojo_ripples$allModelParts);
 	}
 
@@ -37,11 +33,15 @@ public class ModelAnimOptimization {
 			jojo_ripples$recursionTime(childEntry.getValue(), childEntry.getKey(), allModelParts);
 		}
 	}
-
-	@Overwrite
-	public Optional<ModelPart> getAnyDescendantWithName(String name) {
-		Optional<ModelPart> part = jojo_ripples$allModelParts.get(name);
-		return part != null ? part : Optional.empty();
+	
+//	@Inject(method = "getAnyDescendantWithName", at = @At("HEAD"), cancellable = true)
+	@Override
+	public /*void*/Optional<ModelPart> jojo_ripples$getAnyDescendantWithName(String name/*, CallbackInfoReturnable<Optional<ModelPart>> ci*/) {
+		if (jojo_ripples$allModelParts != null) {
+			Optional<ModelPart> part = jojo_ripples$allModelParts.get(name);
+			return part != null ? part : Optional.empty();
+		}
+		return Optional.empty();
 	}
 
 }

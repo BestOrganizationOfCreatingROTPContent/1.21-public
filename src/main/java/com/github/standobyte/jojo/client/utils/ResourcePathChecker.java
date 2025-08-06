@@ -10,6 +10,7 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.packs.resources.PreparableReloadListener;
 import net.minecraft.server.packs.resources.ResourceManager;
+import net.minecraft.util.profiling.ProfilerFiller;
 
 public class ResourcePathChecker {
 	private static final Map<ResourceLocation, ResourcePathChecker> ALL = new HashMap<>();
@@ -69,6 +70,7 @@ public class ResourcePathChecker {
 
 		@Override
 		public CompletableFuture<Void> reload(PreparationBarrier barrier, ResourceManager manager,
+		        ProfilerFiller preparationsProfiler, ProfilerFiller reloadProfiler,
 				Executor backgroundExecutor, Executor gameExecutor) {
 			return barrier.wait(null)
 					.thenRunAsync(() -> ALL.values().forEach(path -> path.checked = false));

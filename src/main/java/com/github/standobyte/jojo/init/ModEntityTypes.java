@@ -6,7 +6,6 @@ import com.github.standobyte.jojo.mechanics.clothes.mannequin.MannequinEntity;
 import com.github.standobyte.jojo.powersystem.standpower.entity.StandEntity;
 
 import net.minecraft.core.registries.Registries;
-import net.minecraft.resources.ResourceKey;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.MobCategory;
@@ -49,7 +48,7 @@ public final class ModEntityTypes {
 	
 	public static final DeferredHolder<EntityType<?>, EntityType<ThrownNuggetBearingEntity>> NUGGET_BEARING = ENTITY_TYPES.register("nugget_bearing", key -> 
 			EntityType.Builder.<ThrownNuggetBearingEntity>of(ThrownNuggetBearingEntity::new, MobCategory.MISC)
-			.noLootTable()
+//			.noLootTable()
 			.sized(0.125F, 0.125F)
 			.clientTrackingRange(4)
 			.updateInterval(10)
@@ -57,8 +56,12 @@ public final class ModEntityTypes {
 	
 	
 	
-	public static ResourceKey<EntityType<?>> createIDFor(ResourceLocation key) {
-		return ResourceKey.create(Registries.ENTITY_TYPE, key);
+//	public static ResourceKey<EntityType<?>> createIDFor(ResourceLocation key) {
+//		return ResourceKey.create(Registries.ENTITY_TYPE, key);
+//	}
+	
+	public static String createIDFor(ResourceLocation key) {
+		return key.toString();
 	}
 	
 }

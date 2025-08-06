@@ -4,12 +4,13 @@ import java.util.List;
 
 import javax.annotation.Nullable;
 
+import com.github.standobyte.jojo.client.ui.utils.BlitFloat;
 import com.github.standobyte.jojo.core.JojoMod;
+import com.github.standobyte.v1_21_4_stuff.missingmethods._Screen;
 
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.screens.Screen;
-import net.minecraft.client.renderer.RenderType;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
 
@@ -43,8 +44,10 @@ public interface IJojoMenuScreen {
 		for (TabCategory category : TabCategory.getActiveCategories()) {
 			float texX = firstTab ? 0 : TAB_LENGTH;
 			float texY = TAB_LENGTH * 2 + (category == curCategory ? TAB_WIDTH : 0);
-			guiGraphics.blit(RenderType::guiTextured, TABS_TEXTURE, 
-					tabX, tabY, texX, texY, TAB_LENGTH, TAB_WIDTH, 256, 256);
+			BlitFloat.blit(guiGraphics.pose(), screen.getMinecraft(), TABS_TEXTURE, 
+					tabX, tabY, TAB_LENGTH, TAB_WIDTH, 0, 
+					texX, texY, TAB_LENGTH, TAB_WIDTH, 256, 256, 
+					BlitFloat.NO_TINT);
 			category.renderIcon(guiGraphics, tabX + 10, tabY + 6);
 			tabY += TAB_WIDTH;
 			firstTab = false;
@@ -56,8 +59,10 @@ public interface IJojoMenuScreen {
 		for (Tab tab : curCategory.getActiveTabs()) {
 			float texX = TAB_LENGTH * 3 + (firstTab ? 0 : TAB_LENGTH);
 			float texY = TAB_LENGTH * 2 + (tab == curTab ? TAB_WIDTH : 0);
-			guiGraphics.blit(RenderType::guiTextured, TABS_TEXTURE, 
-					tabX, tabY, texX, texY, TAB_LENGTH, TAB_WIDTH, 256, 256);
+			BlitFloat.blit(guiGraphics.pose(), screen.getMinecraft(), TABS_TEXTURE, 
+					tabX, tabY, TAB_LENGTH, TAB_WIDTH, 0, 
+					texX, texY, TAB_LENGTH, TAB_WIDTH, 256, 256, 
+					BlitFloat.NO_TINT);
 			tab.renderIcon(guiGraphics, tabX + 6, tabY + 6);
 			tabY += TAB_WIDTH;
 			firstTab = false;
@@ -69,7 +74,7 @@ public interface IJojoMenuScreen {
 		if (tab != null) {
 			Component name = tab.getName();
 			if (name != null) {
-				guiGraphics.renderTooltip(screen.getFont(), name, mouseX, mouseY);
+				guiGraphics.renderTooltip(_Screen.getFont(screen), name, mouseX, mouseY);
 			}
 		}
 	}

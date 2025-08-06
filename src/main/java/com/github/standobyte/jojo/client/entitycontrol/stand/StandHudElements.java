@@ -7,10 +7,17 @@ import com.github.standobyte.jojo.client.ClientGlobals;
 import com.github.standobyte.jojo.client.ClientPowerCache;
 import com.github.standobyte.jojo.client.standskin.StandSkin;
 import com.github.standobyte.jojo.client.standskin.StandSkinsLoader;
+import com.github.standobyte.jojo.client.ui.hud.VanillaHudSprites;
+import com.github.standobyte.jojo.client.ui.utils.BlitFloat;
 import com.github.standobyte.jojo.mixin.client.entitycontrol.GuiAccessor;
 import com.github.standobyte.jojo.powersystem.PowerClass;
 import com.github.standobyte.jojo.powersystem.standpower.StandPower;
 import com.github.standobyte.jojo.powersystem.standpower.entity.StandEntity;
+import com.github.standobyte.v1_21_4_stuff.missingmethods.ARGB;
+import com.github.standobyte.v1_21_4_stuff.missingmethods.Profiler;
+import com.github.standobyte.v1_21_4_stuff.missingmethods._Gui;
+import com.github.standobyte.v1_21_4_stuff.missingmethods._LivingEntity;
+import com.github.standobyte.v1_21_4_stuff.missingmethods._Screen;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Ordering;
 
@@ -20,15 +27,12 @@ import net.minecraft.client.DeltaTracker;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.Gui;
 import net.minecraft.client.gui.GuiGraphics;
-import net.minecraft.client.renderer.RenderType;
 import net.minecraft.client.renderer.texture.TextureAtlasSprite;
 import net.minecraft.client.resources.MobEffectTextureManager;
 import net.minecraft.core.Holder;
 import net.minecraft.resources.ResourceLocation;
-import net.minecraft.util.ARGB;
 import net.minecraft.util.Mth;
 import net.minecraft.util.RandomSource;
-import net.minecraft.util.profiling.Profiler;
 import net.minecraft.world.effect.MobEffect;
 import net.minecraft.world.effect.MobEffectInstance;
 import net.minecraft.world.effect.MobEffects;
@@ -46,26 +50,6 @@ import net.neoforged.neoforge.common.NeoForge;
 import net.neoforged.neoforge.event.EventHooks;
 
 public class StandHudElements {
-	protected static ResourceLocation ARMOR_FULL_SPRITE;
-	protected static ResourceLocation ARMOR_HALF_SPRITE;
-	protected static ResourceLocation ARMOR_EMPTY_SPRITE;
-	protected static ResourceLocation HOTBAR_OFFHAND_LEFT_SPRITE;
-	protected static ResourceLocation HOTBAR_OFFHAND_RIGHT_SPRITE;
-	protected static ResourceLocation EFFECT_BACKGROUND_AMBIENT_SPRITE;
-	protected static ResourceLocation EFFECT_BACKGROUND_SPRITE;
-
-	private static void cacheSpritePaths(GuiAccessor gui) {
-		if (ARMOR_FULL_SPRITE == null) {
-			ARMOR_FULL_SPRITE = GuiAccessor.getARMOR_FULL_SPRITE();
-			ARMOR_HALF_SPRITE = GuiAccessor.getARMOR_HALF_SPRITE();
-			ARMOR_EMPTY_SPRITE = GuiAccessor.getARMOR_EMPTY_SPRITE();
-			HOTBAR_OFFHAND_LEFT_SPRITE = GuiAccessor.getHOTBAR_OFFHAND_LEFT_SPRITE();
-			HOTBAR_OFFHAND_RIGHT_SPRITE = GuiAccessor.getHOTBAR_OFFHAND_RIGHT_SPRITE();
-			EFFECT_BACKGROUND_AMBIENT_SPRITE = GuiAccessor.getEFFECT_BACKGROUND_AMBIENT_SPRITE();
-			EFFECT_BACKGROUND_SPRITE = GuiAccessor.getEFFECT_BACKGROUND_SPRITE();
-		}
-	}
-	
 	public static StandHudElements instance;
 	public static void init() {
 		if (instance == null) {
@@ -99,7 +83,7 @@ public class StandHudElements {
 		GuiGraphics guiGraphics = event.getGuiGraphics();
 		DeltaTracker deltaTracker = event.getPartialTick();
 		GuiAccessor gui = (GuiAccessor) mc.gui;
-		cacheSpritePaths(gui);
+		VanillaHudSprites.cacheSpritePaths(gui);
 		if (layerName.equals(VanillaGuiLayers.PLAYER_HEALTH)) {
 			if (mc.gameMode.canHurtPlayer()) {
 				renderStandHealth(stand, guiGraphics, gui, mc);
@@ -134,7 +118,7 @@ public class StandHudElements {
 		GuiGraphics guiGraphics = event.getGuiGraphics();
 		DeltaTracker deltaTracker = event.getPartialTick();
 		GuiAccessor gui = (GuiAccessor) mc.gui;
-		cacheSpritePaths(gui);
+		VanillaHudSprites.cacheSpritePaths(gui);
 		if (layerName.equals(VanillaGuiLayers.HOTBAR)) {
 			int center = guiGraphics.guiWidth() / 2;
 			
@@ -144,10 +128,6 @@ public class StandHudElements {
 				case LEFT -> attackIndicator ? center + 167 : center + 141;
 				case RIGHT -> attackIndicator ? center - 167 : center - 141;
 			};
-            int xStandIcon = switch (offHand) {
-	            case LEFT -> xItemsCenter - 18;
-	            case RIGHT -> xItemsCenter + 2;
-            };
 			
 			renderStandHeldItems(stand, guiGraphics, gui, deltaTracker, mc, xItemsCenter, xItemsCenter, false);
 		}
@@ -158,7 +138,7 @@ public class StandHudElements {
 		ResourceLocation layerName = event.getName();
 		GuiGraphics guiGraphics = event.getGuiGraphics();
 		GuiAccessor gui = (GuiAccessor) mc.gui;
-		cacheSpritePaths(gui);
+		VanillaHudSprites.cacheSpritePaths(gui);
 		if (layerName.equals(VanillaGuiLayers.EFFECTS)) {
 			renderStandStatusEffects(stand, guiGraphics, gui, mc);
 		}
@@ -286,9 +266,9 @@ public class StandHudElements {
 
 			for (int k = 0; k < 10; k++) {
 				int l = x + k * 8;
-				if (k * 2 + 1 < i) guiGraphics.blitSprite(RenderType::guiTextured, ARMOR_FULL_SPRITE, l, j, 9, 9);
-				if (k * 2 + 1 == i) guiGraphics.blitSprite(RenderType::guiTextured, ARMOR_HALF_SPRITE, l, j, 9, 9);
-				if (k * 2 + 1 > i) guiGraphics.blitSprite(RenderType::guiTextured, ARMOR_EMPTY_SPRITE, l, j, 9, 9);
+				if (k * 2 + 1 < i) guiGraphics.blitSprite(/*RenderType::guiTextured, */VanillaHudSprites.ARMOR_FULL_SPRITE, l, j, 9, 9);
+				if (k * 2 + 1 == i) guiGraphics.blitSprite(/*RenderType::guiTextured, */VanillaHudSprites.ARMOR_HALF_SPRITE, l, j, 9, 9);
+				if (k * 2 + 1 > i) guiGraphics.blitSprite(/*RenderType::guiTextured, */VanillaHudSprites.ARMOR_EMPTY_SPRITE, l, j, 9, 9);
 			}
 		}
 	}
@@ -303,16 +283,17 @@ public class StandHudElements {
 	}
 	
 	protected void renderPlayerAir(GuiGraphics guiGraphics, GuiAccessor gui, Minecraft mc) {
-		int i1 = guiGraphics.guiWidth() / 2 + 91;
-		int j2 = guiGraphics.guiHeight() - mc.gui.rightHeight;
+		int x = guiGraphics.guiWidth() / 2 + 91;
+		int y = guiGraphics.guiHeight() - mc.gui.rightHeight;
 		Profiler.get().push("air");
-		gui.invokeRenderAirBubbles(guiGraphics, mc.player, 10, j2, i1);
+		_Gui.renderAirBubbles(mc.gui, guiGraphics, mc.player, 10, y, x);
+//		gui.invokeRenderAirBubbles(guiGraphics, mc.player, 10, y, x);
 		Profiler.get().pop();
 	}
 	
 	protected void renderStandStatusEffects(LivingEntity stand, GuiGraphics guiGraphics, GuiAccessor gui, Minecraft mc) {
 		Collection<MobEffectInstance> effects = stand.getActiveEffects();
-		if (!effects.isEmpty() && (mc.screen == null || !mc.screen.showsActiveEffects())) {
+		if (!effects.isEmpty() && (mc.screen == null || !_Screen.showsActiveEffects(mc.screen))) {
 			int beneficialI = 0;
 			int harmfulI = 0;
 			MobEffectTextureManager textureManager = mc.getMobEffectTextures();
@@ -341,28 +322,30 @@ public class StandHudElements {
 						y += 26;
 					}
 
-					float f = 1.0F;
-					if (effect.isAmbient()) {
-						guiGraphics.blitSprite(RenderType::guiTextured, EFFECT_BACKGROUND_AMBIENT_SPRITE, x, y, 24, 24, color /* someone tell the mapping creators this ain't blitOffset */);
-					} else {
-						guiGraphics.blitSprite(RenderType::guiTextured, EFFECT_BACKGROUND_SPRITE, x, y, 24, 24, color);
+					float alpha = 1.0F;
+					ResourceLocation effectBgSprite = effect.isAmbient() ? VanillaHudSprites.EFFECT_BACKGROUND_AMBIENT_SPRITE : VanillaHudSprites.EFFECT_BACKGROUND_SPRITE;
+					// XXX stand status effect background sprite - color doesn't work
+					BlitFloat.blit(guiGraphics.pose(), mc, mc.getGuiSprites().getSprite(effectBgSprite), x, y, 24, 24, 0, color);
+					if (!effect.isAmbient()) {
 						if (effect.endsWithin(200)) {
 							int i1 = effect.getDuration();
 							int j1 = 10 - i1 / 20;
-							f = Mth.clamp((float)i1 / 10.0F / 5.0F * 0.5F, 0.0F, 0.5F)
+							alpha = Mth.clamp((float)i1 / 10.0F / 5.0F * 0.5F, 0.0F, 0.5F)
 									+ Mth.cos((float)i1 * (float) Math.PI / 5.0F) * Mth.clamp((float)j1 / 10.0F * 0.25F, 0.0F, 0.25F);
-							f = Mth.clamp(f, 0.0F, 1.0F);
+							alpha = Mth.clamp(alpha, 0.0F, 1.0F);
 						}
 					}
 
-					if (renderer.renderGuiIcon(effect, mc.gui, guiGraphics, x, y, 0, f)) continue;
+					if (renderer.renderGuiIcon(effect, mc.gui, guiGraphics, x, y, 0, alpha)) continue;
 					TextureAtlasSprite textureatlassprite = textureManager.get(holder);
 					int l1 = x;
 					int k1 = y;
-					float f1 = f;
+					float f1 = alpha;
 					list.add(() -> {
 						int i2 = ARGB.white(f1);
-						guiGraphics.blitSprite(RenderType::guiTextured, textureatlassprite, l1 + 3, k1 + 3, 18, 18, i2);
+						BlitFloat.blit(guiGraphics.pose(), mc, textureatlassprite,
+								l1 + 3, k1 + 3, 18, 18, 0, 
+								i2);
 					});
 				}
 			}
@@ -375,15 +358,15 @@ public class StandHudElements {
 	
 	private void renderStandHeldItems(LivingEntity stand, GuiGraphics guiGraphics, GuiAccessor gui, DeltaTracker deltaTracker, Minecraft mc, 
 			int xLeft, int xRight, boolean renderEmpty) {
-		ItemStack itemLeft = stand.getItemHeldByArm(HumanoidArm.LEFT);
-		ItemStack itemRight = stand.getItemHeldByArm(HumanoidArm.RIGHT);
+		ItemStack itemLeft = _LivingEntity.getItemHeldByArm(stand, HumanoidArm.LEFT);
+		ItemStack itemRight = _LivingEntity.getItemHeldByArm(stand, HumanoidArm.RIGHT);
 		if (!renderEmpty && itemLeft.isEmpty() && itemRight.isEmpty()) return;
 
 		int y = guiGraphics.guiHeight() - 16 - 3;
 		guiGraphics.pose().pushPose();
 		guiGraphics.pose().translate(0.0F, 0.0F, -90.0F);
-		guiGraphics.blitSprite(RenderType::guiTextured, HOTBAR_OFFHAND_LEFT_SPRITE, xLeft - 29 + 7, y - 4, 29, 24);
-		guiGraphics.blitSprite(RenderType::guiTextured, HOTBAR_OFFHAND_RIGHT_SPRITE, xRight - 7, y - 4, 29, 24);
+		guiGraphics.blitSprite(/*RenderType::guiTextured, */VanillaHudSprites.HOTBAR_OFFHAND_LEFT_SPRITE, xLeft - 29 + 7, y - 4, 29, 24);
+		guiGraphics.blitSprite(/*RenderType::guiTextured, */VanillaHudSprites.HOTBAR_OFFHAND_RIGHT_SPRITE, xRight - 7, y - 4, 29, 24);
 
 		guiGraphics.pose().popPose();
 

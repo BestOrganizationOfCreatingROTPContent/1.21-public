@@ -188,7 +188,7 @@ public class CrazyDRepairItemAbility extends StandEntityAbility {
 				ResourceLocation uncracked = itemId.withPath(path -> path.replace("cracked_", ""));
 				if (BuiltInRegistries.ITEM.containsKey(uncracked)) {
 					damage += 1;
-					newStack = new ItemStack(BuiltInRegistries.ITEM.getValue(uncracked));
+					newStack = new ItemStack(BuiltInRegistries.ITEM.get(uncracked));
 				}
 			}
 		}

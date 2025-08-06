@@ -70,7 +70,7 @@ public interface EntityActionType {
 		}
 		else {
 			ResourceLocation specialActionId = buffer.readResourceLocation();
-			actionType = JojoRegistries.NON_POWER_ACTIONS_REG.getValue(specialActionId);
+			actionType = JojoRegistries.NON_POWER_ACTIONS_REG.get(specialActionId);
 		}
 		return actionType != null ? actionType.createActionObj() : null;
 	}

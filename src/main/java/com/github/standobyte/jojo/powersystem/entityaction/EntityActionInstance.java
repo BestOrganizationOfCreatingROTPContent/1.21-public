@@ -18,8 +18,8 @@ import com.github.standobyte.jojo.util.mc.EntityResolver;
 import com.github.standobyte.jojo.util.network.NetworkUtil;
 import com.github.standobyte.jojo.util.target.ActionTarget;
 import com.github.standobyte.jojo.util.target.AimingEntity;
+import com.github.standobyte.v1_21_4_stuff.missingmethods._Util;
 
-import net.minecraft.Util;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.network.RegistryFriendlyByteBuf;
 import net.minecraft.network.codec.StreamCodec;
@@ -147,7 +147,7 @@ public class EntityActionInstance implements HeldInput {
 	
 	public boolean standEntityAttack(StandEntity stand, Entity target, DamageSource dmgSource, float dmgAmount) {
 		ServerLevel level = (ServerLevel) target.level();
-		boolean hurt = target.hurtServer(level, dmgSource, dmgAmount);
+		boolean hurt = target.hurt(dmgSource, dmgAmount);
 		if (hurt) {
 			if (target instanceof LivingEntity targetLiving) {
 				LivingEntity user = stand.getUser();
@@ -401,7 +401,7 @@ public class EntityActionInstance implements HeldInput {
 				EntityActionInstance action = EntityActionType.decodeAbilityAction(buffer);
 				if (action != null) {
 					action.id = buffer.readVarInt();
-					action.phasesLength = Util.makeEnumMap(ActionPhase.class, __ -> buffer.readFloat());
+					action.phasesLength = _Util.makeEnumMap(ActionPhase.class, __ -> buffer.readFloat());
 					action.phase = ActionPhase.values()[buffer.readVarInt()];
 					action.curPhaseTick = buffer.readVarInt();
 					action.phasePartialTick = buffer.readFloat();

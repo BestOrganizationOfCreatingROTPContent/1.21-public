@@ -35,7 +35,7 @@ public abstract class PowerClass<P extends Power<P>> {
 
 		@Override
 		public PowerType getPowerType(ResourceLocation powerTypeId) {
-			return JojoRegistries.PLAYER_POWER_TYPES_REG.getValue(powerTypeId);
+			return JojoRegistries.PLAYER_POWER_TYPES_REG.get(powerTypeId);
 		}
 
 	};

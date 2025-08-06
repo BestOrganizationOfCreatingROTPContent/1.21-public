@@ -38,15 +38,16 @@ public abstract class LivingEntityMixin extends Entity {
 		}
 	}
 
-	@Inject(method = "resolvePlayerResponsibleForDamage", at = @At("TAIL"), cancellable = true)
-	public void jojo_ripples$playerResposibleForStandAttack(DamageSource damageSource, CallbackInfoReturnable<Player> ci) {
-		if (ci.getReturnValue() == null) {
+//	@Inject(method = "resolvePlayerResponsibleForDamage", at = @At("TAIL"), cancellable = true)
+//	public void jojo_ripples$playerResposibleForStandAttack(DamageSource damageSource, CallbackInfoReturnable<Player> ci) {
+	@Inject(method = "hurt", at = @At(value = "INVOKE", target = "isDeadOrDying"))
+	public void jojo_ripples$playerResposibleForStandAttack(DamageSource damageSource, float amount, CallbackInfoReturnable<Boolean> ci) {
+//		if (ci.getReturnValue() == null) {
 			if (damageSource.getEntity() instanceof StandEntity stand && stand.getUser() instanceof Player playerUser) {
 				this.lastHurtByPlayerTime = 100;
 				this.lastHurtByPlayer = playerUser;
-				ci.setReturnValue(playerUser);
 			}
-		}
+//		}
 	}
 	
 }

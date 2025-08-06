@@ -8,6 +8,8 @@ import javax.annotation.Nullable;
 
 import org.jetbrains.annotations.ApiStatus;
 
+import com.github.standobyte.v1_21_4_stuff.missingmethods.EquipmentAsset;
+import com.github.standobyte.v1_21_4_stuff.missingmethods.EquipmentAssets;
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 
@@ -22,8 +24,6 @@ import net.minecraft.resources.ResourceLocation;
 import net.minecraft.sounds.SoundEvent;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.util.StringRepresentable;
-import net.minecraft.world.item.equipment.EquipmentAsset;
-import net.minecraft.world.item.equipment.EquipmentAssets;
 import net.neoforged.neoforge.network.codec.NeoForgeStreamCodecs;
 
 // TODO (clothes) split into top and bottom items on right click

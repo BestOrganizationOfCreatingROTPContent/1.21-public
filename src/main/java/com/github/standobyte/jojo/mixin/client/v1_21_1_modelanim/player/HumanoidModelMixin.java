@@ -1,4 +1,4 @@
-package com.github.standobyte.jojo.mixin.client.playeranim;
+package com.github.standobyte.jojo.mixin.client.v1_21_1_modelanim.player;
 
 import java.util.function.Function;
 
@@ -12,9 +12,11 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import com.github.standobyte.jojo.client.entityanim.IHumanoidAnimModel;
 import com.github.standobyte.jojo.client.entityanim.RipplesPlayerRenderState;
 import com.github.standobyte.jojo.client.entityanim.RipplesPlayerRenderState.RipplesRenderStateExtensionMixin;
+import com.github.standobyte.jojo.client.entityanim.playerbend.IPlayerBendModel;
 import com.github.standobyte.jojo.client.entityanim.playerbend.IPlayerLimbBend;
-import com.github.standobyte.jojo.client.entityanim.playerbend.IPlayerPseudoModelParts;
 import com.github.standobyte.jojo.client.entityanim.playerbend.PlayerModelBends;
+import com.github.standobyte.v1_21_4_stuff.missingmethods.Model_1_21_2plus;
+import com.github.standobyte.v1_21_4_stuff.renderstate.HumanoidRenderState;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import com.mojang.blaze3d.vertex.PoseStack;
@@ -24,11 +26,11 @@ import net.minecraft.client.model.HumanoidModel;
 import net.minecraft.client.model.geom.ModelPart;
 import net.minecraft.client.model.geom.PartPose;
 import net.minecraft.client.renderer.RenderType;
-import net.minecraft.client.renderer.entity.state.HumanoidRenderState;
 import net.minecraft.resources.ResourceLocation;
+import net.minecraft.world.entity.HumanoidArm;
 
 @Mixin(HumanoidModel.class)
-public abstract class HumanoidModelMixin extends ModelMixin implements IHumanoidAnimModel, IPlayerPseudoModelParts {
+public abstract class HumanoidModelMixin/* extends ModelMixinSuperclass*/ extends AgeableModelMixinSuperclass implements IHumanoidAnimModel, IPlayerBendModel {
 	@Shadow @Final public ModelPart body;
 	@Shadow @Final public ModelPart rightArm;
 	@Shadow @Final public ModelPart leftArm;
@@ -49,7 +51,7 @@ public abstract class HumanoidModelMixin extends ModelMixin implements IHumanoid
 	@Inject(method = "<init>("
 			+ "Lnet/minecraft/client/model/geom/ModelPart;"
 			+ "Ljava/util/function/Function;)V", at = @At("RETURN"))
-	private void jojo_ripples$initModel(ModelPart root, Function<ResourceLocation, RenderType> renderType, CallbackInfo ci) {
+	protected void jojo_ripples$initModel(ModelPart root, Function<ResourceLocation, RenderType> renderType, CallbackInfo ci) {
 		float torsoLength = PlayerModelBends.getLimbHeight(body);				// 12
 		float torsoLengthUpper = torsoLength / 2;								// 6
 		float rightArmLength = PlayerModelBends.getLimbHeight(rightArm);		// 12
@@ -89,6 +91,8 @@ public abstract class HumanoidModelMixin extends ModelMixin implements IHumanoid
 		((IPlayerLimbBend) (Object) rightLeg).jojo_ripples$setBendBone(jojo_ripples$animRightLegBend, false);
 		((IPlayerLimbBend) (Object) leftLeg).jojo_ripples$setBendBone(jojo_ripples$animLeftLegBend, false);
 		setBend(body, "cape", jojo_ripples$animCapeBend, false);
+		
+		((Model_1_21_2plus) this).jojo_ripples$initRoot(root);
 	}
 	
 	private static void setBend(ModelPart parent, String modelPartName, ModelPart bendBone, boolean invertBend) {
@@ -114,21 +118,22 @@ public abstract class HumanoidModelMixin extends ModelMixin implements IHumanoid
 			ci.cancel();
 		}
 	}
-	
-	
+
+
 	@Override
-	public void jojo_ripples$resetPose(CallbackInfo ci) {
+//	public void jojo_ripples$onResetPose(CallbackInfo ci) {
+	public void jojo_ripples_v1_21_1$onResetPose() {
 		jojo_ripples$animMainBody.resetPose();
 		jojo_ripples$animTorso.resetPose();
 		jojo_ripples$animRightItem.resetPose();
 		jojo_ripples$animLeftItem.resetPose();
-		// the bends are reset from their respective bone parts (ModelPartMixin#jojo_ripples$onResetPose)
+//		// the bends are reset from their respective bone parts (ModelPartMixin#jojo_ripples$onResetPose)
 	}
 
 	@Inject(method = "copyPropertiesTo", at = @At("HEAD"))
 	public void jojo_ripples$copyPose(HumanoidModel<?> _model, CallbackInfo ci) {
 //		IPlayerPseudoModelParts model = (IPlayerPseudoModelParts) _model;
-		HumanoidModelMixin model = (HumanoidModelMixin) (IPlayerPseudoModelParts) _model;
+		HumanoidModelMixin model = (HumanoidModelMixin) (IPlayerBendModel) _model;
 		model.jojo_ripples$animMainBody().copyFrom(this.jojo_ripples$animMainBody);
 		model.jojo_ripples$animTorso().copyFrom(this.jojo_ripples$animTorso);
 		model.jojo_ripples$animTorsoBend().copyFrom(this.jojo_ripples$animTorsoBend);
@@ -152,5 +157,8 @@ public abstract class HumanoidModelMixin extends ModelMixin implements IHumanoid
 	@Override public ModelPart jojo_ripples$animRightItem() { return jojo_ripples$animRightItem; }
 	@Override public ModelPart jojo_ripples$animLeftItem() { return jojo_ripples$animLeftItem; }
 	@Override public ModelPart jojo_ripples$animCapeBend() { return jojo_ripples$animCapeBend; }
+	@Override public ModelPart jojo_ripples$leftArm() { return getArm(HumanoidArm.LEFT); }
+	@Override public ModelPart jojo_ripples$rightArm() { return getArm(HumanoidArm.RIGHT); }
+	@Shadow protected abstract ModelPart getArm(HumanoidArm side);
 	
 }

@@ -9,6 +9,7 @@ import com.github.standobyte.jojo.powersystem.entityaction.netcode.SyncType;
 import com.github.standobyte.jojo.powersystem.standpower.entity.StandEntity;
 import com.github.standobyte.jojo.powersystem.standpower.entity.StandOffsetFromUser;
 import com.github.standobyte.jojo.powersystem.standpower.entity.StandStatFormulas;
+import com.github.standobyte.v1_21_4_stuff.missingmethods._Projectile;
 
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.entity.LivingEntity;
@@ -63,7 +64,7 @@ public class StandCallbackWhenShooting {
 	}
 
 	public static <T extends Projectile> T shootProjectileWithStandStats(
-			Projectile.ProjectileFactory<T> factory,
+			_Projectile.ProjectileFactory<T> factory,
 			ServerLevel level,
 			ItemStack spawnedFrom,
 			LivingEntity owner,
@@ -71,7 +72,7 @@ public class StandCallbackWhenShooting {
 			float z,
 			float velocity,
 			float inaccuracy) {
-		return Projectile.spawnProjectile(
+		return _Projectile.spawnProjectile(
 				factory.create(level, owner, spawnedFrom),
 				level,
 				spawnedFrom,

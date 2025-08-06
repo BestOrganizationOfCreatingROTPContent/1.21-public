@@ -13,7 +13,7 @@ import com.github.standobyte.jojo.powersystem.entityaction.ActionPhase;
 import com.github.standobyte.jojo.powersystem.entityaction.EntityActionInstance;
 
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.renderer.entity.state.LivingEntityRenderState;
+import com.github.standobyte.v1_21_4_stuff.renderstate.LivingEntityRenderState;
 import net.minecraft.world.entity.LivingEntity;
 
 public class EntityActionRenderState {

@@ -18,7 +18,7 @@ import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.VertexConsumer;
 
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.renderer.ShapeRenderer;
+import net.minecraft.client.renderer.LevelRenderer;
 import net.minecraft.client.renderer.entity.EntityRenderDispatcher;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.phys.AABB;
@@ -40,12 +40,12 @@ public class HitboxRenderingMixin {
 				float[] color = RGBUtil.rgb(skin.getColor());
 				ActionTarget target = ClientsideAim.standAim.getTarget();
 				if (target.getEntity() == p_entity) {
-					ShapeRenderer.renderLineBox(poseStack, buffer, precisionAABB, color[0], color[1], color[2], 1);
+					LevelRenderer.renderLineBox(poseStack, buffer, precisionAABB, color[0], color[1], color[2], 1);
 
 					Optional<Vec3> clipPos = target.getClipPos();
 					if (clipPos.isPresent()) {
 						Vec3 point = clipPos.get().subtract(p_entity.getX(), p_entity.getY(), p_entity.getZ());
-						ShapeRenderer.renderLineBox(
+						LevelRenderer.renderLineBox(
 								poseStack, buffer,
 								point.x - 0.01, point.y - 0.01, point.z - 0.01,
 								point.x + 0.01, point.y + 0.01, point.z + 0.01,
@@ -53,7 +53,7 @@ public class HitboxRenderingMixin {
 					}
 				}
 				else {
-					ShapeRenderer.renderLineBox(poseStack, buffer, precisionAABB, color[0], color[1], color[2], 0.25f);
+					LevelRenderer.renderLineBox(poseStack, buffer, precisionAABB, color[0], color[1], color[2], 0.25f);
 				}
 			}
 		}

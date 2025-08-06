@@ -41,7 +41,7 @@ public class StandAimMarker extends MarkerRenderer {
 	}
 
 	@Override
-	protected void renderAt(PoseStack poseStack, MarkerInstance marker, Camera camera, Vec3 diff, float partialTick, int[] argb) {
+	protected void renderAt(PoseStack poseStack, MarkerInstance marker, Camera camera, Vec3 diff, float partialTick, int color) {
 		poseStack.pushPose();
 
 		double distance = diff.length();
@@ -50,7 +50,7 @@ public class StandAimMarker extends MarkerRenderer {
 		poseStack.translate(diff.x, diff.y, diff.z);
 		poseStack.scale(-scale * 1.25f, -scale * 1.25f, 1);
 
-		AIM_ICON.render(poseStack, -AIM_ICON.width / 2, -AIM_ICON.height / 2, 255, 255, 255, 255);
+		AIM_ICON.render(poseStack, -AIM_ICON.width / 2, -AIM_ICON.height / 2);
 
 		poseStack.popPose();
 	}

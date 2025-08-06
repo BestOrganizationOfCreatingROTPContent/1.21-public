@@ -28,7 +28,8 @@ import net.neoforged.neoforge.event.entity.living.LivingShieldBlockEvent;
 public class DamageUtil {
 	
 	public static Holder<DamageType> type(Level level, ResourceKey<DamageType> resourceKey) {
-		return level.damageSources().damageTypes.getOrThrow(resourceKey); // i ain't typin' allat
+//		return level.damageSources().damageTypes.getOrThrow(resourceKey);
+		return level.damageSources().damageTypes.getHolderOrThrow(resourceKey); // i ain't typin' allat
 	}
 
 //	public static boolean dealDamageAndSetOnFire(Entity entity, Predicate<Entity> hurtEntity, int fireSeconds, boolean stand) {
@@ -67,7 +68,8 @@ public class DamageUtil {
 //			targetLiving.getCapability(LivingUtilCapProvider.CAPABILITY).ifPresent(
 //					cap -> cap.onHurtThroughInvul((IModdedDamageSource) dmgSource));
 //		}
-		boolean dealtDamage = target.hurtServer((ServerLevel) target.level(), dmgSource, dmgAmount);
+		
+		boolean dealtDamage = target.hurt(dmgSource, dmgAmount);
 
 		target.invulnerableTime = invulTime;
 		if (targetLiving != null) {
@@ -140,7 +142,7 @@ public class DamageUtil {
 		// Other conditions in LivingEntity#hurtServer
 
 		ServerLevel level = (ServerLevel) player.level();
-		if (player.isInvulnerableTo(level, dmgSource) || player.isDeadOrDying()
+		if (player.isInvulnerableTo(/*level, */dmgSource) || player.isDeadOrDying()
 				|| dmgSource.is(DamageTypeTags.IS_FIRE) && player.hasEffect(MobEffects.FIRE_RESISTANCE)) {
 			damage.setNewDamage(0);
 			return damage;

@@ -3,7 +3,7 @@ package com.github.standobyte.jojo.client.entityanim.molang;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-import net.minecraft.client.renderer.entity.state.LivingEntityRenderState;
+import com.github.standobyte.v1_21_4_stuff.renderstate.LivingEntityRenderState;
 import team.unnamed.mocha.runtime.value.ObjectProperty;
 import team.unnamed.mocha.runtime.value.ObjectValue;
 import team.unnamed.mocha.runtime.value.Value;

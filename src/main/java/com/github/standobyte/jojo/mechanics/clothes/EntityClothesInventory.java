@@ -13,6 +13,7 @@ import com.github.standobyte.jojo.init.ModDataAttachmentTypes;
 import com.github.standobyte.jojo.mechanics.clothes.itemdata.ClothesSlotType;
 import com.github.standobyte.jojo.util.entitycomponent.SynchronizableEntityData;
 import com.github.standobyte.jojo.util.entitycomponent.TickingEntityData;
+import com.github.standobyte.v1_21_4_stuff.missingmethods._ItemStack;
 import com.google.common.collect.Maps;
 import com.mojang.datafixers.util.Pair;
 
@@ -75,7 +76,7 @@ public class EntityClothesInventory implements SynchronizableEntityData, Ticking
 					onOldItemRemoved(slot, oldItem, entity, serverLevel);
 				}
 
-				if (!newItem.isEmpty() && !newItem.isBroken()) {
+				if (!newItem.isEmpty() && !_ItemStack.isBroken(newItem)) {
 					onNewItemWorn(slot, newItem, entity, serverLevel);
 				}
 			}

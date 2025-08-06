@@ -32,18 +32,18 @@ public class CustomModelCube extends ModelPart.Cube {
 		Vector3f vector3f = new Vector3f();
 
 		for (ModelPart.Polygon modelpart$polygon : this.polygons) {
-			Vector3f vector3f1 = pose.transformNormal(modelpart$polygon.normal(), vector3f);
+			Vector3f vector3f1 = pose.transformNormal(modelpart$polygon.normal, vector3f);
 			float f = vector3f1.x();
 			float f1 = vector3f1.y();
 			float f2 = vector3f1.z();
 
-			for (ModelPart.Vertex modelpart$vertex : modelpart$polygon.vertices()) {
-				float f3 = modelpart$vertex.pos().x() / 16.0F;
-				float f4 = modelpart$vertex.pos().y() / 16.0F;
-				float f5 = modelpart$vertex.pos().z() / 16.0F;
+			for (ModelPart.Vertex modelpart$vertex : modelpart$polygon.vertices) {
+				float f3 = modelpart$vertex.pos.x() / 16.0F;
+				float f4 = modelpart$vertex.pos.y() / 16.0F;
+				float f5 = modelpart$vertex.pos.z() / 16.0F;
 				Vector3f vector3f2 = matrix4f.transformPosition(f3, f4, f5, vector3f);
 				buffer.addVertex(
-					vector3f2.x(), vector3f2.y(), vector3f2.z(), color, modelpart$vertex.u(), modelpart$vertex.v(), packedOverlay, packedLight, f, f1, f2
+					vector3f2.x(), vector3f2.y(), vector3f2.z(), color, modelpart$vertex.u, modelpart$vertex.v, packedOverlay, packedLight, f, f1, f2
 				);
 			}
 		}

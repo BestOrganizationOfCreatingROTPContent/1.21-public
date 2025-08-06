@@ -11,6 +11,7 @@ import org.jetbrains.annotations.ApiStatus;
 import org.joml.Vector3f;
 
 import com.github.standobyte.jojo.client.entityrender.parsemodel.CustomModelCube;
+import com.github.standobyte.v1_21_4_stuff.missingmethods._ModelPart$Polygon;
 
 import net.minecraft.client.model.geom.ModelPart;
 import net.minecraft.client.model.geom.ModelPart.Cube;
@@ -193,9 +194,9 @@ public final class BlockbenchMeshDefinition extends CubeDefinition {
 			for (int i = 0; i < vertices.length; i++) {
 				vertices[i] = this.vertices[i].createVertex(texWidth, texHeight);
 			}
-			Vector3f a = vertices[0].pos();
-			Vector3f b = vertices[1].pos();
-			Vector3f c = vertices[2].pos();
+			Vector3f a = vertices[0].pos;
+			Vector3f b = vertices[1].pos;
+			Vector3f c = vertices[2].pos;
 			Vector3f vec1 = new Vector3f(b).sub(a);
 			Vector3f vec2 = new Vector3f(c).sub(a);
 			Vector3f faceNormal = new Vector3f(vec1); faceNormal.cross(vec2);
@@ -213,7 +214,8 @@ public final class BlockbenchMeshDefinition extends CubeDefinition {
 			if (invertNormal) {
 				faceNormal.mul(-1);
 			}
-			return new ModelPart.Polygon(vertices, new Vector3f(faceNormal));
+//			return new ModelPart.Polygon(vertices, new Vector3f(faceNormal));
+			return _ModelPart$Polygon.create(vertices, new Vector3f(faceNormal));
 		}
 	}
 	
@@ -229,7 +231,8 @@ public final class BlockbenchMeshDefinition extends CubeDefinition {
 			for (int i = 0; i < vertices.length; i++) {
 				vertices[i] = this.vertices[i].createVertex(texWidth, texHeight);
 			}
-			return new ModelPart.Polygon(vertices, new Vector3f(normal));
+//			return new ModelPart.Polygon(vertices, new Vector3f(normal));
+			return _ModelPart$Polygon.create(vertices, new Vector3f(normal));
 		}
 	}
 	

@@ -101,7 +101,7 @@ public class Tab implements IJojoMenuTab {
 	public void renderIcon(GuiGraphics guiGraphics, int x, int y) {
 		GuiIcon icon = getIcon();
 		if (icon != null) {
-			icon.render(guiGraphics, x, y);
+			icon.render(guiGraphics.pose(), x, y);
 		}
 	}
 	

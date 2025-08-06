@@ -35,11 +35,13 @@ public class ThrownNuggetBearingEntity extends ThrowableItemProjectile implement
 	}
 
 	public ThrownNuggetBearingEntity(Level level, LivingEntity owner, ItemStack item) {
-		super(ModEntityTypes.NUGGET_BEARING.get(), owner, level, item);
+		super(ModEntityTypes.NUGGET_BEARING.get(), owner, level/*, item*/);
+		setItem(item); // will be redundant
 	}
 
 	public ThrownNuggetBearingEntity(Level level, double x, double y, double z, ItemStack item) {
-		super(ModEntityTypes.NUGGET_BEARING.get(), x, y, z, level, item);
+		super(ModEntityTypes.NUGGET_BEARING.get(), x, y, z, level/*, item*/);
+		setItem(item); // will be redundant
 	}
 
 	@Override
@@ -78,7 +80,7 @@ public class ThrownNuggetBearingEntity extends ThrowableItemProjectile implement
 				damage *= 1.5f;
 			}
 			Entity target = result.getEntity();
-			target.hurtServer(serverLevel, this.damageSources().thrown(this, this.getOwner()), damage);
+			target.hurt(this.damageSources().thrown(this, this.getOwner()), damage);
 			boolean remove = true;
 			
 			boolean pierce = item.is(Tags.Items.NUGGETS_IRON);

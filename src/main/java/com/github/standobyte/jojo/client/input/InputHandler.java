@@ -43,7 +43,7 @@ import it.unimi.dsi.fastutil.ints.Int2ObjectOpenHashMap;
 import net.minecraft.Util;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.screens.ChatScreen;
-import net.minecraft.client.player.ClientInput;
+import net.minecraft.client.player.Input;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.world.entity.player.Player;
 import net.neoforged.bus.api.EventPriority;
@@ -97,7 +97,7 @@ public class InputHandler {
 	@SubscribeEvent
 	public void onFrameUpdate(RenderFrameEvent.Pre event) {
 		holdingLAlt = heldKeys.containsKey(lAlt);
-		float tickDelta = mc.getDeltaTracker().getRealtimeDeltaTicks();
+		float tickDelta = mc.getTimer()/*getDeltaTracker()*/.getRealtimeDeltaTicks();
 		frameUpdateHeldKeys(tickDelta);
 	}
 
@@ -370,7 +370,7 @@ public class InputHandler {
 	@SubscribeEvent(priority = EventPriority.HIGH)
 	public void playerMovementInput(MovementInputUpdateEvent event) {
 		Player player = event.getEntity();
-		ClientInput input = event.getInput();
+		Input input = event.getInput();
 		float movementMultiplier = 1;
 		
 		EntityActionInstance playerAction = LivingComponentAction.getCurEntityAction(player);

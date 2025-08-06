@@ -61,9 +61,9 @@ public class ModelPartMixin implements IPlayerLimbBend {
 		this.jojo_ripples$invertBend = invertBend;
 		for (ModelPart modelPart : children.values()) {
 			((ModelPartMixin) (Object) modelPart).jojo_ripples$setBendBone(bendBone, 
-					bendOffsetX - this.initialPose.x(), 
-					bendOffsetY - this.initialPose.y(), 
-					bendOffsetZ - this.initialPose.z(), 
+					bendOffsetX - this.initialPose.x, 
+					bendOffsetY - this.initialPose.y, 
+					bendOffsetZ - this.initialPose.z, 
 					invertBend);
 		}
 	}

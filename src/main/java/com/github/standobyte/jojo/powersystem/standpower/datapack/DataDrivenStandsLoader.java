@@ -137,7 +137,7 @@ public class DataDrivenStandsLoader {
 			JsonObject json = dataEntry.getValue();
 			if (hardcodedStands.containsKey(standId)) {
 				// Configure one of the registered Stands.
-				StandType stand = hardcodedStands.getValue(standId);
+				StandType stand = hardcodedStands.get(standId);
 				stand.applyConfig(json);
 			}
 			else {
@@ -147,7 +147,7 @@ public class DataDrivenStandsLoader {
 				if (baseStandId != null) {
 					// Use one of the existing Stands as a base.
 					// Another json to configure the new Stand is created based on the baseStand's values.
-					StandType baseStand = hardcodedStands.getValue(baseStandId);
+					StandType baseStand = hardcodedStands.get(baseStandId);
 					if (baseStand != null) {
 						try {
 							standTypeClass = StandTypeClass.byClass(baseStand.getClass());

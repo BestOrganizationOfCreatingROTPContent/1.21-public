@@ -12,6 +12,8 @@ import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
+import net.minecraft.world.InteractionResultHolder;
+import net.minecraft.world.ItemInteractionResult;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.ai.attributes.Attributes;
@@ -20,6 +22,7 @@ import net.minecraft.world.item.BlockItem;
 import net.minecraft.world.item.BucketItem;
 import net.minecraft.world.item.ItemCooldowns;
 import net.minecraft.world.item.ItemStack;
+import com.github.standobyte.v1_21_4_stuff.missingmethods._ItemStack;
 import net.minecraft.world.item.context.UseOnContext;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.state.BlockState;
@@ -60,13 +63,12 @@ public class ServerSideLivingClick {
 				result = _useItemNoTarget(entity, entityWrapper, item, hand);
 			}
 
-			if (result instanceof InteractionResult.Success success) {
-				if (success.swingSource() == InteractionResult.SwingSource.SERVER) {
-					entity.swing(hand, true);
-				}
-				entityWrapper.checkInventoryChanges();
-				return true;
+			if (result.shouldSwing()) {
+//			if (success.swingSource() == InteractionResult.SwingSource.SERVER) {
+				entity.swing(hand, true);
 			}
+			entityWrapper.checkInventoryChanges();
+			return result.consumesAction();
 		}
 		return false;
 	}
@@ -96,9 +98,9 @@ public class ServerSideLivingClick {
 					interactionResult = targetEntity.interactAt(entityWrapper, localHitPos, hand);
 				}
 	
-				if (actualPlayer != null && interactionResult instanceof InteractionResult.Success success) {
+				if (actualPlayer != null && /*interactionResult instanceof InteractionResult.Success success*/interactionResult.consumesAction()) {
 					CriteriaTriggers.PLAYER_INTERACTED_WITH_ENTITY.trigger(actualPlayer, 
-							success.wasItemInteraction() ? originalItemCopy : ItemStack.EMPTY, targetEntity);
+							/*success.wasItemInteraction()*/ interactionResult.indicateItemUse() ? originalItemCopy : ItemStack.EMPTY, targetEntity);
 				}
 	
 	
@@ -129,9 +131,9 @@ public class ServerSideLivingClick {
 						}
 					}
 	
-					if (actualPlayer != null && interactionResult instanceof InteractionResult.Success success) {
+					if (actualPlayer != null && /*interactionResult instanceof InteractionResult.Success success*/interactionResult.consumesAction()) {
 						CriteriaTriggers.PLAYER_INTERACTED_WITH_ENTITY.trigger(actualPlayer, 
-								success.wasItemInteraction() ? originalItemCopy : ItemStack.EMPTY, targetEntity);
+								/*success.wasItemInteraction()*/ interactionResult.indicateItemUse() ? originalItemCopy : ItemStack.EMPTY, targetEntity);
 					}
 				}
 	
@@ -154,7 +156,8 @@ public class ServerSideLivingClick {
 					yield InteractionResult.FAIL;
 				}
 	
-				int maxBuildHeight = entity.level().getMaxY();
+				int maxBuildHeight = entity.level().getMaxBuildHeight() - 1;
+//				int maxBuildHeight = entity.level().getMaxY();
 				if (blockPos.getY() > maxBuildHeight) {
 					if (actualPlayer != null) {
 						actualPlayer.sendSystemMessage(Component.translatable("build.tooHigh", maxBuildHeight)
@@ -174,7 +177,7 @@ public class ServerSideLivingClick {
 						&& blockHitResult.getDirection() == Direction.UP
 						&& !interactionResult.consumesAction()
 						&& blockPos.getY() >= maxBuildHeight
-						&& /* wasBlockPlacementAttempt */ !item.isEmpty() && (item.getItem() instanceof BlockItem || item.getItem() instanceof BucketItem) && (cooldowns == null || !cooldowns.isOnCooldown(item))) {
+						&& /* wasBlockPlacementAttempt */ !item.isEmpty() && (item.getItem() instanceof BlockItem || item.getItem() instanceof BucketItem) && (cooldowns == null || !_ItemStack.isOnCooldown(item, cooldowns))) {
 					actualPlayer.sendSystemMessage(Component.translatable("build.tooHigh", maxBuildHeight)
 							.withStyle(ChatFormatting.RED), true);
 				}
@@ -208,7 +211,8 @@ public class ServerSideLivingClick {
 				&& entity.getOffhandItem().doesSneakBypassUse(level, blockPos, entityWrapper));
 		ItemStack originalItemCopy = item.copy();
 		if (event.getUseBlock().isTrue() || (event.getUseBlock().isDefault() && !shift)) {
-			InteractionResult interactionResult = blockState.useItemOn(entity.getItemInHand(hand), level, entityWrapper, hand, targetBlock);
+			ItemInteractionResult _itemInteractionResult = blockState.useItemOn(entity.getItemInHand(hand), level, entityWrapper, hand, targetBlock);
+			InteractionResult interactionResult = _itemInteractionResult.result();
 			if (interactionResult.consumesAction()) {
 				if (actualPlayer != null) {
 					CriteriaTriggers.ITEM_USED_ON_BLOCK.trigger(actualPlayer, blockPos, originalItemCopy);
@@ -216,7 +220,7 @@ public class ServerSideLivingClick {
 				return interactionResult;
 			}
 
-			if (interactionResult instanceof InteractionResult.TryEmptyHandInteraction && hand == InteractionHand.MAIN_HAND) {
+			if (_itemInteractionResult == ItemInteractionResult.PASS_TO_DEFAULT_BLOCK_INTERACTION && hand == InteractionHand.MAIN_HAND) {
 				interactionResult = blockState.useWithoutItem(level, entityWrapper, targetBlock);
 				if (interactionResult.consumesAction()) {
 					if (actualPlayer != null) {
@@ -228,7 +232,7 @@ public class ServerSideLivingClick {
 		}
 
 		ItemCooldowns cooldowns = entityWrapper.getCooldowns();
-		if (event.getUseItem().isTrue() || (!item.isEmpty() && (cooldowns == null || !cooldowns.isOnCooldown(item)))) {
+		if (event.getUseItem().isTrue() || (!item.isEmpty() && (cooldowns == null || !_ItemStack.isOnCooldown(item, cooldowns)))) {
 			if (event.getUseItem().isFalse()) return InteractionResult.PASS;
 			InteractionResult interactionResult = item.useOn(context);
 
@@ -244,7 +248,7 @@ public class ServerSideLivingClick {
 
 	public static InteractionResult _useItemNoTarget(LivingEntity entity, Player entityWrapper, ItemStack item, InteractionHand hand) {
 		ItemCooldowns cooldowns = entityWrapper.getCooldowns();
-		if (cooldowns != null && cooldowns.isOnCooldown(item)) {
+		if (cooldowns != null && _ItemStack.isOnCooldown(item, cooldowns)) {
 			return InteractionResult.PASS;
 		} else {
 			InteractionResult interactionResult = CommonHooks.onItemRightClick(entityWrapper, hand);
@@ -255,15 +259,18 @@ public class ServerSideLivingClick {
 			Level level = entity.level();
 			int itemCount = item.getCount();
 			int damage = item.getDamageValue();
-			interactionResult = item.use(level, entityWrapper, hand);
+//			interactionResult = item.use(level, entityWrapper, hand);
+			InteractionResultHolder<ItemStack> _holder = item.use(level, entityWrapper, hand);
+			interactionResult = _holder.getResult();
 
 			ItemStack resultItem = null;
-			if (interactionResult instanceof InteractionResult.Success success) {
-				resultItem = success.heldItemTransformedTo();
-			}
-			if (resultItem == null) {
-				resultItem = entity.getItemInHand(hand);
-			}
+			resultItem = _holder.getObject();
+//			if (interactionResult instanceof InteractionResult.Success success) {
+//				resultItem = success.heldItemTransformedTo();
+//			}
+//			if (resultItem == null) {
+//				resultItem = entity.getItemInHand(hand);
+//			}
 
 			if ((
 					resultItem == item
@@ -271,7 +278,8 @@ public class ServerSideLivingClick {
 					&& resultItem.getUseDuration(entity) <= 0
 					&& resultItem.getDamageValue() == damage)
 						|| (
-					interactionResult instanceof InteractionResult.Fail
+					// interactionResult instanceof InteractionResult.Fail
+					interactionResult == InteractionResult.FAIL
 					&& resultItem.getUseDuration(entity) > 0
 					&& !entity.isUsingItem())) {
 				return interactionResult;

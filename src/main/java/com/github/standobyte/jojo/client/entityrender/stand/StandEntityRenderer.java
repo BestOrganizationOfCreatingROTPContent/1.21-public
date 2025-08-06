@@ -1,7 +1,6 @@
 package com.github.standobyte.jojo.client.entityrender.stand;
 
 import java.util.Optional;
-import java.util.function.Consumer;
 
 import com.github.standobyte.jojo.client.ClientGlobals;
 import com.github.standobyte.jojo.client.RotpGeckoModelLoader;
@@ -14,25 +13,28 @@ import com.github.standobyte.jojo.powersystem.entityaction.ActionAnimIdentifier;
 import com.github.standobyte.jojo.powersystem.entityaction.EntityActionInstance;
 import com.github.standobyte.jojo.powersystem.standpower.entity.StandEntity;
 import com.github.standobyte.jojo.util.java.LazyNullable;
+import com.github.standobyte.v1_21_4_stuff.renderstate.ArmedEntityRenderState;
+import com.github.standobyte.v1_21_4_stuff.renderstate.LivingEntityRenderState;
+import com.github.standobyte.v1_21_4_stuff.renderstate.RenderStateCrutches;
 import com.mojang.blaze3d.vertex.PoseStack;
 
 import net.minecraft.client.model.HumanoidModel;
 import net.minecraft.client.model.Model;
 import net.minecraft.client.model.geom.builders.LayerDefinition;
 import net.minecraft.client.renderer.MultiBufferSource;
-import net.minecraft.client.renderer.RenderType;
 import net.minecraft.client.renderer.entity.EntityRendererProvider.Context;
 import net.minecraft.client.renderer.entity.LivingEntityRenderer;
 import net.minecraft.client.renderer.entity.layers.ItemInHandLayer;
-import net.minecraft.client.renderer.entity.state.ArmedEntityRenderState;
 import net.minecraft.resources.ResourceLocation;
 
 public class StandEntityRenderer<
 				T extends StandEntity, 
 				S extends StandEntityRenderState, 
-				M extends StandEntityModel<S>> 
-		extends LivingEntityRenderer<T, S, M> {
-	protected final S outOfLevelRenderState = createRenderState();
+				M extends StandEntityModel<T, S>> 
+		extends LivingEntityRenderer<T, M> {
+	@Deprecated(forRemoval = true)
+	public final S reusedState = this.createRenderState();
+	public final S outOfLevelRenderState = createRenderState();
 	protected LazyNullable<M> missingSkinModel;
 
 	public StandEntityRenderer(Context context) {
@@ -43,7 +45,13 @@ public class StandEntityRenderer<
 		super(context, null, shadowRadius);
 		this.missingSkinModel = LazyNullable.of(() -> createStandModel(
 				RotpGeckoModelLoader.getInstance().getModelDefinition(JojoMod.resLoc("stand_default"))));
-		this.addLayer(new ItemInHandLayer<>(this));
+		this.addLayer(new ItemInHandLayer<>(this, context.getItemInHandRenderer()));
+	}
+	
+	public final S createRenderState(T entity, float partialTick) {
+		S s = this.reusedState;
+		this.extractRenderState(entity, s, partialTick);
+		return s;
 	}
 
 	/**
@@ -51,7 +59,7 @@ public class StandEntityRenderer<
 	 * don't forget to override this method too to actually create the new render state object.
 	 */
 	@SuppressWarnings("unchecked")
-	@Override
+//	@Override // 1.21.2+
 	public S createRenderState() {
 		return (S) new StandEntityRenderState();
 	}
@@ -61,14 +69,16 @@ public class StandEntityRenderer<
 	}
 	
 	public Model createModel(ResourceLocation modelPath, LayerDefinition definition) {
-		return new Model(definition.bakeRoot(), RenderType::entityTranslucent) {} /* Mojang making base Model class abstract for no reason, very cool */;
+		return null;
+//		return new Model(definition.bakeRoot(), RenderType::entityTranslucent);
 	}
 	
 	public static final ActionAnimIdentifier IDLE_ANIM = ActionAnimIdentifier.getOrCreate("idle");
-	@Override
+//	@Override // 1.21.2+
 	public void extractRenderState(T entity, S renderState, float partialTick) {
-		super.extractRenderState(entity, renderState, partialTick);
-		ArmedEntityRenderState.extractArmedEntityRenderState(entity, renderState, this.itemModelResolver);
+//		super.extractRenderState(entity, renderState, partialTick); // 1.21.2+
+		LivingEntityRenderState.extract(entity, renderState, this, entityRenderDispatcher, partialTick);
+		ArmedEntityRenderState.extractArmedEntityRenderState(entity, renderState/*, this.itemModelResolver*/);
 		renderState.leftArmPose = HumanoidModel.ArmPose.EMPTY;
 		renderState.rightArmPose = HumanoidModel.ArmPose.EMPTY;
 		
@@ -126,17 +136,25 @@ public class StandEntityRenderer<
 	
 	
 	protected static final ResourceLocation MISSING_TEXTURE = JojoMod.resLoc("textures/entity/stand_default.png");
-	@Override
+//	@Override // 1.21.1+
 	public ResourceLocation getTextureLocation(S renderState) {
 		StandSkin standSkin = renderState.skin;
 		ResourceLocation texture = standSkin != null ? standSkin.getStandTexture(renderState.defaultSkin, MISSING_TEXTURE) : null;
 		return texture != null ? texture : MISSING_TEXTURE;
 	}
-
+	
 	@Override
-    protected int getModelTint(S renderState) {
-		return renderState.tint;
-    }
+	public ResourceLocation getTextureLocation(T entity) {
+		if (RenderStateCrutches.currentEntityRenderState != null) {
+			return getTextureLocation((S) RenderStateCrutches.currentEntityRenderState);
+		}
+		return MISSING_TEXTURE;
+	}
+
+//	@Override
+//    protected int getModelTint(S renderState) {
+//		return renderState.tint;
+//    }
 
 	protected void setModelFrom(S renderState) {
 		StandSkin standSkin = renderState.skin;
@@ -150,21 +168,38 @@ public class StandEntityRenderer<
 	}
 	
 	
-	public void renderWithRenderState(Consumer<S> renderState, PoseStack poseStack, MultiBufferSource bufferSource, int light) {
-		renderState.accept(outOfLevelRenderState);
-		render(outOfLevelRenderState, poseStack, bufferSource, light);
-	}
+	// 1.21.2+
+//	public void renderWithRenderState(Consumer<S> renderState, PoseStack poseStack, MultiBufferSource bufferSource, int light) {
+//		renderState.accept(outOfLevelRenderState);
+//		render(outOfLevelRenderState, poseStack, bufferSource, light);
+//	}
 	
+	
+//	@Override // 1.21.2+
+//	public void render(S renderState, PoseStack poseStack, MultiBufferSource bufferSource, int light) {
+//		setModelFrom(renderState);
+//		if (this.model != null) {
+//			super.render(renderState, poseStack, bufferSource, light);
+//		}
+//	}
 	
 	@Override
-	public void render(S renderState, PoseStack poseStack, MultiBufferSource bufferSource, int light) {
+	public void render(T entity, float entityYaw, float partialTicks, PoseStack poseStack, MultiBufferSource bufferSource, int light) {
+        S s = this.createRenderState(entity, partialTicks);
+        render(entity, s, entityYaw, partialTicks, poseStack, bufferSource, light);
+	}
+
+	public void render(T entity, S renderState, float entityYaw, float partialTicks, PoseStack poseStack, MultiBufferSource bufferSource, int light) {
+        RenderStateCrutches.currentEntityRenderState = renderState;
 		setModelFrom(renderState);
-		if (this.model == null) return;
-		super.render(renderState, poseStack, bufferSource, light);
+		if (this.model != null) {
+			super.render(entity, entityYaw, partialTicks, poseStack, bufferSource, light);
+		}
+        RenderStateCrutches.currentEntityRenderState = null;
 	}
 
 	@Override
-	protected boolean shouldShowName(T entity, double distSqr) {
+	protected boolean shouldShowName(T entity/*, double distSqr*/) {
 		return false;
 	}
 

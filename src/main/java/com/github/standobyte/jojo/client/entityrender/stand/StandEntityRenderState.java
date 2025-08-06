@@ -2,8 +2,8 @@ package com.github.standobyte.jojo.client.entityrender.stand;
 
 import com.github.standobyte.jojo.client.entityrender.EntityActionRenderState;
 import com.github.standobyte.jojo.client.standskin.StandSkin;
+import com.github.standobyte.v1_21_4_stuff.renderstate.HumanoidRenderState;
 
-import net.minecraft.client.renderer.entity.state.HumanoidRenderState;
 import net.minecraft.resources.ResourceLocation;
 
 public class StandEntityRenderState extends HumanoidRenderState {
