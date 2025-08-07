@@ -1,5 +1,7 @@
 package com.github.standobyte.jojo.client.ui.utils;
 
+import java.util.Objects;
+
 import com.mojang.blaze3d.vertex.PoseStack;
 
 import net.minecraft.client.Minecraft;
@@ -47,4 +49,17 @@ public class GuiIcon {
 				color);
 	}
 	
+	@Override
+	public boolean equals(Object obj) {
+		return obj instanceof GuiIcon other && 
+				this.file.equals(other.file) && 
+				this.width == other.width && this.height == other.height && 
+				this.minU == other.minU && this.widthU == other.widthU && 
+				this.minV == other.minV && this.heightV == other.heightV;
+	}
+	
+	@Override
+	public int hashCode() {
+		return Objects.hash(file, width, height, minU, widthU, minV, heightV);
+	}
 }

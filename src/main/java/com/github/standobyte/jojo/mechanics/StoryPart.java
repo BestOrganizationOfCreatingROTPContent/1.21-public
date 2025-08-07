@@ -1,8 +1,8 @@
 package com.github.standobyte.jojo.mechanics;
 
-import org.jetbrains.annotations.ApiStatus;
-
-import com.github.standobyte.jojo.client.text.sprite.StoryPartIconGlyphs;
+import com.github.standobyte.jojo.client.text.sprite.IconGlyph;
+import com.github.standobyte.jojo.client.text.sprite.IconGlyphsCache;
+import com.github.standobyte.jojo.client.ui.utils.GuiIcon;
 import com.github.standobyte.jojo.core.JojoRegistries;
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
@@ -22,7 +22,7 @@ public class StoryPart {
 	protected final TextColor nameColor;
 	protected Component name;
 	protected ResourceLocation icon;
-	@ApiStatus.Internal public int clientGlyphIndex;
+	protected int clientGlyphIndex = 0;
 
 	public StoryPart(TextColor nameColor) {
 		this.nameColor = nameColor;
@@ -37,9 +37,9 @@ public class StoryPart {
 		if (value.name == null) {
 			MutableComponent iconAndName = null;
 			if (FMLEnvironment.dist == Dist.CLIENT) {
-				int iconGlyphCode = StoryPartIconGlyphs.getGlyphCharCode(holder);
-				if (iconGlyphCode > 0) {
-					iconAndName = Component.literal(Character.toString(iconGlyphCode));
+				ResourceLocation icon = StoryPart.partIcon(holder);
+				if (icon != null && value.clientGlyphIndex > 0) {
+					iconAndName = Component.literal(Character.toString(value.clientGlyphIndex));
 				}
 			}
 			if (iconAndName == null) {
@@ -66,7 +66,8 @@ public class StoryPart {
 			ResourceLocation id = key.location();
 			value.icon = id.withPath(path -> "textures/story_part/" + path + ".png");
 			if (FMLEnvironment.dist == Dist.CLIENT) {
-				StoryPartIconGlyphs.cacheGlyphCode(value.icon, value);
+				value.clientGlyphIndex = IconGlyphsCache.getOrComputeCharCode(
+						new IconGlyph.Info(new GuiIcon(value.icon, 16, 16), 8, 8));
 			}
 		}
 		return value.icon;
