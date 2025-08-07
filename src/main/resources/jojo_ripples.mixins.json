@@ -30,6 +30,7 @@
     "client.standskin.SoundInstanceMixin",
     "client.aim.GameRendererMixin",
     "client.aim.HitboxRenderingMixin",
-    "client.standshader.MinecraftMixin"
+    "client.standshader.MinecraftMixin",
+	"client.CloseResources"
   ]
 }

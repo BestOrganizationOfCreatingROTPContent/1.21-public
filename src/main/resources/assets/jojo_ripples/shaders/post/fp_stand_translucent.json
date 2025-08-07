@@ -1,12 +1,17 @@
 {
-    "vertex": "minecraft:post/blit",
-    "fragment": "jojo_ripples:post/fp_stand_translucent",
-    "samplers": [
-        { "name": "InSampler" }
+    "targets": [
+        "swap"
     ],
-    "uniforms": [
-        { "name": "ProjMat",       "type": "matrix4x4", "count": 16, "values": [ 1.0, 0.0, 0.0, 0.0, 0.0, 1.0, 0.0, 0.0, 0.0, 0.0, 1.0, 0.0, 0.0, 0.0, 0.0, 1.0 ] },
-        { "name": "InSize",        "type": "float",     "count": 2,  "values": [ 1.0, 1.0 ] },
-        { "name": "OutSize",       "type": "float",     "count": 2,  "values": [ 1.0, 1.0 ] }
+    "passes": [
+        {
+            "name": "jojo_ripples:fp_stand_translucent",
+            "intarget": "minecraft:main",
+            "outtarget": "swap"
+        },
+        {
+            "name": "blit",
+            "intarget": "swap",
+            "outtarget": "minecraft:main"
+        }
     ]
 }

@@ -1,5 +1,8 @@
 package com.github.standobyte.jojo.client;
 
+import java.util.HashSet;
+import java.util.Set;
+
 import com.github.standobyte.jojo.client.entityanim.AnimationLoader;
 import com.github.standobyte.jojo.client.entityrender.clothes.ClothesModelLoader;
 import com.github.standobyte.jojo.client.standskin.StandSkinsLoader;
@@ -23,4 +26,6 @@ public class ModClientResources {
 		AnimationLoader.init(event);
 		ClothesModelLoader.init(event);
 	}
+	
+	public static Set<AutoCloseable> closeables = new HashSet<>();
 }

@@ -2,17 +2,15 @@ package com.github.standobyte.jojo.client.shader;
 
 import com.github.standobyte.jojo.client.rendertype.CustomMultiBufferSource;
 import com.github.standobyte.jojo.core.JojoMod;
-import com.github.standobyte.jojo.util.reflection.ClientReflection;
+import com.github.standobyte.v1_21_4_stuff.PostEffectCache;
 import com.mojang.blaze3d.pipeline.MainTarget;
 import com.mojang.blaze3d.pipeline.RenderTarget;
 import com.mojang.blaze3d.platform.GlStateManager;
-import com.mojang.blaze3d.resource.GraphicsResourceAllocator;
 import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.blaze3d.vertex.ByteBufferBuilder;
 
 import it.unimi.dsi.fastutil.objects.Object2ObjectLinkedOpenHashMap;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.renderer.LevelTargetBundle;
 import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.PostChain;
 import net.minecraft.client.renderer.RenderStateShard;
@@ -22,7 +20,6 @@ import net.neoforged.bus.api.EventPriority;
 import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.fml.common.EventBusSubscriber;
 import net.neoforged.fml.event.lifecycle.FMLClientSetupEvent;
-import net.neoforged.neoforge.client.event.ConfigureMainRenderTargetEvent;
 import net.neoforged.neoforge.client.event.RegisterRenderBuffersEvent;
 import net.neoforged.neoforge.client.event.RenderLevelStageEvent;
 import net.neoforged.neoforge.common.NeoForge;
@@ -36,18 +33,18 @@ public class FirstPersonStandTranslucentShader {
 	public static final RenderStateShard.OutputStateShard STAND_TRANSLUCENT_TARGET = new RenderStateShard.OutputStateShard(
 			"stand_translucent", () -> standTranslucencyFrameBuffer.bindWrite(false), () -> {});
 
-	@SubscribeEvent
-	public static void mcInit(ConfigureMainRenderTargetEvent event) {
+//	@SubscribeEvent
+	public static void bufferInit(/*ConfigureMainRenderTargetEvent event*/) {
 		Minecraft mc = Minecraft.getInstance();
-	    standTranslucencyFrameBuffer = new MainTarget(mc.getWindow().getWidth(), mc.getWindow().getHeight(), false);
+	    standTranslucencyFrameBuffer = new MainTarget(mc.getWindow().getWidth(), mc.getWindow().getHeight()/*, false*/);
 	    standTranslucencyFrameBuffer.setClearColor(0.0F, 0.0F, 0.0F, 0.0F);
-	    standTranslucencyFrameBuffer.clear();
+	    standTranslucencyFrameBuffer.clear(Minecraft.ON_OSX);
 	}
 	
-	@SubscribeEvent
-	public static void mcInit2(RenderLevelStageEvent.RegisterStageEvent event) {
-		resourcePoolCache = ClientReflection.getResourcePool(Minecraft.getInstance().gameRenderer);
-	}
+//	@SubscribeEvent
+//	public static void mcInit2(RenderLevelStageEvent.RegisterStageEvent event) {
+//		resourcePoolCache = ClientReflection.getResourcePool(Minecraft.getInstance().gameRenderer);
+//	}
 	
 	@SubscribeEvent(priority = EventPriority.LOWEST)
 	public static void createRenderBuffer(RegisterRenderBuffersEvent event) {
@@ -79,24 +76,26 @@ public class FirstPersonStandTranslucentShader {
 	}
 	
 
-	private static GraphicsResourceAllocator resourcePoolCache;
+//	private static GraphicsResourceAllocator resourcePoolCache;
 	public static void setupStandFirstPersonBuffer() {
 		Minecraft mc = Minecraft.getInstance();
-		standTranslucencyFrameBuffer.clear();
+		standTranslucencyFrameBuffer.clear(Minecraft.ON_OSX);
 		standTranslucencyFrameBuffer.copyDepthFrom(mc.getMainRenderTarget());
 	}
 
-	@SuppressWarnings("deprecation")
+	private static final ResourceLocation POST_EFFECT_ID = JojoMod.resLoc("fp_stand_translucent");
+//	@SuppressWarnings("deprecation")
 	public static void applyEffect() {
 		Minecraft mc = Minecraft.getInstance();
-		ResourceLocation postEffectId = JojoMod.resLoc("fp_stand_translucent");
 
 		RenderSystem.disableBlend();
 		RenderSystem.disableDepthTest();
 		RenderSystem.resetTextureMatrix();
-		PostChain postchain = mc.getShaderManager().getPostChain(postEffectId, LevelTargetBundle.MAIN_TARGETS);
+//		PostChain postchain = mc.getShaderManager().getPostChain(POST_EFFECT_ID, LevelTargetBundle.MAIN_TARGETS);
+		PostChain postchain = PostEffectCache.instance.getEffect(POST_EFFECT_ID, standTranslucencyFrameBuffer, true);
 		if (postchain != null) {
-			postchain.process(standTranslucencyFrameBuffer, resourcePoolCache);
+			postchain.process(mc.getTimer().getGameTimeDeltaTicks());
+//			postchain.process(standTranslucencyFrameBuffer, resourcePoolCache);
 		}
 	}
 	
@@ -110,7 +109,8 @@ public class FirstPersonStandTranslucentShader {
 				GlStateManager.SourceFactor.ZERO,
 				GlStateManager.DestFactor.ONE
 				);
-		standTranslucencyFrameBuffer.blitAndBlendToScreen(mc.getWindow().getWidth(), mc.getWindow().getHeight());
+//		standTranslucencyFrameBuffer.blitAndBlendToScreen(mc.getWindow().getWidth(), mc.getWindow().getHeight());
+		standTranslucencyFrameBuffer.blitToScreen(mc.getWindow().getWidth(), mc.getWindow().getHeight(), false);
 		RenderSystem.disableBlend();
 		RenderSystem.defaultBlendFunc();
 	}
@@ -118,7 +118,7 @@ public class FirstPersonStandTranslucentShader {
 	
 	public static void resize(int width, int height) {
 		if (standTranslucencyFrameBuffer != null) {
-			standTranslucencyFrameBuffer.resize(width, height);
+			standTranslucencyFrameBuffer.resize(width, height, Minecraft.ON_OSX);
 		}
 	}
 

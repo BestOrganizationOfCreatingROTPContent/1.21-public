@@ -8,6 +8,7 @@ import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
 import com.github.standobyte.jojo.client.shader.FirstPersonStandTranslucentShader;
+import com.github.standobyte.v1_21_4_stuff.PostEffectCache;
 import com.mojang.blaze3d.platform.Window;
 
 import net.minecraft.client.Minecraft;
@@ -18,6 +19,9 @@ public class MinecraftMixin {
 
 	@Inject(method = "resizeDisplay", at = @At("RETURN"))
 	public void jojo_ripples$onResize(CallbackInfo ci) {
-		FirstPersonStandTranslucentShader.resize(this.window.getWidth(), this.window.getHeight());
+		int width = this.window.getWidth();
+		int height = this.window.getHeight();
+		FirstPersonStandTranslucentShader.resize(width, height);
+		PostEffectCache.resize(width, height);
 	}
 }

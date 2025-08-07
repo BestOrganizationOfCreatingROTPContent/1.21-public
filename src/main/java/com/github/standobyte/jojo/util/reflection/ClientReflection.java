@@ -3,9 +3,6 @@ package com.github.standobyte.jojo.util.reflection;
 import java.lang.reflect.Field;
 import java.util.Map;
 
-import com.mojang.blaze3d.resource.CrossFrameResourcePool;
-
-import net.minecraft.client.renderer.GameRenderer;
 import net.minecraft.client.sounds.SoundEngine;
 import net.minecraft.client.sounds.SoundManager;
 import net.minecraft.resources.ResourceLocation;
@@ -25,8 +22,8 @@ public final class ClientReflection {
 	}
 
 	
-	private static final Field GAME_RENDERER_RESOURCE_POOL = ObfuscationReflectionHelper.findField(GameRenderer.class, "resourcePool");
-	public static CrossFrameResourcePool getResourcePool(GameRenderer gameRenderer) {
-		return ReflectionUtil.getFieldValue(GAME_RENDERER_RESOURCE_POOL, gameRenderer);
-	}
+//	private static final Field GAME_RENDERER_RESOURCE_POOL = ObfuscationReflectionHelper.findField(GameRenderer.class, "resourcePool");
+//	public static CrossFrameResourcePool getResourcePool(GameRenderer gameRenderer) {
+//		return ReflectionUtil.getFieldValue(GAME_RENDERER_RESOURCE_POOL, gameRenderer);
+//	}
 }
