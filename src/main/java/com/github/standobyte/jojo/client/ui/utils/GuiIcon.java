@@ -15,6 +15,11 @@ public class GuiIcon {
 	public final float heightV;
 
 	public GuiIcon(ResourceLocation file, 
+			float texWidth, float texHeight) {
+		this(file, 0, 0, texWidth, texHeight, texWidth, texHeight);
+	}
+
+	public GuiIcon(ResourceLocation file, 
 			float offsetU, float offsetV, 
 			float widthU, float heightV, 
 			float texWidth, float texHeight) {
@@ -32,6 +37,10 @@ public class GuiIcon {
 	}
 
 	public void render(PoseStack poseStack, float x, float y, int color) {
+		render(poseStack, x, y, this.width, this.height, color);
+	}
+
+	public void render(PoseStack poseStack, float x, float y, float width, float height, int color) {
 		BlitFloat.blit(poseStack, Minecraft.getInstance(), file, 
 				x, y, width, height, 0, 
 				minU, minV, widthU, heightV, 1, 1, 
