@@ -19,6 +19,8 @@
   "jojo_ripples.story_part.p8": "JoJolion",
   "jojo_ripples.story_part.p9": "The JOJOLands",
   
+  "item.jojo_ripples.mannequin": "Mannequin",
+  "item.jojo_ripples.mannequin_slim": "Mannequin (slim)",
   "ripples_clothes_split": "Right click to split into %s and %s",
   "ripples_clothes_combine": "Left click on a %s to combine into %s",
   
@@ -37,6 +39,7 @@
   "jojo_ripples.vampirism.skills": "Skills",
   
   
+  "item.jojo_ripples.stand_disc": "Stand Disc",
   "jojo_ripples.menu.stand.info": "Stand Info (NYI)",
   "jojo_ripples.menu.stand.skills": "Skills (NYI)",
   "jojo_ripples.menu.stand.skins": "Stand Skins",
