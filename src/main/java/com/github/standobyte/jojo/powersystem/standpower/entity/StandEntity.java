@@ -533,8 +533,27 @@ public class StandEntity extends LivingEntity implements SummonedStand, IEntityW
 	}
 	
 	
+	@Override
+	public boolean isInvisible() {
+		return clientCantSeeThisStand() || super.isInvisible();
+	}
+	
+	@Override
+	public boolean isInvisibleTo(Player player) {
+		return clientCantSeeThisStand() || super.isInvisibleTo(player);
+	}
+
+	@Override
+	public boolean displayFireAnimation() {
+		return !clientCantSeeThisStand() && super.displayFireAnimation();
+	}
+	
 	public boolean onlyVisibleToStandUsers() {
 		return true;
+	}
+	
+	public boolean clientCantSeeThisStand() {
+		return onlyVisibleToStandUsers() && level().isClientSide() && !ClientGlobals.canSeeStands;
 	}
 	
 	

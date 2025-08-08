@@ -27,6 +27,7 @@ import net.minecraft.client.model.Model;
 import net.minecraft.client.model.geom.builders.LayerDefinition;
 import net.minecraft.client.renderer.ItemInHandRenderer;
 import net.minecraft.client.renderer.MultiBufferSource;
+import net.minecraft.client.renderer.culling.Frustum;
 import net.minecraft.client.renderer.entity.EntityRendererProvider.Context;
 import net.minecraft.client.renderer.entity.LivingEntityRenderer;
 import net.minecraft.client.renderer.entity.RenderLayerParent;
@@ -111,11 +112,6 @@ public class StandEntityRenderer<
 		EntityActionRenderState.setAnim(renderState.action, renderState, 
 				getStandAnim(renderState), entity.clientStuff.barrageSwings);
 		
-		if (entity.onlyVisibleToStandUsers()) {
-			renderState.isInvisible |= !ClientGlobals.canSeeStands;
-			renderState.isInvisibleToPlayer |= !ClientGlobals.canSeeStands;
-		}
-		
 		renderState.tint = -1;
 		
 		Minecraft mc = Minecraft.getInstance();
@@ -192,7 +188,7 @@ public class StandEntityRenderer<
 //			super.render(renderState, poseStack, bufferSource, light);
 //		}
 //	}
-	
+
 	@Override
 	public void render(T entity, float entityYaw, float partialTicks, PoseStack poseStack, MultiBufferSource bufferSource, int light) {
 		S s = this.createRenderState(entity, partialTicks);
