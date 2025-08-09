@@ -102,6 +102,7 @@ public class PostEffectCache implements PreparableReloadListener, AutoCloseable 
 			curLoaded.close();
 		}
 		for (PostChain effect : cache.values()) {
+			// FIXME (!) reload - Rendersystem called from wrong thread
 			if (effect != null && effect != curLoaded) effect.close();
 		}
 		curLoaded = null;

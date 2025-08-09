@@ -6,7 +6,7 @@ import com.github.standobyte.jojo.client.ClientGlobals;
 import com.github.standobyte.jojo.client.RotpGeckoModelLoader;
 import com.github.standobyte.jojo.client.entityanim.AnimWithExtras;
 import com.github.standobyte.jojo.client.entityrender.EntityActionRenderState;
-import com.github.standobyte.jojo.client.shader.FirstPersonStandTranslucentShader;
+import com.github.standobyte.jojo.client.shader.EntityShaders;
 import com.github.standobyte.jojo.client.standskin.StandSkin;
 import com.github.standobyte.jojo.client.standskin.StandSkinsLoader;
 import com.github.standobyte.jojo.core.JojoMod;
@@ -202,8 +202,7 @@ public class StandEntityRenderer<
 		
 		StandItemInHandLayer.itemBufferSource = bufferSource;
 		if (renderState.mayObstructView) {
-			bufferSource = FirstPersonStandTranslucentShader.standTranslucencyBufferSource;
-			FirstPersonStandTranslucentShader.usedThisFrame = true;
+			bufferSource = EntityShaders.firstPersonStandTranslucency.useBufferSourceThisFrame();
 		}
 		
 		if (this.model != null) {

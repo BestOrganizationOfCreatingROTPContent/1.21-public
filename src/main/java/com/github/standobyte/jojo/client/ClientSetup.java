@@ -2,7 +2,6 @@ package com.github.standobyte.jojo.client;
 
 import com.github.standobyte.jojo.client.entitycontrol.stand.StandHudElements;
 import com.github.standobyte.jojo.client.input.InputHandler;
-import com.github.standobyte.jojo.client.shader.FirstPersonStandTranslucentShader;
 import com.github.standobyte.jojo.client.ui.hud.marker.MarkerRenderer;
 import com.github.standobyte.jojo.client.ui.hud.marker.StandAimMarker;
 import com.github.standobyte.jojo.client.ui.jojomenu.JojoMenuTabs;
@@ -28,9 +27,6 @@ public class ClientSetup {
 //		Minecraft mc = Minecraft.getInstance();
 		registerMarkers();
 		StandHudElements.init();
-		event.enqueueWork(() -> {
-			FirstPersonStandTranslucentShader.bufferInit();
-		});
 	}
 	
 	private static void registerMarkers() {
