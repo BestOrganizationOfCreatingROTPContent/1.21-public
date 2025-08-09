@@ -164,6 +164,7 @@ public class StandEntity extends LivingEntity implements SummonedStand, IEntityW
 			if (!level.isClientSide()) {
 				tickHealth(user);
 			}
+			updateUserOffset(user);
 		}
 		yHeadRot = getYRot();
 		yHeadRotO = yRotO;
@@ -283,6 +284,9 @@ public class StandEntity extends LivingEntity implements SummonedStand, IEntityW
 			lookAtCurTarget(rotO);
 			return true;
 		}
+		else if (isManuallyControlled()) {
+			moveStandManualControl();
+		}
 		return false;
 	}
 	
@@ -394,6 +398,39 @@ public class StandEntity extends LivingEntity implements SummonedStand, IEntityW
 			else {
 				setDeltaMovement(Vec3.ZERO);
 			}
+		}
+	}
+	
+	protected Vec3 _offsetFromUserVec;
+	protected void updateUserOffset(LivingEntity user) {
+		if (user != null) {
+			this._offsetFromUserVec = this.position().subtract(user.position());
+		}
+	}
+	
+	public void manualControlInput(Vec3 motionInput) {
+		if (_offsetFromUserVec == null) {
+			updateUserOffset(getUser());
+		}
+		if (_offsetFromUserVec != null) {
+			_offsetFromUserVec = _offsetFromUserVec.add(motionInput);
+		}
+		else {
+			move(MoverType.SELF, motionInput);
+		}
+	}
+	
+	public void moveStandManualControl() {
+		LivingEntity user = getUser();
+		if (user != null && isControlledByLocalInstance()) {
+			if (_offsetFromUserVec == null) {
+				updateUserOffset(user);
+			}
+			Vec3 userPos = user.position();
+			Vec3 newPos = userPos.add(_offsetFromUserVec);
+			Vec3 move = newPos.subtract(this.position());
+			move(MoverType.SELF, move);
+			updateUserOffset(user);
 		}
 	}
 

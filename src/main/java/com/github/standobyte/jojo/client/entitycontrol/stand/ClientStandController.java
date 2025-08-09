@@ -141,6 +141,7 @@ public class ClientStandController extends ClientEntityController {
 	private boolean prevTickInput = false;
 	public void moveStandManually(LivingEntity standEntity, float strafe, float forward, boolean jumping, boolean sneaking) {
 		boolean canStandMoveManually = true;
+		Vec3 motion = Vec3.ZERO;
 		if (canStandMoveManually) {
 			boolean input = jumping || sneaking || forward != 0 || strafe != 0;
 			if (input) {
@@ -152,7 +153,7 @@ public class ClientStandController extends ClientEntityController {
 					forward *= 0.5;
 				}
 				if (!prevTickInput) {
-					standEntity.setDeltaMovement(Vec3.ZERO);
+//					standEntity.setDeltaMovement(Vec3.ZERO);
 				}
 				else {
 					float actionWalkSpeed = 1;
@@ -160,16 +161,18 @@ public class ClientStandController extends ClientEntityController {
 					if (curAction != null) {
 						actionWalkSpeed = curAction.userWalkSpeed;
 					}
-					Vec3 motion = getAbsoluteMotion(new Vec3((double)strafe, y, (double)forward), speed, standEntity.getYRot())
+					motion = getAbsoluteMotion(new Vec3((double)strafe, y, (double)forward), speed, standEntity.getYRot())
 							.scale(actionWalkSpeed * manualMovementSpeed);
-					standEntity.setDeltaMovement(motion);
+//					standEntity.setDeltaMovement(motion);
 				}
 			}
 			else if (prevTickInput) {
-				standEntity.setDeltaMovement(Vec3.ZERO);
+//				standEntity.setDeltaMovement(Vec3.ZERO);
 			}
 			prevTickInput = input;
 		}
+		StandEntity stand = (StandEntity) standEntity;
+		stand.manualControlInput(motion);
 	}
 
 	private static Vec3 getAbsoluteMotion(Vec3 relative, double speed, float facingYRot) {
