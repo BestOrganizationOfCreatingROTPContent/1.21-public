@@ -46,7 +46,7 @@ public abstract class HumanoidModelMixin/* extends ModelMixinSuperclass*/ extend
 	private ModelPart jojo_ripples$animRightItem;
 	private ModelPart jojo_ripples$animLeftItem;
 	private ModelPart jojo_ripples$animCapeBend;
-	private boolean jojo_ripples$playerAnim;
+	protected boolean jojo_ripples$playerAnim;
 	
 	@Inject(method = "<init>("
 			+ "Lnet/minecraft/client/model/geom/ModelPart;"
@@ -116,6 +116,20 @@ public abstract class HumanoidModelMixin/* extends ModelMixinSuperclass*/ extend
 					poseStack, buffer, 
 					packedLight, packedOverlay, color);
 			ci.cancel();
+		}
+	}
+
+	@Inject(method = "translateToHand", at = @At("HEAD"))
+	public void jojo_ripples$translateToBentHandBefore(HumanoidArm side, PoseStack poseStack, CallbackInfo ci) {
+		if (this.jojo_ripples$playerAnim) {
+			PlayerModelBends.translateToAnimHand1((HumanoidModel<?>) (Object) this, this, side, poseStack);
+		}
+	}
+
+	@Inject(method = "translateToHand", at = @At("TAIL"))
+	public void jojo_ripples$translateToBentHandAfter(HumanoidArm side, PoseStack poseStack, CallbackInfo ci) {
+		if (this.jojo_ripples$playerAnim) {
+			 PlayerModelBends.translateToAnimHand2((HumanoidModel<?>) (Object) this, this, side, poseStack);
 		}
 	}
 

@@ -14,6 +14,7 @@ import net.minecraft.Util;
 import net.minecraft.client.model.HumanoidModel;
 import net.minecraft.client.model.PlayerModel;
 import net.minecraft.client.model.geom.ModelPart;
+import net.minecraft.world.entity.HumanoidArm;
 
 // TODO (entity animation) fix model bends with smaller child cubes
 // TODO (entity animation) fix model bends with StuckInBodyLayer
@@ -56,26 +57,21 @@ public class PlayerModelBends {
 			int packedLight, int packedOverlay, int color) {
 		PlayerModel<?> playerModel = model instanceof PlayerModel pm/*o*/ ? pm : null;
 		poseStack.pushPose();
-			ModelPart part = animModel.jojo_ripples$animMainBody();
-			part.translateAndRotate(poseStack);
-			poseStack.translate(0, -part.getInitialPose().y / 16, 0);
+			ModelPart body = animModel.jojo_ripples$animMainBody();
+			body.translateAndRotate(poseStack);
+			poseStack.translate(-body.getInitialPose().x / 16, -body.getInitialPose().y / 16, -body.getInitialPose().z / 16);
 			
 			model.leftLeg.render(poseStack, buffer, packedLight, packedOverlay, color);
 			if (playerModel != null && playerModel.leftPants != null) OldPlayerModelJank._renderOuterLayer(playerModel.leftPants, poseStack, buffer, packedLight, packedOverlay, color);
 			model.rightLeg.render(poseStack, buffer, packedLight, packedOverlay, color);
 			if (playerModel != null && playerModel.rightPants != null) OldPlayerModelJank._renderOuterLayer(playerModel.rightPants, poseStack, buffer, packedLight, packedOverlay, color);
 			poseStack.pushPose();
-				part = animModel.jojo_ripples$animTorso();
-				poseStack.translate(0, -part.getInitialPose().y / 16, 0);
-				part.translateAndRotate(poseStack);
-				
-				part = animModel.jojo_ripples$animTorsoBend();
-				poseStack.translate(0, -part.getInitialPose().y / 16, 0);
-				poseStack.translate(part.x / 16.0F * 2, part.y / 16.0F * 2, part.z / 16.0F * 2);
-				if (part.xRot != 0.0F || part.yRot != 0.0F || part.zRot != 0.0F) {
-					poseStack.mulPose(new Quaternionf().rotationZYX(part.zRot, part.yRot, part.xRot));
-				}
-				poseStack.translate(-part.x / 16.0F, -part.y / 16.0F, -part.z / 16.0F);
+				ModelPart torso = animModel.jojo_ripples$animTorso();
+				poseStack.translate(-torso.getInitialPose().x / 16, -torso.getInitialPose().y / 16, -torso.getInitialPose().z / 16);
+				torso.translateAndRotate(poseStack);
+
+				ModelPart torsoBend = animModel.jojo_ripples$animTorsoBend();
+				rotateAndTranslateBack(torsoBend, poseStack);
 				
 				model.body.render(poseStack, buffer, packedLight, packedOverlay, color);
 				if (playerModel != null && playerModel.jacket != null) OldPlayerModelJank._renderOuterLayer(playerModel.jacket, poseStack, buffer, packedLight, packedOverlay, color);
@@ -89,6 +85,44 @@ public class PlayerModelBends {
 		poseStack.popPose();
 	}
 	
+	public static void translateToAnimHand1(HumanoidModel<?> model, IPlayerBendModel animModel, HumanoidArm side, PoseStack poseStack) {
+		ModelPart body = animModel.jojo_ripples$animMainBody();
+		body.translateAndRotate(poseStack);
+		poseStack.translate(-body.getInitialPose().x / 16, -body.getInitialPose().y / 16, -body.getInitialPose().z / 16);
+
+		ModelPart torso = animModel.jojo_ripples$animTorso();
+		poseStack.translate(-torso.getInitialPose().x / 16, -torso.getInitialPose().y / 16, -torso.getInitialPose().z / 16);
+		torso.translateAndRotate(poseStack);
+
+		ModelPart torsoBend = animModel.jojo_ripples$animTorsoBend();
+		rotateAndTranslateBack(torsoBend, poseStack);
+	}
+	
+	// ...then the vanilla does ModelPart#translateAndRotate(PoseStack) on the arm...
+	
+	public static void translateToAnimHand2(HumanoidModel<?> model, IPlayerBendModel animModel, HumanoidArm side, PoseStack poseStack) {
+		ModelPart armBend = switch (side) {
+			case LEFT -> animModel.jojo_ripples$animLeftArmBend();
+			case RIGHT -> animModel.jojo_ripples$animRightArmBend();
+		};
+		rotateAndTranslateBack(armBend, poseStack);
+		
+		ModelPart itemRepos = switch (side) {
+			case LEFT -> animModel.jojo_ripples$animLeftItem();
+			case RIGHT -> animModel.jojo_ripples$animRightItem();
+		};
+		rotateAndTranslateBack(itemRepos, poseStack);
+	}
+	
+	public static void rotateAndTranslateBack(ModelPart modelPart, PoseStack poseStack) {
+		poseStack.translate(-modelPart.getInitialPose().x / 16, -modelPart.getInitialPose().y / 16, -modelPart.getInitialPose().z / 16);
+		poseStack.translate(modelPart.x / 16.0F * 2, modelPart.y / 16.0F * 2, modelPart.z / 16.0F * 2);
+		if (modelPart.xRot != 0.0F || modelPart.yRot != 0.0F || modelPart.zRot != 0.0F) {
+			poseStack.mulPose(new Quaternionf().rotationZYX(modelPart.zRot, modelPart.yRot, modelPart.xRot));
+		}
+		poseStack.translate(-modelPart.x / 16.0F, -modelPart.y / 16.0F, -modelPart.z / 16.0F);
+	}
+	
 	
 	
 	public static void drawBentCubes(ModelPart limb, ModelPart bend, boolean invertBend, 
@@ -100,6 +134,7 @@ public class PlayerModelBends {
 				bend.xRot = -bend.xRot;
 			}
 			for (ModelPart.Cube cube : limb.cubes) {
+//				cube.compile(poseStack.last(), buffer, packedLight, packedOverlay, color);
 				renderBentPolygons(cube.polygons, poseStack, bend,
 						bendOffsetX, bendOffsetY, bendOffsetZ, 
 						buffer, packedLight, packedOverlay, color);
