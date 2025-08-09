@@ -28,6 +28,8 @@
 	"client.entitycontrol.GameRendererMixin",
 	"client.entitycontrol.GuiAccessor",
 	"client.entitycontrol.ItemInHandRendererMixin",
+	"client.screen.KeyMappingMixin",
+	"client.screen.MinecraftMixin",
     "client.standskin.SoundInstanceMixin",
     "client.aim.GameRendererMixin",
     "client.aim.HitboxRenderingMixin",
