@@ -20,6 +20,10 @@ import com.github.standobyte.jojo.client.entityanim.playerbend.PlayerModelBends;
 import com.github.standobyte.jojo.client.entityrender.EntityActionRenderState;
 import com.github.standobyte.jojo.powersystem.entityaction.ActionPhase;
 import com.github.standobyte.jojo.util.MathUtil;
+import com.github.standobyte.v1_21_4_stuff.OldPlayerModelJank;
+import com.github.standobyte.v1_21_4_stuff.missingmethods.Model_1_21_2plus;
+import com.github.standobyte.v1_21_4_stuff.missingmethods._PartPose;
+import com.github.standobyte.v1_21_4_stuff.renderstate.LivingEntityRenderState;
 
 import it.unimi.dsi.fastutil.floats.Float2ObjectMap;
 import net.minecraft.client.animation.AnimationChannel;
@@ -27,14 +31,8 @@ import net.minecraft.client.animation.AnimationDefinition;
 import net.minecraft.client.animation.Keyframe;
 import net.minecraft.client.model.HumanoidModel;
 import net.minecraft.client.model.Model;
-
-import com.github.standobyte.v1_21_4_stuff.OldPlayerModelJank;
-import com.github.standobyte.v1_21_4_stuff.missingmethods.Model_1_21_2plus;
 import net.minecraft.client.model.geom.ModelPart;
 import net.minecraft.client.model.geom.PartPose;
-
-import com.github.standobyte.v1_21_4_stuff.missingmethods._PartPose;
-import com.github.standobyte.v1_21_4_stuff.renderstate.LivingEntityRenderState;
 import net.minecraft.util.Mth;
 
 public class AnimWithExtras {
@@ -66,8 +64,8 @@ public class AnimWithExtras {
 		for (Map.Entry<String, List<AnimationChannel>> entry : animation.boneAnimations().entrySet()) {
 			ModelPart modelPart = PlayerModelBends.getModelPartForPlayerAnim(humanoidModel, entry.getKey());
 			animateModelPart(this, modelPart, entry.getValue(), seconds, animSpeed);
-			OldPlayerModelJank._onAnimate(humanoidModel);
 		}
+		OldPlayerModelJank._onAnimate(humanoidModel);
 	}
 	
 	
