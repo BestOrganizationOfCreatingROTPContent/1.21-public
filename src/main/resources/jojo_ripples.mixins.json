@@ -18,6 +18,7 @@
 	"client.v1_21_1_modelanim.player.AgeableModelMixinSuperclass",
     "client.v1_21_1_modelanim.player.HumanoidModelMixin",
 	"client.v1_21_1_modelanim.player.PlayerModelJankMixin",
+	"client.v1_21_1_modelanim.player.CapeLayerMixin",
 	"client.v1_21_1_modelanim.barrage.LivingEntityRendererMixin",
 	"client.v1_21_1_modelanim.barrage.HumanoidModelMixin",
     "client.ModelAnimOptimization",

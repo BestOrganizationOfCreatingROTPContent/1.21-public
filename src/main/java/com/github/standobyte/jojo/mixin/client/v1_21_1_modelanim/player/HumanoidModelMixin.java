@@ -90,7 +90,8 @@ public abstract class HumanoidModelMixin/* extends ModelMixinSuperclass*/ extend
 		((IPlayerLimbBend) (Object) leftArm).jojo_ripples$setBendBone(jojo_ripples$animLeftArmBend, false);
 		((IPlayerLimbBend) (Object) rightLeg).jojo_ripples$setBendBone(jojo_ripples$animRightLegBend, false);
 		((IPlayerLimbBend) (Object) leftLeg).jojo_ripples$setBendBone(jojo_ripples$animLeftLegBend, false);
-		setBend(body, "cape", jojo_ripples$animCapeBend, false);
+//		setBend(body, "cape", jojo_ripples$animCapeBend, false);
+		setBend(root, "cloak", jojo_ripples$animCapeBend, false);
 		
 		((Model_1_21_2plus) this).jojo_ripples$initRoot(root);
 	}
@@ -106,6 +107,11 @@ public abstract class HumanoidModelMixin/* extends ModelMixinSuperclass*/ extend
 	public void jojo_ripples$setupHumanoidAnim(HumanoidRenderState renderState) {
 		RipplesPlayerRenderState jojoRenderState = ((RipplesRenderStateExtensionMixin) renderState).get();
 		this.jojo_ripples$playerAnim = RipplesPlayerRenderState.setupModelAnim((HumanoidModel<?>) (Object) this, renderState, jojoRenderState);
+	}
+	
+	@Override
+	public boolean jojo_rippes$isPlayingAnimation() {
+		return jojo_ripples$playerAnim;
 	}
 	
 	@Override

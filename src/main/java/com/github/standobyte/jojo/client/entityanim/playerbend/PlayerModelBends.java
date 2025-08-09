@@ -7,6 +7,7 @@ import org.joml.Vector3f;
 
 import com.github.standobyte.jojo.util.MathUtil;
 import com.github.standobyte.v1_21_4_stuff.OldPlayerModelJank;
+import com.github.standobyte.v1_21_4_stuff.missingmethods.Model_1_21_2plus;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.VertexConsumer;
 
@@ -46,7 +47,8 @@ public class PlayerModelBends {
 			case "right_leg_bend" -> 	((IPlayerBendModel) playerModel).jojo_ripples$animRightLegBend();
 			case "leftItem" -> 			((IPlayerBendModel) playerModel).jojo_ripples$animLeftItem();
 			case "rightItem" -> 		((IPlayerBendModel) playerModel).jojo_ripples$animRightItem();
-			case "cape" -> 				playerModel.body.children.get("cape");
+//			case "cape" -> 				playerModel.body.children.get("cape");
+			case "cape" -> 				((Model_1_21_2plus) playerModel).jojo_ripples$root().children.get("cloak");
 			case "cape_bend" -> 		((IPlayerBendModel) playerModel).jojo_ripples$animCapeBend();
 			default -> null;
 		};
@@ -85,6 +87,7 @@ public class PlayerModelBends {
 		poseStack.popPose();
 	}
 	
+	
 	public static void translateToAnimHand1(HumanoidModel<?> model, IPlayerBendModel animModel, HumanoidArm side, PoseStack poseStack) {
 		ModelPart body = animModel.jojo_ripples$animMainBody();
 		body.translateAndRotate(poseStack);
@@ -113,6 +116,21 @@ public class PlayerModelBends {
 		};
 		rotateAndTranslateBack(itemRepos, poseStack);
 	}
+	
+	
+	public static void repositionCloak(HumanoidModel<?> model, IPlayerBendModel animModel, PoseStack poseStack) {
+		ModelPart body = animModel.jojo_ripples$animMainBody();
+		body.translateAndRotate(poseStack);
+		poseStack.translate(-body.getInitialPose().x / 16, -body.getInitialPose().y / 16, -body.getInitialPose().z / 16);
+
+		ModelPart torso = animModel.jojo_ripples$animTorso();
+		poseStack.translate(-torso.getInitialPose().x / 16, -torso.getInitialPose().y / 16, -torso.getInitialPose().z / 16);
+		torso.translateAndRotate(poseStack);
+
+		ModelPart torsoBend = animModel.jojo_ripples$animTorsoBend();
+		rotateAndTranslateBack(torsoBend, poseStack);
+	}
+	
 	
 	public static void rotateAndTranslateBack(ModelPart modelPart, PoseStack poseStack) {
 		poseStack.translate(-modelPart.getInitialPose().x / 16, -modelPart.getInitialPose().y / 16, -modelPart.getInitialPose().z / 16);
