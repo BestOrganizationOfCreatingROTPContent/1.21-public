@@ -103,9 +103,16 @@ public class BlitFloat {
 			float u0, float v0, float uWidth, float vHeight, float textureWidth, float textureHeight, 
 			int tint) {
 		RenderSystem.setShaderTexture(0, texture);
-		RenderSystem.setShader(GameRenderer::getPositionTexShader);
 		Matrix4f matrix4f = poseStack.last().pose();
-		BufferBuilder bufferbuilder = Tesselator.getInstance().begin(VertexFormat.Mode.QUADS, DefaultVertexFormat.POSITION_TEX);
+		BufferBuilder bufferbuilder;
+		if ((tint & NO_TINT) != NO_TINT) {
+			RenderSystem.setShader(GameRenderer::getPositionTexColorShader);
+			bufferbuilder = Tesselator.getInstance().begin(VertexFormat.Mode.QUADS, DefaultVertexFormat.POSITION_TEX_COLOR);
+		}
+		else {
+			RenderSystem.setShader(GameRenderer::getPositionTexShader);
+			bufferbuilder = Tesselator.getInstance().begin(VertexFormat.Mode.QUADS, DefaultVertexFormat.POSITION_TEX);
+		}
 		float x1 = x0 + xWidth;
 		float y1 = y0 + yHeight;
 		float u1 = u0 + uWidth;
