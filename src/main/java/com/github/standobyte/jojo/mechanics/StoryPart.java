@@ -66,7 +66,7 @@ public class StoryPart {
 			ResourceLocation id = key.location();
 			value.icon = id.withPath(path -> "textures/story_part/" + path + ".png");
 			if (FMLEnvironment.dist == Dist.CLIENT) {
-				value.clientGlyphIndex = IconGlyphsCache.getOrComputeCharCode(
+				value.clientGlyphIndex = IconGlyphsCache.makeCharCodeFor(
 						new IconGlyphInfo(new GuiIcon(value.icon, 16, 16), 8, 8));
 			}
 		}

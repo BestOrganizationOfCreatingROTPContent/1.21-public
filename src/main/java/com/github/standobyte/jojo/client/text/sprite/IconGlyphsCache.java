@@ -8,20 +8,14 @@ import com.mojang.blaze3d.font.GlyphInfo;
 
 import it.unimi.dsi.fastutil.chars.Char2ObjectArrayMap;
 import it.unimi.dsi.fastutil.chars.Char2ObjectMap;
-import it.unimi.dsi.fastutil.objects.Object2CharMap;
-import it.unimi.dsi.fastutil.objects.Object2CharOpenHashMap;
-import net.minecraft.resources.ResourceLocation;
 
 public class IconGlyphsCache {
-	public static Object2CharMap<ResourceLocation> _iconToPCAUnicode = new Object2CharOpenHashMap<>();
 	public static Char2ObjectMap<GlyphInfo> _glyphsByIndex = new Char2ObjectArrayMap<>();
 
-	public static char getOrComputeCharCode(IconGlyphInfo glyph) {
-		return _iconToPCAUnicode.computeIfAbsent(glyph.icon.file, __ -> {
-			char index = (char) _iconToPCAUnicode.size();
-			_glyphsByIndex.put(index, glyph);
-			return indexToCharCode(index);
-		});
+	public static char makeCharCodeFor(IconGlyphInfo glyph) {
+		char index = (char) _glyphsByIndex.size();
+		_glyphsByIndex.put(index, glyph);
+		return indexToCharCode(index);
 	}
 
 
