@@ -1,6 +1,6 @@
 package com.github.standobyte.jojo.mechanics;
 
-import com.github.standobyte.jojo.client.text.sprite.IconGlyph;
+import com.github.standobyte.jojo.client.text.sprite.IconGlyphInfo;
 import com.github.standobyte.jojo.client.text.sprite.IconGlyphsCache;
 import com.github.standobyte.jojo.client.ui.utils.GuiIcon;
 import com.github.standobyte.jojo.core.JojoRegistries;
@@ -22,7 +22,7 @@ public class StoryPart {
 	protected final TextColor nameColor;
 	protected Component name;
 	protected ResourceLocation icon;
-	protected int clientGlyphIndex = 0;
+	protected char clientGlyphIndex = 0;
 
 	public StoryPart(TextColor nameColor) {
 		this.nameColor = nameColor;
@@ -67,7 +67,7 @@ public class StoryPart {
 			value.icon = id.withPath(path -> "textures/story_part/" + path + ".png");
 			if (FMLEnvironment.dist == Dist.CLIENT) {
 				value.clientGlyphIndex = IconGlyphsCache.getOrComputeCharCode(
-						new IconGlyph.Info(new GuiIcon(value.icon, 16, 16), 8, 8));
+						new IconGlyphInfo(new GuiIcon(value.icon, 16, 16), 8, 8));
 			}
 		}
 		return value.icon;

@@ -6,36 +6,36 @@ import org.jetbrains.annotations.ApiStatus;
 
 import com.mojang.blaze3d.font.GlyphInfo;
 
-import it.unimi.dsi.fastutil.ints.Int2ObjectArrayMap;
-import it.unimi.dsi.fastutil.ints.Int2ObjectMap;
-import it.unimi.dsi.fastutil.objects.Object2IntMap;
-import it.unimi.dsi.fastutil.objects.Object2IntOpenHashMap;
+import it.unimi.dsi.fastutil.chars.Char2ObjectArrayMap;
+import it.unimi.dsi.fastutil.chars.Char2ObjectMap;
+import it.unimi.dsi.fastutil.objects.Object2CharMap;
+import it.unimi.dsi.fastutil.objects.Object2CharOpenHashMap;
 import net.minecraft.resources.ResourceLocation;
 
 public class IconGlyphsCache {
-	public static Object2IntMap<ResourceLocation> _iconToPCAUnicode = new Object2IntOpenHashMap<>();
-	public static Int2ObjectMap<GlyphInfo> _glyphsByIndex = new Int2ObjectArrayMap<>();
+	public static Object2CharMap<ResourceLocation> _iconToPCAUnicode = new Object2CharOpenHashMap<>();
+	public static Char2ObjectMap<GlyphInfo> _glyphsByIndex = new Char2ObjectArrayMap<>();
 
-	public static int getOrComputeCharCode(IconGlyph.Info glyph) {
+	public static char getOrComputeCharCode(IconGlyphInfo glyph) {
 		return _iconToPCAUnicode.computeIfAbsent(glyph.icon.file, __ -> {
-			int index = _iconToPCAUnicode.size();
+			char index = (char) _iconToPCAUnicode.size();
 			_glyphsByIndex.put(index, glyph);
 			return indexToCharCode(index);
 		});
 	}
 
 
-	protected static final int _UTF_16_PCA = 0xEAFA; // private code area: 0xE000..0xF8FF, we'll start somewhere in the middle
+	protected static final char _UTF_16_PCA = 0xEAFA; // private code area: 0xE000..0xF8FF, we'll start somewhere in the middle
 
-	public static int indexToCharCode(int index) {
-		return index + _UTF_16_PCA;
+	public static char indexToCharCode(char index) {
+		return (char) (index + _UTF_16_PCA);
 	}
 
 	@ApiStatus.Internal
 	@Nullable
-	public static GlyphInfo get(int character) {
+	public static GlyphInfo get(char character) {
 		int index = character - _UTF_16_PCA;
 		if (index < 0) return null;
-		return _glyphsByIndex.get(index);
+		return _glyphsByIndex.get((char) index);
 	}
 }

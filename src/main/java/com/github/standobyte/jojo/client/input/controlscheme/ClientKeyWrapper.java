@@ -8,9 +8,9 @@ import it.unimi.dsi.fastutil.shorts.Short2ObjectOpenHashMap;
 import net.minecraft.network.chat.Component;
 
 public class ClientKeyWrapper {
-	private final short keyId;
-	private final InputDevice device;
-	private final InputConstants.Type type;
+	public final short keyId;
+	public final InputDevice device;
+	public final InputConstants.Type type;
 	private final int keyCode;
 	private LazyNullable<InputConstants.Key> key;
 	

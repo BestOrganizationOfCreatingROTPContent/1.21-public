@@ -16,12 +16,15 @@ import com.github.standobyte.jojo.client.input.controlscheme.ClientControlScheme
 import com.github.standobyte.jojo.client.input.controlscheme.ClientKeyWrapper;
 import com.github.standobyte.jojo.client.standskin.StandSkin;
 import com.github.standobyte.jojo.client.standskin.StandSkinsLoader;
+import com.github.standobyte.jojo.client.text.ShortenText;
+import com.github.standobyte.jojo.client.ui.IconSymbols;
 import com.github.standobyte.jojo.core.JojoMod;
 import com.github.standobyte.jojo.powersystem.Power;
 import com.github.standobyte.jojo.powersystem.ability.condition.AvailableAbilities;
 import com.github.standobyte.jojo.powersystem.ability.condition.AvailableAbilities.AbilityConditionCheck;
 import com.github.standobyte.jojo.powersystem.ability.controls.InputMethod;
 import com.github.standobyte.jojo.powersystem.standpower.StandPower;
+import com.mojang.blaze3d.platform.InputConstants;
 
 import net.minecraft.client.DeltaTracker;
 import net.minecraft.client.Minecraft;
@@ -152,7 +155,7 @@ public class DebugStandHud {
 							}
 						}
 					}
-					guiGraphics.drawString(font, "(" + hotbar.switchAbilityKey.keyName().getString() + " to switch)", x, y, color);
+					guiGraphics.drawString(font, "(" + getKeyName(hotbar.switchAbilityKey) + " to switch)", x, y, color);
 				}
 			}
 		}
@@ -190,7 +193,7 @@ public class DebugStandHud {
 				}
 				
 				String bindName = inputMethod == InputMethod.HOLD ? "Hold " : "";
-				String keyName = key.keyName().getString();
+				String keyName = getKeyName(key);
 				bindName += keyName;
 				if (modifier != null) {
 					String modifierName = switch (modifier) {
@@ -211,5 +214,19 @@ public class DebugStandHud {
 		return false;
 	}
 	
+	public static String getKeyName(ClientKeyWrapper key) {
+//		if (key == ClientKeyWrapper.make(InputConstants.Type.MOUSE, InputConstants.MOUSE_BUTTON_LEFT)) {
+//			return Character.toString(IconSymbols.LMB_CLICK);
+//		}
+//		else if (key == ClientKeyWrapper.make(InputConstants.Type.MOUSE, InputConstants.MOUSE_BUTTON_RIGHT)) {
+//			return Character.toString(IconSymbols.RMB_CLICK);
+//		}
+//		else if (key == ClientKeyWrapper.make(InputConstants.Type.MOUSE, InputConstants.MOUSE_BUTTON_MIDDLE)) {
+//			return Character.toString(IconSymbols.MMB_CLICK);
+//		}
+//		else {
+			return ShortenText.shortenIfAble(key.keyName()).getString();
+//		}
+	}
 	
 }
