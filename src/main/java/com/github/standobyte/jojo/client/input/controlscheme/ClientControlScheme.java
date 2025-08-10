@@ -54,7 +54,7 @@ public class ClientControlScheme {
 		@ApiStatus.Internal public final Component name;
 		@ApiStatus.Internal public final ClientKeyWrapper toggleHudKey;
 		
-		@ApiStatus.Internal public final Map<ClientKeyWrapper, Map<InputMethod, BindsByModifier<List<String>>>> binds = 
+		@ApiStatus.Internal public final Map<ClientKeyWrapper, Map<InputMethod, KeyModifierMap<List<String>>>> binds = 
 				new TreeMap<>(Comparator.comparingInt(ClientKeyWrapper::keyId));
 		@ApiStatus.Internal public final List<Hotbar> hotbars = new ArrayList<>();
 		
@@ -67,7 +67,7 @@ public class ClientControlScheme {
 	public static class Hotbar {
 		public final ClientKeyWrapper useAbilityKey;
 		public final ClientKeyWrapper switchAbilityKey;
-		public final List<Map<InputMethod, BindsByModifier<String>>> slots = new ArrayList<>();
+		public final List<HotbarSlot> slots = new ArrayList<>();
 		public int slotIndex = 0;
 		
 		public Hotbar(ClientKeyWrapper useAbilityKey, ClientKeyWrapper switchAbilityKey) {
@@ -76,15 +76,19 @@ public class ClientControlScheme {
 		}
 	}
 	
-	public static class BindsByModifier<T> {
+	public static class HotbarSlot {
+		public final Map<InputMethod, KeyModifierMap<String>> binds = new EnumMap<>(InputMethod.class);
+	}
+	
+	public static class KeyModifierMap<T> {
 		private final T empty;
 		public final Map<KeyModifier, T> movesByModifier = new HashMap<>(); // allows null key
 		
-		public BindsByModifier(T empty) {
+		public KeyModifierMap(T empty) {
 			this.empty = empty;
 		}
 		
-		public T withCurrentModifier(@Nonnull KeyModifier curModifier) {
+		public T get(@Nonnull KeyModifier curModifier) {
 			if (movesByModifier.containsKey(curModifier)) {
 				return movesByModifier.get(curModifier);
 			}
@@ -112,7 +116,7 @@ public class ClientControlScheme {
 		if (allBindsInKey != null) {
 			var bindsForInputMethod = allBindsInKey.get(keyInputMethod);
 			if (bindsForInputMethod != null) {
-				return bindsForInputMethod.withCurrentModifier(currentModifier);
+				return bindsForInputMethod.get(currentModifier);
 			}
 		}
 		
@@ -174,10 +178,10 @@ public class ClientControlScheme {
 				Pair<InputMethod, InputKey> input = bind.getSecond();
 				InputKey key = input.getSecond();
 				
-				Map<InputMethod, BindsByModifier<List<String>>> keyAllBinds = group.binds.computeIfAbsent(getClientKey(key), 
+				Map<InputMethod, KeyModifierMap<List<String>>> keyAllBinds = group.binds.computeIfAbsent(getClientKey(key), 
 						__ -> new EnumMap<>(InputMethod.class));
 				var byInputMethod = keyAllBinds.computeIfAbsent(input.getFirst(), 
-						__ -> new BindsByModifier<>(Collections.emptyList()));
+						__ -> new KeyModifierMap<>(Collections.emptyList()));
 				List<String> modifierKeyBinds = byInputMethod.movesByModifier.computeIfAbsent(getClientModifier(key.modifier), 
 						__ -> new ArrayList<>());
 				modifierKeyBinds.add(abilityName);
@@ -189,14 +193,14 @@ public class ClientControlScheme {
 						getClientKey(hotbarTemplate.useAbilityKey), 
 						getClientKey(hotbarTemplate.switchAbilityKey));
 				for (Map<InputKey.Modifier, Map<InputMethod, String>> slotTemplate : hotbarTemplate.slots) {
-					Map<InputMethod, BindsByModifier<String>> slot = new EnumMap<>(InputMethod.class);
+					HotbarSlot slot = new HotbarSlot();
 					for (var slotVariation : slotTemplate.entrySet()) {
 						InputKey.Modifier modifier = slotVariation.getKey();
 						for (var abilityEntry : slotVariation.getValue().entrySet()) {
 							InputMethod inputMethod = abilityEntry.getKey();
 							String ability = abilityEntry.getValue();
-							var byInputMethod = slot.computeIfAbsent(inputMethod, 
-									__ -> new BindsByModifier<>(""));
+							var byInputMethod = slot.binds.computeIfAbsent(inputMethod, 
+									__ -> new KeyModifierMap<>(""));
 							byInputMethod.movesByModifier.put(getClientModifier(modifier), ability);
 						}
 					}

@@ -91,8 +91,26 @@ public class ModStands {
 //					.addAbility("kick_barrage", ModStandAbilities.BARRAGE)
 					
 					
-//					.makeHotbar(0, InputKey.Z, InputKey.X)
-//																									
+					.makeHotbar(0, InputKey.X, InputKey.C)
+					
+					.addAbility("placeholder1", ModStandAbilities._PLACEHOLDER)
+					.inHotbar(0, InputMethod.CLICK)
+					
+					.addAbility("placeholder2", ModStandAbilities._PLACEHOLDER)
+					.inHotbar(0, InputMethod.CLICK)
+					
+					.addAbility("placeholder3", ModStandAbilities._PLACEHOLDER)
+					.inHotbar(0, InputMethod.CLICK)
+					
+					.addAbility("placeholder4", ModStandAbilities._PLACEHOLDER)
+					.inHotbar(0, InputMethod.CLICK)
+					
+					.addAbility("placeholder5", ModStandAbilities._PLACEHOLDER)
+					.inHotbar(0, InputMethod.CLICK)
+					
+					.addAbility("placeholder6", ModStandAbilities._PLACEHOLDER)
+					.inHotbar(0, InputMethod.CLICK)
+					
 //					.addAbility("star_finger", ModStandAbilities.SP_STAR_FINGER)
 //					.inHotbar(0, InputMethod.CLICK)
 //					

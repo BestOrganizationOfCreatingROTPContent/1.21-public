@@ -11,20 +11,18 @@ import com.github.standobyte.jojo.client.input.AbilityInputState;
 import com.github.standobyte.jojo.client.input.InputHandler;
 import com.github.standobyte.jojo.client.input.controlscheme.AllControlSchemes;
 import com.github.standobyte.jojo.client.input.controlscheme.ClientControlScheme;
-import com.github.standobyte.jojo.client.input.controlscheme.ClientControlScheme.BindsByModifier;
 import com.github.standobyte.jojo.client.input.controlscheme.ClientControlScheme.Hotbar;
+import com.github.standobyte.jojo.client.input.controlscheme.ClientControlScheme.KeyModifierMap;
 import com.github.standobyte.jojo.client.input.controlscheme.ClientKeyWrapper;
 import com.github.standobyte.jojo.client.standskin.StandSkin;
 import com.github.standobyte.jojo.client.standskin.StandSkinsLoader;
 import com.github.standobyte.jojo.client.text.ShortenText;
-import com.github.standobyte.jojo.client.ui.IconSymbols;
 import com.github.standobyte.jojo.core.JojoMod;
 import com.github.standobyte.jojo.powersystem.Power;
 import com.github.standobyte.jojo.powersystem.ability.condition.AvailableAbilities;
 import com.github.standobyte.jojo.powersystem.ability.condition.AvailableAbilities.AbilityConditionCheck;
 import com.github.standobyte.jojo.powersystem.ability.controls.InputMethod;
 import com.github.standobyte.jojo.powersystem.standpower.StandPower;
-import com.mojang.blaze3d.platform.InputConstants;
 
 import net.minecraft.client.DeltaTracker;
 import net.minecraft.client.Minecraft;
@@ -112,13 +110,13 @@ public class DebugStandHud {
 				if (modifier == KeyModifier.ALT) modifier = KeyModifier.NONE;
 				AvailableAbilities availableAbilities = ClientPowerCache.getAvailableMoves(power.getPowerClass(), power);
 				
-				Map<ClientKeyWrapper, Map<InputMethod, BindsByModifier<List<String>>>> binds = curGroup.binds;
+				Map<ClientKeyWrapper, Map<InputMethod, KeyModifierMap<List<String>>>> binds = curGroup.binds;
 				// render separate keybinds
 				for (var bindEntry : binds.entrySet()) {
 					ClientKeyWrapper key = bindEntry.getKey();
 					for (var byInputMethod : bindEntry.getValue().entrySet()) {
 						InputMethod inputMethod = byInputMethod.getKey();
-						BindsByModifier<List<String>> bindsForInputMethod = byInputMethod.getValue();
+						KeyModifierMap<List<String>> bindsForInputMethod = byInputMethod.getValue();
 						if (renderBind(inputMethod, bindsForInputMethod, power, 
 								modifier, availableAbilities, key, false, 
 								x, y, color, guiGraphics, font, inContainerMenu)) {
@@ -141,11 +139,11 @@ public class DebugStandHud {
 					y += 5;
 					if (!hotbar.slots.isEmpty()) {
 						ClientKeyWrapper key = hotbar.useAbilityKey;
-						List<Map<InputMethod, BindsByModifier<String>>> slots = hotbar.slots;
-						Map<InputMethod, BindsByModifier<String>> slot = slots.get(hotbar.slotIndex < slots.size() ? hotbar.slotIndex : 0);
-						for (var byInputMethod : slot.entrySet()) {
+						List<ClientControlScheme.HotbarSlot> slots = hotbar.slots;
+						ClientControlScheme.HotbarSlot slot = slots.get(hotbar.slotIndex < slots.size() ? hotbar.slotIndex : 0);
+						for (var byInputMethod : slot.binds.entrySet()) {
 							InputMethod inputMethod = byInputMethod.getKey();
-							String ability = byInputMethod.getValue().withCurrentModifier(modifier);
+							String ability = byInputMethod.getValue().get(modifier);
 							if (ability != null) {
 								if (renderAbilityName(key, null, 
 										inputMethod, availableAbilities._inMoveset.get(ability), power, 
@@ -161,10 +159,10 @@ public class DebugStandHud {
 		}
 	}
 	
-	private static boolean renderBind(InputMethod inputMethod, BindsByModifier<List<String>> binds, Power<?> abilityCtx, 
+	private static boolean renderBind(InputMethod inputMethod, KeyModifierMap<List<String>> binds, Power<?> abilityCtx, 
 			@Nonnull KeyModifier modifier, AvailableAbilities available, ClientKeyWrapper key, boolean withModifierName, 
 			int x, int y, int color, GuiGraphics guiGraphics, Font font, boolean inContainerMenu) {
-		List<String> boundAbilities = binds.withCurrentModifier(modifier);
+		List<String> boundAbilities = binds.get(modifier);
 		if (boundAbilities.isEmpty()) {
 			return false;
 		}

@@ -81,7 +81,13 @@ public final class ModStandAbilities {
 	
 	public static final DeferredHolder<AbilityType<?>, AbilityType<CrazyDRepairItemAbility>> CD_REPAIR_ITEM = ABILITY_TYPES.register(
 			"repair_item", key -> new AbilityType<>(key, CrazyDRepairItemAbility::new));
-	
-	
+
+
+
 	public static void load() {}
+
+
+
+	public static final DeferredHolder<AbilityType<?>, AbilityType<Ability>> _PLACEHOLDER = ABILITY_TYPES.register(
+			"placeholder", key -> new AbilityType<>(key, Ability::new));
 }

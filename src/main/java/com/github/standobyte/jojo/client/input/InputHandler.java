@@ -15,9 +15,10 @@ import org.lwjgl.glfw.GLFW;
 import com.github.standobyte.jojo.client.ClientGlobals;
 import com.github.standobyte.jojo.client.ClientPowerCache;
 import com.github.standobyte.jojo.client.event.PreKeyInputEvent;
+import com.github.standobyte.jojo.client.input.controlscheme.AllControlSchemes;
 import com.github.standobyte.jojo.client.input.controlscheme.ClientControlScheme;
 import com.github.standobyte.jojo.client.input.controlscheme.ClientKeyWrapper;
-import com.github.standobyte.jojo.client.input.controlscheme.AllControlSchemes;
+import com.github.standobyte.jojo.client.ui.AbilitySelectionWheel;
 import com.github.standobyte.jojo.core.packet.fromclient.ClAbilityInputPacket;
 import com.github.standobyte.jojo.powersystem.Power;
 import com.github.standobyte.jojo.powersystem.PowerClass;
@@ -211,6 +212,16 @@ public class InputHandler {
 				if (vanillaKey != null) {
 					addKeyModifier(vanillaKey);
 				}
+				
+				if (heldAbility == null && clickAbility == null) {
+					ClientControlScheme controls = getCurControlScheme(power);
+					var curControls = controls.getCurGroup().getValue();
+					for (ClientControlScheme.Hotbar abilityHotbar : curControls.hotbars) {
+						if (abilityHotbar.switchAbilityKey == key) {
+							mc.setScreen(new AbilitySelectionWheel(abilityHotbar, power.getMoveset()));
+						}
+					}
+				}
 			}
 			case InputConstants.RELEASE -> {
 				HeldKeyTimer heldTicks = heldKeys.remove(key);
@@ -340,23 +351,28 @@ public class InputHandler {
 		input.heldAbility = null;
 		input.clickAbility = null;
 		
-		if (power.hasPower()) {
-			ClientControlScheme controlScheme = AllControlSchemes.controls.get(power.getPowerType().getId());
+		ClientControlScheme controlScheme = getCurControlScheme(power);
+		if (controlScheme != null) {
+			List<String> heldBound = controlScheme.getBindsWithModifier(InputMethod.HOLD, key, keyModifier);
+			List<String> clickBound = controlScheme.getBindsWithModifier(InputMethod.CLICK, key, keyModifier);
 			
-			if (controlScheme != null) {
-				List<String> heldBound = controlScheme.getBindsWithModifier(InputMethod.HOLD, key, keyModifier);
-				List<String> clickBound = controlScheme.getBindsWithModifier(InputMethod.CLICK, key, keyModifier);
-				
-				if (!(heldBound.isEmpty() && clickBound.isEmpty())) {
-					AvailableAbilities available = ClientPowerCache.getAvailableMoves(power.getPowerClass(), power);
-	
-					input.heldAbility = ClientControlScheme.prioritizedAbility(heldBound, available, power, true);
-					input.clickAbility = ClientControlScheme.prioritizedAbility(clickBound, available, power, true);
-				}
+			if (!(heldBound.isEmpty() && clickBound.isEmpty())) {
+				AvailableAbilities available = ClientPowerCache.getAvailableMoves(power.getPowerClass(), power);
+
+				input.heldAbility = ClientControlScheme.prioritizedAbility(heldBound, available, power, true);
+				input.clickAbility = ClientControlScheme.prioritizedAbility(clickBound, available, power, true);
 			}
 		}
 		
 		return input;
+	}
+	
+	@Nullable
+	protected ClientControlScheme getCurControlScheme(Power<?> power) {
+		if (power.hasPower()) {
+			return AllControlSchemes.controls.get(power.getPowerType().getId());
+		}
+		return null;
 	}
 	
 	static class CurInput {
