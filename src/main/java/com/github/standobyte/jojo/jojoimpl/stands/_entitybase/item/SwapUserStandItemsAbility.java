@@ -43,8 +43,10 @@ public class SwapUserStandItemsAbility extends Ability {
 
 	@Override
 	public AbilityInputState cl_abilityInputState(Power<?> context) {
-		AbilityInputState state = AbilityInputState.init();
+		AbilityInputState state = super.cl_abilityInputState(context);
 		if (DebugStandHud.isInContainerScreen()) { // make it work in a container screen too
+			state.setFlag(AbilityInputState.IS_ACTIVE, true);
+			state.setFlag(AbilityInputState.VISIBLE_TRANSLUCENT, false);
 			state.setFlag(AbilityInputState.ONLY_IN_CONTAINER, true);
 		}
 		return state;
