@@ -19,6 +19,7 @@ import com.google.gson.JsonParseException;
 import com.google.gson.JsonPrimitive;
 import com.google.gson.JsonSerializationContext;
 import com.google.gson.JsonSerializer;
+import com.github.standobyte.jojo.util.java.OptionalFloat;
 import com.github.standobyte.v1_21_4_stuff.missingmethods.Strictness;
 import com.google.gson.TypeAdapter;
 import com.google.gson.stream.JsonReader;
@@ -157,8 +158,27 @@ public class JSONUtil {
 	public static <V> JsonAdapter<V> registryValueAdapter(RegistryAccess registries, ResourceKey<Registry<V>> registryKey, String typeName) {
 		return registryValueAdapter(() -> registries.holderOrThrow(registryKey).value(), typeName);
 	}
-	
-	
+
+
+	public static float getFloatOr(String key, JsonObject json, float defaultValue) {
+		JsonElement jsonelement = json.get(key);
+		if (jsonelement != null) {
+			return jsonelement.isJsonNull() ? defaultValue : jsonelement.getAsFloat();
+		} else {
+			return defaultValue;
+		}
+	}
+
+	public static OptionalFloat getFloatOptional(String key, JsonObject json) {
+		JsonElement jsonelement = json.get(key);
+		if (jsonelement != null) {
+			return jsonelement.isJsonNull() ? OptionalFloat.empty() : OptionalFloat.of(jsonelement.getAsFloat());
+		} else {
+			return OptionalFloat.empty();
+		}
+	}
+
+
 	public static int parseColor(JsonElement jsonElement) {
 		if (jsonElement.isJsonPrimitive()) {
 			JsonPrimitive primitive = jsonElement.getAsJsonPrimitive();
