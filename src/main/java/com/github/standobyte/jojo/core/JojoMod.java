@@ -34,6 +34,7 @@ import net.neoforged.neoforge.network.event.RegisterPayloadHandlersEvent;
 @Mod(JojoMod.MOD_ID)
 public class JojoMod {
 	public static final String MOD_ID = "jojo_ripples";
+	@Deprecated
 	public static final Logger LOGGER = LogUtils.getLogger();
 
 	public JojoMod(IEventBus modEventBus, ModContainer modContainer) {

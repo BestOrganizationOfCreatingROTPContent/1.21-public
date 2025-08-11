@@ -10,7 +10,6 @@ import org.apache.commons.lang3.ArrayUtils;
 import org.jetbrains.annotations.ApiStatus;
 
 import com.github.standobyte.jojo.client.utils.ModelUtil;
-import com.github.standobyte.jojo.core.JojoMod;
 import com.github.standobyte.jojo.mechanics.clothes.itemdata.ClothesSlotType;
 import com.github.standobyte.v1_21_4_stuff.Reminder;
 import com.github.standobyte.v1_21_4_stuff.missingmethods.Model_1_21_2plus;
@@ -76,7 +75,6 @@ public class HumanoidClothesModel extends HumanoidModel/*<HumanoidRenderState>*/
 
 	@Override
 	protected ModelPart getArm(HumanoidArm side) {
-		JojoMod.LOGGER.debug("{} {} {} {} {}", side, leftArm.visible, leftArmSlim.visible, rightArm.visible, rightArmSlim.visible);
 		return switch (side) {
 			case LEFT -> !leftArm.visible && leftArmSlim.visible ? leftArmSlim : leftArm;
 			case RIGHT -> !rightArm.visible && rightArmSlim.visible ? rightArmSlim : rightArm;
