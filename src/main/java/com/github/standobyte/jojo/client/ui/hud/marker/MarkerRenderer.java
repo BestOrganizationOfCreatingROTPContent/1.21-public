@@ -5,7 +5,6 @@ import java.util.Collection;
 import java.util.List;
 import java.util.Optional;
 
-import com.github.standobyte.jojo.client.ui.hud.AdditionalHud;
 import com.github.standobyte.jojo.client.ui.utils.GuiIcon;
 import com.github.standobyte.jojo.core.JojoMod;
 import com.github.standobyte.jojo.powersystem.standpower.StandEffectInstance;
@@ -121,8 +120,8 @@ public abstract class MarkerRenderer {
 //		}
 	}
 	
-	public static final GuiIcon MARKER_BORDER = new GuiIcon(AdditionalHud.UI_ELEMENTS, 0, 0, 32, 32, 256, 256);
-	public static final GuiIcon MARKER_BORDER_OUTLINE = new GuiIcon(AdditionalHud.UI_ELEMENTS, 32, 0, 32, 32, 256, 256);
+	public static final GuiIcon MARKER_BORDER = new GuiIcon(JojoMod.resLoc("textures/hud/marker.png"), 32, 32);
+	public static final GuiIcon MARKER_BORDER_OUTLINE = new GuiIcon(JojoMod.resLoc("textures/hud/marker_highlight.png"), 32, 32);
 
 	protected void renderBorder(PoseStack poseStack, MarkerInstance marker, float partialTick, int color) {
         MARKER_BORDER.render(poseStack, -16, -32, color);

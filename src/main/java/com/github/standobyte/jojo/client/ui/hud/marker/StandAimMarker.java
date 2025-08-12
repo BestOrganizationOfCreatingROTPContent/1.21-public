@@ -4,7 +4,6 @@ import java.util.List;
 
 import com.github.standobyte.jojo.client.ClientPowerCache;
 import com.github.standobyte.jojo.client.input.ClientsideAim;
-import com.github.standobyte.jojo.client.ui.hud.AdditionalHud;
 import com.github.standobyte.jojo.client.ui.utils.GuiIcon;
 import com.github.standobyte.jojo.core.JojoMod;
 import com.github.standobyte.jojo.powersystem.PowerClass;
@@ -17,7 +16,7 @@ import net.minecraft.world.entity.Entity;
 import net.minecraft.world.phys.Vec3;
 
 public class StandAimMarker extends MarkerRenderer {
-	public static final GuiIcon AIM_ICON = new GuiIcon(AdditionalHud.UI_ELEMENTS, 224, 0, 17, 17, 256, 256);
+	public static final GuiIcon AIM_ICON = new GuiIcon(JojoMod.resLoc("textures/hud/stand_aim_marker.png"), 31, 31);
 
 	@Override
 	protected boolean shouldRender() {
