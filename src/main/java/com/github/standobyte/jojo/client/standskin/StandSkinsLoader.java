@@ -86,6 +86,11 @@ public class StandSkinsLoader extends SimplePreparableReloadListener<Map<Resourc
 	}
 	
 	@Nullable
+	public StandSkin getDefaultSkin(StandPower standPower) {
+		return standPower != null ? getDefaultSkin(standPower.getPowerType().getId()) : null;
+	}
+	
+	@Nullable
 	public StandSkin getSkin(StandPower standPower) {
 		if (standPower == null) return null;
 		return standPower.getStandInstance().map(this::getSkin).orElse(null);

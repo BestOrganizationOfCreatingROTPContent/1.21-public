@@ -105,6 +105,10 @@ public class StandSkin {
 		return 0xffffff;
 	}
 	
+	public ResourceLocation getTexture(ResourceLocation path, StandSkin defaultSkin) {
+		return getTexture(path, defaultSkin, path);
+	}
+	
 	public ResourceLocation getTexture(ResourceLocation path, StandSkin defaultSkin, ResourceLocation defaultTex) {
 		ResourcePathChecker remapped = remapAssetPath(path);
 		if (this != defaultSkin && defaultSkin != null) {

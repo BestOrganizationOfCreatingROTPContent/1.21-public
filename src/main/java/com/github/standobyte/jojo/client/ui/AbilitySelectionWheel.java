@@ -3,14 +3,19 @@ package com.github.standobyte.jojo.client.ui;
 import java.util.ArrayList;
 import java.util.List;
 
+import com.github.standobyte.jojo.client.ClientPowerCache;
 import com.github.standobyte.jojo.client.input.InputHandler;
 import com.github.standobyte.jojo.client.input.controlscheme.ClientControlScheme;
 import com.github.standobyte.jojo.client.input.controlscheme.ClientControlScheme.HotbarSlot;
+import com.github.standobyte.jojo.client.standskin.StandSkin;
+import com.github.standobyte.jojo.client.standskin.StandSkinsLoader;
 import com.github.standobyte.jojo.client.ui.utils.BlitFloat;
 import com.github.standobyte.jojo.core.JojoMod;
 import com.github.standobyte.jojo.powersystem.Moveset;
+import com.github.standobyte.jojo.powersystem.PowerClass;
 import com.github.standobyte.jojo.powersystem.ability.Ability;
 import com.github.standobyte.jojo.powersystem.ability.controls.InputMethod;
+import com.github.standobyte.jojo.powersystem.standpower.StandPower;
 import com.github.standobyte.v1_21_4_stuff.missingmethods.ARGB;
 import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.blaze3d.vertex.PoseStack;
@@ -25,6 +30,7 @@ import net.neoforged.neoforge.client.settings.KeyModifier;
 
 public class AbilitySelectionWheel extends Screen implements ScreenLetsUseWASD {
 	protected static final ResourceLocation DEFAULT_TEXTURE = JojoMod.resLoc("textures/ability_wheel.png");
+	protected ResourceLocation texture;
 	public ClientControlScheme.Hotbar abilities;
 	public Moveset moveset;
 
@@ -32,6 +38,18 @@ public class AbilitySelectionWheel extends Screen implements ScreenLetsUseWASD {
 		super(Component.translatable("jojo.screen.ability_selection_wheel"));
 		this.abilities = abilities;
 		this.moveset = moveset;
+		
+		StandPower standPower = ClientPowerCache.getPower(PowerClass.STAND);
+		if (standPower != null) {
+			StandSkinsLoader skinLoader = StandSkinsLoader.getInstance();
+			StandSkin skin = skinLoader.getSkin(standPower);
+			if (skin != null) {
+				texture = skin.getTexture(DEFAULT_TEXTURE, skinLoader.getDefaultSkin(standPower));
+			}
+		}
+		if (texture == null) {
+			texture = DEFAULT_TEXTURE;
+		}
 	}
 
 	@Override
