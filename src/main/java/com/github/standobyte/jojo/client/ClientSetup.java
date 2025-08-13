@@ -1,5 +1,8 @@
 package com.github.standobyte.jojo.client;
 
+import java.io.File;
+
+import com.github.standobyte.jojo.client.config.ClientModSettings;
 import com.github.standobyte.jojo.client.entitycontrol.stand.StandHudElements;
 import com.github.standobyte.jojo.client.input.InputHandler;
 import com.github.standobyte.jojo.client.ui.hud.marker.MarkerRenderer;
@@ -7,15 +10,24 @@ import com.github.standobyte.jojo.client.ui.hud.marker.StandAimMarker;
 import com.github.standobyte.jojo.client.ui.jojomenu.JojoMenuTabs;
 import com.github.standobyte.jojo.core.JojoMod;
 
+import net.minecraft.client.Minecraft;
 import net.neoforged.api.distmarker.Dist;
 import net.neoforged.bus.api.EventPriority;
 import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.fml.common.EventBusSubscriber;
 import net.neoforged.fml.event.lifecycle.FMLClientSetupEvent;
+import net.neoforged.neoforge.client.event.RegisterClientReloadListenersEvent;
 import net.neoforged.neoforge.client.event.RegisterKeyMappingsEvent;
 
 @EventBusSubscriber(modid = JojoMod.MOD_ID, bus = EventBusSubscriber.Bus.MOD, value = Dist.CLIENT)
 public class ClientSetup {
+	
+	@SubscribeEvent
+	public static void veryEarlyClientSetup(RegisterClientReloadListenersEvent event) {
+		Minecraft mc = Minecraft.getInstance();
+		ClientModSettings.init(new File(mc.gameDirectory, "config/jojo_rotp/client_settings.json"));
+//		HudControlSettings.init(new File(mc.gameDirectory, "config/jojo_rotp/controls/"));
+	}
 
 	@SubscribeEvent(priority = EventPriority.HIGHEST)
 	public static void onClientSetup0(FMLClientSetupEvent event) {
