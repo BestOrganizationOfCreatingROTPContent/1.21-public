@@ -3,6 +3,7 @@ package com.github.standobyte.jojo.client.text.sprite;
 import java.util.function.Function;
 
 import com.github.standobyte.jojo.client.ui.utils.GuiIcon;
+import com.github.standobyte.jojo.client.utils.ResourcePathChecker;
 import com.mojang.blaze3d.font.GlyphInfo;
 import com.mojang.blaze3d.font.SheetGlyphInfo;
 
@@ -10,6 +11,7 @@ import net.minecraft.client.gui.font.GlyphRenderTypes;
 import net.minecraft.client.gui.font.glyphs.BakedGlyph;
 
 public class IconGlyphInfo implements GlyphInfo {
+	protected ResourcePathChecker spriteFileCheck;
 	public GuiIcon icon;
 	public float width;
 	public float height;
@@ -33,6 +35,13 @@ public class IconGlyphInfo implements GlyphInfo {
 	@Override
 	public float getAdvance() {
 		return width + offset;
+	}
+	
+	public boolean exists() {
+		if (spriteFileCheck == null) {
+			spriteFileCheck = ResourcePathChecker.getOrCreate(icon.file);
+		}
+		return spriteFileCheck.resourceExists();
 	}
 
 	@Override

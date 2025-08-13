@@ -6,11 +6,19 @@ import java.util.function.Consumer;
 import javax.annotation.Nullable;
 
 import com.github.standobyte.jojo.client.item.ItemIconModels;
+import com.github.standobyte.jojo.client.text.IconSymbols;
+import com.github.standobyte.jojo.client.text.sprite.IconGlyphInfo;
+import com.github.standobyte.jojo.client.text.sprite.IconGlyphsCache;
 import com.github.standobyte.jojo.client.ui.utils.Alignment;
+import com.github.standobyte.jojo.client.ui.utils.GuiIcon;
 import com.github.standobyte.jojo.client.ui.widgets.ButtonInLayout;
 import com.github.standobyte.jojo.client.ui.widgets.ItemButton;
+import com.github.standobyte.jojo.core.JojoMod;
 import com.github.standobyte.jojo.util.reflection.ClientReflection;
 
+import it.unimi.dsi.fastutil.objects.Object2CharArrayMap;
+import it.unimi.dsi.fastutil.objects.Object2CharMap;
+import net.minecraft.Util;
 import net.minecraft.client.gui.Font;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.components.AbstractWidget;
@@ -22,6 +30,8 @@ import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.client.gui.screens.options.OptionsScreen;
 import net.minecraft.network.chat.CommonComponents;
 import net.minecraft.network.chat.Component;
+import net.minecraft.resources.ResourceLocation;
+import net.minecraft.util.Mth;
 import net.neoforged.fml.ModList;
 
 public class ClientModSettingsScreen extends Screen {
@@ -38,6 +48,7 @@ public class ClientModSettingsScreen extends Screen {
 		this.lastScreen = lastScreen;
 		this.settings = settings;
 		this.settingsValues = ClientModSettings.getSettingsReadOnly();
+		categoryOpenedTimestampSoThatScrollingDoesntSuck = Util.getMillis();
 	}
 
 	@Override
@@ -272,8 +283,8 @@ public class ClientModSettingsScreen extends Screen {
 
 			BooleanSetting thirdPersonHamonAura = new BooleanSetting(settings, 
 					Component.translatable("jojo.config.client.thirdPersonHamonAura"), 
-					Component.translatable("jojo.config.client.thirdPersonHamonAura.tooltip")
-					) {
+					Component.translatable("jojo.config.client.thirdPersonHamonAura.tooltip"), 
+					null) {
 				@Override public Boolean get() { return settingsValues.thirdPersonHamonAura; }
 				@Override public void set(Boolean value) { 
 					settingsValues.thirdPersonHamonAura = value;
@@ -283,8 +294,8 @@ public class ClientModSettingsScreen extends Screen {
 
 			BooleanSetting firstPersonHamonAura = new BooleanSetting(settings, 
 					Component.translatable("jojo.config.client.firstPersonHamonAura"), 
-					Component.translatable("jojo.config.client.firstPersonHamonAura.tooltip")
-					) {
+					Component.translatable("jojo.config.client.firstPersonHamonAura.tooltip"), 
+					null) {
 				@Override public Boolean get() { return settingsValues.firstPersonHamonAura; }
 				@Override public void set(Boolean value) { 
 					settingsValues.firstPersonHamonAura = value;
@@ -294,8 +305,8 @@ public class ClientModSettingsScreen extends Screen {
 
 			BooleanSetting hamonAuraBlur = new BooleanSetting(settings, 
 					Component.translatable("jojo.config.client.hamonAuraBlur"), 
-					Component.translatable("jojo.config.client.hamonAuraBlur.tooltip")
-					) {
+					Component.translatable("jojo.config.client.hamonAuraBlur.tooltip"), 
+					null) {
 				@Override public Boolean get() { return settingsValues.hamonAuraBlur; }
 				@Override public void set(Boolean value) { 
 					settingsValues.hamonAuraBlur = value;
@@ -358,40 +369,68 @@ public class ClientModSettingsScreen extends Screen {
 
 
 
+	protected static Object2CharMap<ResourceLocation> iconSymbols = new Object2CharArrayMap<>();
+	
+	protected static ResourceLocation toIconPath(String fileName) {
+		return JojoMod.resLoc("textures/gui/sprites/settings/" + fileName + ".png");
+	}
+	
 	protected static abstract class Setting<T> {
+		protected ClientModSettings settings;
+		protected Component name;
+		protected Component nameWithSprite;
+		protected Component tooltip;
+		@Nullable protected ResourceLocation sprite;
+		protected char spriteCode;
+		
 		protected boolean broadcast = false;
 
 		public abstract T get();
 		public abstract void set(T value);
+		
+		public Setting(ClientModSettings settings, Component name, @Nullable Component tooltip, @Nullable ResourceLocation sprite) {
+			this.settings = settings;
+			this.name = name;
+			this.tooltip = tooltip;
+			this.sprite = sprite;
+			if (sprite != null) {
+				spriteCode = iconSymbols.computeIfAbsent(sprite, (ResourceLocation iconPath) -> 
+						IconGlyphsCache.makeCharCodeFor(new IconGlyphInfo(new GuiIcon(iconPath, 16, 16), 16, 16, 0, -5, 4)));
+				this.nameWithSprite = Component.literal(String.valueOf(spriteCode)).append(name);
+			}
+			else {
+				this.nameWithSprite = name;
+			}
+			this.name = name;
+		}
 
 		public Setting<T> setBroadcasted() {
 			this.broadcast = true;
 			return this;
+		}
+		
+		protected Component nameWithSprite() {
+			return sprite != null && IconSymbols.spriteExists(spriteCode) ? nameWithSprite : name;
 		}
 
 		public abstract Button createButton(int x, int y, int width, int height, Screen screen, int buttonI);
 	}
 
 	protected static abstract class BooleanSetting extends Setting<Boolean> {
-		private final ClientModSettings settings;
-		private final Component name;
-		private final Component tooltip;
 
-		public BooleanSetting(ClientModSettings settings, Component name, @Nullable Component tooltip) {
-			this.settings = settings;
-			this.name = name;
-			this.tooltip = tooltip;
+		public BooleanSetting(ClientModSettings settings, Component name, @Nullable Component tooltip, @Nullable ResourceLocation sprite) {
+			super(settings, name, tooltip, sprite);
 		}
 
 		@Override
 		public Button createButton(int x, int y, int width, int height, Screen screen, int buttonI) {
 			return new ScrollingStringButton(
 					x, y, width, height,
-					CommonComponents.optionStatus(name, get()), 
+					CommonComponents.optionStatus(nameWithSprite(), get()), 
 					button -> {
 						settings.editSettings(s -> {
 							set(!get());
-							button.setMessage(CommonComponents.optionStatus(name, get()));
+							button.setMessage(CommonComponents.optionStatus(nameWithSprite(), get()));
 						}, broadcast);
 					},
 					Tooltip.create(tooltip))
@@ -400,17 +439,12 @@ public class ClientModSettingsScreen extends Screen {
 	}
 
 	protected static abstract class EnumSetting<T extends Enum<T>> extends Setting<T> {
-		private final ClientModSettings settings;
-		private final Component name;
-		private final Component tooltip;
-		private final Class<T> enumClass;
-		private String prefix = "jojo.config.client.option.";
+		protected Class<T> enumClass;
+		protected String prefix = "jojo.config.client.option.";
 
-		public EnumSetting(ClientModSettings settings, Component name, @Nullable Component tooltip, Class<T> enumClass) {
-			this.settings = settings;
-			this.name = name;
+		public EnumSetting(ClientModSettings settings, Component name, @Nullable Component tooltip, Class<T> enumClass, @Nullable ResourceLocation sprite) {
+			super(settings, name, tooltip, sprite);
 			this.enumClass = enumClass;
-			this.tooltip = tooltip;
 		}
 
 		public EnumSetting<T> prefix(String prefix) {
@@ -422,14 +456,14 @@ public class ClientModSettingsScreen extends Screen {
 		public Button createButton(int x, int y, int width, int height, Screen screen, int buttonI) {
 			return new ScrollingStringButton(
 					x, y, width, height,
-					Component.translatable("options.generic_value", name, getValueMessage(get())), 
+					Component.translatable("options.generic_value", nameWithSprite(), getValueMessage(get())), 
 					button -> {
 						settings.editSettings(s -> {
 							T[] values = enumClass.getEnumConstants();
 							T val = get();
 							T nextVal = values[(val.ordinal() + 1) % values.length];
 							set(nextVal);
-							button.setMessage(Component.translatable("options.generic_value", name, getValueMessage(nextVal)));
+							button.setMessage(Component.translatable("options.generic_value", nameWithSprite(), getValueMessage(nextVal)));
 						}, broadcast);
 					},
 					Tooltip.create(tooltip))
@@ -484,10 +518,32 @@ public class ClientModSettingsScreen extends Screen {
                 }
             }
             else {
-            	renderScrollingString(guiGraphics, font, text, x0, y0, x1, y1, color);
+            	_renderScrollingString(guiGraphics, font, text, (x0 + x1) / 2, x0, y0, x1, y1, color, categoryOpenedTimestampSoThatScrollingDoesntSuck);
             }
         }
+
+        public static void _renderScrollingString(GuiGraphics guiGraphics, Font font, 
+        		Component text, int centerX, int minX, int minY, int maxX, int maxY, int color, 
+        		long startingTime) {
+        	int i = font.width(text);
+        	int j = (minY + maxY - 9) / 2 + 1;
+        	int k = maxX - minX;
+        	if (i > k) {
+        		int l = i - k;
+        		double d0 = (double)(Util.getMillis() - startingTime) / 1000.0;
+        		double d1 = Math.max((double)l * 0.5, 3.0);
+        		double d2 = 1 - (Math.sin((Math.PI / 2) * Math.cos((Math.PI * 2) * d0 / d1)) / 2.0 + 0.5);
+        		double d3 = Mth.lerp(d2, 0.0, (double)l);
+        		guiGraphics.enableScissor(minX, minY, maxX, maxY);
+        		guiGraphics.drawString(font, text, minX - (int)d3, j, color);
+        		guiGraphics.disableScissor();
+        	} else {
+        		int i1 = Mth.clamp(centerX, minX + i / 2, maxX - i / 2);
+        		guiGraphics.drawCenteredString(font, text, i1, j, color);
+        	}
+        }
     }
+    static long categoryOpenedTimestampSoThatScrollingDoesntSuck;
     
     
     

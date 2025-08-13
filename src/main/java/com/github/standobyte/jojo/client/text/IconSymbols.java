@@ -1,4 +1,4 @@
-package com.github.standobyte.jojo.client.ui;
+package com.github.standobyte.jojo.client.text;
 
 import com.github.standobyte.jojo.client.text.sprite.IconGlyphInfo;
 import com.github.standobyte.jojo.client.text.sprite.IconGlyphsCache;
@@ -13,4 +13,9 @@ public class IconSymbols {
 			new GuiIcon(JojoMod.resLoc("textures/gui/sprites/right_click.png"), 3, 0, 10, 16, 16, 16), 5, 8));
 	public static final char MMB_CLICK = IconGlyphsCache.makeCharCodeFor(new IconGlyphInfo(
 			new GuiIcon(JojoMod.resLoc("textures/gui/sprites/middle_click.png"), 3, 0, 10, 16, 16, 16), 5, 8));
+	
+	public static boolean spriteExists(char character) {
+		IconGlyphInfo glyph = IconGlyphsCache.get(character);
+		return glyph != null && glyph.exists();
+	}
 }

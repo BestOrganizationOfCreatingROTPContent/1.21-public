@@ -4,13 +4,11 @@ import javax.annotation.Nullable;
 
 import org.jetbrains.annotations.ApiStatus;
 
-import com.mojang.blaze3d.font.GlyphInfo;
-
 import it.unimi.dsi.fastutil.chars.Char2ObjectArrayMap;
 import it.unimi.dsi.fastutil.chars.Char2ObjectMap;
 
 public class IconGlyphsCache {
-	public static Char2ObjectMap<GlyphInfo> _glyphsByIndex = new Char2ObjectArrayMap<>();
+	public static Char2ObjectMap<IconGlyphInfo> _glyphsByIndex = new Char2ObjectArrayMap<>();
 
 	public static char makeCharCodeFor(IconGlyphInfo glyph) {
 		char index = (char) _glyphsByIndex.size();
@@ -27,7 +25,7 @@ public class IconGlyphsCache {
 
 	@ApiStatus.Internal
 	@Nullable
-	public static GlyphInfo get(char character) {
+	public static IconGlyphInfo get(char character) {
 		int index = character - _UTF_16_PCA;
 		if (index < 0) return null;
 		return _glyphsByIndex.get((char) index);
