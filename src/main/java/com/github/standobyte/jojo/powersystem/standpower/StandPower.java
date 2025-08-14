@@ -12,6 +12,7 @@ import com.github.standobyte.jojo.powersystem.standpower.entity.StandEntity;
 import com.github.standobyte.jojo.powersystem.standpower.type.StandType;
 import com.github.standobyte.jojo.powersystem.standpower.type.SummonedStand;
 import com.github.standobyte.jojo.util.NBTUtil;
+import com.github.standobyte.jojo.util.entitycomponent.PostNbtReadEntityData;
 
 import net.minecraft.core.HolderLookup;
 import net.minecraft.nbt.CompoundTag;
@@ -22,12 +23,13 @@ import net.minecraft.util.Mth;
 import net.minecraft.world.entity.LivingEntity;
 import net.neoforged.neoforge.network.PacketDistributor;
 
-public class StandPower extends Power<StandPower> {
+public class StandPower extends Power<StandPower> implements PostNbtReadEntityData {
 	protected Optional<StandInstance> standInstance = Optional.empty();
 	protected SummonedStand summonedStand;
 	
 	public StandPower(LivingEntity user) {
 		super(user);
+		addPostNbtReadCallback(user); // to update the user's base attribute values after the attributes are read
 	}
 	
 	
@@ -222,6 +224,14 @@ public class StandPower extends Power<StandPower> {
 				.map(pair -> pair.getFirst());
 		stamina = nbt.getFloat("Stamina");
 		resolve = nbt.getFloat("Resolve");
+	}
+	
+	/* unlike deserializeNBT, this is called after the entity attributes are read, 
+	 * allowing me to edit their base values from the Stand stats
+	 */
+	@Override
+	public void afterNbtRead() {
+		StandStats.updateStandStatAttributes(this, user);
 	}
 	
 	

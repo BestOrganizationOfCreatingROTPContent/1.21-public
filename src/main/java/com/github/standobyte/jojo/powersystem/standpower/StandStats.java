@@ -182,6 +182,7 @@ public class StandStats implements JsonConfigurable {
 	
 	
 	public static void updateStandStatAttributes(@Nonnull StandPower standPower, @Nonnull LivingEntity user) {
+		if (user.level().isClientSide()) return;
 		StandStats stats = standPower.getStandInstance().map(StandInstance::getStandType).map(StandType::getStandStats).orElse(null);
 		AttributeMap attributes = user.getAttributes();
 		AttributeUtil.setBaseValue(attributes, ModEntityAttributes.STAND_STRENGTH, stats != null ? stats.power() : 0);

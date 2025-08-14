@@ -13,6 +13,7 @@ public class DataEventListeners {
 	private List<SynchronizableEntityData> entityDataSync = new ArrayList<>();
 	private List<SynchronizablePlayerData> playerDataSync = new ArrayList<>();
 	private List<TickingEntityData> ticking = new ArrayList<>();
+	private List<PostNbtReadEntityData> postNbtCallback = new ArrayList<>();
 	
 	public DataEventListeners(IAttachmentHolder entity) {}
 	
@@ -30,6 +31,10 @@ public class DataEventListeners {
 	
 	public void addTickingData(TickingEntityData data) {
 		this.ticking.add(data);
+	}
+	
+	public void addPostNbtReadCallback(PostNbtReadEntityData data) {
+		this.postNbtCallback.add(data);
 	}
 	
 	
@@ -56,4 +61,11 @@ public class DataEventListeners {
 			listener.tick();
 		}
 	}
+	
+	public void afterNbtRead() {
+		for (var listener : postNbtCallback) {
+			listener.afterNbtRead();
+		}
+	}
+	
 }
