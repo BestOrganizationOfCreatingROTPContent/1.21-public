@@ -7,14 +7,19 @@ import java.util.stream.Stream;
 import javax.annotation.Nullable;
 
 import com.github.standobyte.jojo.core.JojoRegistries;
+import com.github.standobyte.jojo.init.core.ModEntityAttributes;
 import com.github.standobyte.jojo.powersystem.MovesetBuilder;
 import com.github.standobyte.jojo.powersystem.PowerClass;
 import com.github.standobyte.jojo.powersystem.PowerType;
+import com.github.standobyte.jojo.powersystem.entityaction.EntityActionInstance;
+import com.github.standobyte.jojo.powersystem.entityaction.LivingComponentAction;
 import com.github.standobyte.jojo.powersystem.standpower.StandPower;
 import com.github.standobyte.jojo.powersystem.standpower.StandStats;
 import com.github.standobyte.jojo.powersystem.standpower.datapack.DataDrivenStandsLoader;
 import com.github.standobyte.jojo.powersystem.standpower.datapack.StandTypeClass;
+import com.github.standobyte.jojo.powersystem.standpower.entity.StandStatFormulas;
 import com.github.standobyte.jojo.powersystem.standpower.type.SummonedStand.BlankSummonedStand;
+import com.github.standobyte.jojo.util.mc.AttributeUtil;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 
@@ -103,6 +108,50 @@ public class StandType extends PowerType {
 		if (standPower.isSummoned()) {
 			standPower.setSummonedStand(null);
 		}
+	}
+	
+	
+	public boolean usesStamina(StandPower standPower) {
+		return true;
+	}
+	
+	public float getMaxStamina(StandPower standPower) {
+		return getBaseMaxStamina(standPower) * getStaminaMultiplier(standPower);
+	}
+	
+	protected float getBaseMaxStamina(StandPower standPower) {
+		return 1000;
+	}
+	
+	public float getStaminaRegen(StandPower standPower) {
+		return getBaseStaminaRegen(standPower) * getStaminaMultiplier(standPower);
+	}
+	
+	protected float getBaseStaminaRegen(StandPower standPower) {
+		if (standPower.isSummoned()) {
+			LivingEntity standEntity = standPower.getSummonedStandEntity();
+			if (standEntity != null) {
+				EntityActionInstance action = LivingComponentAction.getCurEntityAction(standEntity);
+				if (action != null /* TODO regen stamina during stand unsummon */) {
+					return 0;
+				}
+			}
+			return 1.5f;
+		}
+		return 3;
+	}
+	
+	protected static float getStaminaMultiplier(StandPower standPower) {
+		double durability = AttributeUtil.getValueOrDefault(standPower.getUser(), ModEntityAttributes.STAND_DURABILITY);
+		return StandStatFormulas.getStaminaMultiplier(durability);
+	}
+	
+	public boolean usesResolve(StandPower standPower) {
+		return true;
+	}
+	
+	public float getMaxResolve(StandPower standPower) {
+		return 30000;
 	}
 	
 	

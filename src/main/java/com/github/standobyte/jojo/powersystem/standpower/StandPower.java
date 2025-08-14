@@ -18,6 +18,7 @@ import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.NbtOps;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.util.Mth;
 import net.minecraft.world.entity.LivingEntity;
 import net.neoforged.neoforge.network.PacketDistributor;
 
@@ -49,7 +50,13 @@ public class StandPower extends Power<StandPower> {
 		if (oldStand != null && standChanged) {
 			oldStand.forceUnsummon(user, this);
 		}
+		
 		this.standInstance = standInstance;
+		LivingEntity user = getUser();
+		if (user != null) {
+			StandStats.updateStandStatAttributes(this, user);
+		}
+		
 		if (!user.level().isClientSide()) {
 			PacketDistributor.sendToPlayersTrackingEntityAndSelf(user, new TrPowerStandInstancePacket(user.getId(), standInstance));
 		}
@@ -97,6 +104,62 @@ public class StandPower extends Power<StandPower> {
 	}
 	
 	
+	protected float stamina;
+	
+	public boolean usesStamina() {
+		return hasPower() ? getPowerType().usesStamina(this) : false;
+	}
+	
+	public float getStamina() {
+		return stamina;
+	}
+	
+	public float getMaxStamina() {
+		return hasPower() ? getPowerType().getMaxStamina(this) : 0;
+	}
+	
+	public float getStaminaRatio() {
+		float maxStamina = getMaxStamina();
+		return maxStamina > 0 ? getStamina() / maxStamina : 0;
+	}
+	
+	public void setStamina(float stamina) {
+		stamina = Mth.clamp(stamina, 0, getMaxStamina());
+		if (this.stamina != stamina) {
+			this.stamina = stamina;
+			PacketDistributor.sendToPlayersTrackingEntityAndSelf(user, new TrStaminaPacket(user.getId(), stamina));
+		}
+	}
+	
+	
+	protected float resolve;
+	
+	public boolean usesResolve() {
+		return hasPower() ? getPowerType().usesResolve(this) : false;
+	}
+	
+	public float getResolve() {
+		return resolve;
+	}
+	
+	public float getMaxResolve() {
+		return hasPower() ? getPowerType().getMaxResolve(this) : 0;
+	}
+	
+	public float getResolveRatio() {
+		float maxResolve = getMaxResolve();
+		return maxResolve > 0 ? getResolve() / maxResolve : 0;
+	}
+	
+	public void setResolve(float resolve) {
+		resolve = Mth.clamp(resolve, 0, getMaxResolve());
+		if (this.resolve != resolve) {
+			this.resolve = resolve;
+			PacketDistributor.sendToPlayersTrackingEntityAndSelf(user, new TrResolvePacket(user.getId(), resolve));
+		}
+	}
+	
+	
 	public void setSelectedSkin(Optional<ResourceLocation> skin) {
 		if (standInstance.isPresent()) {
 			standInstance.get().setCustomSkin(skin);
@@ -119,6 +182,8 @@ public class StandPower extends Power<StandPower> {
 	public void syncToPlayer(ServerPlayer user) {
 		super.syncToPlayer(user);
 		PacketDistributor.sendToPlayer(user, new TrPowerStandInstancePacket(user.getId(), standInstance));
+		PacketDistributor.sendToPlayer(user, new TrStaminaPacket(user.getId(), stamina));
+		PacketDistributor.sendToPlayer(user, new TrResolvePacket(user.getId(), resolve));
 		PacketDistributor.sendToPlayer(user, new TrStandSkinPacket(user.getId(), getSelectedSkin()));
 	}
 
@@ -126,6 +191,8 @@ public class StandPower extends Power<StandPower> {
 	public void syncToTracking(ServerPlayer player) {
 		super.syncToTracking(player);
 		PacketDistributor.sendToPlayer(player, new TrPowerStandInstancePacket(user.getId(), standInstance));
+		PacketDistributor.sendToPlayer(player, new TrStaminaPacket(user.getId(), stamina));
+		PacketDistributor.sendToPlayer(player, new TrResolvePacket(user.getId(), resolve));
 		PacketDistributor.sendToPlayer(player, new TrStandSkinPacket(user.getId(), getSelectedSkin()));
 	}
 	
@@ -142,6 +209,8 @@ public class StandPower extends Power<StandPower> {
 		standInstance.ifPresent(
 				stand -> StandInstance.CODEC.encodeStart(NbtOps.INSTANCE, stand)
 				.ifSuccess(standNbt -> nbt.put("StandInstance", standNbt)));
+		nbt.putFloat("Stamina", stamina);
+		nbt.putFloat("Resolve", resolve);
 		return nbt;
 	}
 
@@ -151,6 +220,8 @@ public class StandPower extends Power<StandPower> {
 		standInstance = NBTUtil.getCompoundOptional(nbt, "StandInstance")
 				.flatMap(standNbt -> StandInstance.CODEC.decode(NbtOps.INSTANCE, standNbt).result())
 				.map(pair -> pair.getFirst());
+		stamina = nbt.getFloat("Stamina");
+		resolve = nbt.getFloat("Resolve");
 	}
 	
 	

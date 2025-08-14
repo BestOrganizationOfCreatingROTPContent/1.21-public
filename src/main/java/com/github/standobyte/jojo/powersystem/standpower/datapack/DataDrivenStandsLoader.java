@@ -27,6 +27,7 @@ import com.mojang.serialization.JsonOps;
 
 import net.minecraft.core.Registry;
 import net.minecraft.resources.ResourceLocation;
+import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.server.packs.resources.PreparableReloadListener;
 import net.minecraft.server.packs.resources.Resource;
@@ -207,7 +208,7 @@ public class DataDrivenStandsLoader {
 	
 	// Sync to clients
 	
-	public static void syncDatapackTo(Stream<ServerPlayer> players) {
+	public static void syncDatapackTo(Stream<ServerPlayer> players, MinecraftServer server) {
 		Collection<Map.Entry<ResourceLocation, JsonObject>> standEntries = null;
 		if (serverLoadedStands != null) {
 			var standsMap = serverLoadedStands.loadedConfigsData;
@@ -217,6 +218,8 @@ public class DataDrivenStandsLoader {
 		}
 		var packet = new DatapackStandsPacket(standEntries != null ? standEntries : Collections.emptySet());
 		players.forEach(player -> PacketDistributor.sendToPlayer(player, packet));
+		
+		StandStats.afterConfigApply(server);
 	}
 	
 	public static void receivePacket(DatapackStandsPacket packet) {

@@ -2,10 +2,21 @@ package com.github.standobyte.jojo.powersystem.standpower;
 
 import java.util.Optional;
 
+import javax.annotation.Nonnull;
+
 import com.github.standobyte.jojo.core.config.DefaultedValue;
 import com.github.standobyte.jojo.core.config.JsonConfigurable;
+import com.github.standobyte.jojo.init.core.ModEntityAttributes;
+import com.github.standobyte.jojo.powersystem.standpower.type.StandType;
+import com.github.standobyte.jojo.util.mc.AttributeUtil;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
+
+import net.minecraft.server.MinecraftServer;
+import net.minecraft.server.level.ServerLevel;
+import net.minecraft.world.entity.Entity;
+import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.entity.ai.attributes.AttributeMap;
 
 public class StandStats implements JsonConfigurable {
 	private final DefaultedValue.Double power;
@@ -166,6 +177,31 @@ public class StandStats implements JsonConfigurable {
 	public void restoreDefaults() {
 		for (StatWithValue field : StatWithValue.values()) {
 			getField(field).reset();
+		}
+	}
+	
+	
+	public static void updateStandStatAttributes(@Nonnull StandPower standPower, @Nonnull LivingEntity user) {
+		StandStats stats = standPower.getStandInstance().map(StandInstance::getStandType).map(StandType::getStandStats).orElse(null);
+		AttributeMap attributes = user.getAttributes();
+		AttributeUtil.setBaseValue(attributes, ModEntityAttributes.STAND_STRENGTH, stats != null ? stats.power() : 0);
+		AttributeUtil.setBaseValue(attributes, ModEntityAttributes.STAND_SPEED, stats != null ? stats.speed() : 0);
+		AttributeUtil.setBaseValue(attributes, ModEntityAttributes.STAND_EFFECTIVE_RANGE, stats != null ? stats.rangeEffective() : 0);
+		AttributeUtil.setBaseValue(attributes, ModEntityAttributes.STAND_MAX_RANGE, stats != null ? stats.rangeMax() : 0);
+		AttributeUtil.setBaseValue(attributes, ModEntityAttributes.STAND_DURABILITY, stats != null ? stats.durability() : 0);
+		AttributeUtil.setBaseValue(attributes, ModEntityAttributes.STAND_PRECISION, stats != null ? stats.precision() : 0);
+	}
+	
+	public static void afterConfigApply(MinecraftServer server) {
+		for (ServerLevel level : server.getAllLevels()) {
+			for (Entity entity : level.getAllEntities()) {
+				if (entity instanceof LivingEntity living) {
+					StandPower standPower = StandPower.get(living);
+					if (standPower != null) {
+						updateStandStatAttributes(standPower, living);
+					}
+				}
+			}
 		}
 	}
 	

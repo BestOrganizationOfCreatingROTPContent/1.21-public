@@ -25,6 +25,7 @@ import com.github.standobyte.jojo.util.MathUtil;
 import com.github.standobyte.jojo.util.UtilFunctions;
 import com.github.standobyte.jojo.util.damage.DamageUtil;
 import com.github.standobyte.jojo.util.damage.StandLinkDamageSource;
+import com.github.standobyte.jojo.util.mc.AttributeUtil;
 import com.github.standobyte.jojo.util.mc.PrevRotations;
 import com.github.standobyte.jojo.util.target.ActionTarget;
 import com.github.standobyte.jojo.util.target.ActionTarget.TargetType;
@@ -56,6 +57,7 @@ import net.minecraft.world.entity.HumanoidArm;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.MoverType;
 import net.minecraft.world.entity.TamableAnimal;
+import net.minecraft.world.entity.ai.attributes.AttributeMap;
 import net.minecraft.world.entity.ai.attributes.AttributeSupplier;
 import net.minecraft.world.entity.ai.attributes.Attributes;
 import net.minecraft.world.entity.animal.Animal;
@@ -105,7 +107,7 @@ public class StandEntity extends LivingEntity implements SummonedStand, IEntityW
 	public StandEntity withStandType(StandType standType) {
 		if (isAddedToLevel()) throw new IllegalStateException();
 		this.standId = standType.getId();
-		setStandStatsValues(standType.getStandStats());
+		initStandStatsValues(standType.getStandStats());
 		return this;
 	}
 
@@ -166,6 +168,7 @@ public class StandEntity extends LivingEntity implements SummonedStand, IEntityW
 			}
 			updateUserOffset(user);
 		}
+		updateStandStatAttributes(this, user);
 		yHeadRot = getYRot();
 		yHeadRotO = yRotO;
 	}
@@ -508,7 +511,7 @@ public class StandEntity extends LivingEntity implements SummonedStand, IEntityW
 			.add(Attributes.SWEEPING_DAMAGE_RATIO);
 	}
 
-	public void setStandStatsValues(StandStats stats) {
+	public void initStandStatsValues(StandStats stats) {
 		getAttribute(Attributes.ATTACK_DAMAGE).setBaseValue(stats.power());
 		getAttribute(Attributes.ATTACK_SPEED).setBaseValue(stats.speed());
 		getAttribute(Attributes.MOVEMENT_SPEED).setBaseValue(StandStatFormulas.getMovementSpeed(stats.speed()));
@@ -516,6 +519,38 @@ public class StandEntity extends LivingEntity implements SummonedStand, IEntityW
 		getAttribute(ModEntityAttributes.STAND_MAX_RANGE).setBaseValue(stats.rangeMax());
 		getAttribute(ModEntityAttributes.STAND_DURABILITY).setBaseValue(stats.durability());
 		getAttribute(ModEntityAttributes.STAND_PRECISION).setBaseValue(stats.precision());
+	}
+	
+	public static void updateStandStatAttributes(LivingEntity stand, @Nullable LivingEntity user) {
+		if (user != null) {
+			AttributeMap standAttributes = stand.getAttributes();
+			AttributeMap userAttributes = user.getAttributes();
+			if (userAttributes.hasAttribute(ModEntityAttributes.STAND_STRENGTH)) {
+				double strength = userAttributes.getValue(ModEntityAttributes.STAND_STRENGTH);
+				AttributeUtil.setBaseValue(standAttributes, Attributes.ATTACK_DAMAGE, strength);
+			}
+			if (userAttributes.hasAttribute(ModEntityAttributes.STAND_SPEED)) {
+				double speed = userAttributes.getValue(ModEntityAttributes.STAND_SPEED);
+				AttributeUtil.setBaseValue(standAttributes, Attributes.ATTACK_SPEED, speed);
+				AttributeUtil.setBaseValue(standAttributes, Attributes.MOVEMENT_SPEED, StandStatFormulas.getMovementSpeed(speed));
+			}
+			if (userAttributes.hasAttribute(ModEntityAttributes.STAND_EFFECTIVE_RANGE)) {
+				double effectiveRange = userAttributes.getValue(ModEntityAttributes.STAND_EFFECTIVE_RANGE);
+				AttributeUtil.setBaseValue(standAttributes, ModEntityAttributes.STAND_EFFECTIVE_RANGE, effectiveRange);
+			}
+			if (userAttributes.hasAttribute(ModEntityAttributes.STAND_MAX_RANGE)) {
+				double maxRange = userAttributes.getValue(ModEntityAttributes.STAND_MAX_RANGE);
+				AttributeUtil.setBaseValue(standAttributes, ModEntityAttributes.STAND_MAX_RANGE, maxRange);
+			}
+			if (userAttributes.hasAttribute(ModEntityAttributes.STAND_DURABILITY)) {
+				double durability = userAttributes.getValue(ModEntityAttributes.STAND_DURABILITY);
+				AttributeUtil.setBaseValue(standAttributes, ModEntityAttributes.STAND_DURABILITY, durability);
+			}
+			if (userAttributes.hasAttribute(ModEntityAttributes.STAND_PRECISION)) {
+				double precision = userAttributes.getValue(ModEntityAttributes.STAND_PRECISION);
+				AttributeUtil.setBaseValue(standAttributes, ModEntityAttributes.STAND_PRECISION, precision);
+			}
+		}
 	}
 
 	public double getAttackDamage() {
