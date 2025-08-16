@@ -97,7 +97,8 @@ public class BlitFloat {
 		blit(poseStack, mc, 
 				sprite,
 				x0, y0, xWidth, yHeight, blitOffset,
-				0, 0, xWidth, yHeight, 1, 1, tint);
+				0, 0, xWidth, yHeight, xWidth, yHeight, 
+				tint);
 	}
 
 	public static void blit(PoseStack poseStack, Minecraft mc, ResourceLocation texture,
@@ -134,6 +135,15 @@ public class BlitFloat {
 		}
 	}
 
+
+	public static void blitRadial(PoseStack poseStack, Minecraft mc, ResourceLocation texture,
+			float minX, float minY, float xWidth, float yHeight, float blitOffset,
+			float angle0, float fill, int tint) {
+		blitRadial(poseStack, mc, texture, 
+				minX, minY, xWidth, yHeight, blitOffset, 
+				0, 0, xWidth, yHeight, xWidth, yHeight, 
+				angle0, fill, tint);
+	}
 
 	public static void blitRadial(PoseStack poseStack, Minecraft mc, ResourceLocation texture,
 			float minX, float minY, float xWidth, float yHeight, float blitOffset,

@@ -86,7 +86,6 @@ public class AbilitySelectionWheel extends Screen implements ScreenLetsUseWASD {
 			}
 			BlitFloat.blitRadial(pose, Minecraft.getInstance(), texture, 
 					x, y, width, height, 0, 
-					0, 0, width, height, 256, 256, 
 					angle0, fill, ARGB.white(alpha));
 			angle0 += angleStep;
 			if (highlight) {

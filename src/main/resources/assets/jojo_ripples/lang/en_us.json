@@ -51,6 +51,12 @@
   "ripples_clothes_split": "Right click to split into %s and %s",
   "ripples_clothes_combine": "Left click on a %s to combine into %s",
   
+  "_ripples_hud.stand_resolve": "",
+  "_ripples_hud.stand_stamina": "",
+  "_ripples_hud.stand_finisher": "",
+  "_ripples_hud.energy_hamon": "",
+  "_ripples_hud.stamina": "",
+  
   
   "jojo_ripples.power.hamon": "Hamon",
   "hamon.intro.tab": "Introduction",
