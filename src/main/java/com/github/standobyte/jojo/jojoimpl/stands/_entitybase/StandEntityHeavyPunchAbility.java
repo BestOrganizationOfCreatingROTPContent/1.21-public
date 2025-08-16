@@ -30,6 +30,7 @@ public class StandEntityHeavyPunchAbility extends StandEntityAbility {
 		setDefaultPhaseLength(ActionPhase.WINDUP, 10);
 		setDefaultPhaseLength(ActionPhase.PERFORM, 6);
 		setDefaultPhaseLength(ActionPhase.RECOVERY, 16);
+		noFinisherBarDecay = true;
 	}
 	
 	

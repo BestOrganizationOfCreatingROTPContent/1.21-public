@@ -22,6 +22,7 @@ import com.github.standobyte.jojo.powersystem.standpower.StandStats;
 import com.github.standobyte.jojo.powersystem.standpower.type.StandType;
 import com.github.standobyte.jojo.powersystem.standpower.type.SummonedStand;
 import com.github.standobyte.jojo.util.MathUtil;
+import com.github.standobyte.jojo.util.StandUtil;
 import com.github.standobyte.jojo.util.UtilFunctions;
 import com.github.standobyte.jojo.util.damage.DamageUtil;
 import com.github.standobyte.jojo.util.damage.StandLinkDamageSource;
@@ -93,6 +94,8 @@ public class StandEntity extends LivingEntity implements SummonedStand, IEntityW
 	public StandOffsetFromUser offsetFromUser;
 	
 	public ClientStandEntityStuff clientStuff;
+	
+	protected static final EntityDataAccessor<Float> FINISHER_VALUE = SynchedEntityData.defineId(StandEntity.class, EntityDataSerializers.FLOAT);
 
 	public StandEntity(EntityType<? extends StandEntity> type, Level level) {
 		super(type, level);
@@ -116,6 +119,7 @@ public class StandEntity extends LivingEntity implements SummonedStand, IEntityW
 		super.defineSynchedData(builder);
 		builder.define(USER_ID, -1);
 		builder.define(STAND_FLAGS, (byte)0);
+		builder.define(FINISHER_VALUE, 0f);
 	}
 
 	protected void setStandFlag(StandFlag flag, boolean value) {
@@ -159,6 +163,8 @@ public class StandEntity extends LivingEntity implements SummonedStand, IEntityW
 			}
 		}
 		
+		updateStandStatAttributes(this, user);
+		
 		super.tick();
 		
 		if (user != null) {
@@ -168,9 +174,10 @@ public class StandEntity extends LivingEntity implements SummonedStand, IEntityW
 			}
 			updateUserOffset(user);
 		}
-		updateStandStatAttributes(this, user);
 		yHeadRot = getYRot();
 		yHeadRotO = yRotO;
+		
+		tickFinisherMeter();
 	}
 	
 	@Override
@@ -1072,6 +1079,72 @@ public class StandEntity extends LivingEntity implements SummonedStand, IEntityW
 			default -> {}
 		}
 
+	}
+	
+
+	protected float lastTickFinisherVal;
+	protected float finisherVal;
+	protected int noFinisherDecayTicks;
+	protected static final int FINISHER_NO_DECAY_TICKS = 40;
+	protected static final float FINISHER_DECAY = 0.025F;
+    
+	public float getFinisherMeter() {
+		return entityData.get(FINISHER_VALUE);
+	}
+    
+	public float getFinisherMeter(float partialTick) {
+		return Mth.clamp(partialTick, lastTickFinisherVal, finisherVal);
+	}
+	
+	public void setFinisherMeter(float value) {
+		entityData.set(FINISHER_VALUE, Mth.clamp(value, 0, getFinisherMeterMax()));
+	}
+	
+	public void addFinisherMeter(float value) {
+		if (value > 0) {
+			LivingEntity user = getUser();
+			if (user != null && StandUtil.isInResolveEffect(user)) {
+				value *= 2;
+			}
+		}
+		float prev = getFinisherMeter();
+		setFinisherMeter(prev + value);
+		this.noFinisherDecayTicks = Math.max(this.noFinisherDecayTicks, FINISHER_NO_DECAY_TICKS);
+	}
+	
+	public void consumeFinisherMeter(float value) {
+		float prev = getFinisherMeter();
+		setFinisherMeter(prev - value);
+		this.noFinisherDecayTicks = Math.max(this.noFinisherDecayTicks, FINISHER_NO_DECAY_TICKS);
+	}
+	
+	public float getFinisherMeterMax() {
+		return 2;
+	}
+	
+	protected void tickFinisherMeter() {
+		if (!level().isClientSide()) {
+			if (noFinisherDecayTicks > 0) {
+				noFinisherDecayTicks--;
+			}
+			else {
+				EntityActionInstance currentAction = getCurStandAction();
+				if (currentAction == null || !(currentAction.ability instanceof StandEntityAbility standAbility && standAbility.noFinisherBarDecay)) {
+					float decay = FINISHER_DECAY;
+					float value = entityData.get(FINISHER_VALUE);
+					if (value < 1F) {
+						decay *= 0.5F;
+					}
+					LivingEntity user = getUser();
+					if (user != null && StandUtil.isInResolveEffect(user)) {
+						decay *= 0.5F;
+					}
+					setFinisherMeter(Math.max(value - decay, 0));
+				}
+			}
+		}
+		lastTickFinisherVal = finisherVal;
+		finisherVal = entityData.get(FINISHER_VALUE);
 	}
 
 	

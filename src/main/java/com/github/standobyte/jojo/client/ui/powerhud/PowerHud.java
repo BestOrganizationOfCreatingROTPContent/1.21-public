@@ -9,6 +9,7 @@ import javax.annotation.Nullable;
 
 import com.github.standobyte.jojo.client.ClientGlobals;
 import com.github.standobyte.jojo.client.ClientPowerCache;
+import com.github.standobyte.jojo.client.ClientUtil;
 import com.github.standobyte.jojo.client.input.AbilityInputState;
 import com.github.standobyte.jojo.client.input.InputHandler;
 import com.github.standobyte.jojo.client.input.controlscheme.AllControlSchemes;
@@ -28,6 +29,7 @@ import com.github.standobyte.jojo.powersystem.ability.condition.AvailableAbiliti
 import com.github.standobyte.jojo.powersystem.ability.controls.InputMethod;
 import com.github.standobyte.jojo.powersystem.standpower.StandPower;
 import com.github.standobyte.jojo.powersystem.standpower.entity.StandEntity;
+import com.github.standobyte.v1_21_4_stuff.missingmethods.ARGB;
 import com.mojang.blaze3d.systems.RenderSystem;
 
 import net.minecraft.client.DeltaTracker;
@@ -460,32 +462,34 @@ public class PowerHud {
 		@Override
 		public boolean shouldRender() {
 			StandEntity stand = ClientGlobals.playerStandEntity;
-			return stand != null && false/*stand.getFinisherValue() > 0*/;
+			return stand != null && stand.getFinisherMeter() > 0;
 		}
 		
 		@Override
 		public void renderElement(GuiGraphics guiGraphics, DeltaTracker deltaTracker) {
 			Minecraft mc = Minecraft.getInstance();
 			StandEntity stand = ClientGlobals.playerStandEntity;
-			float finisher = 0/*stand.getFinisherValue()*/;
+			float partialTick = ClientUtil.partialTick(deltaTracker, false);
+			float finisher = stand.getFinisherMeter(partialTick);
 			float x = getX();// + 0.5f;
 			float y = getY();// + 0.5f;
 			float width = getWidth();// - 1;
 			float height = getHeight();// - 1;
 			int i = 0;
 			ResourceLocation bar;
+			int color = ARGB.white(0.5f);
 			
 			while (finisher > 0 && i < BARS.length) {
 				bar = BARS[i];
 				if (finisher >= 1) {
 					BlitFloat.blit(guiGraphics.pose(), mc, bar, 
 							x, y, width, height, 0, 
-							BlitFloat.NO_TINT);
+							color);
 				}
 				else {
 					BlitFloat.blitRadial(guiGraphics.pose(), mc, bar, 
 							x, y, width, height, 0, 
-							0, finisher, BlitFloat.NO_TINT);
+							0, finisher, color);
 				}
 				
 				finisher -= 1;

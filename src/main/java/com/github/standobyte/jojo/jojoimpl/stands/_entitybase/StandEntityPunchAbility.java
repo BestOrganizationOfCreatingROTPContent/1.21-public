@@ -42,6 +42,7 @@ public class StandEntityPunchAbility extends StandEntityAbility {
 		setDefaultPhaseLength(ActionPhase.RECOVERY, 20);
 		punchNames = new ArrayList<>();
 		punchNames.add(this.abilityId.nameInMoveset());
+		noFinisherBarDecay = true;
 	}
 	
 	@Override
@@ -132,11 +133,14 @@ public class StandEntityPunchAbility extends StandEntityAbility {
 			if (performer instanceof StandEntity stand) {
 				ActionTarget target = HitResultUtil.clipEntityLook(stand, entity -> StandEntityPunchAbility.canStandHit(stand, entity), 0);
 				if (!level.isClientSide()) {
+					stand.addFinisherMeter(0.2f);
 					if (target.getType() == TargetType.ENTITY && target.getEntity() instanceof LivingEntity targetLiving) {
 						var damageType = DamageUtil.type(level, ModDamageTypes.STAND_ATTACK);
 						DamageSource dmgSource = new DamageSource(damageType, performer);
 						float dmgAmount = 4.625f;
-						standEntityAttack(stand, targetLiving, dmgSource, dmgAmount);
+						if (standEntityAttack(stand, targetLiving, dmgSource, dmgAmount)) {
+							stand.addFinisherMeter(0.2f);
+						}
 					}
 				}
 				/*

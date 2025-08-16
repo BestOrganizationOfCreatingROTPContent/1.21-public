@@ -30,6 +30,7 @@ public class StandEntityBarrageAbility extends StandEntityAbility {
 		super(abilityId);
 		setDefaultPhaseLength(ActionPhase.PERFORM, 100);
 		setDefaultPhaseLength(ActionPhase.RECOVERY, 10);
+		noFinisherBarDecay = true;
 	}
 	
 	

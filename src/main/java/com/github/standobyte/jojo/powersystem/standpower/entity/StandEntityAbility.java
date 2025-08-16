@@ -13,6 +13,7 @@ import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.level.Level;
 
 public class StandEntityAbility extends EntityActionAbility {
+	public boolean noFinisherBarDecay = false;
 
 	public StandEntityAbility(AbilityId abilityId) {
 		super(abilityId);
