@@ -1,4 +1,4 @@
-package com.github.standobyte.jojo;
+package com.github.standobyte.jojo.client.ui.powerhud;
 
 import java.util.HashMap;
 import java.util.List;
@@ -19,8 +19,6 @@ import com.github.standobyte.jojo.client.input.controlscheme.ClientKeyWrapper;
 import com.github.standobyte.jojo.client.standskin.StandSkin;
 import com.github.standobyte.jojo.client.standskin.StandSkinsLoader;
 import com.github.standobyte.jojo.client.text.ShortenText;
-import com.github.standobyte.jojo.client.ui.powerhud.Bars;
-import com.github.standobyte.jojo.client.ui.powerhud.HudElement;
 import com.github.standobyte.jojo.client.ui.utils.BlitFloat;
 import com.github.standobyte.jojo.core.JojoMod;
 import com.github.standobyte.jojo.powersystem.Power;
@@ -53,7 +51,7 @@ import net.neoforged.neoforge.client.settings.KeyModifier;
 import net.neoforged.neoforge.common.NeoForge;
 
 @EventBusSubscriber(value = Dist.CLIENT, bus = Bus.MOD)
-public class DebugStandHud {
+public class PowerHud {
 	
 	public static PrototypeAbilityHud abilityHUDInstance;
 

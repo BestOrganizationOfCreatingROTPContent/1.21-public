@@ -2,7 +2,7 @@ package com.github.standobyte.jojo.client.ui.powerhud;
 
 import org.jetbrains.annotations.ApiStatus;
 
-import com.github.standobyte.jojo.DebugStandHud.PrototypeAbilityHud;
+import com.github.standobyte.jojo.client.ui.powerhud.PowerHud.PrototypeAbilityHud;
 
 import net.minecraft.client.DeltaTracker;
 import net.minecraft.client.Minecraft;

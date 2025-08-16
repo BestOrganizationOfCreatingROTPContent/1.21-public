@@ -1,7 +1,7 @@
 package com.github.standobyte.jojo.jojoimpl.stands._entitybase.item;
 
-import com.github.standobyte.jojo.DebugStandHud;
 import com.github.standobyte.jojo.client.input.AbilityInputState;
+import com.github.standobyte.jojo.client.ui.powerhud.PowerHud;
 import com.github.standobyte.jojo.init.ModDataAttachmentTypes;
 import com.github.standobyte.jojo.mechanics.grab.LivingComponentGrab;
 import com.github.standobyte.jojo.powersystem.Power;
@@ -44,7 +44,7 @@ public class SwapUserStandItemsAbility extends Ability {
 	@Override
 	public AbilityInputState cl_abilityInputState(Power<?> context) {
 		AbilityInputState state = super.cl_abilityInputState(context);
-		if (DebugStandHud.isInContainerScreen()) { // make it work in a container screen too
+		if (PowerHud.isInContainerScreen()) { // make it work in a container screen too
 			state.setFlag(AbilityInputState.IS_ACTIVE, true);
 			state.setFlag(AbilityInputState.VISIBLE_TRANSLUCENT, false);
 			state.setFlag(AbilityInputState.ONLY_IN_CONTAINER, true);
