@@ -8,12 +8,15 @@ import org.jetbrains.annotations.ApiStatus;
 import com.github.standobyte.jojo.core.JojoMod;
 
 import net.minecraft.client.Minecraft;
+import net.minecraft.client.renderer.RenderBuffers;
+import net.minecraft.server.packs.resources.ResourceManager;
+import net.minecraft.server.packs.resources.ResourceManagerReloadListener;
 import net.neoforged.api.distmarker.Dist;
-import net.neoforged.bus.api.EventPriority;
 import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.fml.common.EventBusSubscriber;
-import net.neoforged.neoforge.client.event.RegisterRenderBuffersEvent;
+import net.neoforged.neoforge.client.event.RegisterClientReloadListenersEvent;
 import net.neoforged.neoforge.client.event.RenderLevelStageEvent;
+import net.neoforged.neoforge.client.event.RenderLevelStageEvent.RegisterStageEvent;
 
 @EventBusSubscriber(modid = JojoMod.MOD_ID, value = Dist.CLIENT)
 public class EntityShaders {
@@ -34,13 +37,33 @@ public class EntityShaders {
 //		resourcePoolCache = ClientReflection.getResourcePool(Minecraft.getInstance().gameRenderer);
 //	}
 	
-	@SubscribeEvent(priority = EventPriority.LOWEST)
-	public static void createRenderBuffer(RegisterRenderBuffersEvent event) {
+	// the problem is that this is fired before the vanilla buffer sources are created
+//	@SubscribeEvent(priority = EventPriority.LOWEST)
+//	public static void createRenderBuffer(RegisterRenderBuffersEvent event) {}
+	
+	@SubscribeEvent
+	public static void createRenderBuffer(RegisterStageEvent event) {
 		bufferInit();
+		Minecraft mc = Minecraft.getInstance();
+		RenderBuffers renderBuffers = mc.renderBuffers();
 		for (SeparateBufferEntityShader shader : allShaders) {
-			shader.createBufferSource();
+			shader.createBufferSource(mc, renderBuffers);
 		}
 	}
+	
+	@ApiStatus.Internal
+	public static void resourceReload(/*AddClientReloadListenersEvent*/RegisterClientReloadListenersEvent event) {
+		event.registerReloadListener(new ResourceManagerReloadListener() {
+			@Override
+			public void onResourceManagerReload(ResourceManager resourceManager) {
+				for (SeparateBufferEntityShader shader : allShaders) {
+					shader.onResourceReload(resourceManager);
+				}
+			}
+			
+		});
+	}
+
 	
 	@SubscribeEvent
 	public static void frameRenderCallback(RenderLevelStageEvent event) {

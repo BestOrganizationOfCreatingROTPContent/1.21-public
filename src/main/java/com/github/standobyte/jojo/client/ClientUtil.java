@@ -5,6 +5,7 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.world.entity.Entity;
 
 public class ClientUtil {
+	public static final int MAX_LIGHT = 0xF000F0;
 
 	public static void setCameraEntityPreventShaderSwitch(Entity entity) {
 		Minecraft mc = Minecraft.getInstance();

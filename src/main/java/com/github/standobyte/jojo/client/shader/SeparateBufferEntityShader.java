@@ -1,5 +1,6 @@
 package com.github.standobyte.jojo.client.shader;
 
+import com.github.standobyte.jojo.client.ClientUtil;
 import com.github.standobyte.jojo.client.rendertype.CustomMultiBufferSource;
 import com.github.standobyte.v1_21_4_stuff.PostEffectCache;
 import com.mojang.blaze3d.pipeline.MainTarget;
@@ -7,36 +8,59 @@ import com.mojang.blaze3d.pipeline.RenderTarget;
 import com.mojang.blaze3d.platform.GlStateManager;
 import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.blaze3d.vertex.ByteBufferBuilder;
+import com.mojang.blaze3d.vertex.PoseStack;
 
 import it.unimi.dsi.fastutil.objects.Object2ObjectLinkedOpenHashMap;
 import net.minecraft.client.Minecraft;
+import net.minecraft.client.model.EntityModel;
 import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.PostChain;
+import net.minecraft.client.renderer.RenderBuffers;
 import net.minecraft.client.renderer.RenderStateShard;
+import net.minecraft.client.renderer.entity.LivingEntityRenderer;
 import net.minecraft.resources.ResourceLocation;
+import net.minecraft.server.packs.resources.ResourceManager;
+import net.minecraft.world.entity.LivingEntity;
 import net.neoforged.neoforge.client.event.RenderLevelStageEvent;
 
 public class SeparateBufferEntityShader {
-	protected RenderTarget frameBuffer;
-	protected MultiBufferSource.BufferSource bufferSource;
-	protected boolean usedThisFrame = false;
-	protected RenderStateShard.OutputStateShard targetShard;
 	protected ResourceLocation postShaderId;
+	protected String outputShardName;
+	
+	protected RenderTarget frameBuffer;
+	
+	protected MultiBufferSource bufferSource;
+	protected boolean usedThisFrame = false;
 	
 	public SeparateBufferEntityShader(Minecraft mc, String outputShardName, ResourceLocation postShaderId) {
+		this.postShaderId = postShaderId;
+		this.outputShardName = outputShardName;
+		initTargetBuffer(mc);
+	}
+	
+	protected void initTargetBuffer(Minecraft mc) {
 		frameBuffer = new MainTarget(mc.getWindow().getWidth(), mc.getWindow().getHeight()/*, false*/);
 		frameBuffer.setClearColor(0.0F, 0.0F, 0.0F, 0.0F);
 		frameBuffer.clear(Minecraft.ON_OSX);
-		targetShard = new RenderStateShard.OutputStateShard(outputShardName, () -> frameBuffer.bindWrite(false), () -> {});
-		this.postShaderId = postShaderId;
 	}
 	
-	protected void createBufferSource() {
+	protected RenderStateShard renderTypeModification() {
+		RenderStateShard.OutputStateShard targetShard = new RenderStateShard.OutputStateShard(
+				outputShardName, 
+				() -> frameBuffer.bindWrite(false), 
+				() -> Minecraft.getInstance().getMainRenderTarget().bindWrite(false));
+		return targetShard;
+	}
+	
+	protected void createBufferSource(Minecraft mc, RenderBuffers vanillaRenderBuffers) {
+		RenderStateShard modification = renderTypeModification();
 		bufferSource = new CustomMultiBufferSource(
 				new ByteBufferBuilder(786432), 
 				new Object2ObjectLinkedOpenHashMap<>(), 
-				targetShard);
+				modification);
 	}
+	
+	public void onResourceReload(ResourceManager resourceManager) {}
 	
 	
 	public MultiBufferSource useBufferSourceThisFrame() {
@@ -44,15 +68,29 @@ public class SeparateBufferEntityShader {
 		return bufferSource;
 	}
 	
+	public boolean _renderingNow = false;
+	public <T extends LivingEntity, M extends EntityModel<T>> void render(LivingEntityRenderer<T, M> renderer, 
+			T entity, float entityYaw, float partialTicks, PoseStack poseStack, MultiBufferSource mainBuffer, int packedLight) {
+		if (_renderingNow) return;
+
+		MultiBufferSource source = this.useBufferSourceThisFrame();
+		_renderingNow = true;
+		// FIXME (entity shader) depth
+//		frameBuffer.copyDepthFrom(Minecraft.getInstance().getMainRenderTarget());
+		renderer.render(entity, entityYaw, partialTicks, poseStack, source, ClientUtil.MAX_LIGHT);
+		_renderingNow = false;
+	}
+	
+	
 	protected void frameRenderCallback(RenderLevelStageEvent event) {
 		RenderLevelStageEvent.Stage stage = event.getStage();
 		if (stage == RenderLevelStageEvent.Stage.AFTER_CUTOUT_BLOCKS) {
-			this.usedThisFrame = false;
+			frameStart();
 		}
 		if (this.usedThisFrame) {
 			if (stage == RenderLevelStageEvent.Stage.AFTER_BLOCK_ENTITIES) {
 				this.setupBuffer();
-				this.bufferSource.endBatch();
+				this.endBatch();
 				this.applyEffect();
 				Minecraft.getInstance().getMainRenderTarget().bindWrite(true);
 			}
@@ -62,25 +100,36 @@ public class SeparateBufferEntityShader {
 		}
 	}
 	
+	protected void frameStart() {
+		this.usedThisFrame = false;
+		frameBuffer.clear(Minecraft.ON_OSX);
+	}
+	
+	protected void endBatch() {
+		((MultiBufferSource.BufferSource) this.bufferSource).endBatch();
+	}
+	
 	protected void setupBuffer() {
 		Minecraft mc = Minecraft.getInstance();
-		frameBuffer.clear(Minecraft.ON_OSX);
 		frameBuffer.copyDepthFrom(mc.getMainRenderTarget());
 	}
 
 //	@SuppressWarnings("deprecation")
 	protected void applyEffect() {
 		Minecraft mc = Minecraft.getInstance();
-
-		RenderSystem.disableBlend();
-		RenderSystem.disableDepthTest();
-		RenderSystem.resetTextureMatrix();
-//		PostChain postchain = mc.getShaderManager().getPostChain(postShaderId, LevelTargetBundle.MAIN_TARGETS);
-		PostChain postchain = PostEffectCache.instance.getEffect(postShaderId, frameBuffer, true);
+		PostChain postchain = getShader(mc);
 		if (postchain != null) {
-			postchain.process(mc.getTimer().getGameTimeDeltaTicks());
+			RenderSystem.disableBlend();
+			RenderSystem.disableDepthTest();
+			RenderSystem.resetTextureMatrix();
 //			postchain.process(frameBuffer, EntityShaders.resourcePoolCache);
+			postchain.process(mc.getTimer().getGameTimeDeltaTicks());
 		}
+	}
+	
+	protected PostChain getShader(Minecraft mc) {
+//		return mc.getShaderManager().getPostChain(postShaderId, LevelTargetBundle.MAIN_TARGETS);
+		return PostEffectCache.instance.getEffect(postShaderId, frameBuffer, true);
 	}
 	
 	protected void blitBuffer() {
