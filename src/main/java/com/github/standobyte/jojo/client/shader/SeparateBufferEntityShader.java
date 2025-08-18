@@ -69,9 +69,9 @@ public class SeparateBufferEntityShader {
 	}
 	
 	public boolean _renderingNow = false;
-	public <T extends LivingEntity, M extends EntityModel<T>> void render(LivingEntityRenderer<T, M> renderer, 
+	public <T extends LivingEntity, M extends EntityModel<T>> boolean render(LivingEntityRenderer<T, M> renderer, 
 			T entity, float entityYaw, float partialTicks, PoseStack poseStack, MultiBufferSource mainBuffer, int packedLight) {
-		if (_renderingNow) return;
+		if (_renderingNow) return false;
 
 		MultiBufferSource source = this.useBufferSourceThisFrame();
 		_renderingNow = true;
@@ -79,6 +79,7 @@ public class SeparateBufferEntityShader {
 //		frameBuffer.copyDepthFrom(Minecraft.getInstance().getMainRenderTarget());
 		renderer.render(entity, entityYaw, partialTicks, poseStack, source, ClientUtil.MAX_LIGHT);
 		_renderingNow = false;
+		return true;
 	}
 	
 	

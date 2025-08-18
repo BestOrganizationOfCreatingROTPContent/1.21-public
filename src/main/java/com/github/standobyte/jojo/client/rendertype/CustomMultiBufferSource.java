@@ -13,15 +13,15 @@ import net.minecraft.client.renderer.RenderStateShard;
 import net.minecraft.client.renderer.RenderType;
 
 public class CustomMultiBufferSource extends BufferSource {
-	public RenderStateShard modification;
+	public RenderStateShard[] onBatchDraw;
 
 	public CustomMultiBufferSource(ByteBufferBuilder sharedBuffer,
 			SequencedMap<RenderType, ByteBufferBuilder> fixedBuffers, 
-			RenderStateShard modification) {
+			RenderStateShard... onBatchDraw) {
 		super(sharedBuffer, fixedBuffers);
-		this.modification = modification;
+		this.onBatchDraw = onBatchDraw;
 	}
-	
+
 	@Override
 	public void endBatch(RenderType renderType, BufferBuilder builder) {
 		MeshData meshdata = builder.build();
@@ -32,10 +32,14 @@ public class CustomMultiBufferSource extends BufferSource {
 			}
 
 			renderType.setupRenderState();
-			modification.setupRenderState();
-	        BufferUploader.drawWithShader(meshdata);
-	        modification.clearRenderState();
-	        renderType.clearRenderState();
+			for (int i = 0; i < onBatchDraw.length; i++) {
+				onBatchDraw[i].setupRenderState();
+			}
+			BufferUploader.drawWithShader(meshdata);
+			for (int i = onBatchDraw.length - 1; i >= 0; i--) {
+				onBatchDraw[i].clearRenderState();
+			}
+			renderType.clearRenderState();
 		}
 
 		if (renderType.equals(this.lastSharedType)) {
