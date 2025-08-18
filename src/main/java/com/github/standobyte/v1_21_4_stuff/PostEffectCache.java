@@ -3,8 +3,6 @@ package com.github.standobyte.v1_21_4_stuff;
 import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.concurrent.CompletableFuture;
-import java.util.concurrent.Executor;
 
 import com.github.standobyte.jojo.client.ModClientResources;
 import com.github.standobyte.jojo.core.JojoMod;
@@ -14,16 +12,15 @@ import com.mojang.blaze3d.pipeline.RenderTarget;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.PostChain;
 import net.minecraft.resources.ResourceLocation;
-import net.minecraft.server.packs.resources.PreparableReloadListener;
 import net.minecraft.server.packs.resources.ResourceManager;
-import net.minecraft.util.profiling.ProfilerFiller;
+import net.minecraft.server.packs.resources.ResourceManagerReloadListener;
 import net.neoforged.api.distmarker.Dist;
 import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.fml.common.EventBusSubscriber;
 import net.neoforged.neoforge.client.event.RegisterClientReloadListenersEvent;
 
 @EventBusSubscriber(modid = JojoMod.MOD_ID, bus = EventBusSubscriber.Bus.MOD, value = Dist.CLIENT)
-public class PostEffectCache implements PreparableReloadListener, AutoCloseable {
+public class PostEffectCache implements ResourceManagerReloadListener, AutoCloseable {
 	public static PostEffectCache instance;
 	
 	@SubscribeEvent
@@ -102,7 +99,6 @@ public class PostEffectCache implements PreparableReloadListener, AutoCloseable 
 			curLoaded.close();
 		}
 		for (PostChain effect : cache.values()) {
-			// FIXME (!) reload - Rendersystem called from wrong thread
 			if (effect != null && effect != curLoaded) effect.close();
 		}
 		curLoaded = null;
@@ -111,9 +107,7 @@ public class PostEffectCache implements PreparableReloadListener, AutoCloseable 
 	}
 
 	@Override
-	public CompletableFuture<Void> reload(PreparationBarrier barrier, ResourceManager manager,
-	        ProfilerFiller preparationsProfiler, ProfilerFiller reloadProfiler,
-			Executor backgroundExecutor, Executor gameExecutor) {
-		return barrier.wait(null).thenRunAsync(this::closeEffects);
+    public void onResourceManagerReload(ResourceManager resourceManager) {
+		closeEffects();
 	}
 }
