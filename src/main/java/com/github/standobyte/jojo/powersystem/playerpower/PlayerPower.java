@@ -32,6 +32,7 @@ public class PlayerPower extends Power<PlayerPower> {
 	public void setPowerType(@Nullable PlayerPowerType<?> type) {
 		if (getPowerType() != type) {
 			initPowerTypeData(type);
+			onChangedPowerType();
 			if (!user.level().isClientSide()) {
 				PacketDistributor.sendToPlayersTrackingEntityAndSelf(user, new TrPowerTypePacket(user.getId(), type));
 			}
@@ -73,9 +74,9 @@ public class PlayerPower extends Power<PlayerPower> {
 	}
 	
 	@Override
-	public void onPlayerCloneData(PlayerPower newData, boolean wasDeath) {
-		super.onPlayerCloneData(newData, wasDeath);
-		newData.powerData = this.powerData;
+	public void onPlayerCloneData(PlayerPower newEntityData, boolean wasDeath) {
+		super.onPlayerCloneData(newEntityData, wasDeath);
+		newEntityData.powerData = this.powerData;
 	}
 	
 	

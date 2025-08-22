@@ -12,7 +12,8 @@ Top-level packages:
 Terminology:
 	Power - a collective of data that is attached to a Living entity and describes either its Stand power or "player power" (Hamon/vampirism/etc., previously called "non-Stand power").
 	PowerClass (previously PowerClassification enum) - use PowerClass#get to get a StandPower or a PlayerPower object of a LivingEntity.
-	PowerType - a singleton that describes a specific type of power an entity can have (e.g. Star Platinum, Hamon), has things like its moveset, Stand stats, etc.
+	PowerType - a singleton that describes a specific type of power an entity can have (e.g. Star Platinum, Hamon), has things like its default moveset, Stand stats, etc.
+	Moveset - a map that contains all of the abilities the player currently has per each power class. Movesets are inherent to power types, but a moveset object is created for each power user entity individually. This means that now each Ability object is also separate for each player, so now you actually can store temporary variables inside Ability objects - still not recommended, but at least it shouldn't break multiplayer now.
 	StandInstance - a data object describing the player's Stand (type, selected skin, parts taken away by Boy II Man, etc.)
 	SummonedStand (previously IStandManifestation) - an interface for objects that represents the user's currently summoned Stand. Most commonly it is going to be a StandEntity, but StandType subclasses can override it to use their own class.
 	PowerData (previously TypeSpecificData) - a data object corresponding to a PlayerPower type (e.g. HamonData would contain stuff like player's Hamon stats).

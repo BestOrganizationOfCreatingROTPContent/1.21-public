@@ -23,6 +23,7 @@ import net.neoforged.neoforge.common.util.INBTSerializable;
 public abstract class Power<P extends Power<P>> implements SynchronizablePlayerData, TickingEntityData, INBTSerializable<CompoundTag> {
 	@Nonnull protected final LivingEntity user;
 	protected final Optional<ServerPlayer> serverPlayerUser;
+	protected Moveset movesetLazyInit;
 	
 	public Power(LivingEntity user) {
 		this.user = user;
@@ -41,10 +42,24 @@ public abstract class Power<P extends Power<P>> implements SynchronizablePlayerD
 	@Nullable
 	public abstract PowerType getPowerType();
 	
+	protected void onChangedPowerType() {
+		resetMoveset();
+	}
+	
 	@Nonnull
 	public Moveset getMoveset() {
 		PowerType powerType = getPowerType();
-		return powerType != null ? powerType.getMoveset() : Moveset.empty();
+		if (powerType == null) {
+			return Moveset.empty();
+		}
+		if (movesetLazyInit == null) {
+			movesetLazyInit = powerType.moveset.value.build(getPowerClass(), powerType.getId());
+		}
+		return movesetLazyInit;
+	}
+	
+	public void resetMoveset() {
+		movesetLazyInit = null;
 	}
 	
 	@Nullable
@@ -80,6 +95,10 @@ public abstract class Power<P extends Power<P>> implements SynchronizablePlayerD
 		return user;
 	}
 
+	
+	public void afterConfigApply() {
+		resetMoveset();
+	}
 
 	@Override
 	public void syncToPlayer(ServerPlayer user) {
@@ -95,7 +114,9 @@ public abstract class Power<P extends Power<P>> implements SynchronizablePlayerD
 		onPlayerCloneData(newPower, wasDeath);
 	}
 	
-	protected void onPlayerCloneData(P newPower, boolean wasDeath) {}
+	protected void onPlayerCloneData(P newEntityData, boolean wasDeath) {
+		newEntityData.movesetLazyInit = this.movesetLazyInit;
+	}
 	
 	@Override
 	public CompoundTag serializeNBT(HolderLookup.Provider provider) {

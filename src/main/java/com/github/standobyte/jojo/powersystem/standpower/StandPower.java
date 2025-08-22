@@ -58,6 +58,7 @@ public class StandPower extends Power<StandPower> implements PostNbtReadEntityDa
 		if (user != null) {
 			StandStats.updateStandStatAttributes(this, user);
 		}
+		onChangedPowerType();
 		
 		if (!user.level().isClientSide()) {
 			PacketDistributor.sendToPlayersTrackingEntityAndSelf(user, new TrPowerStandInstancePacket(user.getId(), standInstance));
@@ -179,6 +180,12 @@ public class StandPower extends Power<StandPower> implements PostNbtReadEntityDa
 		return standInstance.get().getSelectedSkin();
 	}
 	
+	
+	@Override
+	public void afterConfigApply() {
+		super.afterConfigApply();
+		StandStats.updateStandStatAttributes(this, user);
+	}
 
 	@Override
 	public void syncToPlayer(ServerPlayer user) {
@@ -199,9 +206,9 @@ public class StandPower extends Power<StandPower> implements PostNbtReadEntityDa
 	}
 	
 	@Override
-	protected void onPlayerCloneData(StandPower newData, boolean wasDeath) {
-		super.onPlayerCloneData(newData, wasDeath);
-		newData.standInstance = this.standInstance;
+	protected void onPlayerCloneData(StandPower newEntityData, boolean wasDeath) {
+		super.onPlayerCloneData(newEntityData, wasDeath);
+		newEntityData.standInstance = this.standInstance;
 	}
 	
 	

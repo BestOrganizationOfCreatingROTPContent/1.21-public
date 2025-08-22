@@ -13,29 +13,26 @@ import net.minecraft.world.entity.LivingEntity;
 
 public record AbilityId(PowerClass<?> powerClass, ResourceLocation powerTypeId, String nameInMoveset) {
 
-	public static Ability getAbility(PowerClass<?> powerClass, ResourceLocation powerTypeId, String nameInMoveset) {
+	public static Ability getAbility(PowerClass<?> powerClass, Power<?> userPower, ResourceLocation powerTypeId, String nameInMoveset) {
 		if (powerClass == null || powerTypeId == null) return null;
 		PowerType powerType = powerClass.getPowerType(powerTypeId);
-		return powerType != null ? powerType.getMoveset().getAbility(nameInMoveset) : null;
+		return powerType != null ? userPower.getMoveset().getAbility(nameInMoveset) : null;
 	}
 	
 	
-	private static final ResourceLocation _DEFAULT_ABILITY_INSTANCE_DUMMY_TYPE = ResourceLocation.fromNamespaceAndPath("dummy", "dummy");
 	static <A extends Ability> A makeDefaultAbilityInstance(AbilityType<A> abilityType) {
-		return abilityType.createInstance(null, new AbilityId(null, _DEFAULT_ABILITY_INSTANCE_DUMMY_TYPE, abilityType.registryKey.toString()));
+		return abilityType.createInstance(null, new AbilityId(null, null, abilityType.registryKey.toString()));
 	}
 
 
 	public static class AbilityInputNetwork {
 		private final SyncStrategy syncStrategy;
 		private final PowerClass<?> powerClass;
-		private final ResourceLocation powerTypeId;
 		private final String abilityName;
 
-		AbilityInputNetwork(SyncStrategy syncStrategy, PowerClass<?> powerClass, ResourceLocation powerTypeId, String abilityName) {
+		AbilityInputNetwork(SyncStrategy syncStrategy, PowerClass<?> powerClass, String abilityName) {
 			this.syncStrategy = syncStrategy;
 			this.powerClass = powerClass;
-			this.powerTypeId = powerTypeId;
 			this.abilityName = abilityName;
 		}
 
@@ -51,25 +48,18 @@ public record AbilityId(PowerClass<?> powerClass, ResourceLocation powerTypeId, 
 			}
 			
 			SyncStrategy strategy;
-			if (_DEFAULT_ABILITY_INSTANCE_DUMMY_TYPE.equals(abilityId.powerTypeId)) {
+			if (abilityId.powerTypeId == null) {
 				strategy = SyncStrategy.DEFAULT_ABILITY_INSTANCE;
 			}
 			else {
-				boolean canJustSendAbilityName = userPower != null && userPower.getPowerClass() == abilityId.powerClass
-						&& userPower.hasPower() && userPower.getPowerType().getId().equals(abilityId.powerTypeId);
-				strategy = canJustSendAbilityName ? SyncStrategy.ID_FROM_PLAYER_MOVESET : SyncStrategy.ID_FULL;
+				strategy = SyncStrategy.FROM_PLAYER_MOVESET;
 			}
 			buffer.writeEnum(strategy);
 			
 			switch (strategy) {
-				case ID_FROM_PLAYER_MOVESET -> {
+				case FROM_PLAYER_MOVESET -> {
 					PowerClass.NETWORK_CODEC.encode(buffer, abilityId.powerClass());
 					buffer.writeUtf(abilityId.nameInMoveset());
-				}
-				case ID_FULL -> {
-					PowerClass.NETWORK_CODEC.encode(buffer, abilityId.powerClass());
-					buffer.writeUtf(abilityId.nameInMoveset());
-					buffer.writeResourceLocation(abilityId.powerTypeId());
 				}
 				case DEFAULT_ABILITY_INSTANCE -> {
 					buffer.writeUtf(abilityId.nameInMoveset());
@@ -82,25 +72,17 @@ public record AbilityId(PowerClass<?> powerClass, ResourceLocation powerTypeId, 
 		public static AbilityInputNetwork decodeInput(FriendlyByteBuf buffer) {
 			SyncStrategy strategy = buffer.readEnum(SyncStrategy.class);
 			return switch (strategy) {
-				case NULL_ABILITY -> new AbilityInputNetwork(SyncStrategy.NULL_ABILITY, null, null, null);
-				case ID_FROM_PLAYER_MOVESET -> {
+				case NULL_ABILITY -> new AbilityInputNetwork(SyncStrategy.NULL_ABILITY, null, null);
+				case FROM_PLAYER_MOVESET -> {
 					PowerClass<?> powerClass = PowerClass.NETWORK_CODEC.decode(buffer);
 					String abilityName = buffer.readUtf();
 					
-					yield new AbilityInputNetwork(SyncStrategy.ID_FROM_PLAYER_MOVESET, powerClass, null, abilityName);
-				}
-				case ID_FULL -> {
-					PowerClass<?> powerClass = PowerClass.NETWORK_CODEC.decode(buffer);
-					String abilityName = buffer.readUtf();
-					ResourceLocation powerTypeId = buffer.readResourceLocation();
-					
-					yield new AbilityInputNetwork(SyncStrategy.ID_FULL, powerClass, powerTypeId, abilityName);
-					
+					yield new AbilityInputNetwork(SyncStrategy.FROM_PLAYER_MOVESET, powerClass, abilityName);
 				}
 				case DEFAULT_ABILITY_INSTANCE -> {
 					String abilityName = buffer.readUtf();
 					
-					yield new AbilityInputNetwork(SyncStrategy.DEFAULT_ABILITY_INSTANCE, null, null, abilityName);
+					yield new AbilityInputNetwork(SyncStrategy.DEFAULT_ABILITY_INSTANCE, null, abilityName);
 				}
 			};
 		}
@@ -109,7 +91,7 @@ public record AbilityId(PowerClass<?> powerClass, ResourceLocation powerTypeId, 
 			Ability ability;
 			return switch (syncStrategy) {
 				case NULL_ABILITY -> null;
-				case ID_FROM_PLAYER_MOVESET -> {
+				case FROM_PLAYER_MOVESET -> {
 					if (powerUser == null) throw new IllegalStateException("Failed to sync ability " + abilityName + " (needs user entity)");
 					Power<?> userPower = powerClass.get(powerUser);
 					if (userPower == null) throw new IllegalStateException("Failed to sync ability " + abilityName + " (user data not attached)");
@@ -123,13 +105,6 @@ public record AbilityId(PowerClass<?> powerClass, ResourceLocation powerTypeId, 
 					
 					yield ability;
 				}
-				case ID_FULL -> {
-					ability = AbilityId.getAbility(powerClass, powerTypeId, abilityName);
-					if (ability == null) throw new IllegalStateException("Failed to sync ability " + abilityName + " (ability not found in the moveset " + powerTypeId + ")");
-					
-					yield ability;
-					
-				}
 				case DEFAULT_ABILITY_INSTANCE -> {
 					ResourceLocation abilityTypeId = ResourceLocation.parse(abilityName);
 					AbilityType<?> abilityType = JojoRegistries.ABILITY_TYPES_REG.get(abilityTypeId);
@@ -141,8 +116,7 @@ public record AbilityId(PowerClass<?> powerClass, ResourceLocation powerTypeId, 
 		
 		enum SyncStrategy {
 			NULL_ABILITY,
-			ID_FROM_PLAYER_MOVESET,
-			ID_FULL,
+			FROM_PLAYER_MOVESET,
 			DEFAULT_ABILITY_INSTANCE;
 		}
 	}

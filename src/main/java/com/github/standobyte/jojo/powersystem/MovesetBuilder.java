@@ -10,6 +10,8 @@ import java.util.function.Supplier;
 
 import javax.annotation.Nullable;
 
+import org.jetbrains.annotations.ApiStatus;
+
 import com.github.standobyte.jojo.init.power.ModStandAbilities;
 import com.github.standobyte.jojo.powersystem.ability.Ability;
 import com.github.standobyte.jojo.powersystem.ability.AbilityType;
@@ -25,7 +27,8 @@ import net.minecraft.resources.ResourceLocation;
 
 public class MovesetBuilder {
 	protected final Map<String, ConfigAbilityFactory<?>> abilities = new HashMap<>();
-	protected ControlSchemeTemplate controlScheme = new ControlSchemeTemplate();
+	@ApiStatus.Internal
+	public ControlSchemeTemplate _controlScheme = new ControlSchemeTemplate();
 	protected final Set<String> disable = new HashSet<>();
 	
 	@SuppressWarnings("unchecked")
@@ -87,7 +90,7 @@ public class MovesetBuilder {
 	protected String lastAbility;
 	
 	public MovesetBuilder makeMovesetGroup(String name, InputKey toggleHudKey) {
-		controlScheme.makeMovesetGroup(name, toggleHudKey);
+		_controlScheme.makeMovesetGroup(name, toggleHudKey);
 		return this;
 	}
 	
@@ -96,8 +99,8 @@ public class MovesetBuilder {
 	}
 	
 	public MovesetBuilder withBind(String movesetGroupName, InputKey key, InputMethod inputMethod) {
-		var group = controlScheme.getMovesetGroup(movesetGroupName);
-		controlScheme.bind(lastAbility, group, key, inputMethod);
+		var group = _controlScheme.getMovesetGroup(movesetGroupName);
+		_controlScheme.bind(lastAbility, group, key, inputMethod);
 		return this;
 	}
 	
@@ -106,18 +109,18 @@ public class MovesetBuilder {
 	}
 	
 	public MovesetBuilder makeHotbar(String movesetGroupName, int hotbarId, InputKey useAbilityKey, InputKey switchAbilityKey) {
-		var group = controlScheme.getMovesetGroup(movesetGroupName);
-		controlScheme.makeHotbar(hotbarId, group, useAbilityKey, switchAbilityKey);
+		var group = _controlScheme.getMovesetGroup(movesetGroupName);
+		_controlScheme.makeHotbar(hotbarId, group, useAbilityKey, switchAbilityKey);
 		return this;
 	}
 	
 	public MovesetBuilder inHotbar(int hotbarId, InputMethod inputMethod) {
-		controlScheme.addToHotbar(lastAbility, hotbarId, inputMethod);
+		_controlScheme.addToHotbar(lastAbility, hotbarId, inputMethod);
 		return this;
 	}
 	
 	public MovesetBuilder inHotbarSlotVariation(String baseAbility, @Nullable InputKey.Modifier modifier, InputMethod inputMethod) {
-		controlScheme.addHotbarSlotVariation(lastAbility, baseAbility, modifier, inputMethod);
+		_controlScheme.addHotbarSlotVariation(lastAbility, baseAbility, modifier, inputMethod);
 		return this;
 	}
 	
@@ -134,7 +137,7 @@ public class MovesetBuilder {
 		var abilities = this.abilities.entrySet().stream()
 				.filter(ability -> !disable.contains(ability.getKey()));
 		Moveset moveset = new Moveset(abilities, powerClass, powerTypeId);
-		moveset.controlScheme = this.controlScheme;
+		moveset.controlScheme = this._controlScheme;
 		return moveset;
 	}
 	

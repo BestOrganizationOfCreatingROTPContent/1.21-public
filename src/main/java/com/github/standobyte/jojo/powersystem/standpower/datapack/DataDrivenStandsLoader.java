@@ -17,6 +17,7 @@ import com.github.standobyte.jojo.core.JojoMod;
 import com.github.standobyte.jojo.core.JojoRegistries;
 import com.github.standobyte.jojo.core.packet.fromserver.DatapackStandsPacket;
 import com.github.standobyte.jojo.powersystem.MovesetBuilder;
+import com.github.standobyte.jojo.powersystem.standpower.StandPower;
 import com.github.standobyte.jojo.powersystem.standpower.StandStats;
 import com.github.standobyte.jojo.powersystem.standpower.type.StandType;
 import com.github.standobyte.jojo.util.JSONUtil;
@@ -28,12 +29,15 @@ import com.mojang.serialization.JsonOps;
 import net.minecraft.core.Registry;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.MinecraftServer;
+import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.server.packs.resources.PreparableReloadListener;
 import net.minecraft.server.packs.resources.Resource;
 import net.minecraft.server.packs.resources.ResourceManager;
 import net.minecraft.server.packs.resources.SimplePreparableReloadListener;
 import net.minecraft.util.profiling.ProfilerFiller;
+import net.minecraft.world.entity.Entity;
+import net.minecraft.world.entity.LivingEntity;
 import net.neoforged.neoforge.network.PacketDistributor;
 
 public class DataDrivenStandsLoader {
@@ -206,6 +210,19 @@ public class DataDrivenStandsLoader {
 		}
 	}
 	
+	private static void afterConfigApply(MinecraftServer server) {
+		for (ServerLevel level : server.getAllLevels()) {
+			for (Entity entity : level.getAllEntities()) {
+				if (entity instanceof LivingEntity living) {
+					StandPower standPower = StandPower.get(living);
+					if (standPower != null) {
+						standPower.afterConfigApply();
+					}
+				}
+			}
+		}
+	}
+	
 	// Sync to clients
 	
 	public static void syncDatapackTo(Stream<ServerPlayer> players, MinecraftServer server) {
@@ -219,7 +236,7 @@ public class DataDrivenStandsLoader {
 		var packet = new DatapackStandsPacket(standEntries != null ? standEntries : Collections.emptySet());
 		players.forEach(player -> PacketDistributor.sendToPlayer(player, packet));
 		
-		StandStats.afterConfigApply(server);
+		afterConfigApply(server);
 	}
 	
 	public static void receivePacket(DatapackStandsPacket packet) {

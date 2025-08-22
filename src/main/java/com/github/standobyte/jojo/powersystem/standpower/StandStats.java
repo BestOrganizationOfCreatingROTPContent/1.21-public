@@ -12,9 +12,6 @@ import com.github.standobyte.jojo.util.mc.AttributeUtil;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 
-import net.minecraft.server.MinecraftServer;
-import net.minecraft.server.level.ServerLevel;
-import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.ai.attributes.AttributeMap;
 
@@ -191,19 +188,6 @@ public class StandStats implements JsonConfigurable {
 		AttributeUtil.setBaseValue(attributes, ModEntityAttributes.STAND_MAX_RANGE, stats != null ? stats.rangeMax() : 0);
 		AttributeUtil.setBaseValue(attributes, ModEntityAttributes.STAND_DURABILITY, stats != null ? stats.durability() : 0);
 		AttributeUtil.setBaseValue(attributes, ModEntityAttributes.STAND_PRECISION, stats != null ? stats.precision() : 0);
-	}
-	
-	public static void afterConfigApply(MinecraftServer server) {
-		for (ServerLevel level : server.getAllLevels()) {
-			for (Entity entity : level.getAllEntities()) {
-				if (entity instanceof LivingEntity living) {
-					StandPower standPower = StandPower.get(living);
-					if (standPower != null) {
-						updateStandStatAttributes(standPower, living);
-					}
-				}
-			}
-		}
 	}
 	
 }

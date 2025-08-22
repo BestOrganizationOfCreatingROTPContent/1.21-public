@@ -18,17 +18,9 @@ import net.minecraft.resources.ResourceLocation;
 
 public abstract class PowerType implements JsonConfigurable {
 	protected final DefaultedValue<MovesetBuilder> moveset;
-	protected transient Moveset movesetLazyInit;
 	
 	public PowerType(MovesetBuilder movesetBuilder) {
 		this.moveset = new DefaultedValue<>(movesetBuilder);
-	}
-	
-	public Moveset getMoveset() {
-		if (movesetLazyInit == null) {
-			movesetLazyInit = moveset.value.build(getPowerClass(), getId());
-		}
-		return movesetLazyInit;
 	}
 	
 	@ApiStatus.Internal
@@ -68,7 +60,6 @@ public abstract class PowerType implements JsonConfigurable {
 					});
 			
 			this.moveset.value = newMoveset.result().get().getFirst();
-			movesetLazyInit = null;
 		});
 	}
 	
@@ -76,7 +67,6 @@ public abstract class PowerType implements JsonConfigurable {
 	public void restoreDefaults() {
 		if (moveset.value != moveset.defaultValue) {
 			moveset.reset();
-			movesetLazyInit = null;
 		}
 	}
 	

@@ -5,7 +5,7 @@ import java.util.Map;
 
 import com.github.standobyte.jojo.core.JojoMod;
 import com.github.standobyte.jojo.core.JojoRegistries;
-import com.github.standobyte.jojo.powersystem.Moveset;
+import com.github.standobyte.jojo.powersystem.MovesetBuilder;
 import com.github.standobyte.jojo.powersystem.PowerType;
 import com.github.standobyte.jojo.powersystem.ability.controls.ControlSchemeTemplate;
 
@@ -34,8 +34,8 @@ public class AllControlSchemes {
 	
 	private static void add(PowerType powerType) {
 		ResourceLocation id = powerType.getId();
-		Moveset moveset = powerType.getMoveset();
-		ControlSchemeTemplate defaultCtrlScheme = moveset.controlScheme;
+		MovesetBuilder moveset = powerType.getDefaultMoveset();
+		ControlSchemeTemplate defaultCtrlScheme = moveset._controlScheme;
 		controls.put(id, ClientControlScheme.create(defaultCtrlScheme, powerType));
 	}
 	
