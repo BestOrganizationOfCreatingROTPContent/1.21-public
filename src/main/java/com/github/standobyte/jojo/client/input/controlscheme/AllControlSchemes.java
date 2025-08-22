@@ -19,6 +19,10 @@ import net.neoforged.fml.event.lifecycle.FMLClientSetupEvent;
 @EventBusSubscriber(modid = JojoMod.MOD_ID, bus = EventBusSubscriber.Bus.MOD, value = Dist.CLIENT)
 public class AllControlSchemes {
 	public static Map<ResourceLocation, ClientControlScheme> controls = new HashMap<>();
+	
+	public static ClientControlScheme getForPowerType(PowerType powerType) {
+		return controls.get(powerType.getId());
+	}
 
 	@SubscribeEvent(priority = EventPriority.LOW)
 	public static void createPowerControlSchemes(FMLClientSetupEvent event) {

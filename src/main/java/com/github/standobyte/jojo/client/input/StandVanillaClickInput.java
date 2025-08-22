@@ -67,7 +67,7 @@ public class StandVanillaClickInput {
 		if (!standCanRightClickItems) return;
 		
 		if (ServerSideLivingClick.isEntityHoldingAnItem(power.getSummonedStandEntity())) {
-			ClientControlScheme controlScheme = AllControlSchemes.controls.get(power.getPowerType().getId());
+			ClientControlScheme controlScheme = AllControlSchemes.getForPowerType(power.getPowerType());
 			if (controlScheme != null) {
 				ClientKeyWrapper RMB = ClientKeyWrapper.make(InputConstants.Type.MOUSE, InputConstants.MOUSE_BUTTON_RIGHT);
 				for (InputMethod inputMethod : InputMethod.values()) {

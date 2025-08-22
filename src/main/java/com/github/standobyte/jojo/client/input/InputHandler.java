@@ -214,11 +214,13 @@ public class InputHandler {
 				}
 				
 				if (heldAbility == null && clickAbility == null) {
-					ClientControlScheme controls = getCurControlScheme(power);
-					var curControls = controls.getCurGroup().getValue();
-					for (ClientControlScheme.Hotbar abilityHotbar : curControls.hotbars) {
-						if (abilityHotbar.switchAbilityKey == key) {
-							mc.setScreen(new AbilitySelectionWheel(abilityHotbar, power.getMoveset()));
+					ClientControlScheme controlScheme = getCurControlScheme(power);
+					if (controlScheme != null) {
+						var curControls = controlScheme.getCurGroup().getValue();
+						for (ClientControlScheme.Hotbar abilityHotbar : curControls.hotbars) {
+							if (abilityHotbar.switchAbilityKey == key) {
+								mc.setScreen(new AbilitySelectionWheel(abilityHotbar, power.getMoveset()));
+							}
 						}
 					}
 				}
@@ -370,7 +372,7 @@ public class InputHandler {
 	@Nullable
 	protected ClientControlScheme getCurControlScheme(Power<?> power) {
 		if (power.hasPower()) {
-			return AllControlSchemes.controls.get(power.getPowerType().getId());
+			return AllControlSchemes.getForPowerType(power.getPowerType());
 		}
 		return null;
 	}

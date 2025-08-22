@@ -219,7 +219,7 @@ public class PowerHud {
 			int lineWidth;
 			int maxWidth = 0;
 
-			ClientControlScheme controlScheme = AllControlSchemes.controls.get(power.getPowerType().getId());
+			ClientControlScheme controlScheme = AllControlSchemes.getForPowerType(power.getPowerType());
 			if (controlScheme != null) {
 				ClientControlScheme.MoveGroup curGroup = controlScheme.getCurGroup().getValue();
 				@Nonnull KeyModifier modifier = input.getCurModifier();

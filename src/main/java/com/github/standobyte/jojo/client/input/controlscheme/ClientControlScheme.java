@@ -74,6 +74,11 @@ public class ClientControlScheme {
 			this.useAbilityKey = useAbilityKey;
 			this.switchAbilityKey = switchAbilityKey;
 		}
+		
+		@Nullable
+		public HotbarSlot getSelected() {
+			return this.slotIndex >= 0 && this.slotIndex < this.slots.size() ? this.slots.get(this.slotIndex) : null;
+		}
 	}
 	
 	public static class HotbarSlot {
@@ -117,6 +122,18 @@ public class ClientControlScheme {
 			var bindsForInputMethod = allBindsInKey.get(keyInputMethod);
 			if (bindsForInputMethod != null) {
 				return bindsForInputMethod.get(currentModifier);
+			}
+		}
+		
+		for (Hotbar hotbar : controls.hotbars) {
+			if (hotbar.useAbilityKey == key) {
+				HotbarSlot slot = hotbar.getSelected();
+				if (slot != null) {
+					var bindsForInputMethod = slot.binds.get(keyInputMethod);
+					if (bindsForInputMethod != null) {
+						return Collections.singletonList(bindsForInputMethod.get(currentModifier));
+					}
+				}
 			}
 		}
 		
