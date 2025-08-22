@@ -232,7 +232,7 @@ public class StandSkin {
 			return sound;
 		}
 		
-		if (this != defaultSkin) {
+		if (this != defaultSkin && defaultSkin != null) {
 			return defaultSkin.getSoundEvent(soundEventLocation, defaultSkin);
 		}
 		return null;

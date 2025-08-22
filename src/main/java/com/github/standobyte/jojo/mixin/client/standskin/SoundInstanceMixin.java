@@ -44,9 +44,11 @@ public class SoundInstanceMixin implements SoundInstanceWithStandSkin {
 			if (jojo_ripples$standSkin == null) {
 				jojo_ripples$standSkin = jojo_ripples$defaultStandSkin;
 			}
-			WeighedSoundEvents standSkinSoundEvent = jojo_ripples$standSkin.getSoundEvent(location, jojo_ripples$defaultStandSkin);
-			if (standSkinSoundEvent != null) {
-				return standSkinSoundEvent;
+			if (jojo_ripples$standSkin != null) {
+				WeighedSoundEvents standSkinSoundEvent = jojo_ripples$standSkin.getSoundEvent(location, jojo_ripples$defaultStandSkin);
+				if (standSkinSoundEvent != null) {
+					return standSkinSoundEvent;
+				}
 			}
 		}
 		
