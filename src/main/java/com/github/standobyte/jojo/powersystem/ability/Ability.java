@@ -14,6 +14,7 @@ import com.github.standobyte.jojo.powersystem.ability.condition.AvailableAbiliti
 import com.github.standobyte.jojo.powersystem.ability.condition.ConditionCheck;
 import com.github.standobyte.jojo.powersystem.ability.controls.InputMethod;
 import com.github.standobyte.jojo.powersystem.entityaction.HeldInput;
+import com.google.gson.JsonObject;
 
 import net.minecraft.client.Minecraft;
 import net.minecraft.network.FriendlyByteBuf;
@@ -22,9 +23,11 @@ import net.minecraft.world.level.Level;
 
 // XXX tick the unlocked abilities (passives are also abilities that aren't in the HUD)
 public class Ability {
+	public final AbilityType<?> abilityType;
 	public final AbilityId abilityId;
 
-	public Ability(AbilityId abilityId) {
+	public Ability(AbilityType<?> abilityType, AbilityId abilityId) {
+		this.abilityType = abilityType;
 		this.abilityId = abilityId;
 	}
 	
@@ -124,5 +127,15 @@ public class Ability {
 	 */
 	@ApiStatus.OverrideOnly
 	public void onClick(Level level, LivingEntity user, FriendlyByteBuf extraClientInput) {}
+	
+	
+	public JsonObject toConfigJson() {
+		JsonObject json = new JsonObject();
+		return json;
+	}
+	
+	public void applyConfig(JsonObject config) {
+		// TODO (ability config) reflection to edit field values?
+	}
 	
 }

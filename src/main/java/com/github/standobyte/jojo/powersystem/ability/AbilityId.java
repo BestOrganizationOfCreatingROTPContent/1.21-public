@@ -21,7 +21,7 @@ public record AbilityId(PowerClass<?> powerClass, ResourceLocation powerTypeId, 
 	
 	
 	static <A extends Ability> A makeDefaultAbilityInstance(AbilityType<A> abilityType) {
-		return abilityType.createInstance(null, new AbilityId(null, null, abilityType.registryKey.toString()));
+		return abilityType.createInstance(new AbilityId(null, null, abilityType.registryKey.toString()));
 	}
 
 

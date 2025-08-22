@@ -6,6 +6,7 @@ import com.github.standobyte.jojo.init.ModDamageTypes;
 import com.github.standobyte.jojo.init.ModSoundEvents;
 import com.github.standobyte.jojo.powersystem.Power;
 import com.github.standobyte.jojo.powersystem.ability.AbilityId;
+import com.github.standobyte.jojo.powersystem.ability.AbilityType;
 import com.github.standobyte.jojo.powersystem.entityaction.ActionPhase;
 import com.github.standobyte.jojo.powersystem.entityaction.EntityActionInstance;
 import com.github.standobyte.jojo.powersystem.entityaction.type.EntityActionType;
@@ -27,8 +28,8 @@ import net.minecraft.world.level.Level;
 
 public class StandEntityHeavyPunchChargedAbility extends StandEntityAbility {
 
-	public StandEntityHeavyPunchChargedAbility(AbilityId abilityId) {
-		super(abilityId);
+	public StandEntityHeavyPunchChargedAbility(AbilityType<?> abilityType, AbilityId abilityId) {
+		super(abilityType, abilityId);
 		setDefaultPhaseLength(ActionPhase.BUTTON_CHARGE, 16);
 		setDefaultPhaseLength(ActionPhase.WINDUP, 999999);
 		setDefaultPhaseLength(ActionPhase.PERFORM, 6);

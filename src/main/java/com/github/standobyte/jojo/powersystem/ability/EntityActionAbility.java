@@ -18,8 +18,8 @@ import net.minecraft.world.level.Level;
 public class EntityActionAbility extends Ability implements EntityActionType {
 	protected ActionAnimIdentifier anim;
 
-	public EntityActionAbility(AbilityId abilityId) {
-		super(abilityId);
+	public EntityActionAbility(AbilityType<?> abilityType, AbilityId abilityId) {
+		super(abilityType, abilityId);
 		anim = ActionAnimIdentifier.getOrCreate(abilityId);
 	}
 	

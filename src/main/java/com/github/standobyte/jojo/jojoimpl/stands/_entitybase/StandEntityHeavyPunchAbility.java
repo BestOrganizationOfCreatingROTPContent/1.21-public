@@ -5,6 +5,7 @@ import com.github.standobyte.jojo.client.sound.ClientsideSoundsHelper;
 import com.github.standobyte.jojo.init.ModDamageTypes;
 import com.github.standobyte.jojo.init.ModSoundEvents;
 import com.github.standobyte.jojo.powersystem.ability.AbilityId;
+import com.github.standobyte.jojo.powersystem.ability.AbilityType;
 import com.github.standobyte.jojo.powersystem.entityaction.ActionPhase;
 import com.github.standobyte.jojo.powersystem.entityaction.EntityActionInstance;
 import com.github.standobyte.jojo.powersystem.entityaction.type.EntityActionType;
@@ -25,8 +26,8 @@ import net.minecraft.world.level.Level;
 
 public class StandEntityHeavyPunchAbility extends StandEntityAbility {
 
-	public StandEntityHeavyPunchAbility(AbilityId abilityId) {
-		super(abilityId);
+	public StandEntityHeavyPunchAbility(AbilityType<?> abilityType, AbilityId abilityId) {
+		super(abilityType, abilityId);
 		setDefaultPhaseLength(ActionPhase.WINDUP, 10);
 		setDefaultPhaseLength(ActionPhase.PERFORM, 6);
 		setDefaultPhaseLength(ActionPhase.RECOVERY, 16);

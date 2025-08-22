@@ -23,8 +23,6 @@ import com.github.standobyte.jojo.powersystem.standpower.type.StandType;
 import com.github.standobyte.jojo.util.JSONUtil;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
-import com.mojang.datafixers.util.Pair;
-import com.mojang.serialization.JsonOps;
 
 import net.minecraft.core.Registry;
 import net.minecraft.resources.ResourceLocation;
@@ -192,16 +190,7 @@ public class DataDrivenStandsLoader {
 								.map(StandStats::fromJson)
 								.orElseGet(() -> new StandStats(0, 0, 0, 0, 0, 0));
 						
-						MovesetBuilder moveset = Optional.ofNullable(json.getAsJsonObject("moveset"))
-								.map(movesetJson -> MovesetBuilder.codec().decode(JsonOps.INSTANCE, movesetJson))
-								.flatMap(result -> {
-									result.ifError(error -> JojoMod.getLogger().error("{}", error));
-									return result.resultOrPartial();
-								})
-								.map(Pair::getFirst)
-								.orElseGet(MovesetBuilder::new);
-						
-						StandType newDatapackStand = standTypeClass.createStand(stats, moveset, standId);
+						StandType newDatapackStand = standTypeClass.createStand(stats, new MovesetBuilder(), standId);
 						newDatapackStand.applyConfig(json);
 						datapackStands.put(standId, newDatapackStand);
 					}

@@ -12,6 +12,7 @@ import com.github.standobyte.jojo.powersystem.Power;
 import com.github.standobyte.jojo.powersystem.PowerClass;
 import com.github.standobyte.jojo.powersystem.ability.Ability;
 import com.github.standobyte.jojo.powersystem.ability.AbilityId;
+import com.github.standobyte.jojo.powersystem.ability.AbilityType;
 import com.github.standobyte.jojo.powersystem.entityaction.ActionPhase;
 import com.github.standobyte.jojo.powersystem.entityaction.EntityActionInstance;
 import com.github.standobyte.jojo.powersystem.entityaction.type.EntityActionType;
@@ -35,8 +36,8 @@ import net.minecraft.world.level.Level;
 public class StandEntityPunchAbility extends StandEntityAbility {
 	public List<String> punchNames;
 
-	public StandEntityPunchAbility(AbilityId abilityId) {
-		super(abilityId);
+	public StandEntityPunchAbility(AbilityType<?> abilityType, AbilityId abilityId) {
+		super(abilityType, abilityId);
 		setDefaultPhaseLength(ActionPhase.WINDUP, 4);
 		setDefaultPhaseLength(ActionPhase.PERFORM, 2);
 		setDefaultPhaseLength(ActionPhase.RECOVERY, 20);

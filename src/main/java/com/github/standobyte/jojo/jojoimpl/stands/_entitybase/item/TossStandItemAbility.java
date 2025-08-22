@@ -5,6 +5,7 @@ import com.github.standobyte.jojo.client.input.InputHandler;
 import com.github.standobyte.jojo.powersystem.Power;
 import com.github.standobyte.jojo.powersystem.ability.Ability;
 import com.github.standobyte.jojo.powersystem.ability.AbilityId;
+import com.github.standobyte.jojo.powersystem.ability.AbilityType;
 import com.github.standobyte.jojo.powersystem.standpower.entity.StandEntity;
 import com.github.standobyte.jojo.util.StandUtil;
 
@@ -17,8 +18,8 @@ import net.neoforged.neoforge.client.settings.KeyModifier;
 
 public class TossStandItemAbility extends Ability {
 
-	public TossStandItemAbility(AbilityId abilityId) {
-		super(abilityId);
+	public TossStandItemAbility(AbilityType<?> abilityType, AbilityId abilityId) {
+		super(abilityType, abilityId);
 	}
 	
 	@Override

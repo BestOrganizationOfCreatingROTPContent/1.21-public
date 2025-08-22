@@ -1,12 +1,10 @@
 package com.github.standobyte.jojo.powersystem;
 
-import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.HashSet;
-import java.util.List;
 import java.util.Map;
-import java.util.Set;
+import java.util.function.Consumer;
 import java.util.function.Supplier;
+import java.util.stream.Collectors;
 
 import javax.annotation.Nullable;
 
@@ -14,31 +12,39 @@ import org.jetbrains.annotations.ApiStatus;
 
 import com.github.standobyte.jojo.init.power.ModStandAbilities;
 import com.github.standobyte.jojo.powersystem.ability.Ability;
+import com.github.standobyte.jojo.powersystem.ability.AbilityId;
 import com.github.standobyte.jojo.powersystem.ability.AbilityType;
-import com.github.standobyte.jojo.powersystem.ability.config.AbilityConfigComponent;
 import com.github.standobyte.jojo.powersystem.ability.config.ConfigAbilityFactory;
 import com.github.standobyte.jojo.powersystem.ability.controls.ControlSchemeTemplate;
 import com.github.standobyte.jojo.powersystem.ability.controls.InputKey;
 import com.github.standobyte.jojo.powersystem.ability.controls.InputMethod;
-import com.mojang.serialization.Codec;
-import com.mojang.serialization.codecs.RecordCodecBuilder;
 
 import net.minecraft.resources.ResourceLocation;
 
+@ApiStatus.NonExtendable
 public class MovesetBuilder {
 	protected final Map<String, ConfigAbilityFactory<?>> abilities = new HashMap<>();
 	@ApiStatus.Internal
 	public ControlSchemeTemplate _controlScheme = new ControlSchemeTemplate();
-	protected final Set<String> disable = new HashSet<>();
+//	protected final Set<String> disable = new HashSet<>();
 	
-	@SuppressWarnings("unchecked")
+	
+	public MovesetBuilder deepCopy() {
+		MovesetBuilder copy = new MovesetBuilder();
+		for (var abilityEntry : abilities.entrySet()) {
+			copy.abilities.put(abilityEntry.getKey(), abilityEntry.getValue().copy());
+		}
+		copy._controlScheme = this._controlScheme.deepCopy();
+		return copy;
+	}
+	
+	
 	public <A extends Ability> MovesetBuilder addAbility(String abilityName, AbilityType<A> abilityType) {
-		return addAbility(abilityName, abilityType, new AbilityConfigComponent[0]);
+		return addAbility(abilityName, abilityType, null);
 	}
 
-	@SafeVarargs
 	public final <A extends Ability> MovesetBuilder addAbility(String abilityName, AbilityType<A> abilityType, 
-			AbilityConfigComponent<A>... setParameters) {
+			@Nullable Consumer<A> setParameters) {
 		abilities.put(abilityName, new ConfigAbilityFactory<>(abilityType, setParameters));
 		lastAbility = abilityName;
 		return this;
@@ -49,9 +55,8 @@ public class MovesetBuilder {
 		return addAbility(abilityName, abilityType.get());
 	}
 	
-	@SafeVarargs
 	public final <A extends Ability> MovesetBuilder addAbility(String abilityName, Supplier<? extends AbilityType<A>> abilityType, 
-			AbilityConfigComponent<A>... setParameters) {
+			Consumer<A> setParameters) {
 		return addAbility(abilityName, abilityType.get(), setParameters);
 	}
 
@@ -127,39 +132,21 @@ public class MovesetBuilder {
 	// Control scheme stuff over
 	
 	
-	public MovesetBuilder disableAbility(String abilityName) {
-		disable.add(abilityName);
-		return this;
-	}
+//	public MovesetBuilder disableAbility(String abilityName) {
+//		disable.add(abilityName);
+//		return this;
+//	}
 	
 	
 	public Moveset build(PowerClass<?> powerClass, ResourceLocation powerTypeId) {
-		var abilities = this.abilities.entrySet().stream()
-				.filter(ability -> !disable.contains(ability.getKey()));
+		Map<String, Ability> abilities = this.abilities.entrySet().stream()
+//				.filter(ability -> !disable.contains(ability.getKey()))
+				.collect(Collectors.toMap(
+						Map.Entry::getKey, 
+						entry -> entry.getValue().makeAbility(new AbilityId(powerClass, powerTypeId, entry.getKey()))));
 		Moveset moveset = new Moveset(abilities, powerClass, powerTypeId);
 		moveset.controlScheme = this._controlScheme;
 		return moveset;
 	}
-	
-	
-	public static Codec<MovesetBuilder> codec() {
-		return BUILDER_CODEC;
-	}
-	
-	// XXX deserialize default control schemes
-	protected static final Codec<MovesetBuilder> BUILDER_CODEC = RecordCodecBuilder.create(instance -> instance.group(
-			Codec.simpleMap(Codec.STRING, ConfigAbilityFactory.CODEC, null).codec().fieldOf("abilities").forGetter(moveset -> moveset.abilities), 
-			Codec.list(Codec.STRING).fieldOf("disable").forGetter(moveset -> new ArrayList<>(moveset.disable))
-			)
-			.apply(instance, (Map<String, ConfigAbilityFactory<?>> abilities, List<String> disable) -> {
-				MovesetBuilder moveset = new MovesetBuilder();
-				for (var ability : abilities.entrySet()) {
-					moveset.abilities.put(ability.getKey(), ability.getValue());
-				}
-				for (var disableAbility : disable) {
-					moveset.disableAbility(disableAbility);
-				}
-				return moveset;
-			}));
 	
 }

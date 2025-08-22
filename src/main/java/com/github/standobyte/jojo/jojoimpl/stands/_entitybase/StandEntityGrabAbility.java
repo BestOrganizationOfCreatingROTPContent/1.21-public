@@ -4,6 +4,7 @@ import com.github.standobyte.jojo.init.ModDataAttachmentTypes;
 import com.github.standobyte.jojo.mechanics.grab.LivingComponentGrab;
 import com.github.standobyte.jojo.powersystem.Power;
 import com.github.standobyte.jojo.powersystem.ability.AbilityId;
+import com.github.standobyte.jojo.powersystem.ability.AbilityType;
 import com.github.standobyte.jojo.powersystem.entityaction.ActionPhase;
 import com.github.standobyte.jojo.powersystem.entityaction.EntityActionInstance;
 import com.github.standobyte.jojo.powersystem.entityaction.type.EntityActionType;
@@ -22,8 +23,8 @@ import net.minecraft.world.level.Level;
 
 public class StandEntityGrabAbility extends StandEntityAbility {
 
-	public StandEntityGrabAbility(AbilityId abilityId) {
-		super(abilityId);
+	public StandEntityGrabAbility(AbilityType<?> abilityType, AbilityId abilityId) {
+		super(abilityType, abilityId);
 		setDefaultPhaseLength(ActionPhase.WINDUP, 10);
 		setDefaultPhaseLength(ActionPhase.PERFORM, 6);
 		setDefaultPhaseLength(ActionPhase.RECOVERY, 16);

@@ -53,7 +53,7 @@ public abstract class Power<P extends Power<P>> implements SynchronizablePlayerD
 			return Moveset.empty();
 		}
 		if (movesetLazyInit == null) {
-			movesetLazyInit = powerType.moveset.value.build(getPowerClass(), powerType.getId());
+			movesetLazyInit = powerType.makeMoveset();
 		}
 		return movesetLazyInit;
 	}

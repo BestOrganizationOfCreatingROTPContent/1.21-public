@@ -5,6 +5,7 @@ import com.github.standobyte.jojo.mechanics.grab.LivingComponentGrab;
 import com.github.standobyte.jojo.powersystem.Power;
 import com.github.standobyte.jojo.powersystem.ability.Ability;
 import com.github.standobyte.jojo.powersystem.ability.AbilityId;
+import com.github.standobyte.jojo.powersystem.ability.AbilityType;
 import com.github.standobyte.jojo.powersystem.standpower.entity.StandEntity;
 import com.github.standobyte.jojo.util.StandUtil;
 
@@ -14,8 +15,8 @@ import net.minecraft.world.level.Level;
 
 public class StandEntityGrabReleaseAbility extends Ability {
 
-	public StandEntityGrabReleaseAbility(AbilityId abilityId) {
-		super(abilityId);
+	public StandEntityGrabReleaseAbility(AbilityType<?> abilityType, AbilityId abilityId) {
+		super(abilityType, abilityId);
 	}
 	
 	@Override

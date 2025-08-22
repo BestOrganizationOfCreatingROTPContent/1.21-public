@@ -7,6 +7,7 @@ import com.github.standobyte.jojo.init.ModSoundEvents;
 import com.github.standobyte.jojo.mechanics.grab.LivingComponentGrab;
 import com.github.standobyte.jojo.powersystem.Power;
 import com.github.standobyte.jojo.powersystem.ability.AbilityId;
+import com.github.standobyte.jojo.powersystem.ability.AbilityType;
 import com.github.standobyte.jojo.powersystem.entityaction.ActionPhase;
 import com.github.standobyte.jojo.powersystem.entityaction.EntityActionInstance;
 import com.github.standobyte.jojo.powersystem.entityaction.type.EntityActionType;
@@ -22,8 +23,8 @@ import net.minecraft.world.phys.Vec3;
 
 public class StandEntityGrabThrowAbility extends StandEntityAbility {
 
-	public StandEntityGrabThrowAbility(AbilityId abilityId) {
-		super(abilityId);
+	public StandEntityGrabThrowAbility(AbilityType<?> abilityType, AbilityId abilityId) {
+		super(abilityType, abilityId);
 		setDefaultPhaseLength(ActionPhase.BUTTON_CHARGE, 16);
 		setDefaultPhaseLength(ActionPhase.WINDUP, 999999);
 		setDefaultPhaseLength(ActionPhase.PERFORM, 6);

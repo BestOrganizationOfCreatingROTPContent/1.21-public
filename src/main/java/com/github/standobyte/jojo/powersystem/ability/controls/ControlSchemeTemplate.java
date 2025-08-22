@@ -20,6 +20,11 @@ public class ControlSchemeTemplate {
 	public GroupTemplate defaultGroup = new GroupTemplate("moveset_default_group", null);
     private transient Int2ObjectMap<AbilitiesHotbar> hotbarsById = new Int2ObjectArrayMap<>();
     
+    public ControlSchemeTemplate deepCopy() {
+    	// TODO control scheme deep copy
+    	return this;
+    }
+    
     public static class GroupTemplate {
     	public final String name;
     	@Nullable public final InputKey toggleHudKey;

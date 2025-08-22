@@ -5,6 +5,7 @@ import com.github.standobyte.jojo.client.entitycontrol.ClientEntityController;
 import com.github.standobyte.jojo.client.entitycontrol.stand.ClientStandController;
 import com.github.standobyte.jojo.powersystem.ability.Ability;
 import com.github.standobyte.jojo.powersystem.ability.AbilityId;
+import com.github.standobyte.jojo.powersystem.ability.AbilityType;
 import com.github.standobyte.jojo.powersystem.standpower.entity.StandEntity;
 import com.github.standobyte.jojo.util.StandUtil;
 
@@ -14,8 +15,8 @@ import net.minecraft.world.level.Level;
 
 public class StandEntityManualControlToggle extends Ability {
 
-	public StandEntityManualControlToggle(AbilityId abilityId) {
-		super(abilityId);
+	public StandEntityManualControlToggle(AbilityType<?> abilityType, AbilityId abilityId) {
+		super(abilityType, abilityId);
 	}
 	
 	@Override

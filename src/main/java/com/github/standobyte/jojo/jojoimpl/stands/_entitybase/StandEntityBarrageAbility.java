@@ -6,6 +6,7 @@ import com.github.standobyte.jojo.client.sound.sounds.EntityStoppableSoundInstan
 import com.github.standobyte.jojo.init.ModDamageTypes;
 import com.github.standobyte.jojo.init.ModSoundEvents;
 import com.github.standobyte.jojo.powersystem.ability.AbilityId;
+import com.github.standobyte.jojo.powersystem.ability.AbilityType;
 import com.github.standobyte.jojo.powersystem.entityaction.ActionPhase;
 import com.github.standobyte.jojo.powersystem.entityaction.EntityActionInstance;
 import com.github.standobyte.jojo.powersystem.entityaction.type.EntityActionType;
@@ -26,8 +27,8 @@ import net.minecraft.world.level.Level;
 
 public class StandEntityBarrageAbility extends StandEntityAbility {
 
-	public StandEntityBarrageAbility(AbilityId abilityId) {
-		super(abilityId);
+	public StandEntityBarrageAbility(AbilityType<?> abilityType, AbilityId abilityId) {
+		super(abilityType, abilityId);
 		setDefaultPhaseLength(ActionPhase.PERFORM, 100);
 		setDefaultPhaseLength(ActionPhase.RECOVERY, 10);
 		noFinisherBarDecay = true;

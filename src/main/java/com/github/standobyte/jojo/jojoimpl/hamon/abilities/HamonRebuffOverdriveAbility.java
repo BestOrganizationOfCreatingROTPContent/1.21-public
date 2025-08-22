@@ -2,6 +2,7 @@ package com.github.standobyte.jojo.jojoimpl.hamon.abilities;
 
 import com.github.standobyte.jojo.core.JojoMod;
 import com.github.standobyte.jojo.powersystem.ability.AbilityId;
+import com.github.standobyte.jojo.powersystem.ability.AbilityType;
 import com.github.standobyte.jojo.powersystem.ability.EntityActionAbility;
 import com.github.standobyte.jojo.powersystem.entityaction.ActionPhase;
 import com.github.standobyte.jojo.powersystem.entityaction.EntityActionInstance;
@@ -9,8 +10,8 @@ import com.github.standobyte.jojo.powersystem.entityaction.type.EntityActionType
 
 public class HamonRebuffOverdriveAbility extends EntityActionAbility {
 
-	public HamonRebuffOverdriveAbility(AbilityId abilityId) {
-		super(abilityId);
+	public HamonRebuffOverdriveAbility(AbilityType<?> abilityType, AbilityId abilityId) {
+		super(abilityType, abilityId);
 		setDefaultPhaseLength(ActionPhase.WINDUP, 12);
 		setDefaultPhaseLength(ActionPhase.PERFORM, 8);
 		setDefaultPhaseLength(ActionPhase.RECOVERY, 5);

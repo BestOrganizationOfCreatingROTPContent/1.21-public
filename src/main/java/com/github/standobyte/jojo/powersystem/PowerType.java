@@ -6,32 +6,21 @@ import org.jetbrains.annotations.ApiStatus;
 
 import com.github.standobyte.jojo.core.config.DefaultedValue;
 import com.github.standobyte.jojo.core.config.JsonConfigurable;
-import com.github.standobyte.jojo.util.JSONUtil;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
-import com.mojang.datafixers.util.Pair;
-import com.mojang.serialization.Codec;
-import com.mojang.serialization.DataResult;
-import com.mojang.serialization.JsonOps;
 
 import net.minecraft.resources.ResourceLocation;
 
 public abstract class PowerType implements JsonConfigurable {
-	protected final DefaultedValue<MovesetBuilder> moveset;
+	protected final DefaultedValue<MovesetBuilder> movesetConfigured;
 	
-	public PowerType(MovesetBuilder movesetBuilder) {
-		this.moveset = new DefaultedValue<>(movesetBuilder);
-	}
-	
-	@ApiStatus.Internal
-	public MovesetBuilder getDefaultMoveset() {
-		return this.moveset.defaultValue;
+	public PowerType(MovesetBuilder defaultMoveset) {
+		this.movesetConfigured = new DefaultedValue<>(defaultMoveset);
 	}
 	
 	public abstract ResourceLocation getId();
 	
 	public abstract PowerClass<?> getPowerClass();
-	
 	
 	public boolean isEnabled() {
 		return true;
@@ -41,33 +30,40 @@ public abstract class PowerType implements JsonConfigurable {
 	@Override
 	public JsonObject makeConfigTemplate() {
 		JsonObject json = new JsonObject();
-		Codec<MovesetBuilder> movesetCodec = MovesetBuilder.codec();
-		movesetCodec.encodeStart(JsonOps.INSTANCE, moveset.defaultValue).result().ifPresent(movesetJson -> json.add("moveset", movesetJson));
+		
+		Moveset defaultMoveset = getDefaultMoveset().build(getPowerClass(), getId());
+		JsonElement movesetJson = Moveset.toJson(defaultMoveset);
+		json.add("moveset", movesetJson);
+		
 		return json;
 	}
 	
+	// TODO control scheme in data-driven stands
 	@Override
 	public void applyConfig(JsonElement json) {
 		JsonObject config = json.getAsJsonObject();
-		Codec<MovesetBuilder> movesetCodec = MovesetBuilder.codec();
 		
 		Optional.ofNullable(config.getAsJsonObject("moveset")).ifPresent(movesetEditsJson -> {
-			DataResult<Pair<MovesetBuilder, JsonElement>> newMoveset = movesetCodec.encodeStart(JsonOps.INSTANCE, this.moveset.defaultValue)
-					.map(JsonElement::getAsJsonObject)
-					.flatMap(movesetJson -> {
-						JSONUtil.merge(movesetJson, config);
-						return movesetCodec.decode(JsonOps.INSTANCE, movesetJson);
-					});
-			
-			this.moveset.value = newMoveset.result().get().getFirst();
+			MovesetBuilder configured = getDefaultMoveset().deepCopy();
+			Moveset.applyJsonConfig(configured, movesetEditsJson);
+			movesetConfigured.value = configured;
 		});
 	}
 	
 	@Override
 	public void restoreDefaults() {
-		if (moveset.value != moveset.defaultValue) {
-			moveset.reset();
-		}
+		movesetConfigured.reset();
+	}
+	
+	
+	@ApiStatus.Internal
+	public MovesetBuilder getDefaultMoveset() {
+		return this.movesetConfigured.defaultValue;
+	}
+	
+	public Moveset makeMoveset() {
+		Moveset moveset = this.movesetConfigured.value.build(getPowerClass(), getId());
+		return moveset;
 	}
 	
 }

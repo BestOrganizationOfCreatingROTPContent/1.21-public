@@ -2,6 +2,7 @@ package com.github.standobyte.jojo.powersystem.standpower.entity;
 
 import com.github.standobyte.jojo.powersystem.PowerClass;
 import com.github.standobyte.jojo.powersystem.ability.AbilityId;
+import com.github.standobyte.jojo.powersystem.ability.AbilityType;
 import com.github.standobyte.jojo.powersystem.ability.EntityActionAbility;
 import com.github.standobyte.jojo.powersystem.ability.controls.InputMethod;
 import com.github.standobyte.jojo.powersystem.entityaction.EntityActionInstance;
@@ -15,8 +16,8 @@ import net.minecraft.world.level.Level;
 public class StandEntityAbility extends EntityActionAbility {
 	public boolean noFinisherBarDecay = false;
 
-	public StandEntityAbility(AbilityId abilityId) {
-		super(abilityId);
+	public StandEntityAbility(AbilityType<?> abilityType, AbilityId abilityId) {
+		super(abilityType, abilityId);
 	}
 	
 	

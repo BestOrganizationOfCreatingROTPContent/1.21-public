@@ -1,48 +1,44 @@
 package com.github.standobyte.jojo.powersystem.ability.config;
 
+import java.util.function.Consumer;
+
+import javax.annotation.Nullable;
+
 import org.jetbrains.annotations.ApiStatus;
 
-import com.github.standobyte.jojo.core.JojoRegistries;
 import com.github.standobyte.jojo.powersystem.ability.Ability;
 import com.github.standobyte.jojo.powersystem.ability.AbilityId;
 import com.github.standobyte.jojo.powersystem.ability.AbilityType;
-import com.mojang.serialization.Codec;
-import com.mojang.serialization.codecs.RecordCodecBuilder;
 
 @ApiStatus.Internal
 public class ConfigAbilityFactory<A extends Ability> {
 	private final AbilityType<A> abilityType;
-	private final AbilityConfigComponent<A>[] abilityConfig;
-	
-	public ConfigAbilityFactory(AbilityType<A> abilityType, AbilityConfigComponent<A>[] abilityConfig) {
+	@Nullable private Consumer<A> abilityConfig;
+
+	public ConfigAbilityFactory(AbilityType<A> abilityType, @Nullable Consumer<A> abilityConfig) {
 		this.abilityType = abilityType;
 		this.abilityConfig = abilityConfig;
 	}
 	
+	public ConfigAbilityFactory<A> copy() {
+		return new ConfigAbilityFactory<>(abilityType, abilityConfig);
+	}
+	
+	public void addConfig(Consumer<A> extraConfig) {
+		if (this.abilityConfig == null) {
+			this.abilityConfig = extraConfig;
+		}
+		else {
+			this.abilityConfig = this.abilityConfig.andThen(extraConfig);
+		}
+	}
+
 	public A makeAbility(AbilityId abilityId) {
-		A ability = abilityType.createInstance(a -> {
-			if (abilityConfig != null) {
-				for (var config : abilityConfig) {
-					config.accept(a);
-				}
-			}
-		}, abilityId);
+		A ability = abilityType.createInstance(abilityId);
+		if (abilityConfig != null) {
+			abilityConfig.accept(ability);
+		}
 		return ability;
 	}
 	
-	
-	// TODO ability configs
-//	@SuppressWarnings("rawtypes")
-//	public static final Codec<AbilityConfig> CONFIG_CODEC_PLACEHOLDER = CodecUtil.placeholderCodec(null);
-	
-	@SuppressWarnings({ "unchecked", "rawtypes" })
-	public static final Codec<ConfigAbilityFactory<?>> CODEC = RecordCodecBuilder.create(instance -> instance.group(
-			JojoRegistries.ABILITY_TYPES_REG.byNameCodec().fieldOf("type").forGetter(factory -> factory.abilityType)//,
-//			CONFIG_CODEC_PLACEHOLDER.optionalFieldOf("config").forGetter(factory -> Optional.ofNullable(factory.abilityConfig))
-		).apply(instance, 
-			(AbilityType<?> abilityType/*, Optional<AbilityConfig> abilityConfig*/) -> {
-				return new ConfigAbilityFactory(abilityType, null);
-			}
-		));
-
 }

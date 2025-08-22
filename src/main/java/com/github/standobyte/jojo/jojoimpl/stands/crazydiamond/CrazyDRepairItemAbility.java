@@ -8,6 +8,7 @@ import com.github.standobyte.jojo.client.input.AbilityInputState;
 import com.github.standobyte.jojo.client.input.InputHandler;
 import com.github.standobyte.jojo.powersystem.Power;
 import com.github.standobyte.jojo.powersystem.ability.AbilityId;
+import com.github.standobyte.jojo.powersystem.ability.AbilityType;
 import com.github.standobyte.jojo.powersystem.entityaction.ActionPhase;
 import com.github.standobyte.jojo.powersystem.entityaction.EntityActionInstance;
 import com.github.standobyte.jojo.powersystem.entityaction.type.EntityActionType;
@@ -42,8 +43,8 @@ import net.minecraft.world.phys.Vec3;
 
 public class CrazyDRepairItemAbility extends StandEntityAbility {
 
-	public CrazyDRepairItemAbility(AbilityId abilityId) {
-		super(abilityId);
+	public CrazyDRepairItemAbility(AbilityType<?> abilityType, AbilityId abilityId) {
+		super(abilityType, abilityId);
 		setDefaultPhaseLength(ActionPhase.PERFORM, 999999);
 	}
 

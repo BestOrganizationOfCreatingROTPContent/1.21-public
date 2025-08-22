@@ -6,6 +6,7 @@ import com.github.standobyte.jojo.mc.entity.projectile.ThrownNuggetBearingEntity
 import com.github.standobyte.jojo.mechanics.entityuseitem.StandCallbackWhenShooting;
 import com.github.standobyte.jojo.powersystem.Power;
 import com.github.standobyte.jojo.powersystem.ability.AbilityId;
+import com.github.standobyte.jojo.powersystem.ability.AbilityType;
 import com.github.standobyte.jojo.powersystem.ability.EntityActionAbility;
 import com.github.standobyte.jojo.powersystem.entityaction.ActionPhase;
 import com.github.standobyte.jojo.powersystem.entityaction.EntityActionInstance;
@@ -24,8 +25,8 @@ import net.neoforged.neoforge.common.Tags;
 
 public class StandBearingShotAbility extends StandEntityAbility {
 
-	public StandBearingShotAbility(AbilityId abilityId) {
-		super(abilityId);
+	public StandBearingShotAbility(AbilityType<?> abilityType, AbilityId abilityId) {
+		super(abilityType, abilityId);
 		setDefaultPhaseLength(ActionPhase.PERFORM, 999999);
 		setDefaultPhaseLength(ActionPhase.RECOVERY, 10);
 	}
