@@ -18,6 +18,7 @@ import com.github.standobyte.jojo.powersystem.standpower.entity.StandEntity;
 
 import net.minecraft.client.model.Model;
 import net.minecraft.client.model.geom.builders.LayerDefinition;
+import net.minecraft.client.renderer.texture.TextureAtlasSprite;
 import net.minecraft.client.resources.sounds.Sound;
 import net.minecraft.client.sounds.WeighedSoundEvents;
 import net.minecraft.network.chat.Component;
@@ -27,7 +28,8 @@ import net.minecraft.resources.ResourceLocation;
 public class StandSkin {
 	public final ResourceLocation skinId;
 	public final ResourceLocation standTypeId;
-	protected final boolean isDefault;
+	public final boolean isDefault;
+	public final Optional<ResourceLocation> nonDefaultId;
 	protected final ResourcePathChecker standTexture;
 	protected final OptionalInt color;
 	
@@ -52,6 +54,7 @@ public class StandSkin {
 				standId.getNamespace(), 
 				"textures/entity/" + standId.getPath() + ".png"));
 		this.isDefault = skinId.equals(standId);
+		this.nonDefaultId = isDefault ? Optional.empty() : Optional.of(skinId);
 		this.color = color;
 	}
 	
@@ -82,11 +85,6 @@ public class StandSkin {
 	
 	protected void withSounds(Map<ResourceLocation, ResourceLocation> sounds) {
 		this.existingSounds = sounds;
-	}
-	
-	
-	public Optional<ResourceLocation> getNonDefaultId() {
-		return isDefault ? Optional.empty() : Optional.of(skinId);
 	}
 
 	
@@ -218,6 +216,10 @@ public class StandSkin {
 			return getAnim.apply(defaultSkin.standEntityAnims);
 		}
 		return null;
+	}
+	
+	public TextureAtlasSprite getAbilityIcon(String abilityName) {
+		return StandSkinsLoader.getInstance().abilityIcons.getAbilityIcon(abilityName, this);
 	}
 	
 //	public WeighedSoundEvents getSoundEvent(SoundEvent soundEvent, StandSkin defaultSkin) {

@@ -177,7 +177,7 @@ public class StandSkinsScreen extends Screen implements IJojoMenuScreen {
 	
 	private boolean isSkinSelected(StandSkin skin) {
 		StandInstance stand = standCap.getStandInstance().get();
-		return stand.getSelectedSkin().equals(skin.getNonDefaultId());
+		return stand.getSelectedSkin().equals(skin.nonDefaultId);
 	}
 	
 //	private void renderBgPattern(GuiGraphics matrixStack) {
@@ -363,7 +363,7 @@ public class StandSkinsScreen extends Screen implements IJojoMenuScreen {
 	}
 	
 	private void selectSkin(StandSkin skin) {
-		PacketDistributor.sendToServer(new ClSetStandSkinPacket(skin.getNonDefaultId(), skin.standTypeId));
+		PacketDistributor.sendToServer(new ClSetStandSkinPacket(skin.nonDefaultId, skin.standTypeId));
 	}
 	
 	private void addScroll(int scroll) {

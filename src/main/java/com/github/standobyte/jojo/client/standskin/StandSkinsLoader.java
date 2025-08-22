@@ -10,6 +10,9 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.OptionalInt;
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.Executor;
+import java.util.function.BiFunction;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
@@ -18,12 +21,13 @@ import javax.annotation.Nullable;
 import org.jetbrains.annotations.ApiStatus;
 import org.slf4j.Logger;
 
+import com.github.standobyte.jojo.client.ModClientResources;
 import com.github.standobyte.jojo.client.entityanim.AnimationLoader;
 import com.github.standobyte.jojo.client.entityanim.AnimationSet;
 import com.github.standobyte.jojo.client.entityrender.parsemodel.ParseModEntityModel;
 import com.github.standobyte.jojo.client.entityrender.parsemodel.ParseModEntityModel.Format;
 import com.github.standobyte.jojo.client.sound.util.SoundEventDelegate;
-import com.github.standobyte.jojo.client.standskin.StandSkinsLoader.StandSkinResourceBuilder;
+import com.github.standobyte.jojo.client.standskin.sprites.AbilityIconSprites;
 import com.github.standobyte.jojo.core.JojoMod;
 import com.github.standobyte.jojo.powersystem.standpower.StandInstance;
 import com.github.standobyte.jojo.powersystem.standpower.StandPower;
@@ -41,6 +45,7 @@ import com.google.gson.reflect.TypeToken;
 import com.mojang.datafixers.util.Pair;
 import com.mojang.serialization.JsonOps;
 
+import net.minecraft.Util;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.model.geom.builders.LayerDefinition;
 import net.minecraft.client.resources.sounds.Sound;
@@ -53,14 +58,15 @@ import net.minecraft.client.sounds.Weighted;
 import net.minecraft.core.RegistryAccess;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
+import net.minecraft.server.packs.resources.PreparableReloadListener;
 import net.minecraft.server.packs.resources.Resource;
 import net.minecraft.server.packs.resources.ResourceManager;
-import net.minecraft.server.packs.resources.SimplePreparableReloadListener;
 import net.minecraft.util.profiling.ProfilerFiller;
 import net.neoforged.neoforge.client.event.RegisterClientReloadListenersEvent;
 
-public class StandSkinsLoader extends SimplePreparableReloadListener<Map<ResourceLocation, StandSkinResourceBuilder>> {
+public class StandSkinsLoader implements PreparableReloadListener {
 	private static StandSkinsLoader instance;
+	public final AbilityIconSprites abilityIcons;
 	
 	@ApiStatus.Internal
 	public static void init(/*AddClientReloadListenersEvent*/RegisterClientReloadListenersEvent event) {
@@ -70,6 +76,11 @@ public class StandSkinsLoader extends SimplePreparableReloadListener<Map<Resourc
 //		ResourceLocation id = JojoMod.resLoc("standskins");
 //		event.addListener(id, instance);
 		event.registerReloadListener(instance);
+	}
+	
+	protected StandSkinsLoader() {
+		this.abilityIcons = new AbilityIconSprites(Minecraft.getInstance().getTextureManager());
+		ModClientResources.closeables.add(abilityIcons);
 	}
 	
 	public static StandSkinsLoader getInstance() {
@@ -133,17 +144,33 @@ public class StandSkinsLoader extends SimplePreparableReloadListener<Map<Resourc
 
 	
 	public static ResourceLocation remap(ResourceLocation assetPath, ResourceLocation skinId) {
-		return ResourceLocation.fromNamespaceAndPath(
-				skinId.getNamespace(), 
-				"stand_skins/" + 
-				skinId.getPath() + "/" + 
-				"assets/" + 
-				assetPath.getNamespace() + "/" + assetPath.getPath());
+		return remap.apply(assetPath, skinId);
 	}
+	protected static final BiFunction<ResourceLocation, ResourceLocation, ResourceLocation> remap = Util.memoize(
+			(ResourceLocation assetPath, ResourceLocation skinId) -> ResourceLocation.fromNamespaceAndPath(
+					skinId.getNamespace(), 
+					"stand_skins/" + 
+					skinId.getPath() + "/" + 
+					"assets/" + 
+					assetPath.getNamespace() + "/" + assetPath.getPath()));
+	
 	
 	@Override
-	protected Map<ResourceLocation, StandSkinResourceBuilder> prepare(ResourceManager resourceManager, ProfilerFiller profiler) {
-		Map<ResourceLocation, StandSkinResourceBuilder> skins = new HashMap<>();
+	public CompletableFuture<Void> reload(
+			PreparableReloadListener.PreparationBarrier stage,
+			ResourceManager resourceManager,
+			ProfilerFiller preparationsProfiler,
+			ProfilerFiller reloadProfiler,
+			Executor backgroundExecutor,
+			Executor gameExecutor) {
+		return CompletableFuture.supplyAsync(() -> this.prepare(resourceManager, preparationsProfiler), backgroundExecutor)
+				.thenCompose(preps -> this.prepPost(preps, resourceManager, preparationsProfiler, backgroundExecutor))
+				.thenCompose(stage::wait)
+				.thenAcceptAsync(preps -> this.apply(preps, resourceManager, reloadProfiler), gameExecutor);
+	}
+	
+	protected Preps prepare(ResourceManager resourceManager, ProfilerFiller profiler) {
+		Preps preps = new Preps(this);
 
 		try (Zone zone = _ProfilerFiller.zone(profiler, JojoMod.MOD_ID + "_stand_skins")) {
 			Map<ResourceLocation, List<Resource>> allResourcesMap = resourceManager.listResourceStacks("stand_skins", path -> true);
@@ -151,7 +178,7 @@ public class StandSkinsLoader extends SimplePreparableReloadListener<Map<Resourc
 				/*
 				 *				  	filePath[0]	 filePath[1]...	   		[2]	 	[3]			 [4]								      	[5]
 				   assets/my_skins/stand_skins/cool_star_platinum_skin/assets/jojo_ripples/... (/textures/geo/animations/lang/sounds/...)/.../
-							  ^						  ^						^													    ^
+							  ^						  ^							^													    ^
 					   skin namespace				skin path				  in-mod namespace for assets used by the stand		    the actual asset file is most likely here
 						(arbitrary*)				(arbitrary*)				  (must match the namespace from stand id)			     (or it is a subdirectory, and the assets further down the path)
 						
@@ -164,41 +191,87 @@ public class StandSkinsLoader extends SimplePreparableReloadListener<Map<Resourc
 					   for the main file (with stand_type, color, etc.) the path is:
 				   assets/my_skins/stand_skins/cool_star_platinum_skin/skin.json
 				 */
-				ResourceLocation path = resourceEntry.getKey();
-				String[] filePath = path.getPath().split("/");
-				boolean isMainSkinFile = filePath.length == 3 && "skin.json".equals(filePath[2]);
-				boolean isResource = filePath.length >= 5 && "assets".equals(filePath[2]);
-				if (isMainSkinFile || isResource) {
-					ResourceLocation skinId = ResourceLocation.fromNamespaceAndPath(path.getNamespace(), filePath[1]);
-					StandSkinResourceBuilder skinBuilder = skins.computeIfAbsent(skinId, StandSkinResourceBuilder::new);
-					if (isMainSkinFile) {
+				ResourceLocation filePath = resourceEntry.getKey();
+				String[] pathSplit = filePath.getPath().split("/");
+				SkinResPath resPath = SkinResPath.fill(filePath, pathSplit);
+				
+				if (resPath.isMainSkinFile || resPath.isResource) {
+					ResourceLocation skinId = ResourceLocation.fromNamespaceAndPath(filePath.getNamespace(), resPath.skinIdPath);
+					StandSkinResourceBuilder skinBuilder = preps.skinsRead.computeIfAbsent(skinId, StandSkinResourceBuilder::new);
+					if (resPath.isMainSkinFile) {
 						for (var resource : resourceEntry.getValue()) {
 							try (var reader = resource.openAsReader()) {
 								JsonObject json = JSONUtil.parse(reader);
 								loadSkinInfo(json, skinBuilder, JojoMod.getLogger());
 							} catch (Exception e) {
-								JojoMod.getLogger().error("Failed to read {} data for Stand skin {}", filePath[2], skinId, e);
+								JojoMod.getLogger().error("Failed to read {} data for Stand skin {}", resPath.resourceType, skinId, e);
 							}
 						}
 					}
 					else {
-						String resNamespace = filePath[3];
-						StringBuilder pathStr = new StringBuilder();
-						for (int i = 5; i < filePath.length; i++) {
-							if (i > 5) pathStr.append("/");
-							pathStr.append(filePath[i]);
-						}
-						String resPathWithExt = pathStr.toString();
-						String resType = filePath[4];
-						loadResource(resourceEntry.getValue(), resType, resNamespace, resPathWithExt, skinBuilder, JojoMod.getLogger(), path);
+						loadResource(resourceEntry.getValue(), resPath, skinBuilder, JojoMod.getLogger(), filePath, preps);
 					}
 				}
 			}
 		}
 		
-		return skins;
+		return preps;
 	}
 	
+	protected static class SkinResPath {
+		public ResourceLocation filePath;
+		public String[] pathByParts;
+		public boolean isMainSkinFile;
+		public boolean isResource;
+		public String skinIdPath;
+		public String resourceType;
+		public String assetNamespace;
+		public String assetType;
+		public String assetPathWExtension;
+		static final SkinResPath instance = new SkinResPath();
+		
+		static SkinResPath fill(ResourceLocation filePath, String[] split) {
+			instance.filePath = filePath;
+			instance.pathByParts = split;
+			instance.isMainSkinFile = split.length == 3 && "skin.json".equals(split[2]);
+			instance.isResource = split.length >= 5 && "assets".equals(split[2]);
+
+			instance.skinIdPath = split[1];
+			instance.resourceType = split[2];
+			if (instance.isResource) {
+				instance.assetNamespace = split[3];
+				instance.assetType = split[4];
+				
+				StringBuilder pathStr = new StringBuilder();
+				for (int i = 5; i < split.length; i++) {
+					if (i > 5) pathStr.append("/");
+					pathStr.append(split[i]);
+				}
+				instance.assetPathWExtension = pathStr.toString();
+			}
+			else {
+				instance.assetNamespace = null;
+				instance.assetType = null;
+				instance.assetPathWExtension = null;
+			}
+			
+			return instance;
+		}
+		
+		public String getResPathPart(int index) {
+			return pathByParts[4 + index];
+		}
+	}
+	
+	
+	public static class Preps {
+		protected final Map<ResourceLocation, StandSkinResourceBuilder> skinsRead = new HashMap<>();
+		protected AbilityIconSprites.Preps abilitySprites;
+		
+		public Preps(StandSkinsLoader loader) {
+			this.abilitySprites = new AbilityIconSprites.Preps(loader.abilityIcons);
+		}
+	}
 	
 	// XXX extensible stand skins?
 	public static class StandSkinResourceBuilder {
@@ -242,20 +315,21 @@ public class StandSkinsLoader extends SimplePreparableReloadListener<Map<Resourc
 	}
 	
 	private static final String SOUND_EXTENSION = ".ogg";
-	private void loadResource(List<Resource> resource, String resType, String resNamespace, String resPathWithExt, 
-			StandSkinResourceBuilder builder, Logger logger, ResourceLocation fullFilePath) {
-		switch (resType) {
+	private void loadResource(List<Resource> resource, SkinResPath resPath, 
+			StandSkinResourceBuilder builder, Logger logger, ResourceLocation fullFilePath, 
+			Preps resourcePreps) {
+		switch (resPath.assetType) {
 			// XXX (stand skin) merge gecko and bb models (+ test the ParseModEntityModel.merge function)
 			// It is possible to create two models: "geo" model with the regular cubes, and a "bb" one with just the meshes.
 			// This is implemented to reduce overhead when we need a model with meshes, since models in the Generic Blockbench format generally take longer to load.
 			case "geo" -> {
-				readModel(resource, builder, resNamespace, resPathWithExt, Format.GECKO, ".geo.json");
+				readModel(resource, builder, resPath.assetNamespace, resPath.assetPathWExtension, Format.GECKO, ".geo.json");
 			}
 			case "bb" -> {
-				readModel(resource, builder, resNamespace, resPathWithExt, Format.GENERIC, ".bbmodel");
+				readModel(resource, builder, resPath.assetNamespace, resPath.assetPathWExtension, Format.GENERIC, ".bbmodel");
 			}
 			case "animations" -> {
-				var json = readLastResource(resource, null, JSONUtil::parse, builder.skinId, resNamespace, resPathWithExt, ".animation.json");
+				var json = readLastResource(resource, null, JSONUtil::parse, builder.skinId, resPath.assetNamespace, resPath.assetPathWExtension, ".animation.json");
 				if (json != null) {
 					if (builder.animations == null) builder.animations = new HashMap<>();
 					ResourceLocation path = json.getFirst();
@@ -263,24 +337,29 @@ public class StandSkinsLoader extends SimplePreparableReloadListener<Map<Resourc
 				}
 			}
 			case "textures" -> {
-				// XXX (stand skin) load sprites
+				switch (resPath.getResPathPart(1)) {
+					case AbilityIconSprites.DIR_NAME -> {
+						String spriteName = StringUtil.substrBack(resPath.getResPathPart(2), ".png".length());
+						resourcePreps.abilitySprites.addSkinSprite(builder.skinId, spriteName, resPath.filePath);
+					}
+				}
 			}
 			case "lang" -> {
 				// TODO (stand skin) load lang
 			}
 			case "sounds" -> {
-				if (resPathWithExt.endsWith(SOUND_EXTENSION)) {
+				if (resPath.assetPathWExtension.endsWith(SOUND_EXTENSION)) {
 					if (builder.soundFiles == null) {
 						builder.soundFiles = new HashMap<>();
 					}
-					ResourceLocation soundLocation = ResourceLocation.fromNamespaceAndPath(resNamespace, 
-							StringUtil.substrBack(resPathWithExt, SOUND_EXTENSION.length()));
+					ResourceLocation soundLocation = ResourceLocation.fromNamespaceAndPath(resPath.assetNamespace, 
+							StringUtil.substrBack(resPath.assetPathWExtension, SOUND_EXTENSION.length()));
 					Resource soundResource = resource.get(resource.size() - 1);
 					builder.soundFiles.put(soundLocation, Pair.of(fullFilePath, soundResource));
 				}
 			}
 			case "sounds.json" -> {
-				loadSoundsJson(resource, builder, resNamespace);
+				loadSoundsJson(resource, builder, resPath.assetNamespace);
 			}
 			default -> {}
 		}
@@ -409,15 +488,20 @@ public class StandSkinsLoader extends SimplePreparableReloadListener<Map<Resourc
 	}
 	
 	
-	@Override
-	protected void apply(Map<ResourceLocation, StandSkinResourceBuilder> skinsRead, ResourceManager resourceManager, ProfilerFiller profiler) {
+	protected CompletableFuture<Preps> prepPost(Preps preps, ResourceManager resourceManager, 
+			ProfilerFiller profiler, Executor backgroundExecutor) {
+		return preps.abilitySprites.stitch(resourceManager, backgroundExecutor).thenApply(spritePreps -> preps);
+	}
+	
+	
+	protected void apply(Preps preps, ResourceManager resourceManager, ProfilerFiller profiler) {
 		Minecraft mc = Minecraft.getInstance();
 		SoundManager soundManager = mc.getSoundManager();
 		Map<ResourceLocation, Resource> soundCache = ClientReflection.getSoundCache(soundManager);
 		SoundEngine soundEngine = ClientReflection.getSoundEngine(soundManager);
 		
 		this.skins.clear();
-		for (var skinBuilder : skinsRead.values()) {
+		for (var skinBuilder : preps.skinsRead.values()) {
 			if (skinBuilder.isValidSkin(JojoMod.getLogger())) {
 				// TODO move the makeSkin call to prepare?
 				StandSkin skin = skinBuilder.makeSkin();
@@ -440,6 +524,7 @@ public class StandSkinsLoader extends SimplePreparableReloadListener<Map<Resourc
 		}
 		sortSkins();
 		JojoMod.getLogger().info("Loaded {} Stand skins", skins.size());
+		preps.abilitySprites.apply(resourceManager, profiler);
 	}
 	
 	private void sortSkins() {
