@@ -22,7 +22,6 @@ import com.github.standobyte.v1_21_4_stuff.missingmethods._Util;
 
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.network.RegistryFriendlyByteBuf;
-import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.util.Mth;
 import net.minecraft.world.damagesource.DamageSource;
@@ -123,10 +122,10 @@ public class EntityActionInstance implements HeldInput {
 	
 	
 	@ApiStatus.OverrideOnly
-	public void toBuf(RegistryFriendlyByteBuf buf) {}
+	public void toBuf(FriendlyByteBuf buf) {}
 
 	@ApiStatus.OverrideOnly
-	public void fromBuf(RegistryFriendlyByteBuf buf) {}
+	public void fromBuf(FriendlyByteBuf buf) {}
 	
 	
 	// Some helper methods to write less boilerplate in Stand abilities
@@ -374,48 +373,42 @@ public class EntityActionInstance implements HeldInput {
 	}
 	
 	
-	public static final StreamCodec<RegistryFriendlyByteBuf, EntityActionInstance> NETWORK_CODEC = new StreamCodec<>() {
+	public static void encode(RegistryFriendlyByteBuf buffer, EntityActionInstance action) {
+		buffer.writeBoolean(action.phase != null);
+		if (action.phase != null) {
+			action.ability.encodeAbility(action.getPowerUser(), buffer);
 
-		@Override
-		public void encode(RegistryFriendlyByteBuf buffer, EntityActionInstance action) {
-			buffer.writeBoolean(action.phase != null);
-			if (action.phase != null) {
-				action.ability.encodeAbility(buffer);
-
-				buffer.writeVarInt(action.id);
-				action.phasesLength.values().forEach(buffer::writeFloat);
-				buffer.writeVarInt(action.phase.ordinal());
-				buffer.writeVarInt(action.curPhaseTick);
-				buffer.writeFloat(action.phasePartialTick);
-				buffer.writeFloat(action.curPhaseLength);
-				action.powerUser.writeNetwork(buffer);
-				NetworkUtil.writeOptionally(action.standRotationTarget, buffer, ActionTarget.STREAM_CODEC_UNRESOLVED_ENTITY_ID);
-				action.toBuf(buffer);
-			}
+			buffer.writeVarInt(action.id);
+			action.phasesLength.values().forEach(buffer::writeFloat);
+			buffer.writeVarInt(action.phase.ordinal());
+			buffer.writeVarInt(action.curPhaseTick);
+			buffer.writeFloat(action.phasePartialTick);
+			buffer.writeFloat(action.curPhaseLength);
+			action.powerUser.writeNetwork(buffer);
+			NetworkUtil.writeOptionally(action.standRotationTarget, buffer, ActionTarget.STREAM_CODEC_UNRESOLVED_ENTITY_ID);
+			action.toBuf(buffer);
 		}
+	}
 
-		@Override
-		public EntityActionInstance decode(RegistryFriendlyByteBuf buffer) {
-			boolean valid = buffer.readBoolean();
-			if (valid) {
-				EntityActionInstance action = EntityActionType.decodeAbilityAction(buffer);
-				if (action != null) {
-					action.id = buffer.readVarInt();
-					action.phasesLength = _Util.makeEnumMap(ActionPhase.class, __ -> buffer.readFloat());
-					action.phase = ActionPhase.values()[buffer.readVarInt()];
-					action.curPhaseTick = buffer.readVarInt();
-					action.phasePartialTick = buffer.readFloat();
-					action.curPhaseLength = buffer.readFloat();
-					action.powerUser.readNetwork(buffer);
-					action.standRotationTarget = NetworkUtil.readOptional(buffer, ActionTarget.STREAM_CODEC_UNRESOLVED_ENTITY_ID).orElse(null);
-					action.fromBuf(buffer);
-					return action;
-				}
+	public static EntityActionInstance decode(Level level, FriendlyByteBuf buffer) {
+		boolean valid = buffer.readBoolean();
+		if (valid) {
+			EntityActionInstance action = EntityActionType.decodeAbilityAction(level, buffer);
+			if (action != null) {
+				action.id = buffer.readVarInt();
+				action.phasesLength = _Util.makeEnumMap(ActionPhase.class, __ -> buffer.readFloat());
+				action.phase = ActionPhase.values()[buffer.readVarInt()];
+				action.curPhaseTick = buffer.readVarInt();
+				action.phasePartialTick = buffer.readFloat();
+				action.curPhaseLength = buffer.readFloat();
+				action.powerUser.readNetwork(buffer);
+				action.standRotationTarget = NetworkUtil.readOptional(buffer, ActionTarget.STREAM_CODEC_UNRESOLVED_ENTITY_ID).orElse(null);
+				action.fromBuf(buffer);
+				return action;
 			}
-			
-			return null;
 		}
 		
-	};
+		return null;
+	}
 	
 }

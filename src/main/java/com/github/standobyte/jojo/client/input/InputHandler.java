@@ -258,7 +258,7 @@ public class InputHandler {
 					ability.writeExtraInput(inputBuf, player, true);
 					AbilityInput.keyPress(keyId, ability, player, inputBuf, type.inputMethod, timeTookToResolve);
 				}
-				PacketDistributor.sendToServer(ClAbilityInputPacket.keyPress(keyId, player, power, ability, type, timeTookToResolve));
+				PacketDistributor.sendToServer(ClAbilityInputPacket.keyPress(keyId, player, ability, type, timeTookToResolve));
 			}
 			case RELEASE -> {
 				AbilityInput.keyRelease(keyId, player);

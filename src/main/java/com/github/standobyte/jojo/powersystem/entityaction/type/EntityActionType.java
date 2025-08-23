@@ -14,7 +14,6 @@ import com.github.standobyte.jojo.powersystem.entityaction.LivingComponentAction
 import com.github.standobyte.jojo.powersystem.playerpower.PlayerPower;
 
 import net.minecraft.network.FriendlyByteBuf;
-import net.minecraft.network.RegistryFriendlyByteBuf;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.level.Level;
@@ -55,17 +54,17 @@ public interface EntityActionType {
 
 
 	@ApiStatus.Internal
-	default void encodeAbility(RegistryFriendlyByteBuf buffer) {
+	default void encodeAbility(LivingEntity user, FriendlyByteBuf buffer) {
 		buffer.writeBoolean(true);
-		AbilityInputNetwork.encodeInput(buffer, (Ability) this, null);
+		AbilityInputNetwork.encodeInput(buffer, user, (Ability) this);
 	}
 
 	@ApiStatus.Internal
-	public static EntityActionInstance decodeAbilityAction(RegistryFriendlyByteBuf buffer) {
+	public static EntityActionInstance decodeAbilityAction(Level level, FriendlyByteBuf buffer) {
 		boolean isPowerMovesetAbility = buffer.readBoolean();
 		EntityActionType actionType;
 		if (isPowerMovesetAbility) {
-			Ability ability = AbilityInputNetwork.decodeInput(buffer).getAbility(null);
+			Ability ability = AbilityInputNetwork.decodeInput(buffer).getAbility(null, level);
 			actionType = ability instanceof EntityActionType entityAbility ? entityAbility : null;
 		}
 		else {

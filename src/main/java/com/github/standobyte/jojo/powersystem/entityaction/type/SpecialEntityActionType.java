@@ -3,7 +3,7 @@ package com.github.standobyte.jojo.powersystem.entityaction.type;
 import com.github.standobyte.jojo.powersystem.entityaction.ActionAnimIdentifier;
 import com.github.standobyte.jojo.powersystem.entityaction.EntityActionInstance;
 
-import net.minecraft.network.RegistryFriendlyByteBuf;
+import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.LivingEntity;
 
@@ -25,7 +25,7 @@ public abstract class SpecialEntityActionType implements EntityActionType {
 
 
 	@Override
-	public void encodeAbility(RegistryFriendlyByteBuf buffer) {
+	public void encodeAbility(LivingEntity user, FriendlyByteBuf buffer) {
 		buffer.writeBoolean(false);
 		buffer.writeResourceLocation(id);
 	}

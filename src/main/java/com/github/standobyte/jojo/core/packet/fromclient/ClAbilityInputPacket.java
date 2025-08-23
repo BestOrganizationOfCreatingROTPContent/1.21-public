@@ -3,11 +3,11 @@ package com.github.standobyte.jojo.core.packet.fromclient;
 import javax.annotation.Nullable;
 
 import com.github.standobyte.jojo.core.PacketsRegister;
-import com.github.standobyte.jojo.powersystem.Power;
 import com.github.standobyte.jojo.powersystem.ability.Ability;
 import com.github.standobyte.jojo.powersystem.ability.AbilityId.AbilityInputNetwork;
 import com.github.standobyte.jojo.powersystem.ability.AbilityInput;
 import com.github.standobyte.jojo.powersystem.ability.AbilityInput.InputEventType;
+import com.github.standobyte.jojo.util.network.NetworkUtil;
 
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.network.RegistryFriendlyByteBuf;
@@ -20,29 +20,28 @@ import net.neoforged.neoforge.network.handling.IPayloadContext;
 public class ClAbilityInputPacket implements CustomPacketPayload {
 	private final short key;
 	private final InputEventType inputEvent;
+	
 	private final Ability abilityEncode;
 	private final AbilityInputNetwork abilityDecoded;
 	private final float timeTookToResolve;
 
 	private final LivingEntity clUser;
-	private Power<?> clUserPower; // is used to optimize the packets - if the player has power of the same powerClass and powerTypeId as in the abilityId, we don't have to send powerTypeId
 	private FriendlyByteBuf extraData;
 	
-	public static ClAbilityInputPacket keyPress(short key, LivingEntity user, Power<?> power, 
+	public static ClAbilityInputPacket keyPress(short key, LivingEntity user, 
 			Ability ability, InputEventType inputEvent, float timeTookToResolve) {
-		return new ClAbilityInputPacket(key, inputEvent, user, power, ability, null, timeTookToResolve);
+		return new ClAbilityInputPacket(key, inputEvent, user, ability, null, timeTookToResolve);
 	}
 	
 	public static ClAbilityInputPacket releaseHold(short key) {
-		return new ClAbilityInputPacket(key, InputEventType.RELEASE, null, null, null, null, 0);
+		return new ClAbilityInputPacket(key, InputEventType.RELEASE, null, null, null, 0);
 	}
 	
-	private ClAbilityInputPacket(short key, InputEventType inputEvent, LivingEntity user, Power<?> userPower, 
+	private ClAbilityInputPacket(short key, InputEventType inputEvent, LivingEntity user, 
 			@Nullable Ability abilityEncode, @Nullable AbilityInputNetwork abilityDecoded, float timeTookToResolve) {
 		this.key = key;
 		this.inputEvent = inputEvent;
 		this.clUser = user;
-		this.clUserPower = userPower;
 		this.abilityEncode = abilityEncode;
 		this.abilityDecoded = abilityDecoded;
 		this.timeTookToResolve = timeTookToResolve;
@@ -68,7 +67,7 @@ public class ClAbilityInputPacket implements CustomPacketPayload {
 			buf.writeShort(packet.key);
 			buf.writeEnum(packet.inputEvent);
 			if (packet.inputEvent != InputEventType.RELEASE) {
-				AbilityInputNetwork.encodeInput(buf, packet.abilityEncode, packet.clUserPower);
+				AbilityInputNetwork.encodeInput(buf, packet.clUser, packet.abilityEncode);
 				if (packet.abilityEncode != null) {
 					buf.writeFloat(packet.timeTookToResolve);
 					packet.abilityEncode.writeExtraInput(buf, packet.clUser, true);
@@ -86,9 +85,8 @@ public class ClAbilityInputPacket implements CustomPacketPayload {
 					AbilityInputNetwork ability = AbilityInputNetwork.decodeInput(buf);
 					float timeTookToResolve = ability != null ? buf.readFloat() : 0;
 					
-					ClAbilityInputPacket packet = new ClAbilityInputPacket(key, inputEvent, null, null, null, ability, timeTookToResolve);
-					int extraInputBytes = buf.readableBytes();
-					packet.extraData = extraInputBytes > 0 ? new FriendlyByteBuf(buf.readBytes(extraInputBytes)) : null;
+					ClAbilityInputPacket packet = new ClAbilityInputPacket(key, inputEvent, null, null, ability, timeTookToResolve);
+					packet.extraData = NetworkUtil.extraPacketData(buf);
 					yield packet;
 				}
 			};
@@ -99,7 +97,7 @@ public class ClAbilityInputPacket implements CustomPacketPayload {
 			Player player = context.player();
 			switch (payload.inputEvent) {
 				case PRESS_CLICK, PRESS_HOLD -> {
-					Ability ability = payload.abilityDecoded != null ? payload.abilityDecoded.getAbility(player) : null;
+					Ability ability = payload.abilityDecoded != null ? payload.abilityDecoded.getAbility(player, null) : null;
 					if (AbilityInput.withConditionCheck(ability, player)) {
 						AbilityInput.keyPress(payload.key, ability, 
 								player, payload.extraData, payload.inputEvent.inputMethod, payload.timeTookToResolve);

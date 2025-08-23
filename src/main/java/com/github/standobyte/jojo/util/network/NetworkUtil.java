@@ -40,6 +40,18 @@ public class NetworkUtil {
 		return Stream.empty();
 	}
 	
+	/**
+	 * For when you have a bunch of packet data that you can only decode in the packet handler,
+	 * once you resolve some context-dependent stuff (e.g. an entity from entity id).
+	 * Splits the remaining data into a separate buffer, 
+	 * because if you don't read all the bytes from the buffer in the packet decoder the game will kick you.
+	 */
+	@Nullable
+	public static FriendlyByteBuf extraPacketData(FriendlyByteBuf remainingData) {
+		int extraInputBytes = remainingData.readableBytes();
+		return extraInputBytes > 0 ? new FriendlyByteBuf(remainingData.readBytes(extraInputBytes)) : null;
+	}
+	
 	// StreamCodec stuff below
 	
 	public static <B extends ByteBuf, T> StreamCodec<B, T> nullableCodec(StreamCodec<? super B, T> codec) {

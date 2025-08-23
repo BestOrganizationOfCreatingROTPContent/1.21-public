@@ -73,7 +73,7 @@ public class TrAbilityUsePacket implements CustomPacketPayload {
 			buf.writeShort(packet.key);
 			buf.writeEnum(packet.inputType);
 			if (packet.inputType != InputEventType.RELEASE) {
-				AbilityInputNetwork.encodeInput(buf, packet.abilityEncode, null);
+				AbilityInputNetwork.encodeInput(buf, packet.senderUser, packet.abilityEncode);
 				buf.writeFloat(packet.timeTookToResolve);
 				if (packet.abilityEncode != null) {
 					packet.abilityEncode.writeExtraInput(buf, packet.senderUser, false);
@@ -102,14 +102,14 @@ public class TrAbilityUsePacket implements CustomPacketPayload {
 		@Override
 		public void handle(TrAbilityUsePacket payload, IPayloadContext context) {
 			Entity entity = ClientProxy.getEntityById(payload.entityId);
-			if (entity instanceof LivingEntity living) {
+			if (entity instanceof LivingEntity user) {
 				switch (payload.inputType) {
 					case PRESS_CLICK, PRESS_HOLD -> {
-						Ability ability = payload.abilityDecoded.getAbility(living);
-						AbilityInput.keyPress(payload.key, ability, living, payload.extraData, payload.inputType.inputMethod, payload.timeTookToResolve);
+						Ability ability = payload.abilityDecoded.getAbility(user, null);
+						AbilityInput.keyPress(payload.key, ability, user, payload.extraData, payload.inputType.inputMethod, payload.timeTookToResolve);
 					}
 					case RELEASE -> {
-						AbilityInput.keyRelease(payload.key, living);
+						AbilityInput.keyRelease(payload.key, user);
 					}
 				}
 			}

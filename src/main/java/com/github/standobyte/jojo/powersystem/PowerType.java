@@ -1,7 +1,5 @@
 package com.github.standobyte.jojo.powersystem;
 
-import java.util.Optional;
-
 import org.jetbrains.annotations.ApiStatus;
 
 import com.github.standobyte.jojo.core.config.DefaultedValue;
@@ -13,9 +11,11 @@ import net.minecraft.resources.ResourceLocation;
 
 public abstract class PowerType implements JsonConfigurable {
 	protected final DefaultedValue<MovesetBuilder> movesetConfigured;
+	protected Moveset baseMoveset;
 	
 	public PowerType(MovesetBuilder defaultMoveset) {
 		this.movesetConfigured = new DefaultedValue<>(defaultMoveset);
+		initBaseMoveset();
 	}
 	
 	public abstract ResourceLocation getId();
@@ -43,11 +43,16 @@ public abstract class PowerType implements JsonConfigurable {
 	public void applyConfig(JsonElement json) {
 		JsonObject config = json.getAsJsonObject();
 		
-		Optional.ofNullable(config.getAsJsonObject("moveset")).ifPresent(movesetEditsJson -> {
+		JsonObject movesetEditsJson = config.getAsJsonObject("moveset");
+		if (movesetEditsJson != null) {
 			MovesetBuilder configured = getDefaultMoveset().deepCopy();
 			Moveset.applyJsonConfig(configured, movesetEditsJson);
 			movesetConfigured.value = configured;
-		});
+		}
+		else {
+			movesetConfigured.reset();
+		}
+		initBaseMoveset();
 	}
 	
 	@Override
@@ -59,6 +64,14 @@ public abstract class PowerType implements JsonConfigurable {
 	@ApiStatus.Internal
 	public MovesetBuilder getDefaultMoveset() {
 		return this.movesetConfigured.defaultValue;
+	}
+	
+	protected void initBaseMoveset() {
+		this.baseMoveset = this.movesetConfigured.value.build(getPowerClass(), getId());
+	}
+	
+	public Moveset getBaseMoveset() {
+		return baseMoveset;
 	}
 	
 	public Moveset makeMoveset(Power<?> userPower) {
