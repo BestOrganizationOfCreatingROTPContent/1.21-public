@@ -42,8 +42,8 @@ public abstract class Power<P extends Power<P>> implements SynchronizablePlayerD
 	@Nullable
 	public abstract PowerType getPowerType();
 	
-	protected void onChangedPowerType(@Nullable PowerType oldPower, @Nullable PowerType newPower) {
-		initMoveset(newPower);
+	protected void onSetPowerType(@Nullable PowerType oldPower, @Nullable PowerType newPower) {
+		moveset = initMoveset(newPower);
 	}
 	
 	@Nonnull

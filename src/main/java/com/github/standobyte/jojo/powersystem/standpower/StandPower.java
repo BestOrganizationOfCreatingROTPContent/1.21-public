@@ -58,9 +58,7 @@ public class StandPower extends Power<StandPower> implements PostNbtReadEntityDa
 		if (user != null) {
 			StandStats.updateStandStatAttributes(this, user);
 		}
-		if (standChanged) {
-			onChangedPowerType(oldStand, getPowerType());
-		}
+		onSetPowerType(oldStand, getPowerType());
 		
 		if (!user.level().isClientSide()) {
 			PacketDistributor.sendToPlayersTrackingEntityAndSelf(user, new TrPowerStandInstancePacket(user.getId(), standInstance));
