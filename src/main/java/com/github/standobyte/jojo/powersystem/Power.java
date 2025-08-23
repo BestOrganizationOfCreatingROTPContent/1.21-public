@@ -23,7 +23,7 @@ import net.neoforged.neoforge.common.util.INBTSerializable;
 public abstract class Power<P extends Power<P>> implements SynchronizablePlayerData, TickingEntityData, INBTSerializable<CompoundTag> {
 	@Nonnull protected final LivingEntity user;
 	protected final Optional<ServerPlayer> serverPlayerUser;
-	protected Moveset movesetLazyInit;
+	protected Moveset moveset;
 	
 	public Power(LivingEntity user) {
 		this.user = user;
@@ -42,24 +42,20 @@ public abstract class Power<P extends Power<P>> implements SynchronizablePlayerD
 	@Nullable
 	public abstract PowerType getPowerType();
 	
-	protected void onChangedPowerType() {
-		resetMoveset();
+	protected void onChangedPowerType(@Nullable PowerType oldPower, @Nullable PowerType newPower) {
+		initMoveset(newPower);
 	}
 	
 	@Nonnull
 	public Moveset getMoveset() {
-		PowerType powerType = getPowerType();
-		if (powerType == null) {
-			return Moveset.empty();
+		if (moveset == null) {
+			moveset = initMoveset(getPowerType());
 		}
-		if (movesetLazyInit == null) {
-			movesetLazyInit = powerType.makeMoveset();
-		}
-		return movesetLazyInit;
+		return moveset;
 	}
 	
-	public void resetMoveset() {
-		movesetLazyInit = null;
+	protected Moveset initMoveset(@Nullable PowerType powerType) {
+		return powerType != null ? powerType.makeMoveset(this) : Moveset.empty();
 	}
 	
 	@Nullable
@@ -97,7 +93,7 @@ public abstract class Power<P extends Power<P>> implements SynchronizablePlayerD
 
 	
 	public void afterConfigApply() {
-		resetMoveset();
+		initMoveset(getPowerType());
 	}
 
 	@Override
@@ -115,7 +111,7 @@ public abstract class Power<P extends Power<P>> implements SynchronizablePlayerD
 	}
 	
 	protected void onPlayerCloneData(P newEntityData, boolean wasDeath) {
-		newEntityData.movesetLazyInit = this.movesetLazyInit;
+		newEntityData.moveset = this.moveset;
 	}
 	
 	@Override

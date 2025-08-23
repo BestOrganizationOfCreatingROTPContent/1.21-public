@@ -61,7 +61,7 @@ public abstract class PowerType implements JsonConfigurable {
 		return this.movesetConfigured.defaultValue;
 	}
 	
-	public Moveset makeMoveset() {
+	public Moveset makeMoveset(Power<?> userPower) {
 		Moveset moveset = this.movesetConfigured.value.build(getPowerClass(), getId());
 		return moveset;
 	}

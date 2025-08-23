@@ -93,7 +93,7 @@ public class Moveset {
 						DataResult<Pair<AbilityType<?>, JsonElement>> abilityTypeParsed = JojoRegistries.ABILITY_TYPES_REG.byNameCodec()
 								.decode(JsonOps.INSTANCE, abilityJson.get("type"));
 						abilityTypeParsed.ifError(error -> {
-							JojoMod.getLogger().error(error.message());
+							JojoMod.getLogger().error("Moveset: failed to parse ability type (ability {}: {})", abilityName, error.message());
 						}).ifSuccess(success -> {
 							AbilityType<?> abilityType = success.getFirst();
 							

@@ -84,7 +84,7 @@ public class StitchedStandDataFiles  {
 			}
 			try (Reader memberRes = memberEntry.getValue().openAsReader()) {
 				JsonElement memberJson = JsonParser.parseReader(memberRes);
-				JSONUtil.mergeWithObjMember(parentJson, memberKey, memberJson.getAsJsonObject());
+				JSONUtil.mergeWithObjMember(parentJson, memberKey, memberJson);
 			}
 		}
 		

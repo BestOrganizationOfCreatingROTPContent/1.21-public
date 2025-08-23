@@ -30,9 +30,10 @@ public class PlayerPower extends Power<PlayerPower> {
 	}
 	
 	public void setPowerType(@Nullable PlayerPowerType<?> type) {
-		if (getPowerType() != type) {
+		PlayerPowerType<?> old = getPowerType();
+		if (old != type) {
 			initPowerTypeData(type);
-			onChangedPowerType();
+			onChangedPowerType(old, type);
 			if (!user.level().isClientSide()) {
 				PacketDistributor.sendToPlayersTrackingEntityAndSelf(user, new TrPowerTypePacket(user.getId(), type));
 			}
