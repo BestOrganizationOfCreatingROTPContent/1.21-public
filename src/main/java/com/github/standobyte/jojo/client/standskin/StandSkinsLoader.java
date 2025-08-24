@@ -21,6 +21,7 @@ import javax.annotation.Nullable;
 import org.jetbrains.annotations.ApiStatus;
 import org.slf4j.Logger;
 
+import com.github.standobyte.jojo.client.ClientPowerCache;
 import com.github.standobyte.jojo.client.ModClientResources;
 import com.github.standobyte.jojo.client.entityanim.AnimationLoader;
 import com.github.standobyte.jojo.client.entityanim.AnimationSet;
@@ -29,6 +30,7 @@ import com.github.standobyte.jojo.client.entityrender.parsemodel.ParseModEntityM
 import com.github.standobyte.jojo.client.sound.util.SoundEventDelegate;
 import com.github.standobyte.jojo.client.standskin.sprites.AbilityIconSprites;
 import com.github.standobyte.jojo.core.JojoMod;
+import com.github.standobyte.jojo.powersystem.PowerClass;
 import com.github.standobyte.jojo.powersystem.standpower.StandInstance;
 import com.github.standobyte.jojo.powersystem.standpower.StandPower;
 import com.github.standobyte.jojo.powersystem.standpower.entity.StandEntity;
@@ -85,6 +87,16 @@ public class StandSkinsLoader implements PreparableReloadListener {
 	
 	public static StandSkinsLoader getInstance() {
 		return instance;
+	}
+	
+	@Nullable
+	public static StandSkin getCurSkin() {
+		StandPower standPower = ClientPowerCache.getPower(PowerClass.STAND);
+		if (standPower != null) {
+			StandSkin skin = StandSkinsLoader.getInstance().getSkin(standPower);
+			return skin;
+		}
+		return null;
 	}
 
 	
@@ -536,6 +548,12 @@ public class StandSkinsLoader implements PreparableReloadListener {
 						comparingInt(skin -> getSkinPriority(skin, standId))
 						.thenComparing(skin -> skin.skinId))
 					.toList();
+			
+			StandSkin defaultStandSkin = this.getDefaultSkin(standId);
+			for (StandSkin skin : standSkins) {
+				skin.defaultSkin = defaultStandSkin;
+			}
+			
 			skinsByStand.put(standId, Collections.unmodifiableList(standSkins));
 		}
 	}

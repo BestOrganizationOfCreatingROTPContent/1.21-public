@@ -44,7 +44,7 @@ public class AbilitySelectionWheel extends Screen implements ScreenLetsUseWASD {
 			StandSkinsLoader skinLoader = StandSkinsLoader.getInstance();
 			StandSkin skin = skinLoader.getSkin(standPower);
 			if (skin != null) {
-				texture = skin.getTexture(DEFAULT_TEXTURE, skinLoader.getDefaultSkin(standPower));
+				texture = skin.getTexture(DEFAULT_TEXTURE);
 			}
 		}
 		if (texture == null) {

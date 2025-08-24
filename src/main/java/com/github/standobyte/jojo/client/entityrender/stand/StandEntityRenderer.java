@@ -86,9 +86,8 @@ public class StandEntityRenderer<
 		renderState.standId = entity.getStandId();
 		Optional<ResourceLocation> selectedSkin = entity.getStandSkin();
 		StandSkinsLoader standSkins = StandSkinsLoader.getInstance();
-		renderState.defaultSkin = standSkins.getDefaultSkin(renderState.standId);
 		renderState.skin = standSkins.getSkinFromId(renderState.standId, selectedSkin);
-		if (renderState.skin == null) renderState.skin = renderState.defaultSkin;
+		if (renderState.skin == null) renderState.skin = standSkins.getDefaultSkin(renderState.standId);
 
 		renderState.visibleParts = HumanoidPart.ALL;
 		
@@ -112,7 +111,6 @@ public class StandEntityRenderer<
 	}
 	
 	public void extractSkinMenuRenderState(S renderState, StandSkin skin, ResourceLocation standId, float ticks) {
-		renderState.defaultSkin = StandSkinsLoader.getInstance().getDefaultSkin(standId);
 		renderState.skin = skin;
 		renderState.visibleParts = HumanoidPart.ALL;
 		renderState.standId = standId;
@@ -126,7 +124,7 @@ public class StandEntityRenderer<
 		if (renderState.skin != null) {
 			EntityActionRenderState action = renderState.action;
 			if (action.animId != null) {
-				AnimWithExtras anim = renderState.skin.getStandAnimation(anims -> anims.getNamedAnim(action.animId), renderState.defaultSkin);
+				AnimWithExtras anim = renderState.skin.getStandAnimation(anims -> anims.getNamedAnim(action.animId));
 				return anim;
 			}
 		}
@@ -138,7 +136,7 @@ public class StandEntityRenderer<
 //	@Override // 1.21.1+
 	public ResourceLocation getTextureLocation(S renderState) {
 		StandSkin standSkin = renderState.skin;
-		ResourceLocation texture = standSkin != null ? standSkin.getStandTexture(renderState.defaultSkin, MISSING_TEXTURE) : null;
+		ResourceLocation texture = standSkin != null ? standSkin.getStandTexture(MISSING_TEXTURE) : null;
 		return texture != null ? texture : MISSING_TEXTURE;
 	}
 	
@@ -157,11 +155,11 @@ public class StandEntityRenderer<
 
 	protected void setModelFrom(S renderState) {
 		StandSkin standSkin = renderState.skin;
-		this.model = standSkin != null ? (M) standSkin.getStandModel(this, renderState.defaultSkin) : null;
+		this.model = standSkin != null ? (M) standSkin.getStandModel(this) : null;
 		if (this.model == null) {
 			this.model = missingSkinModel.get();
 			if (standSkin != null) {
-				renderState.tint = standSkin.getColor(renderState.defaultSkin);
+				renderState.tint = standSkin.getColor();
 			}
 		}
 	}

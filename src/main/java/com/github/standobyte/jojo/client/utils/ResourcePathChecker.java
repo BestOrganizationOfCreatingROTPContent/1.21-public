@@ -34,10 +34,6 @@ public class ResourcePathChecker {
 		return resourceExists() ? path : orDefault.get();
 	}
 	
-	public ResourceLocation getPath() {
-		return path;
-	}
-	
 	public boolean resourceExists() {
 		if (!checked) {
 			resourceExists = resourceExists(path);

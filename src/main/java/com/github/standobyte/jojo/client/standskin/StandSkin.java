@@ -13,12 +13,12 @@ import com.github.standobyte.jojo.client.entityrender.stand.StandEntityModel;
 import com.github.standobyte.jojo.client.entityrender.stand.StandEntityRenderState;
 import com.github.standobyte.jojo.client.entityrender.stand.StandEntityRenderer;
 import com.github.standobyte.jojo.client.standskin.sound.CustomPathSound;
+import com.github.standobyte.jojo.client.ui.utils.GuiIcon;
 import com.github.standobyte.jojo.client.utils.ResourcePathChecker;
 import com.github.standobyte.jojo.powersystem.standpower.entity.StandEntity;
 
 import net.minecraft.client.model.Model;
 import net.minecraft.client.model.geom.builders.LayerDefinition;
-import net.minecraft.client.renderer.texture.TextureAtlasSprite;
 import net.minecraft.client.resources.sounds.Sound;
 import net.minecraft.client.sounds.WeighedSoundEvents;
 import net.minecraft.network.chat.Component;
@@ -28,6 +28,7 @@ import net.minecraft.resources.ResourceLocation;
 public class StandSkin {
 	public final ResourceLocation skinId;
 	public final ResourceLocation standTypeId;
+	protected StandSkin defaultSkin;
 	public final boolean isDefault;
 	public final Optional<ResourceLocation> nonDefaultId;
 	protected final ResourcePathChecker standTexture;
@@ -45,6 +46,7 @@ public class StandSkin {
 	protected Map<ResourceLocation, ResourceLocation> existingSounds = new HashMap<>();
 	protected Map<ResourceLocation, Sound> remappedSound = new HashMap<>();
 	
+	protected Optional<GuiIcon> standIcon;
 	protected final Map<ResourceLocation, ResourcePathChecker> remapPathCache = new HashMap<>();
 	
 	public StandSkin(ResourceLocation skinId, ResourceLocation standId, OptionalInt color) {
@@ -88,45 +90,40 @@ public class StandSkin {
 	}
 
 	
-	@Deprecated
 	public int getColor() {
-		return this.color.orElse(0xffffffff);
-	}
-	
-	public int getColor(StandSkin defaultSkin) {
 		if (this.color.isPresent()) {
 			return this.color.getAsInt();
 		}
-		if (this != defaultSkin && defaultSkin.color.isPresent()) {
+		if (this != defaultSkin && defaultSkin != null && defaultSkin.color.isPresent()) {
 			return defaultSkin.color.getAsInt();
 		}
 		return 0xffffff;
 	}
 	
-	public ResourceLocation getTexture(ResourceLocation path, StandSkin defaultSkin) {
-		return getTexture(path, defaultSkin, path);
+	public ResourceLocation getTexture(ResourceLocation path) {
+		return getTexture(path, path);
 	}
 	
-	public ResourceLocation getTexture(ResourceLocation path, StandSkin defaultSkin, ResourceLocation defaultTex) {
+	public ResourceLocation getTexture(ResourceLocation path, ResourceLocation defaultTex) {
 		ResourcePathChecker remapped = remapAssetPath(path);
 		if (this != defaultSkin && defaultSkin != null) {
-			return remapped.or(() -> defaultSkin.getTexture(path, defaultSkin, defaultTex));
+			return remapped.or(() -> defaultSkin.getTexture(path, defaultTex));
 		}
 		else {
 			return remapped.or(defaultTex);
 		}
 	}
 	
-	public ResourceLocation getStandTexture(StandSkin defaultSkin, ResourceLocation defaultTex) {
+	public ResourceLocation getStandTexture(ResourceLocation defaultTex) {
 		if (this != defaultSkin && defaultSkin != null) {
-			return this.standTexture.or(() -> defaultSkin.getStandTexture(defaultSkin, defaultTex));
+			return this.standTexture.or(() -> defaultSkin.getStandTexture(defaultTex));
 		}
 		else {
 			return this.standTexture.or(defaultTex);
 		}
 	}
 	
-	public Model getModel(ResourceLocation modelPath, StandEntityRenderer<?, ?, ?> entityRenderer, StandSkin defaultSkin) {
+	public Model getModel(ResourceLocation modelPath, StandEntityRenderer<?, ?, ?> entityRenderer) {
 		Optional<Model> cached = createdModelsCache.get(modelPath);
 		if (cached != null) {
 			return cached.orElse(null);
@@ -139,7 +136,7 @@ public class StandSkin {
 		}
 		
 		if (this != defaultSkin) {
-			return defaultSkin.getModel(modelPath, entityRenderer, defaultSkin);
+			return defaultSkin.getModel(modelPath, entityRenderer);
 		}
 		
 		return null;
@@ -150,7 +147,7 @@ public class StandSkin {
 		S extends StandEntityRenderState, 
 		M extends StandEntityModel<T, S>> 
 	M getStandModel(
-			StandEntityRenderer<T, S, M> entityRenderer, StandSkin defaultSkin) {
+			StandEntityRenderer<T, S, M> entityRenderer) {
 		if (this.createdStandModelCache != null) {
 			return (M) createdStandModelCache.orElse(null);
 		}
@@ -160,25 +157,25 @@ public class StandSkin {
 		}
 		
 		if (this != defaultSkin) {
-			return defaultSkin.getStandModel(entityRenderer, defaultSkin);
+			return defaultSkin.getStandModel(entityRenderer);
 		}
 		
 		return null;
 	}
 	
-	public LayerDefinition getModelDef(ResourceLocation modelId, StandSkin defaultSkin) {
+	public LayerDefinition getModelDef(ResourceLocation modelId) {
 		LayerDefinition model = models.get(modelId);
 		if (model != null || this == defaultSkin) {
 			return model;
 		}
 		
 		if (defaultSkin != null) {
-			return defaultSkin.getModelDef(modelId, defaultSkin);
+			return defaultSkin.getModelDef(modelId);
 		}
 		return null;
 	}
 	
-	public LayerDefinition getStandModelDef(StandSkin defaultSkin) {
+	public LayerDefinition getStandModelDef() {
 		if (standModel != null) {
 			return standModel;
 		}
@@ -189,7 +186,7 @@ public class StandSkin {
 		return null;
 	}
 	
-	public AnimWithExtras getAnimation(ResourceLocation modelId, Function<AnimationSet, AnimWithExtras> getAnim, StandSkin defaultSkin) {
+	public AnimWithExtras getAnimation(ResourceLocation modelId, Function<AnimationSet, AnimWithExtras> getAnim) {
 		AnimationSet anims = this.animations.get(modelId);
 		if (anims != null || this == defaultSkin) {
 			AnimWithExtras anim = getAnim.apply(anims);
@@ -199,12 +196,12 @@ public class StandSkin {
 		}
 		
 		if (defaultSkin != null) {
-			return defaultSkin.getAnimation(modelId, getAnim, defaultSkin);
+			return defaultSkin.getAnimation(modelId, getAnim);
 		}
 		return null;
 	}
 	
-	public AnimWithExtras getStandAnimation(Function<AnimationSet, AnimWithExtras> getAnim, StandSkin defaultSkin) {
+	public AnimWithExtras getStandAnimation(Function<AnimationSet, AnimWithExtras> getAnim) {
 		if (this.standEntityAnims != null) {
 			AnimWithExtras anim = getAnim.apply(this.standEntityAnims);
 			if (anim != null) {
@@ -218,27 +215,38 @@ public class StandSkin {
 		return null;
 	}
 	
-	public TextureAtlasSprite getAbilityIcon(String abilityName) {
-		return StandSkinsLoader.getInstance().abilityIcons.getAbilityIcon(abilityName, this);
+	public GuiIcon getStandIcon() {
+		if (standIcon == null) {
+			ResourcePathChecker iconPath = remapAssetPath(standTypeId.withPath("textures/stand_icon.png"));
+			boolean createIcon = this == defaultSkin || iconPath.resourceExists();
+			this.standIcon = createIcon ? Optional.of(new GuiIcon(iconPath.path, 16, 16)) : null;
+		}
+		if (standIcon != null) {
+			return standIcon.get();
+		}
+		if (defaultSkin != null && this != defaultSkin) {
+			return defaultSkin.getStandIcon();
+		}
+		throw new IllegalStateException();
 	}
 	
-//	public WeighedSoundEvents getSoundEvent(SoundEvent soundEvent, StandSkin defaultSkin) {
-//		return getSoundEvent(soundEvent.location(), defaultSkin);
+//	public WeighedSoundEvents getSoundEvent(SoundEvent soundEvent) {
+//		return getSoundEvent(soundEvent.location());
 //	}
 	
-	public WeighedSoundEvents getSoundEvent(ResourceLocation soundEventLocation, StandSkin defaultSkin) {
+	public WeighedSoundEvents getSoundEvent(ResourceLocation soundEventLocation) {
 		WeighedSoundEvents sound = this.soundEvents.get(soundEventLocation);
 		if (sound != null) {
 			return sound;
 		}
 		
 		if (this != defaultSkin && defaultSkin != null) {
-			return defaultSkin.getSoundEvent(soundEventLocation, defaultSkin);
+			return defaultSkin.getSoundEvent(soundEventLocation);
 		}
 		return null;
 	}
 	
-	public Sound overrideSound(Sound sound, StandSkin defaultSkin) {
+	public Sound overrideSound(Sound sound) {
 		ResourceLocation key = sound.getLocation();
 		Sound cached = remappedSound.get(key);
 		if (cached != null) {
@@ -250,7 +258,7 @@ public class StandSkin {
 		}
 		
 		if (this != defaultSkin) {
-			return defaultSkin.overrideSound(sound, defaultSkin);
+			return defaultSkin.overrideSound(sound);
 		}
 		return null;
 	}

@@ -13,12 +13,14 @@ import net.neoforged.neoforge.client.event.ClientTickEvent;
 
 @EventBusSubscriber(modid = JojoMod.MOD_ID, value = Dist.CLIENT)
 public class ClientTickHandler {
+	public static int tickCount;
 
 	@SubscribeEvent
 	public static void onClientTick(ClientTickEvent.Pre event) {
 		Minecraft mc = Minecraft.getInstance();
 		ClientGlobals.tick(mc);
 		ClientEntityController.clientTickPre();
+		++tickCount;
 	}
 
 	@SubscribeEvent

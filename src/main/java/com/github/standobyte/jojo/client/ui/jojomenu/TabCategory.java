@@ -11,6 +11,7 @@ import com.github.standobyte.jojo.client.ui.utils.GuiIcon;
 import com.github.standobyte.jojo.powersystem.Power;
 import com.github.standobyte.jojo.powersystem.PowerClass;
 import com.github.standobyte.jojo.powersystem.PowerType;
+import com.mojang.blaze3d.systems.RenderSystem;
 
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphics;
@@ -94,7 +95,10 @@ public class TabCategory implements IJojoMenuTab {
 	public void renderIcon(GuiGraphics guiGraphics, int x, int y) {
 		GuiIcon icon = getIcon();
 		if (icon != null) {
+			RenderSystem.enableBlend();
+			RenderSystem.defaultBlendFunc();
 			icon.render(guiGraphics.pose(), x, y);
+			RenderSystem.disableBlend();
 		}
 	}
 	

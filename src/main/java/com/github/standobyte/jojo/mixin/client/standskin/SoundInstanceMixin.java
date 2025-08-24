@@ -27,7 +27,6 @@ public class SoundInstanceMixin implements SoundInstanceWithStandSkin {
 	private ResourceLocation jojo_ripples$standId;
 	private Optional<ResourceLocation> jojo_ripples$selectedStandSkin;
 	private StandSkin jojo_ripples$standSkin;
-	private StandSkin jojo_ripples$defaultStandSkin;
 	
 	@Override
 	public void jojo_ripples$setStandSkin(ResourceLocation standId, Optional<ResourceLocation> standSkin) {
@@ -40,12 +39,11 @@ public class SoundInstanceMixin implements SoundInstanceWithStandSkin {
 		if (jojo_ripples$standId != null) {
 			StandSkinsLoader standSkinsLoader = StandSkinsLoader.getInstance();
 			jojo_ripples$standSkin = standSkinsLoader.getSkinFromId(jojo_ripples$standId, jojo_ripples$selectedStandSkin);
-			jojo_ripples$defaultStandSkin = standSkinsLoader.getDefaultSkin(jojo_ripples$standId);
 			if (jojo_ripples$standSkin == null) {
-				jojo_ripples$standSkin = jojo_ripples$defaultStandSkin;
+				jojo_ripples$standSkin = standSkinsLoader.getDefaultSkin(jojo_ripples$standId);
 			}
 			if (jojo_ripples$standSkin != null) {
-				WeighedSoundEvents standSkinSoundEvent = jojo_ripples$standSkin.getSoundEvent(location, jojo_ripples$defaultStandSkin);
+				WeighedSoundEvents standSkinSoundEvent = jojo_ripples$standSkin.getSoundEvent(location);
 				if (standSkinSoundEvent != null) {
 					return standSkinSoundEvent;
 				}
@@ -58,7 +56,7 @@ public class SoundInstanceMixin implements SoundInstanceWithStandSkin {
 	@Inject(method = "resolve", at = @At("TAIL"))
 	public void jojo_ripples$overrideSoundFile(SoundManager handler, CallbackInfoReturnable<WeighedSoundEvents> ci) {
 		if (jojo_ripples$standSkin != null && this.sound != SoundManager.INTENTIONALLY_EMPTY_SOUND) {
-			Sound standSkinSound = jojo_ripples$standSkin.overrideSound(sound, jojo_ripples$defaultStandSkin);
+			Sound standSkinSound = jojo_ripples$standSkin.overrideSound(sound);
 			if (standSkinSound != null) {
 				this.sound = standSkinSound;
 			}

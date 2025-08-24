@@ -8,7 +8,6 @@ import net.minecraft.resources.ResourceLocation;
 
 public class StandEntityRenderState extends HumanoidRenderState {
 	public ResourceLocation standId;
-	public StandSkin defaultSkin;
 	public StandSkin skin;
 	public final EntityActionRenderState action = new EntityActionRenderState();
 	public int tint = -1;
