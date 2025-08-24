@@ -339,6 +339,7 @@ public class PowerHud {
 						}
 					}
 					
+					// TODO (!) translatable names
 					String line = bindName + ": " + ability.ability.abilityId.nameInMoveset();
 					int width = font.width(line);
 					guiGraphics.drawString(font, line, x, y, nameColor);

@@ -76,7 +76,7 @@ public class JojoMenuTabs {
 	
 	public static final Tab STAND_SKILLS = new Tab(CATEGORY_STAND)
 			.withName(Component.translatable(JojoMod.MOD_ID + ".menu.stand.skills"))
-			.withScreen(tab -> new PlaceholderScreen(Component.empty(), tab.category, tab, JojoMod.resLoc("textures/gui/paper_style/stand_skills.png")))
+			.withScreen(tab -> new StandSkillsScreen(Component.empty(), tab.category, tab))
 			.withIcon(/*standSkillsIcon*/ placeholder);
 	
 	public static final Tab STAND_SKINS = new Tab(CATEGORY_STAND) {

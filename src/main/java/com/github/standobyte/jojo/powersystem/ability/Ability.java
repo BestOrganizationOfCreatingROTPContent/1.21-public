@@ -18,6 +18,7 @@ import com.google.gson.JsonObject;
 
 import net.minecraft.client.Minecraft;
 import net.minecraft.network.FriendlyByteBuf;
+import net.minecraft.network.chat.Component;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.level.Level;
 
@@ -25,10 +26,16 @@ import net.minecraft.world.level.Level;
 public class Ability {
 	public final AbilityType<?> abilityType;
 	public final AbilityId abilityId;
+	protected Component name;
 
 	public Ability(AbilityType<?> abilityType, AbilityId abilityId) {
 		this.abilityType = abilityType;
 		this.abilityId = abilityId;
+		this.name = Component.translatable("jojo_ripples.ability." + abilityId.nameInMoveset());
+	}
+	
+	public Component getName(Power<?> context) {
+		return name;
 	}
 	
 	

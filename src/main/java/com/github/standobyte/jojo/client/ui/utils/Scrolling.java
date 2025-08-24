@@ -1,0 +1,108 @@
+package com.github.standobyte.jojo.client.ui.utils;
+
+import javax.annotation.Nullable;
+
+import net.minecraft.client.Minecraft;
+import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.util.Mth;
+
+public class Scrolling {
+	public int uiHeight;
+	public int fullHeight;
+	public float heightRatio;
+	public float scrollSpeed = 8;
+	
+	public float scrollOffset;
+	
+	public Scrolling(int uiHeight, int fullHeight) {
+		this.uiHeight = uiHeight;
+		setFullHeight(fullHeight);
+	}
+	
+	public void setFullHeight(int fullHeight) {
+		this.fullHeight = fullHeight;
+		this.heightRatio = (float) uiHeight / (float) fullHeight;
+		setScrollOffset(scrollOffset); // to clamp
+	}
+	
+	public int getMaxScrollOffset() {
+		return fullHeight - uiHeight;
+	}
+	
+	public void scroll(double scrollDir) {
+		setScrollOffset(this.scrollOffset + (float) scrollDir * scrollSpeed);
+	}
+	
+	public void setScrollOffset(float offset) {
+		this.scrollOffset = Mth.clamp(offset, -getMaxScrollOffset(), 0);
+	}
+	
+	
+	public void pushOffsetScissor(GuiGraphics guiGraphics, int y, int x0, int x1) {
+		guiGraphics.pose().pushPose();
+		guiGraphics.pose().translate(0, scrollOffset, 0);
+		guiGraphics.enableScissor(x0, y, x1, y + uiHeight);
+	}
+	
+	public void pop(GuiGraphics guiGraphics) {
+		guiGraphics.disableScissor();
+		guiGraphics.pose().popPose();
+	}
+	
+	@Nullable
+	public int[] getScrollBarBounds() {
+		return getScrollBarBounds(calcScrollBarHeight());
+	}
+	
+	public int calcScrollBarHeight() {
+		return (int) (uiHeight * heightRatio);
+	}
+	
+	@Nullable
+	public int[] getScrollBarBounds(int barHeight) {
+		if (getMaxScrollOffset() <= 0) {
+			return null;
+		}
+		int barTop = (int) ((float) (uiHeight - barHeight) * (-scrollOffset / (float) getMaxScrollOffset()));
+		return new int[] { barTop, barTop + barHeight };
+	}
+	
+	public void renderScrollBar(float x, float y, GuiGraphics guiGraphics, GuiIcon sprite, int usePixelsFromBottom) {
+		int barHeight = calcScrollBarHeight();
+		int[] bounds = getScrollBarBounds(barHeight);
+		if (bounds == null) return;
+		y += bounds[0];
+		
+		if (usePixelsFromBottom != 69 && barHeight < sprite.height) {
+			int bottomHalfHeight = usePixelsFromBottom;
+			int topHalfHeight = barHeight - usePixelsFromBottom;
+			float topHalfHeightV = (float) topHalfHeight / sprite.texHeight;
+			float bottomHalfHeightV = (float) bottomHalfHeight / sprite.texHeight;
+			
+			BlitFloat.blit(guiGraphics.pose(), Minecraft.getInstance(), sprite.file, 
+					x, y, sprite.width, topHalfHeight, 0, 
+					sprite.minU, sprite.minV, sprite.widthU, topHalfHeightV, 1, 1, 
+					BlitFloat.NO_TINT);
+			
+			BlitFloat.blit(guiGraphics.pose(), Minecraft.getInstance(), sprite.file, 
+					x, y + topHalfHeight, sprite.width, barHeight - topHalfHeight, 0, 
+					sprite.minU, sprite.minV + sprite.heightV - bottomHalfHeightV, sprite.widthU, bottomHalfHeightV, 1, 1, 
+					BlitFloat.NO_TINT);
+		}
+		else {
+			BlitFloat.blit(guiGraphics.pose(), Minecraft.getInstance(), sprite.file, 
+					x, y, sprite.width, sprite.height, 0, 
+					sprite.minU, sprite.minV, sprite.widthU, sprite.heightV, 1, 1, 
+					BlitFloat.NO_TINT);
+		}
+		
+	}
+	
+	public int getYHovered(int uiPosY, int mouseY) {
+		if (mouseY < uiPosY || mouseY > uiPosY + uiHeight) {
+			return -1;
+		}
+		return (int) (mouseY - uiPosY - scrollOffset);
+	}
+
+}

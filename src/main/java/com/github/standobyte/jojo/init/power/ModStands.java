@@ -9,6 +9,7 @@ import com.github.standobyte.jojo.powersystem.ability.controls.InputKey;
 import com.github.standobyte.jojo.powersystem.ability.controls.InputMethod;
 import com.github.standobyte.jojo.powersystem.entityaction.ActionPhase;
 import com.github.standobyte.jojo.powersystem.standpower.StandStats;
+import com.github.standobyte.jojo.powersystem.standpower.StandUnlockableSkill;
 import com.github.standobyte.jojo.powersystem.standpower.entity.EntityStandType;
 import com.github.standobyte.jojo.powersystem.standpower.type.StandType;
 
@@ -121,6 +122,21 @@ public class ModStands {
 //					.inHotbar(0, InputMethod.HOLD)
 					
 //					.addAbility("time_stop", ModStandAbilities.TIME_STOP)
+					
+					
+					.addSkill(StandUnlockableSkill.startingAbility("punch"))
+					.addSkill(StandUnlockableSkill.startingAbility("heavy_punch"))
+					.addSkill(StandUnlockableSkill.unlockableAbility("uppercut", 1).prerequisiteSkill("heavy_punch"))
+					.addSkill(StandUnlockableSkill.unlockableAbility("heavy_charged", 1).prerequisiteSkill("heavy_punch"))
+					.addSkill(StandUnlockableSkill.startingAbility("barrage"))
+					.addSkill(StandUnlockableSkill.unlockableAbility("grab", 1))
+					.addSkill(StandUnlockableSkill.unlockableAbility("grabbed_throw", 1).prerequisiteSkill("grab"))
+					.addSkill(StandUnlockableSkill.unlockableAbility("placeholder1", 1))
+					.addSkill(StandUnlockableSkill.unlockableAbility("placeholder2", 1))
+					.addSkill(StandUnlockableSkill.unlockableAbility("placeholder3", 1))
+					.addSkill(StandUnlockableSkill.unlockableAbility("placeholder4", 1))
+					.addSkill(StandUnlockableSkill.unlockableAbility("placeholder5", 1))
+					.addSkill(StandUnlockableSkill.unlockableAbility("placeholder6", 1))
 
 					, id));
 	

@@ -6,7 +6,6 @@ import javax.annotation.Nullable;
 
 import com.github.standobyte.jojo.client.ui.utils.BlitFloat;
 import com.github.standobyte.jojo.core.JojoMod;
-import com.github.standobyte.v1_21_4_stuff.missingmethods._Screen;
 
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphics;
@@ -74,7 +73,8 @@ public interface IJojoMenuScreen {
 		if (tab != null) {
 			Component name = tab.getName();
 			if (name != null) {
-				guiGraphics.renderTooltip(_Screen.getFont(screen), name, mouseX, mouseY);
+				screen.setTooltipForNextRenderPass(name);
+//				guiGraphics.renderTooltip(_Screen.getFont(screen), name, mouseX, mouseY);
 			}
 		}
 	}

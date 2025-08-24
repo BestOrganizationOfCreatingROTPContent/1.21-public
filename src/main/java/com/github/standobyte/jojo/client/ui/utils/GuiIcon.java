@@ -9,6 +9,9 @@ import net.minecraft.resources.ResourceLocation;
 
 public class GuiIcon {
 	public final ResourceLocation file;
+	public final float texWidth;
+	public final float texHeight;
+	
 	public final float width;
 	public final float height;
 	public final float minU;
@@ -26,6 +29,8 @@ public class GuiIcon {
 			float widthU, float heightV, 
 			float texWidth, float texHeight) {
 		this.file = file;
+		this.texWidth = texWidth;
+		this.texHeight = texHeight;
 		this.width = widthU;
 		this.height = heightV;
 		this.minU = offsetU / texWidth;

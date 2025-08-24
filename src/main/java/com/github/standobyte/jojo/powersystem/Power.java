@@ -10,6 +10,8 @@ import org.jetbrains.annotations.ApiStatus;
 import com.github.standobyte.jojo.core.JojoMod;
 import com.github.standobyte.jojo.powersystem.ability.Ability;
 import com.github.standobyte.jojo.powersystem.ability.condition.AvailableAbilities;
+import com.github.standobyte.jojo.powersystem.skill.UserUnlockedSkills;
+import com.github.standobyte.jojo.util.NBTUtil;
 import com.github.standobyte.jojo.util.entitycomponent.SynchronizablePlayerData;
 import com.github.standobyte.jojo.util.entitycomponent.TickingEntityData;
 
@@ -24,6 +26,7 @@ public abstract class Power<P extends Power<P>> implements SynchronizablePlayerD
 	@Nonnull protected final LivingEntity user;
 	protected final Optional<ServerPlayer> serverPlayerUser;
 	protected Moveset moveset;
+	protected UserUnlockedSkills unlockedSkills = new UserUnlockedSkills();
 	
 	public Power(LivingEntity user) {
 		this.user = user;
@@ -98,6 +101,7 @@ public abstract class Power<P extends Power<P>> implements SynchronizablePlayerD
 
 	@Override
 	public void syncToPlayer(ServerPlayer user) {
+		// TODO (skill unlocking) sync to user
 	}
 
 	@Override
@@ -117,11 +121,13 @@ public abstract class Power<P extends Power<P>> implements SynchronizablePlayerD
 	@Override
 	public CompoundTag serializeNBT(HolderLookup.Provider provider) {
 		CompoundTag nbt = new CompoundTag();
+		nbt.put("skills", unlockedSkills.toNBT());
 		return nbt;
 	}
 
 	@Override
 	public void deserializeNBT(HolderLookup.Provider provider, CompoundTag nbt) {
+		NBTUtil.getCompoundOptional(nbt, "skills").ifPresent(unlockedSkills::fromNBT);
 	}
 	
 	

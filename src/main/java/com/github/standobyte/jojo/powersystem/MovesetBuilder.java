@@ -1,6 +1,7 @@
 package com.github.standobyte.jojo.powersystem;
 
 import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.function.Consumer;
 import java.util.function.Supplier;
@@ -18,12 +19,14 @@ import com.github.standobyte.jojo.powersystem.ability.config.ConfigAbilityFactor
 import com.github.standobyte.jojo.powersystem.ability.controls.ControlSchemeTemplate;
 import com.github.standobyte.jojo.powersystem.ability.controls.InputKey;
 import com.github.standobyte.jojo.powersystem.ability.controls.InputMethod;
+import com.github.standobyte.jojo.powersystem.skill.UnlockableSkill;
 
 import net.minecraft.resources.ResourceLocation;
 
 @ApiStatus.NonExtendable
 public class MovesetBuilder {
-	protected final Map<String, ConfigAbilityFactory<?>> abilities = new HashMap<>();
+	public final Map<String, ConfigAbilityFactory<?>> abilities = new HashMap<>();
+	public final Map<String, UnlockableSkill> unlockableSkills = new LinkedHashMap<>();
 	@ApiStatus.Internal
 	public ControlSchemeTemplate _controlScheme = new ControlSchemeTemplate();
 //	protected final Set<String> disable = new HashSet<>();
@@ -34,8 +37,20 @@ public class MovesetBuilder {
 		for (var abilityEntry : abilities.entrySet()) {
 			copy.abilities.put(abilityEntry.getKey(), abilityEntry.getValue().copy());
 		}
+		copy.unlockableSkills.putAll(this.unlockableSkills);
 		copy._controlScheme = this._controlScheme.deepCopy();
 		return copy;
+	}
+	
+	public Moveset build(PowerClass<?> powerClass, ResourceLocation powerTypeId) {
+		Map<String, Ability> abilities = this.abilities.entrySet().stream()
+//				.filter(ability -> !disable.contains(ability.getKey()))
+				.collect(Collectors.toMap(
+						Map.Entry::getKey, 
+						entry -> entry.getValue().makeAbility(new AbilityId(powerClass, powerTypeId, entry.getKey()))));
+		Moveset moveset = new Moveset(abilities, powerClass, powerTypeId);
+		moveset.controlScheme = this._controlScheme;
+		return moveset;
 	}
 	
 	
@@ -50,7 +65,6 @@ public class MovesetBuilder {
 		return this;
 	}
 	
-	
 	public <A extends Ability> MovesetBuilder addAbility(String abilityName, Supplier<? extends AbilityType<A>> abilityType) {
 		return addAbility(abilityName, abilityType.get());
 	}
@@ -59,6 +73,12 @@ public class MovesetBuilder {
 			Consumer<A> setParameters) {
 		return addAbility(abilityName, abilityType.get(), setParameters);
 	}
+	
+	
+//	public MovesetBuilder disableAbility(String abilityName) {
+//		disable.add(abilityName);
+//		return this;
+//	}
 
 	
 	// shortcuts for some common abilities
@@ -90,7 +110,7 @@ public class MovesetBuilder {
 	}
 	
 	
-	// Control scheme stuff here
+	// Control scheme stuff
 	
 	protected String lastAbility;
 	
@@ -129,24 +149,11 @@ public class MovesetBuilder {
 		return this;
 	}
 	
-	// Control scheme stuff over
+	// Unlockable skill stuff
 	
-	
-//	public MovesetBuilder disableAbility(String abilityName) {
-//		disable.add(abilityName);
-//		return this;
-//	}
-	
-	
-	public Moveset build(PowerClass<?> powerClass, ResourceLocation powerTypeId) {
-		Map<String, Ability> abilities = this.abilities.entrySet().stream()
-//				.filter(ability -> !disable.contains(ability.getKey()))
-				.collect(Collectors.toMap(
-						Map.Entry::getKey, 
-						entry -> entry.getValue().makeAbility(new AbilityId(powerClass, powerTypeId, entry.getKey()))));
-		Moveset moveset = new Moveset(abilities, powerClass, powerTypeId);
-		moveset.controlScheme = this._controlScheme;
-		return moveset;
+	public MovesetBuilder addSkill(UnlockableSkill skill) {
+		unlockableSkills.put(skill.skillName, skill);
+		return this;
 	}
 	
 }

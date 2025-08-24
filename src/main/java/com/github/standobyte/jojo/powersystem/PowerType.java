@@ -1,9 +1,12 @@
 package com.github.standobyte.jojo.powersystem;
 
+import java.util.Collection;
+
 import org.jetbrains.annotations.ApiStatus;
 
 import com.github.standobyte.jojo.core.config.DefaultedValue;
 import com.github.standobyte.jojo.core.config.JsonConfigurable;
+import com.github.standobyte.jojo.powersystem.skill.UnlockableSkill;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 
@@ -77,6 +80,11 @@ public abstract class PowerType implements JsonConfigurable {
 	public Moveset makeMoveset(Power<?> userPower) {
 		Moveset moveset = this.movesetConfigured.value.build(getPowerClass(), getId());
 		return moveset;
+	}
+	
+	
+	public Collection<UnlockableSkill> getUnlockableSkills() {
+		return this.movesetConfigured.value.unlockableSkills.values();
 	}
 	
 }

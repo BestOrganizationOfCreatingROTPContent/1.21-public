@@ -179,7 +179,6 @@ public class InputHandler {
 		
 		switch (inputType) {
 			case InputConstants.PRESS -> {
-				// TODO ability HUD
 				if (power == null) return false;
 				
 				KeyModifier keyModifier = getCurModifier();
@@ -304,7 +303,6 @@ public class InputHandler {
 				var changedState = keyResolution.frameUpdate(tickDelta);
 				if (changedState != null) {
 					switch (changedState.input()) {
-						// TODO (!!!!) only set the animation for the held ability action to the entity, but not the actual action yet
 						case ASSUME_HOLD -> {}
 						case HOLD -> {
 							Power<?> power = keyResolution.power;
