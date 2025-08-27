@@ -1,4 +1,4 @@
-package com.github.standobyte.jojo.mixin.client.text;
+package com.github.standobyte.jojo.mixin.client.text.icon;
 
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
@@ -12,7 +12,7 @@ import net.minecraft.client.gui.font.FontSet;
 import net.minecraft.client.gui.font.glyphs.BakedGlyph;
 
 @Mixin(FontSet.class)
-public class IconGlyphFontSetMixin {
+public class FontSetMixin {
 
 	@Inject(method = "computeGlyphInfo", at = @At("HEAD"), cancellable = true)
 	public void jojo_ripples$customIconGlyphInfo(int character, CallbackInfoReturnable<FontSet.GlyphInfoFilter> ci) {

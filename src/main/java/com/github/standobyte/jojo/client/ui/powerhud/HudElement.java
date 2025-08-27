@@ -3,12 +3,14 @@ package com.github.standobyte.jojo.client.ui.powerhud;
 import org.jetbrains.annotations.ApiStatus;
 
 import com.github.standobyte.jojo.client.ui.powerhud.PowerHud.PrototypeAbilityHud;
+import com.github.standobyte.jojo.client.ui.powerhud.tooltip.MultiLineScreenTooltip;
+import com.github.standobyte.jojo.client.ui.powerhud.tooltip.PowerHudHintTooltipHolder;
+import com.github.standobyte.jojo.client.ui.powerhud.tooltip.TooltipParams;
 
+import net.minecraft.ChatFormatting;
 import net.minecraft.client.DeltaTracker;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphics;
-import net.minecraft.client.gui.components.Tooltip;
-import net.minecraft.client.gui.components.WidgetTooltipHolder;
 import net.minecraft.client.gui.components.events.GuiEventListener;
 import net.minecraft.client.gui.navigation.ScreenPosition;
 import net.minecraft.client.gui.navigation.ScreenRectangle;
@@ -18,7 +20,7 @@ public abstract class HudElement implements GuiEventListener {
 	@ApiStatus.Internal
 	public PrototypeAbilityHud hud;
 	public String name;
-    public final WidgetTooltipHolder tooltip = new WidgetTooltipHolder();
+    public PowerHudHintTooltipHolder tooltip = new PowerHudHintTooltipHolder();
 	protected double xOffsetL;
 	protected double xOffsetR;
 	protected double yOffsetU;
@@ -40,12 +42,19 @@ public abstract class HudElement implements GuiEventListener {
 				&& mouseX < this.getX() + this.getWidth()
 				&& mouseY < this.getY() + this.getHeight();
 		renderElement(guiGraphics, deltaTracker);
-		this.tooltip.refreshTooltipForNextRenderPass(isHovered, this.isFocused(), this.getRectangle());
+		checkTooltip(mouseX, mouseY);
 	}
 	
 	public void render(GuiGraphics guiGraphics, DeltaTracker deltaTracker) {
 		updateRectangle();
 		renderElement(guiGraphics, deltaTracker);
+	}
+	
+	protected void checkTooltip(double mouseX, double mouseY) {
+		tooltip.refreshTooltipForNextRenderPass(isHovered, this.isFocused(), this.getRectangle());
+		if (tooltip.wasDisplayed) {
+			TooltipParams.set(TooltipParams.paperStyle());
+		}
 	}
 	
 	public HudElement(String name, int x0, int y0, int width, int height) {
@@ -54,7 +63,9 @@ public abstract class HudElement implements GuiEventListener {
 	
 	public HudElement(String name, SnappingH snappingHorizontal, SnappingV snappingVertical, int xOffset, int yOffset, int width, int height) {
 		this.name = name;
-		this.tooltip.set(Tooltip.create(Component.translatable("ripples_hud." + name)));
+		this.tooltip.set(new MultiLineScreenTooltip(
+				Component.translatable("ripples_hud." + name).withStyle(ChatFormatting.BLACK), 
+				Component.translatable("ripples_hud." + name + ".desc").withStyle(ChatFormatting.ITALIC, ChatFormatting.DARK_GRAY)));
 		this.snappingHorizontal = snappingHorizontal;
 		this.snappingVertical = snappingVertical;
 		switch (snappingHorizontal) {

@@ -1,5 +1,7 @@
 package com.github.standobyte.jojo.client.text;
 
+import org.jetbrains.annotations.ApiStatus;
+
 import com.github.standobyte.jojo.client.text.sprite.IconGlyphInfo;
 import com.github.standobyte.jojo.client.text.sprite.IconGlyphsCache;
 import com.github.standobyte.jojo.client.ui.utils.GuiIcon;
@@ -34,6 +36,13 @@ public class IconSymbols {
 			new GuiIcon(JojoMod.resLoc("textures/gui/sprites/damage.png"), 0, 0, 9, 9, 9, 9), 9, 9));
 	public static final char ARMOR = IconGlyphsCache.makeCharCodeFor(new IconGlyphInfo(
 			new GuiIcon(JojoMod.resLoc("textures/gui/sprites/armor.png"), 0, 0, 9, 9, 9, 9), 9, 9));
+	
+	
+	public static boolean canRecolor = false;
+	/* saves the vanilla variable that controls the shadow dimness, so that
+	 * the icon glyph shadows render correctly when canRecolor is false
+	 */
+	@ApiStatus.Internal public static float _curDimFactor = 1;
 	
 	public static boolean spriteExists(char character) {
 		IconGlyphInfo glyph = IconGlyphsCache.get(character);

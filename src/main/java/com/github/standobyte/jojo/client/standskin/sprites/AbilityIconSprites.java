@@ -16,6 +16,7 @@ import org.jetbrains.annotations.ApiStatus;
 
 import com.github.standobyte.jojo.client.standskin.StandSkin;
 import com.github.standobyte.jojo.core.JojoMod;
+import com.github.standobyte.jojo.powersystem.ability.Ability;
 
 import net.minecraft.Util;
 import net.minecraft.client.renderer.texture.SpriteContents;
@@ -55,6 +56,10 @@ public class AbilityIconSprites implements AutoCloseable {
 
 	public TextureAtlasSprite getAbilityIcon(String abilityName) {
 		return getAbilityIcon(abilityName, null);
+	}
+
+	public TextureAtlasSprite getAbilityIcon(Ability ability, @Nullable StandSkin curStandSkin) {
+		return getAbilityIcon(ability.abilityId.nameInMoveset(), curStandSkin);
 	}
 
 	public TextureAtlasSprite getAbilityIcon(String abilityName, @Nullable StandSkin curStandSkin) {

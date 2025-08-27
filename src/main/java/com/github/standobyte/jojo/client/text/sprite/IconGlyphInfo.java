@@ -47,7 +47,7 @@ public class IconGlyphInfo implements GlyphInfo {
 	@Override
 	public BakedGlyph bake(Function<SheetGlyphInfo, BakedGlyph> glyphProvider) {
 		GlyphRenderTypes renderTypes = GlyphRenderTypes.createForColorTexture(icon.file);
-		return new BakedGlyph(renderTypes, 
+		return new IconBakedGlyph(renderTypes, 
 				icon.minU, icon.minU + icon.widthU, icon.minV, icon.minV + icon.heightV, 
 				left, left + width, up, up + height);
 	}

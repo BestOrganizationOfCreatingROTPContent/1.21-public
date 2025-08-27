@@ -35,7 +35,10 @@
     "client.aim.GameRendererMixin",
     "client.aim.HitboxRenderingMixin",
     "client.standshader.MinecraftMixin",
-	"client.text.IconGlyphFontSetMixin",
+	"client.text.icon.FontSetMixin",
+	"client.text.icon.FontStrintRenderOutputMixin",
+	"client.text.tooltip.GuiGraphicsMixin",
+	"client.text.tooltip.ClientTextTooltipMixin",
 	"client.CloseResources"
   ]
 }

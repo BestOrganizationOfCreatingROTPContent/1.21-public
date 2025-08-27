@@ -35,6 +35,7 @@ public class Ability {
 	}
 	
 	public Component getName(Power<?> context) {
+		// TODO ability names in stand skins
 		return name;
 	}
 	

@@ -26,6 +26,7 @@ public class ClientModSettings {
 //		public HudTextRender hudTextRender = HudTextRender.FADE_OUT;
 //		public boolean hudHotbarFold = true;
 //		public boolean showLockedSlots = false;
+		public HotbarMode hotbarMode = HotbarMode.HOTBARS;
 //
 //		public boolean resolveShaders = true;
 //		public boolean timeStopAnimation = true;
@@ -46,6 +47,11 @@ public class ClientModSettings {
 		public boolean hamonAuraBlur = false;
 
 		public final PlayerClientBroadcastedSettings broadcasted = new PlayerClientBroadcastedSettings();
+	}
+	
+	public enum HotbarMode {
+		HOTBARS,
+		WHEEL
 	}
 
 
