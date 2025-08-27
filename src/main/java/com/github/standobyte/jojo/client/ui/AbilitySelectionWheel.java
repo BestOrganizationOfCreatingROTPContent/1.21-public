@@ -9,9 +9,11 @@ import com.github.standobyte.jojo.client.input.controlscheme.ClientControlScheme
 import com.github.standobyte.jojo.client.input.controlscheme.ClientControlScheme.HotbarSlot;
 import com.github.standobyte.jojo.client.standskin.StandSkin;
 import com.github.standobyte.jojo.client.standskin.StandSkinsLoader;
+import com.github.standobyte.jojo.client.ui.powerhud.tooltip.TooltipParams;
 import com.github.standobyte.jojo.client.ui.utils.BlitFloat;
 import com.github.standobyte.jojo.core.JojoMod;
 import com.github.standobyte.jojo.powersystem.Moveset;
+import com.github.standobyte.jojo.powersystem.Power;
 import com.github.standobyte.jojo.powersystem.PowerClass;
 import com.github.standobyte.jojo.powersystem.ability.Ability;
 import com.github.standobyte.jojo.powersystem.ability.controls.InputMethod;
@@ -20,6 +22,7 @@ import com.github.standobyte.v1_21_4_stuff.missingmethods.ARGB;
 import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.blaze3d.vertex.PoseStack;
 
+import net.minecraft.ChatFormatting;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.screens.Screen;
@@ -32,11 +35,13 @@ public class AbilitySelectionWheel extends Screen implements ScreenLetsUseWASD {
 	protected static final ResourceLocation DEFAULT_TEXTURE = JojoMod.resLoc("textures/ability_wheel.png");
 	protected ResourceLocation texture;
 	public ClientControlScheme.Hotbar abilities;
+	public Power<?> power;
 	public Moveset moveset;
 
-	public AbilitySelectionWheel(ClientControlScheme.Hotbar abilities, Moveset moveset) {
+	public AbilitySelectionWheel(ClientControlScheme.Hotbar abilities, Power<?> power, Moveset moveset) {
 		super(Component.translatable("jojo.screen.ability_selection_wheel"));
 		this.abilities = abilities;
+		this.power = power;
 		this.moveset = moveset;
 		
 		StandPower standPower = ClientPowerCache.getPower(PowerClass.STAND);
@@ -105,14 +110,14 @@ public class AbilitySelectionWheel extends Screen implements ScreenLetsUseWASD {
 					if (abilityName != null) {
 						Ability ability = moveset.getAbility(abilityName);
 						if (ability != null) {
-							// TODO proper ability name
-							abilityNames.add(Component.literal(abilityName));
+							abilityNames.add(ability.getName(power).copy().withStyle(ChatFormatting.BLACK));
 						}
 					}
 				}
 			}
 		}
 		if (!abilityNames.isEmpty()) {
+			TooltipParams.set(TooltipParams.paperStyle());
 			guiGraphics.renderComponentTooltip(font, abilityNames, mouseX, mouseY);
 		}
 	}

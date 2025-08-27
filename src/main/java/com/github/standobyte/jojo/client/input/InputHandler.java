@@ -218,7 +218,7 @@ public class InputHandler {
 						var curControls = controlScheme.getCurGroup().getValue();
 						for (ClientControlScheme.Hotbar abilityHotbar : curControls.hotbars) {
 							if (abilityHotbar.switchAbilityKey == key) {
-								mc.setScreen(new AbilitySelectionWheel(abilityHotbar, power.getMoveset()));
+								mc.setScreen(new AbilitySelectionWheel(abilityHotbar, power, power.getMoveset()));
 							}
 						}
 					}

@@ -7,6 +7,7 @@ import com.github.standobyte.jojo.client.standskin.StandSkin;
 import com.github.standobyte.jojo.client.standskin.StandSkinsLoader;
 import com.github.standobyte.jojo.client.standskin.sprites.AbilityIconSprites;
 import com.github.standobyte.jojo.client.text.IconSymbols;
+import com.github.standobyte.jojo.client.ui.powerhud.tooltip.TooltipParams;
 import com.github.standobyte.jojo.client.ui.utils.BlitFloat;
 import com.github.standobyte.jojo.client.ui.utils.TextUtil;
 import com.github.standobyte.jojo.client.ui.utils.GuiIcon;
@@ -18,6 +19,7 @@ import com.github.standobyte.jojo.powersystem.standpower.StandPower;
 import com.github.standobyte.jojo.powersystem.standpower.StandUnlockableSkill;
 import com.google.common.collect.Iterables;
 
+import net.minecraft.ChatFormatting;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.screens.Screen;
@@ -121,10 +123,13 @@ public class StandSkillsScreen extends Screen implements IJojoMenuScreen {
 		}
 		
 		renderTabs(guiGraphics, this);
-		renderTabTooltip(guiGraphics, this, mouseX, mouseY);
 		
 		if (hovered != null) {
-			setTooltipForNextRenderPass(hovered.textName);
+			TooltipParams.set(TooltipParams.paperStyle());
+			setTooltipForNextRenderPass(hovered.textName.copy().withStyle(ChatFormatting.BLACK));
+		}
+		else {
+			renderTabTooltip(guiGraphics, this, mouseX, mouseY);
 		}
 	}
 	

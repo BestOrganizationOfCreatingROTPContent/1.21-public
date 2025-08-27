@@ -27,7 +27,6 @@ import com.google.gson.JsonObject;
 
 import net.minecraft.Util;
 import net.minecraft.network.chat.Component;
-import net.minecraft.network.chat.MutableComponent;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.LivingEntity;
 import net.neoforged.neoforge.common.util.Lazy;
@@ -194,13 +193,13 @@ public class StandType extends PowerType {
 		return PowerClass.STAND;
 	}
 	
-	protected Lazy<MutableComponent> name = Lazy.of(() -> Component.translatable(Util.makeDescriptionId("stand", this.getId())));
+	protected Lazy<Component> name = Lazy.of(() -> Component.translatable(Util.makeDescriptionId("stand", this.getId())));
 	@Override
 	public Component getName(Power<?> playerPowerData) {
-		MutableComponent name = this.name.get();
+		Component name = this.name.get();
 		if (playerPowerData.getUser().level().isClientSide()) {
 			int color = StandSkinsLoader.getInstance().getSkin(((StandPower) playerPowerData)).getColor();
-			return name.withColor(color);
+			return name.copy().withColor(color);
 		}
 		return name;
 	}
