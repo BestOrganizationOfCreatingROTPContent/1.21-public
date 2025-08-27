@@ -17,6 +17,7 @@ import com.github.standobyte.jojo.util.entitycomponent.TickingEntityData;
 
 import net.minecraft.core.HolderLookup;
 import net.minecraft.nbt.CompoundTag;
+import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.player.Player;
@@ -92,6 +93,11 @@ public abstract class Power<P extends Power<P>> implements SynchronizablePlayerD
 	
 	public LivingEntity getUser() {
 		return user;
+	}
+	
+	
+	public Component getName() {
+		return getPowerType().getName(this);
 	}
 
 	

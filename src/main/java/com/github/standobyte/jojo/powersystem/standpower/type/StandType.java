@@ -6,9 +6,11 @@ import java.util.stream.Stream;
 
 import javax.annotation.Nullable;
 
+import com.github.standobyte.jojo.client.standskin.StandSkinsLoader;
 import com.github.standobyte.jojo.core.JojoRegistries;
 import com.github.standobyte.jojo.init.core.ModEntityAttributes;
 import com.github.standobyte.jojo.powersystem.MovesetBuilder;
+import com.github.standobyte.jojo.powersystem.Power;
 import com.github.standobyte.jojo.powersystem.PowerClass;
 import com.github.standobyte.jojo.powersystem.PowerType;
 import com.github.standobyte.jojo.powersystem.entityaction.EntityActionInstance;
@@ -23,8 +25,12 @@ import com.github.standobyte.jojo.util.mc.AttributeUtil;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 
+import net.minecraft.Util;
+import net.minecraft.network.chat.Component;
+import net.minecraft.network.chat.MutableComponent;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.LivingEntity;
+import net.neoforged.neoforge.common.util.Lazy;
 
 public class StandType extends PowerType {
 	protected final ResourceLocation standTypeId;
@@ -186,6 +192,17 @@ public class StandType extends PowerType {
 	@Override
 	public PowerClass<StandPower> getPowerClass() {
 		return PowerClass.STAND;
+	}
+	
+	protected Lazy<MutableComponent> name = Lazy.of(() -> Component.translatable(Util.makeDescriptionId("stand", this.getId())));
+	@Override
+	public Component getName(Power<?> playerPowerData) {
+		MutableComponent name = this.name.get();
+		if (playerPowerData.getUser().level().isClientSide()) {
+			int color = StandSkinsLoader.getInstance().getSkin(((StandPower) playerPowerData)).getColor();
+			return name.withColor(color);
+		}
+		return name;
 	}
 	
 }

@@ -26,13 +26,13 @@ import com.github.standobyte.jojo.client.ui.powerhud.PowerHud.PrototypeAbilityHu
 import com.github.standobyte.jojo.client.ui.powerhud.tooltip.TooltipParams;
 import com.github.standobyte.jojo.client.ui.utils.BlitFloat;
 import com.github.standobyte.jojo.client.ui.utils.GuiIcon;
+import com.github.standobyte.jojo.client.ui.utils.TextUtil;
 import com.github.standobyte.jojo.core.JojoMod;
 import com.github.standobyte.jojo.powersystem.Power;
 import com.github.standobyte.jojo.powersystem.ability.condition.AvailableAbilities;
 import com.github.standobyte.jojo.powersystem.ability.condition.AvailableAbilities.AbilityConditionCheck;
 import com.github.standobyte.jojo.powersystem.ability.controls.InputMethod;
 import com.github.standobyte.jojo.powersystem.standpower.StandPower;
-import com.google.common.collect.Lists;
 import com.mojang.blaze3d.platform.InputConstants;
 import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.datafixers.util.Pair;
@@ -141,7 +141,8 @@ public class ControlsHudElement extends HudElement {
 								.withStyle(ChatFormatting.BLACK);
 						tooltip.add(line);
 					}
-					screen.setTooltipForNextRenderPass(Lists.transform(tooltip, Component::getVisualOrderText), new BelowOrAboveWidgetTooltipPositioner(rectangle), true);
+					screen.setTooltipForNextRenderPass(TextUtil.splitMultiLine(Minecraft.getInstance().font, 
+							tooltip, TextUtil.TOOLTIP_MAX_WIDTH), new BelowOrAboveWidgetTooltipPositioner(rectangle), true);
 					TooltipParams.set(TooltipParams.paperStyle());
 				}
 				break;

@@ -8,7 +8,7 @@ import com.github.standobyte.jojo.client.standskin.StandSkinsLoader;
 import com.github.standobyte.jojo.client.standskin.sprites.AbilityIconSprites;
 import com.github.standobyte.jojo.client.text.IconSymbols;
 import com.github.standobyte.jojo.client.ui.utils.BlitFloat;
-import com.github.standobyte.jojo.client.ui.utils.DrawText;
+import com.github.standobyte.jojo.client.ui.utils.TextUtil;
 import com.github.standobyte.jojo.client.ui.utils.GuiIcon;
 import com.github.standobyte.jojo.client.ui.utils.Scrolling;
 import com.github.standobyte.jojo.core.JojoMod;
@@ -106,7 +106,7 @@ public class StandSkillsScreen extends Screen implements IJojoMenuScreen {
 		skillListScrolling.renderScrollBar(skillListX - 8, skillListY + 1, guiGraphics, SCROLL_BAR, 1);
 		
 		if (selectedSkill != null) {
-			DrawText.drawRightAlignedString(guiGraphics, font, selectedSkill.textName, 
+			TextUtil.drawRightAlignedString(guiGraphics, font, selectedSkill.textName, 
 					x + getWindowWidth() - 14, y + 24, skinColor, false);
 			
 			var description = font.split(selectedSkill.textDesc, 111);

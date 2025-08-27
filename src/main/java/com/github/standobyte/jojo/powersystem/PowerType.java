@@ -10,6 +10,7 @@ import com.github.standobyte.jojo.powersystem.skill.UnlockableSkill;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 
+import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
 
 public abstract class PowerType implements JsonConfigurable {
@@ -28,6 +29,8 @@ public abstract class PowerType implements JsonConfigurable {
 	public boolean isEnabled() {
 		return true;
 	}
+	
+	public abstract Component getName(Power<?> power);
 	
 	
 	@Override

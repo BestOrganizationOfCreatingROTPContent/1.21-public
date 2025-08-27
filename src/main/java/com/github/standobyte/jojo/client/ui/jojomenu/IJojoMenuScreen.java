@@ -4,13 +4,16 @@ import java.util.List;
 
 import javax.annotation.Nullable;
 
+import com.github.standobyte.jojo.client.ui.powerhud.tooltip.TooltipParams;
 import com.github.standobyte.jojo.client.ui.utils.BlitFloat;
 import com.github.standobyte.jojo.core.JojoMod;
 
+import net.minecraft.ChatFormatting;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.network.chat.Component;
+import net.minecraft.network.chat.MutableComponent;
 import net.minecraft.resources.ResourceLocation;
 
 public interface IJojoMenuScreen {
@@ -73,7 +76,8 @@ public interface IJojoMenuScreen {
 		if (tab != null) {
 			Component name = tab.getName();
 			if (name != null) {
-				screen.setTooltipForNextRenderPass(name);
+				screen.setTooltipForNextRenderPass(((MutableComponent) name).withStyle(ChatFormatting.BLACK));
+				TooltipParams.set(TooltipParams.paperStyle());
 //				guiGraphics.renderTooltip(_Screen.getFont(screen), name, mouseX, mouseY);
 			}
 		}

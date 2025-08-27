@@ -63,10 +63,10 @@ public class JojoMenuTabs {
 	// Stand
 	
 	public static final TabCategory CATEGORY_STAND = new TabCategory(PowerClass.STAND, null) {
-//		@Override
-//		public Component getName() {
-//			return getStandName();
-//		}
+		@Override
+		public Component getName() {
+			return Component.translatable("jojo_ripples.class.stand", ClientPowerCache.getPower(PowerClass.STAND).getName());
+		}
 		
 		@Override
 		public void renderIcon(GuiGraphics guiGraphics, int x, int y) {
@@ -126,7 +126,7 @@ public class JojoMenuTabs {
 	// Hamon
 	
 	public static final TabCategory CATEGORY_HAMON = new TabCategory(PowerClass.PLAYER_POWER, ModPlayerPowers.HAMON)
-			.withName(Component.translatable(JojoMod.MOD_ID + ".power.hamon"))
+			.withName(Component.translatable("power." + JojoMod.MOD_ID + ".hamon"))
 			.withIcon(new GuiIcon(JojoMod.resLoc("textures/power/hamon.png"), 16, 16));
 	
 	public static final Tab HAMON_INTRO = new Tab(CATEGORY_HAMON)
@@ -160,7 +160,7 @@ public class JojoMenuTabs {
 	// Vampirism
 
 	public static final TabCategory CATEGORY_VAMPIRISM = new TabCategory(PowerClass.PLAYER_POWER, ModPlayerPowers.VAMPIRISM)
-			.withName(Component.translatable(JojoMod.MOD_ID + ".power.vampirism"))
+			.withName(Component.translatable("power." + JojoMod.MOD_ID + ".vampirism"))
 			.withIcon(new GuiIcon(JojoMod.resLoc("textures/power/vampirism.png"), 16, 16));
 
 	public static final Tab VAMPIRISM_SKILLS = new Tab(CATEGORY_VAMPIRISM)
@@ -173,10 +173,10 @@ public class JojoMenuTabs {
 			.withIcon(new GuiIcon(JojoMod.resLoc("textures/gui/controls.png"), 16, 16));
 	
 	public static final Tab STAND_POWER_CONTROLS = new Tab(CATEGORY_CONTROLS, PowerClass.STAND, null) {
-//		@Override
-//		public Component getName() {
-//			return getStandName();
-//		}
+		@Override
+		public Component getName() {
+			return Component.translatable("jojo_ripples.class.stand", ClientPowerCache.getPower(PowerClass.STAND).getName());
+		}
 		
 		@Override
 		public void renderIcon(GuiGraphics guiGraphics, int x, int y) {
@@ -191,10 +191,10 @@ public class JojoMenuTabs {
 	};
 	
 	public static final Tab PLAYER_POWER_CONTROLS = new Tab(CATEGORY_CONTROLS, PowerClass.PLAYER_POWER, null) {
-//		@Override
-//		public Component getName() {
-//			return getPlayerPowerName();
-//		}
+		@Override
+		public Component getName() {
+			return Component.translatable("jojo_ripples.class.player_power", ClientPowerCache.getPower(PowerClass.PLAYER_POWER).getName());
+		}
 		
 		@Override
 		public void renderIcon(GuiGraphics guiGraphics, int x, int y) {
