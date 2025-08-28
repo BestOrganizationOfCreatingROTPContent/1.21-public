@@ -16,6 +16,7 @@ import com.github.standobyte.jojo.client.input.controlscheme.ClientControlScheme
 import com.github.standobyte.jojo.client.input.controlscheme.ClientControlScheme.Hotbar;
 import com.github.standobyte.jojo.client.input.controlscheme.ClientControlScheme.HotbarSlot;
 import com.github.standobyte.jojo.client.input.controlscheme.ClientControlScheme.KeyModifierMap;
+import com.github.standobyte.jojo.client.input.controlscheme.ClientControlScheme.PowerClassAbility;
 import com.github.standobyte.jojo.client.input.controlscheme.ClientKeyWrapper;
 import com.github.standobyte.jojo.client.standskin.StandSkin;
 import com.github.standobyte.jojo.client.standskin.StandSkinsLoader;
@@ -208,13 +209,13 @@ public class ControlsHudElement extends HudElement {
 		AbilityIconSprites abilityIconSprites = StandSkinsLoader.getInstance().abilityIcons;
 
 		// separate keybinds
-		Map<ClientKeyWrapper, Map<InputMethod, KeyModifierMap<List<String>>>> binds = curGroup.binds;
+		Map<ClientKeyWrapper, Map<InputMethod, KeyModifierMap>> binds = curGroup.binds;
 		for (var bindEntry : binds.entrySet()) {
 			ClientKeyWrapper key = bindEntry.getKey();
 			BindUI bindUI = new BindUI();
 			for (var byInputMethod : bindEntry.getValue().entrySet()) {
 				InputMethod inputMethod = byInputMethod.getKey();
-				KeyModifierMap<List<String>> bindsForInputMethod = byInputMethod.getValue();
+				KeyModifierMap bindsForInputMethod = byInputMethod.getValue();
 
 				AbilityBindUI abilityBindUI = makeBindUI(inputMethod, bindsForInputMethod, power, 
 						modifier, availableAbilities, key, false, 
@@ -260,10 +261,10 @@ public class ControlsHudElement extends HudElement {
 
 					for (var byInputMethod : slot.binds.entrySet()) {
 						InputMethod inputMethod = byInputMethod.getKey();
-						String ability = byInputMethod.getValue().get(modifier);
+						PowerClassAbility ability = byInputMethod.getValue().getFirst(modifier);
 						if (ability != null) {
 							AbilityBindUI bind = makeAbilityBindUI(key, null, 
-									inputMethod, availableAbilities._inMoveset.get(ability), power, 
+									inputMethod, availableAbilities._inMoveset.get(ability.abilityName()), power, 
 									abilityIconSprites, standSkin, 
 									font, hud.inContainerMenu);
 							if (bind != null) {
@@ -335,11 +336,11 @@ public class ControlsHudElement extends HudElement {
 
 
 	@Nullable
-	private static AbilityBindUI makeBindUI(InputMethod inputMethod, KeyModifierMap<List<String>> binds, Power<?> abilityCtx, 
+	private static AbilityBindUI makeBindUI(InputMethod inputMethod, KeyModifierMap binds, Power<?> abilityCtx, 
 			@Nonnull KeyModifier modifier, AvailableAbilities available, ClientKeyWrapper key, boolean withModifierName, 
 			AbilityIconSprites abilitySprites, @Nullable StandSkin standSkin, 
 			Font font, boolean inContainerMenu) {
-		List<String> boundAbilities = binds.get(modifier);
+		List<PowerClassAbility> boundAbilities = binds.getAll(modifier);
 		if (boundAbilities.isEmpty()) {
 			return null;
 		}

@@ -54,7 +54,7 @@ public class ClientControlScheme {
 		@ApiStatus.Internal public final Component name;
 		@ApiStatus.Internal public final ClientKeyWrapper toggleHudKey;
 		
-		@ApiStatus.Internal public final Map<ClientKeyWrapper, Map<InputMethod, KeyModifierMap<List<String>>>> binds = 
+		@ApiStatus.Internal public final Map<ClientKeyWrapper, Map<InputMethod, KeyModifierMap>> binds = 
 				new TreeMap<>(Comparator.comparingInt(ClientKeyWrapper::keyId));
 		@ApiStatus.Internal public final List<Hotbar> hotbars = new ArrayList<>();
 		
@@ -82,27 +82,30 @@ public class ClientControlScheme {
 	}
 	
 	public static class HotbarSlot {
-		public final Map<InputMethod, KeyModifierMap<String>> binds = new EnumMap<>(InputMethod.class);
+		public final Map<InputMethod, KeyModifierMap> binds = new EnumMap<>(InputMethod.class);
 	}
 	
-	public static class KeyModifierMap<T> {
-		private final T empty;
-		public final Map<KeyModifier, T> movesByModifier = new HashMap<>(); // allows null key
+	public static class KeyModifierMap {
+		public final Map<KeyModifier, List<PowerClassAbility>> movesByModifier = new HashMap<>(); // allows null key
 		
-		public KeyModifierMap(T empty) {
-			this.empty = empty;
-		}
-		
-		public T get(@Nonnull KeyModifier curModifier) {
+		public List<PowerClassAbility> getAll(@Nonnull KeyModifier curModifier) {
 			if (movesByModifier.containsKey(curModifier)) {
 				return movesByModifier.get(curModifier);
 			}
 			if (movesByModifier.containsKey(null)) {
 				return movesByModifier.get(null);
 			}
-			return empty;
+			return Collections.emptyList();
+		}
+		
+		@Nullable
+		public PowerClassAbility getFirst(@Nonnull KeyModifier curModifier) {
+			List<PowerClassAbility> list = getAll(curModifier);
+			return !list.isEmpty() ? list.get(0) : null;
 		}
 	}
+	
+	public static record PowerClassAbility(PowerClass<?> powerClass, String abilityName) {}
 	
 	
 	
@@ -115,13 +118,13 @@ public class ClientControlScheme {
 		return curGroup;
 	}
 	
-	public List<String> getBindsWithModifier(InputMethod keyInputMethod, ClientKeyWrapper key, KeyModifier currentModifier) {
+	public List<PowerClassAbility> getBindsWithModifier(InputMethod keyInputMethod, ClientKeyWrapper key, KeyModifier currentModifier) {
 		ClientControlScheme.MoveGroup controls = getCurGroup().getValue();
 		var allBindsInKey = controls.binds.get(key);
 		if (allBindsInKey != null) {
 			var bindsForInputMethod = allBindsInKey.get(keyInputMethod);
 			if (bindsForInputMethod != null) {
-				return bindsForInputMethod.get(currentModifier);
+				return bindsForInputMethod.getAll(currentModifier);
 			}
 		}
 		
@@ -131,7 +134,7 @@ public class ClientControlScheme {
 				if (slot != null) {
 					var bindsForInputMethod = slot.binds.get(keyInputMethod);
 					if (bindsForInputMethod != null) {
-						return Collections.singletonList(bindsForInputMethod.get(currentModifier));
+						return bindsForInputMethod.getAll(currentModifier);
 					}
 				}
 			}
@@ -141,9 +144,9 @@ public class ClientControlScheme {
 	}
 	
 	@Nullable
-	public static AbilityConditionCheck prioritizedAbility(List<String> abilityNames, AvailableAbilities available, Power<?> abilityCtx, boolean onlyWithInputActive) {
+	public static AbilityConditionCheck prioritizedAbility(List<PowerClassAbility> abilityNames, AvailableAbilities available, Power<?> abilityCtx, boolean onlyWithInputActive) {
 		Stream<AbilityConditionCheck> stream = abilityNames.stream()
-				.map(abilityName -> available._inMoveset.get(abilityName))
+				.map(abilityName -> available._inMoveset.get(abilityName.abilityName()))
 				.filter(Objects::nonNull);
 		if (onlyWithInputActive) {
 			stream = stream.filter(a -> AbilityInputState.withValue(a.clientInputState).getFlag(AbilityInputState.IS_ACTIVE));
@@ -168,13 +171,13 @@ public class ClientControlScheme {
 	
 	public static ClientControlScheme create(ControlSchemeTemplate template, PowerType powerType) {
 		ClientControlScheme controls = new ClientControlScheme();
+		PowerClass<?> powerClass = powerType.getPowerClass();
 		
 		for (ControlSchemeTemplate.GroupTemplate groupTemplate : template.groups.values()) {
 			if (groupTemplate.isEmpty()) continue;
 			
 			InputKey toggleHudKey = groupTemplate.toggleHudKey;
 			if (toggleHudKey == null) {
-				PowerClass<?> powerClass = powerType.getPowerClass();
 				if (powerClass == PowerClass.STAND) {
 					// TODO (control scheme) hud mode keybind
 					toggleHudKey = InputKey.K;
@@ -195,13 +198,13 @@ public class ClientControlScheme {
 				Pair<InputMethod, InputKey> input = bind.getSecond();
 				InputKey key = input.getSecond();
 				
-				Map<InputMethod, KeyModifierMap<List<String>>> keyAllBinds = group.binds.computeIfAbsent(getClientKey(key), 
+				Map<InputMethod, KeyModifierMap> keyAllBinds = group.binds.computeIfAbsent(getClientKey(key), 
 						__ -> new EnumMap<>(InputMethod.class));
 				var byInputMethod = keyAllBinds.computeIfAbsent(input.getFirst(), 
-						__ -> new KeyModifierMap<>(Collections.emptyList()));
-				List<String> modifierKeyBinds = byInputMethod.movesByModifier.computeIfAbsent(getClientModifier(key.modifier), 
+						__ -> new KeyModifierMap());
+				List<PowerClassAbility> modifierKeyBinds = byInputMethod.movesByModifier.computeIfAbsent(getClientModifier(key.modifier), 
 						__ -> new ArrayList<>());
-				modifierKeyBinds.add(abilityName);
+				modifierKeyBinds.add(new PowerClassAbility(powerClass, abilityName));
 			}
 			
 			// ability hotbars
@@ -216,9 +219,11 @@ public class ClientControlScheme {
 						for (var abilityEntry : slotVariation.getValue().entrySet()) {
 							InputMethod inputMethod = abilityEntry.getKey();
 							String ability = abilityEntry.getValue();
-							var byInputMethod = slot.binds.computeIfAbsent(inputMethod, 
-									__ -> new KeyModifierMap<>(""));
-							byInputMethod.movesByModifier.put(getClientModifier(modifier), ability);
+							KeyModifierMap byInputMethod = slot.binds.computeIfAbsent(inputMethod, 
+									__ -> new KeyModifierMap());
+							byInputMethod.movesByModifier.put(
+									getClientModifier(modifier), 
+									Collections.singletonList(new PowerClassAbility(powerClass, ability)));
 						}
 					}
 					clientHotbar.slots.add(slot);

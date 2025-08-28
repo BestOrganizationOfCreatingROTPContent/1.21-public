@@ -5,6 +5,7 @@ import java.util.List;
 import com.github.standobyte.jojo.client.ClientGlobals;
 import com.github.standobyte.jojo.client.input.controlscheme.AllControlSchemes;
 import com.github.standobyte.jojo.client.input.controlscheme.ClientControlScheme;
+import com.github.standobyte.jojo.client.input.controlscheme.ClientControlScheme.PowerClassAbility;
 import com.github.standobyte.jojo.client.input.controlscheme.ClientKeyWrapper;
 import com.github.standobyte.jojo.core.JojoMod;
 import com.github.standobyte.jojo.mechanics.entityuseitem.ClStandClickPacket;
@@ -71,9 +72,9 @@ public class StandVanillaClickInput {
 			if (controlScheme != null) {
 				ClientKeyWrapper RMB = ClientKeyWrapper.make(InputConstants.Type.MOUSE, InputConstants.MOUSE_BUTTON_RIGHT);
 				for (InputMethod inputMethod : InputMethod.values()) {
-					List<String> rmbAbilities = controlScheme.getBindsWithModifier(inputMethod, RMB, KeyModifier.NONE);
-					for (String abilityName : rmbAbilities) {
-						var ability = abilities._inMoveset.get(abilityName);
+					List<PowerClassAbility> rmbAbilities = controlScheme.getBindsWithModifier(inputMethod, RMB, KeyModifier.NONE);
+					for (PowerClassAbility abilityName : rmbAbilities) {
+						var ability = abilities._inMoveset.get(abilityName.abilityName());
 						if (ability != null) {
 							AbilityInputState inputState = AbilityInputState.withValue(ability.clientInputState);
 							if (!inputState.getFlag(AbilityInputState.WITH_ITEM_HELD)) {

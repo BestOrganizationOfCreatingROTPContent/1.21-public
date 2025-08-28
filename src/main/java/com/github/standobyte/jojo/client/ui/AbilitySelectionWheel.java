@@ -2,11 +2,19 @@ package com.github.standobyte.jojo.client.ui;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.OptionalInt;
+
+import javax.annotation.Nullable;
+
+import org.lwjgl.glfw.GLFW;
 
 import com.github.standobyte.jojo.client.ClientPowerCache;
+import com.github.standobyte.jojo.client.ClientUtil;
 import com.github.standobyte.jojo.client.input.InputHandler;
 import com.github.standobyte.jojo.client.input.controlscheme.ClientControlScheme;
 import com.github.standobyte.jojo.client.input.controlscheme.ClientControlScheme.HotbarSlot;
+import com.github.standobyte.jojo.client.input.controlscheme.ClientControlScheme.KeyModifierMap;
+import com.github.standobyte.jojo.client.input.controlscheme.ClientControlScheme.PowerClassAbility;
 import com.github.standobyte.jojo.client.standskin.StandSkin;
 import com.github.standobyte.jojo.client.standskin.StandSkinsLoader;
 import com.github.standobyte.jojo.client.ui.powerhud.tooltip.TooltipParams;
@@ -19,6 +27,7 @@ import com.github.standobyte.jojo.powersystem.ability.Ability;
 import com.github.standobyte.jojo.powersystem.ability.controls.InputMethod;
 import com.github.standobyte.jojo.powersystem.standpower.StandPower;
 import com.github.standobyte.v1_21_4_stuff.missingmethods.ARGB;
+import com.mojang.blaze3d.platform.Window;
 import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.blaze3d.vertex.PoseStack;
 
@@ -35,14 +44,10 @@ public class AbilitySelectionWheel extends Screen implements ScreenLetsUseWASD {
 	protected static final ResourceLocation DEFAULT_TEXTURE = JojoMod.resLoc("textures/ability_wheel.png");
 	protected ResourceLocation texture;
 	public ClientControlScheme.Hotbar abilities;
-	public Power<?> power;
-	public Moveset moveset;
 
-	public AbilitySelectionWheel(ClientControlScheme.Hotbar abilities, Power<?> power, Moveset moveset) {
+	public AbilitySelectionWheel(ClientControlScheme.Hotbar abilities) {
 		super(Component.translatable("jojo.screen.ability_selection_wheel"));
 		this.abilities = abilities;
-		this.power = power;
-		this.moveset = moveset;
 		
 		StandPower standPower = ClientPowerCache.getPower(PowerClass.STAND);
 		if (standPower != null) {
@@ -56,11 +61,40 @@ public class AbilitySelectionWheel extends Screen implements ScreenLetsUseWASD {
 			texture = DEFAULT_TEXTURE;
 		}
 	}
+	
+	@Nullable protected int[] mouseIgnorePos = null;
+	public void setIgnoreMouseUntilMove(OptionalInt newSelectedSlot) {
+		Window window = minecraft.getWindow();
+		long windowHandle = window.getWindow();
+//		if (mouseIgnorePos == null) {
+//			GLFW.glfwSetInputMode(windowHandle, GLFW.GLFW_CURSOR, GLFW.GLFW_CURSOR_HIDDEN);
+//		}
+		if (newSelectedSlot.isPresent()) {
+			double angle = (newSelectedSlot.getAsInt() + 0.5) * 2 * Math.PI / abilities.slots.size();
+			double radius = 50;
+			double width = (double)window.getScreenWidth();
+			double height = (double)window.getScreenHeight();
+			double rX = radius / (double)window.getGuiScaledWidth() * width;
+			double rY = radius / (double)window.getGuiScaledHeight() * height;
+			double xpos = width / 2 + Math.sin(angle) * rX;
+			double ypos = height / 2 - Math.cos(angle) * rY;
+			GLFW.glfwSetCursorPos(windowHandle, xpos, ypos);
+		}
+		mouseIgnorePos = new int[] { ClientUtil.getScreenMouseX(), ClientUtil.getScreenMouseY() };
+	}
+	
+	public boolean checkIsIgnoringMouse(int mouseX, int mouseY) {
+//		long window = minecraft.getWindow().getWindow();
+		if (mouseIgnorePos != null && (mouseIgnorePos[0] != mouseX || mouseIgnorePos[1] != mouseY)) {
+//			GLFW.glfwSetInputMode(window, GLFW.GLFW_CURSOR, GLFW.GLFW_CURSOR_NORMAL);
+			mouseIgnorePos = null;
+		}
+		return mouseIgnorePos != null;
+	}
 
 	@Override
 	public void render(GuiGraphics guiGraphics, int mouseX, int mouseY, float partialTick) {
-		if (abilities == null || !InputHandler.getInstance().isHeld(abilities.switchAbilityKey, null)) {
-			pickAbilityAt(mouseX, mouseY);
+		if (abilities == null || !InputHandler.getInstance().hotbarsSelection.contains(abilities)) {
 			onClose();
 			return;
 		}
@@ -74,14 +108,16 @@ public class AbilitySelectionWheel extends Screen implements ScreenLetsUseWASD {
 		ResourceLocation texture = DEFAULT_TEXTURE;
 		RenderSystem.enableBlend();
 		RenderSystem.defaultBlendFunc();
-
-		int hovered = getSlotIndexAt(mouseX, mouseY);
+		
+		boolean ignoreMouse = checkIsIgnoringMouse(mouseX, mouseY);
+		hoveredSlotIndex = ignoreMouse ? abilities.slotIndex : getSlotIndexAt(mouseX, mouseY);
+		
 		int n = abilities.slots.size();
 		float angle0 = 0;
 		float fill = 1f / n;
 		float angleStep = 2 * (float) Math.PI * fill;
 		for (int i = 0; i < n; i++) {
-			boolean highlight = i == hovered;
+			boolean highlight = i == hoveredSlotIndex;
 			float alpha = highlight ? 0.5f : 0.25f;;
 			if (highlight) {
 				pose.pushPose();
@@ -100,28 +136,35 @@ public class AbilitySelectionWheel extends Screen implements ScreenLetsUseWASD {
 		RenderSystem.disableBlend();
 		
 		abilityNames.clear();
-		if (hovered != -1 && moveset != null) {
-			HotbarSlot slot = abilities.slots.get(hovered);
+		if (hoveredSlotIndex != -1) {
+			if (!ignoreMouse) {
+				abilities.slotIndex = hoveredSlotIndex;
+			}
+			
+			hoveredSlot = abilities.slots.get(hoveredSlotIndex);
 			KeyModifier curModifier = InputHandler.getInstance().getCurModifier();
 			for (InputMethod inputMethod : InputMethod.values()) {
-				var byInputMethod = slot.binds.get(inputMethod);
-				if (byInputMethod != null) {
-					String abilityName = byInputMethod.get(curModifier);
-					if (abilityName != null) {
-						Ability ability = moveset.getAbility(abilityName);
-						if (ability != null) {
-							abilityNames.add(ability.getName(power).copy().withStyle(ChatFormatting.BLACK));
-						}
-					}
-				}
+				KeyModifierMap byInputMethod = hoveredSlot.binds.get(inputMethod);		if (byInputMethod == null) continue;
+				PowerClassAbility abilityPath = byInputMethod.getFirst(curModifier);	if (abilityPath == null) continue;
+				Power<?> power = ClientPowerCache.getPower(abilityPath.powerClass());	if (power == null) continue;
+				Moveset moveset = power.getMoveset();									if (moveset == null) continue;
+				Ability ability = moveset.getAbility(abilityPath.abilityName());		if (ability == null) continue;
+				
+				abilityNames.add(ability.getName(power).copy().withStyle(ChatFormatting.BLACK));
 			}
+		}
+		else {
+			hoveredSlot = null;
 		}
 		if (!abilityNames.isEmpty()) {
 			TooltipParams.set(TooltipParams.paperStyle());
 			guiGraphics.renderComponentTooltip(font, abilityNames, mouseX, mouseY);
 		}
 	}
-	List<Component> abilityNames = new ArrayList<>(2);
+
+	protected int hoveredSlotIndex;
+	protected HotbarSlot hoveredSlot;
+	protected List<Component> abilityNames = new ArrayList<>(2);
 
 	public int getSlotIndexAt(int mouseX, int mouseY) {
 		if (abilities == null) return -1;
@@ -161,6 +204,12 @@ public class AbilitySelectionWheel extends Screen implements ScreenLetsUseWASD {
 		}
 		
 		return false;
+	}
+	
+	@Override
+	public void onClose() {
+		InputHandler.getInstance().hotbarsSelection.remove(this.abilities);
+		super.onClose();
 	}
 
 

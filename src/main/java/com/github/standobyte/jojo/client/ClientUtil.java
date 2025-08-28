@@ -27,6 +27,22 @@ public class ClientUtil {
 		return fuckThis.getGameTimeDeltaPartialTick(worksInPauseToo);
 	}
 
+	public static int getScreenMouseX() {
+		Minecraft mc = Minecraft.getInstance();
+		return (int)(
+				mc.mouseHandler.xpos()
+				* (double)mc.getWindow().getGuiScaledWidth()
+				/ (double)mc.getWindow().getScreenWidth());
+	}
+
+	public static int getScreenMouseY() {
+		Minecraft mc = Minecraft.getInstance();
+		return (int)(
+				mc.mouseHandler.ypos()
+				* (double)mc.getWindow().getGuiScaledHeight()
+				/ (double)mc.getWindow().getScreenHeight());
+	}
+
 	public static void renderPlayerFace(PoseStack poseStack, int x, int y, AbstractClientPlayer player) {
 		Minecraft mc = Minecraft.getInstance();
 		PlayerSkin playerSkin = player.getSkin();
