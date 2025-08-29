@@ -51,6 +51,7 @@ import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.util.FastColor.ARGB32;
 import net.neoforged.neoforge.client.settings.KeyModifier;
+import net.neoforged.neoforge.common.util.TriState;
 
 public class ControlsHudElement extends HudElement {
 	public static final ResourceLocation HOTBARS_TEX = JojoMod.resLoc("textures/gui/overlay_hotbar.png");
@@ -91,7 +92,7 @@ public class ControlsHudElement extends HudElement {
 		Power<?> power = input.getCurPower();
 		if (power == null || !power.hasPower()) return false;
 
-		return true;
+		return !hud.inContainerMenu.isDefault();
 	}
 
 	@Override
@@ -339,7 +340,7 @@ public class ControlsHudElement extends HudElement {
 	private static AbilityBindUI makeBindUI(InputMethod inputMethod, KeyModifierMap binds, Power<?> abilityCtx, 
 			@Nonnull KeyModifier modifier, AvailableAbilities available, ClientKeyWrapper key, boolean withModifierName, 
 			AbilityIconSprites abilitySprites, @Nullable StandSkin standSkin, 
-			Font font, boolean inContainerMenu) {
+			Font font, TriState inContainerMenu) {
 		List<PowerClassAbility> boundAbilities = binds.getAll(modifier);
 		if (boundAbilities.isEmpty()) {
 			return null;
@@ -355,14 +356,14 @@ public class ControlsHudElement extends HudElement {
 	private static AbilityBindUI makeAbilityBindUI(ClientKeyWrapper key, @Nullable KeyModifier modifier, 
 			InputMethod inputMethod, AbilityConditionCheck ability, Power<?> abilityCtx, 
 			AbilityIconSprites abilitySprites, @Nullable StandSkin standSkin, 
-			Font font, boolean inContainerMenu) {
+			Font font, TriState inContainerMenu) {
 		if (ability != null && ability.ability != null) {
 			AbilityInputState state = AbilityInputState.withValue(ability.clientInputState);
 
 			boolean showAbility = state.getFlag(AbilityInputState.IS_ACTIVE)
 					|| state.getFlag(AbilityInputState.VISIBLE_EVEN_INACTIVE)
 					|| state.getFlag(AbilityInputState.VISIBLE_TRANSLUCENT);
-			showAbility &= state.getFlag(AbilityInputState.ONLY_IN_CONTAINER) == inContainerMenu;
+			showAbility &= state.getFlag(AbilityInputState.ONLY_IN_CONTAINER) == inContainerMenu.isTrue();
 
 			if (showAbility) {
 				Component keyName = getKeyName(key);

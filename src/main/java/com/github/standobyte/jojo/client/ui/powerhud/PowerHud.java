@@ -31,6 +31,7 @@ import net.neoforged.neoforge.client.event.ContainerScreenEvent;
 import net.neoforged.neoforge.client.event.RegisterGuiLayersEvent;
 import net.neoforged.neoforge.client.event.ScreenEvent;
 import net.neoforged.neoforge.common.NeoForge;
+import net.neoforged.neoforge.common.util.TriState;
 
 @EventBusSubscriber(value = Dist.CLIENT, bus = Bus.MOD)
 public class PowerHud {
@@ -66,7 +67,7 @@ public class PowerHud {
 			AbstractContainerScreen<?> screen = event.getContainerScreen();
 			graphics.pose().pushPose();
 			graphics.pose().translate(-screen.getGuiLeft(), -screen.getGuiTop(), 0.0F);
-			abilityHUDInstance.setupRender(true);
+			abilityHUDInstance.setupRender(TriState.TRUE);
 			abilityHUDInstance.renderAbilitiesHUD(graphics, Minecraft.getInstance().getTimer()/*getDeltaTracker()*/);
 			graphics.pose().popPose();
 		}
@@ -93,15 +94,15 @@ public class PowerHud {
 		}
 		
 		
-		public boolean inContainerMenu;
+		public TriState inContainerMenu;
 		private int mouseX;
 		private int mouseY;
 		
-		public void setupRender(boolean inContainerMenu) {
+		public void setupRender(TriState inContainerMenu) {
 			setupRender(inContainerMenu, -1, -1);
 		}
 		
-		public void setupRender(boolean inContainerMenu, int mouseX, int mouseY) {
+		public void setupRender(TriState inContainerMenu, int mouseX, int mouseY) {
 			this.inContainerMenu = inContainerMenu;
 			this.mouseX = mouseX;
 			this.mouseY = mouseY;
@@ -125,13 +126,15 @@ public class PowerHud {
 					int mouseY = (int)(mc.mouseHandler.ypos()
 							* (double)mc.getWindow().getGuiScaledHeight()
 							/ (double)mc.getWindow().getScreenHeight());
-					setupRender(false, mouseX, mouseY);
+					setupRender(TriState.FALSE, mouseX, mouseY);
 				}
 				else {
-					setupRender(false);
+					setupRender(TriState.FALSE);
 				}
 				renderAbilitiesHUD(guiGraphics, deltaTracker);
 			}
+			setupRender(TriState.DEFAULT);
+			renderAbilitiesHUD(guiGraphics, deltaTracker);
 		}
 
 		public void renderAbilitiesHUD(GuiGraphics guiGraphics, DeltaTracker deltaTracker) {
@@ -173,6 +176,7 @@ public class PowerHud {
 
 		@Override
 		public boolean shouldRender() {
+			if (!hud.inContainerMenu.isDefault()) return false;
 			StandPower standPower = ClientPowerCache.getPower(PowerClass.STAND);
 			return standPower != null && standPower.usesResolve();
 		}
@@ -216,6 +220,7 @@ public class PowerHud {
 
 		@Override
 		public boolean shouldRender() {
+			if (!hud.inContainerMenu.isDefault()) return false;
 			StandPower standPower = ClientPowerCache.getPower(PowerClass.STAND);
 			return standPower != null && standPower.usesStamina();
 		}
@@ -251,6 +256,7 @@ public class PowerHud {
 
 		@Override
 		public boolean shouldRender() {
+			if (!hud.inContainerMenu.isDefault()) return false;
 			StandEntity stand = ClientGlobals.playerStandEntity;
 			return stand != null;
 		}
