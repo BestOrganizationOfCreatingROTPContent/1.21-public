@@ -136,7 +136,7 @@ public class AbilitySelectionWheel extends Screen implements ScreenLetsUseWASD {
 		RenderSystem.disableBlend();
 		
 		abilityNames.clear();
-		if (hoveredSlotIndex != -1) {
+		if (hoveredSlotIndex != -1 && !abilities.slots.isEmpty()) {
 			if (!ignoreMouse) {
 				abilities.slotIndex = hoveredSlotIndex;
 			}

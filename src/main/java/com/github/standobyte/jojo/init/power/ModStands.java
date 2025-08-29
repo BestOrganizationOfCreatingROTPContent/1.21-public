@@ -53,7 +53,7 @@ public class ModStands {
 					.addAbility("heavy_punch", ModStandAbilities.HEAVY_PUNCH)
 					.withBind(InputKey.RMB, InputMethod.CLICK)
 					.addAbility("heavy_punch2", ModStandAbilities.HEAVY_PUNCH)
-					.addAbility("uppercut", ModStandAbilities.HEAVY_PUNCH)
+					.addAbility("finisher_uppercut", ModStandAbilities.HEAVY_PUNCH)
 					
 					.addAbility("heavy_charged", ModStandAbilities.HEAVY_CHARGED)
 					.withBind(InputKey.RMB, InputMethod.HOLD)
@@ -79,66 +79,52 @@ public class ModStands {
 //					.addAbility("grab_terrain", ModStandAbilities.GRAB_TERRAIN)
 //					.addAbility("terrain_throw", ModStandAbilities.GRAB_TERRAIN_THROW)
 					
-//					.addAbility("block", ModStandAbilities.BLOCK)
+//					.addAbility("guard", ModStandAbilities.GUARD)
 					
 //					.addAbility("leap", ModStandAbilities.STAND_LEAP)
-//					.addAbility("manual_control", ModStandAbilities.MANUAL_CONTROL)
-//					.addAbility("swap_items", ModStandAbilities.SWAP_ITEMS)
-//					.addAbility("item_lmb", ModStandAbilities.ITEM_LMB)
-//					.addAbility("item_rmb", ModStandAbilities.ITEM_RMB)
 
-//					.addAbility("ground_throw", ModStandAbilities.HEAVY_PUNCH)
-//					.addAbility("retal_heavy", ModStandAbilities.HEAVY_PUNCH)
-//					.addAbility("kick_barrage", ModStandAbilities.BARRAGE)
+//					.addAbility("uppercut_ground_throw", ModStandAbilities.HEAVY_PUNCH)
 					
 					
 					.makeHotbar(0, InputKey.X, InputKey.C)
 					
-					.addAbility("placeholder1", ModStandAbilities._PLACEHOLDER)
-					.inHotbar(0, InputMethod.CLICK)
-					
-					.addAbility("placeholder2", ModStandAbilities._PLACEHOLDER)
-					.inHotbar(0, InputMethod.CLICK)
-					
-					.addAbility("placeholder3", ModStandAbilities._PLACEHOLDER)
-					.inHotbar(0, InputMethod.CLICK)
-					
-					.addAbility("placeholder4", ModStandAbilities._PLACEHOLDER)
-					.inHotbar(0, InputMethod.CLICK)
-					
-					.addAbility("placeholder5", ModStandAbilities._PLACEHOLDER)
-					.inHotbar(0, InputMethod.CLICK)
-					
-					.addAbility("placeholder6", ModStandAbilities._PLACEHOLDER)
-					.inHotbar(0, InputMethod.CLICK)
-					
+////					.addAbility("enhanced_eyesight", ModStandAbilities.SP_EYESIGHT)
+////					.inHotbar(0, InputMethod.CLICK)
+//					
 //					.addAbility("star_finger", ModStandAbilities.SP_STAR_FINGER)
 //					.inHotbar(0, InputMethod.CLICK)
 //					
-//					.addAbility("star_finger_swipe", ModStandAbilities.SP_STAR_FINGER_SWIPE)
-//					.inHotbarSlotVariation("star_finger", InputKey.Modifier.CONTROL, InputMethod.CLICK)
+////					.addAbility("star_finger_swipe", ModStandAbilities.SP_STAR_FINGER_SWIPE)
+////					.inHotbarSlotVariation("star_finger", InputKey.Modifier.CONTROL, InputMethod.CLICK)
 //					
 //					.addAbility("inhale", ModStandAbilities.SP_INHALE)
 //					.inHotbar(0, InputMethod.HOLD)
-					
+//					
 //					.addAbility("time_stop", ModStandAbilities.TIME_STOP)
+//					.inHotbar(0, InputMethod.CLICK)
 					
 					
 					.addSkill(StandUnlockableSkill.startingAbility("punch"))
 					.addSkill(StandUnlockableSkill.startingAbility("heavy_punch"))
-					.addSkill(StandUnlockableSkill.unlockableAbility("uppercut", 1).prerequisiteSkill("heavy_punch"))
-					.addSkill(StandUnlockableSkill.unlockableAbility("heavy_charged", 1).prerequisiteSkill("heavy_punch"))
+					.addSkill(StandUnlockableSkill.startingAbility("finisher_uppercut").prerequisiteSkill("heavy_punch"))
+					.addSkill(StandUnlockableSkill.startingAbility("heavy_charged").prerequisiteSkill("heavy_punch"))
 					.addSkill(StandUnlockableSkill.startingAbility("barrage"))
-					.addSkill(StandUnlockableSkill.unlockableAbility("grab", 1))
+					.addSkill(StandUnlockableSkill.startingAbility("guard"))
+					.addSkill(StandUnlockableSkill.startingAbility("grab"))
+					.addSkill(StandUnlockableSkill.startingAbility("enhanced_eyesight"))
+					
+					.addSkill(StandUnlockableSkill.unlockableAbility("leap", 1))
 					.addSkill(StandUnlockableSkill.unlockableAbility("grabbed_throw", 1).prerequisiteSkill("grab"))
-					.addSkill(StandUnlockableSkill.unlockableAbility("placeholder1", 1))
-					.addSkill(StandUnlockableSkill.unlockableAbility("placeholder2", 1))
-					.addSkill(StandUnlockableSkill.unlockableAbility("placeholder3", 1))
-					.addSkill(StandUnlockableSkill.unlockableAbility("placeholder4", 1))
-					.addSkill(StandUnlockableSkill.unlockableAbility("placeholder5", 1))
-					.addSkill(StandUnlockableSkill.unlockableAbility("placeholder6", 1))
+//					.addSkill(StandUnlockableSkill.unlockableAbility("grab_ground_slam", 1).prerequisiteSkill("grab"))
+//					.addSkill(StandUnlockableSkill.unlockableAbility("uppercut_ground_throw", 1).prerequisiteSkill("finisher_uppercut", "grab_ground_slam"))
+//					.addSkill(StandUnlockableSkill.unlockableAbility("grab_terrain", 1).withAbility("terrain_throw").prerequisiteSkill("grab")
+					.addSkill(StandUnlockableSkill.unlockableAbility("star_finger", 1)/*.withAbility("star_finger_swipe")*/)
+					.addSkill(StandUnlockableSkill.unlockableAbility("inhale", 1))
+					.addSkill(StandUnlockableSkill.unlockableAbility("time_stop", 1))
 
 					, id));
+	
+	
 	
 	public static final DeferredHolder<StandType, EntityStandType> CRAZY_DIAMOND = DEFAULT_STANDS.register(
 			"crazy_diamond", id -> 
@@ -157,6 +143,25 @@ public class ModStands {
 					
 					.addAbility("repair_item", ModStandAbilities.CD_REPAIR_ITEM)
 					.withBind(InputKey.C, InputMethod.HOLD)
+					
+					
+					.addSkill(StandUnlockableSkill.startingAbility("punch"))
+					.addSkill(StandUnlockableSkill.startingAbility("heavy_punch"))
+					.addSkill(StandUnlockableSkill.startingAbility("heavy_charged").prerequisiteSkill("heavy_punch"))
+					.addSkill(StandUnlockableSkill.startingAbility("barrage"))
+					.addSkill(StandUnlockableSkill.startingAbility("guard"))
+					.addSkill(StandUnlockableSkill.startingAbility("grab"))
+					.addSkill(StandUnlockableSkill.startingAbility("repair_item"))
+
+					.addSkill(StandUnlockableSkill.unlockableAbility("leap", 1))
+					.addSkill(StandUnlockableSkill.unlockableAbility("heal", 1))
+					.addSkill(StandUnlockableSkill.unlockableAbility("leave_object", 1).prerequisiteSkill("heal", "heavy_punch"))
+					.addSkill(StandUnlockableSkill.unlockableAbility("finisher_misshape", 1).prerequisiteSkill("heal", "heavy_punch"))
+					.addSkill(StandUnlockableSkill.unlockableAbility("revert_state", 1).withAbility("uncraft").prerequisiteSkill("repair_item"))
+					.addSkill(StandUnlockableSkill.unlockableAbility("restore_terrain", 1))
+//					.addSkill(StandUnlockableSkill.unlockableAbility("fuse_with_rock", 1).prerequisiteSkill("finisher_misshape", "restore_terrain"))
+					.addSkill(StandUnlockableSkill.unlockableAbility("block_anchor", 1).withAbility("block_anchor_move"))
+					.addSkill(StandUnlockableSkill.unlockableAbility("block_bullet", 1).withAbility("blood_cutter"))
 
 					, id));
 }

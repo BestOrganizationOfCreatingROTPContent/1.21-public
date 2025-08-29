@@ -78,9 +78,34 @@ public final class ModStandAbilities {
 	
 	public static final DeferredHolder<AbilityType<?>, AbilityType<TimeStopAbility>> TIME_STOP = ABILITY_TYPES.register(
 			"time_stop", key -> new AbilityType<>(key, TimeStopAbility::new));
+
+	
+	public static final DeferredHolder<AbilityType<?>, AbilityType<Ability>> CD_BLOOD_CUTTER = ABILITY_TYPES.register(
+			"blood_cutter", key -> new AbilityType<>(key, Ability::new));
+	
+	public static final DeferredHolder<AbilityType<?>, AbilityType<Ability>> CD_BLOCK_BULLET = ABILITY_TYPES.register(
+			"block_bullet", key -> new AbilityType<>(key, Ability::new));
+	
+	public static final DeferredHolder<AbilityType<?>, AbilityType<Ability>> CD_REVERT_STATE = ABILITY_TYPES.register(
+			"revert_state", key -> new AbilityType<>(key, Ability::new));
+	
+	public static final DeferredHolder<AbilityType<?>, AbilityType<Ability>> CD_HEAL = ABILITY_TYPES.register(
+			"heal", key -> new AbilityType<>(key, Ability::new));
+	
+	public static final DeferredHolder<AbilityType<?>, AbilityType<Ability>> CD_RESTORE_TERRAIN = ABILITY_TYPES.register(
+			"restore_terrain", key -> new AbilityType<>(key, Ability::new));
+	
+	public static final DeferredHolder<AbilityType<?>, AbilityType<Ability>> CD_MAKE_BLOCK_ANCHOR = ABILITY_TYPES.register(
+			"block_anchor_make", key -> new AbilityType<>(key, Ability::new));
+	
+	public static final DeferredHolder<AbilityType<?>, AbilityType<Ability>> CD_MOVE_W_BLOCK_ANCHOR = ABILITY_TYPES.register(
+			"block_anchor_move", key -> new AbilityType<>(key, Ability::new));
 	
 	public static final DeferredHolder<AbilityType<?>, AbilityType<CrazyDRepairItemAbility>> CD_REPAIR_ITEM = ABILITY_TYPES.register(
 			"repair_item", key -> new AbilityType<>(key, CrazyDRepairItemAbility::new));
+	
+	public static final DeferredHolder<AbilityType<?>, AbilityType<Ability>> CD_UNCRAFT_ITEM = ABILITY_TYPES.register(
+			"uncraft_item", key -> new AbilityType<>(key, Ability::new));
 
 
 

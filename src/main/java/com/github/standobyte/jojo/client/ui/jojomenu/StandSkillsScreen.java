@@ -77,7 +77,8 @@ public class StandSkillsScreen extends Screen implements IJojoMenuScreen {
 				x, y, width, height, 0, 
 				0, 0, width, height, 256, 256, 
 				BlitFloat.NO_TINT);
-		int skinColor = standSkin.getColor();
+//		int textColor = standSkin.getColor();
+		int textColor = 0xFF000000;
 
 		int skillListX = x + SKILL_LIST_X;
 		int skillListY = y + SKILL_LIST_Y;
@@ -98,7 +99,7 @@ public class StandSkillsScreen extends Screen implements IJojoMenuScreen {
 			}
 			else {
 				int skillPoints = ((StandUnlockableSkill) skill).pointsToUnlock;
-				guiGraphics.drawString(font, "(" + String.valueOf(skillPoints) + ")", spriteX + 19, spriteY + 4, skinColor);
+				guiGraphics.drawString(font, "(" + String.valueOf(skillPoints) + ")", spriteX + 19, spriteY + 4, textColor);
 			}
 			
 			spriteY += 20;
@@ -109,16 +110,16 @@ public class StandSkillsScreen extends Screen implements IJojoMenuScreen {
 		
 		if (selectedSkill != null) {
 			TextUtil.drawRightAlignedString(guiGraphics, font, selectedSkill.textName, 
-					x + getWindowWidth() - 14, y + 24, skinColor, false);
+					x + getWindowWidth() - 14, y + 24, textColor, false);
 			
 			var description = font.split(selectedSkill.textDesc, 111);
 			for (int i = 0; i < description.size(); i++) {
-				guiGraphics.drawString(this.minecraft.font, description.get(i), x + 102, y + 53 + 9 * i, skinColor, false);
+				guiGraphics.drawString(this.minecraft.font, description.get(i), x + 102, y + 53 + 9 * i, textColor, false);
 			}
 			
 			var controls = font.split(selectedSkill.textControls, 101);
 			for (int i = 0; i < controls.size(); i++) {
-				guiGraphics.drawString(this.minecraft.font, controls.get(i), x + 90, y + 193 + 9 * i, skinColor, false);
+				guiGraphics.drawString(this.minecraft.font, controls.get(i), x + 90, y + 193 + 9 * i, textColor, false);
 			}
 		}
 		
