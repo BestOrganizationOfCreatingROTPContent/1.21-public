@@ -88,25 +88,25 @@ public class ModStands {
 					
 					.makeHotbar(0, InputKey.X, InputKey.C)
 					
-////					.addAbility("enhanced_eyesight", ModStandAbilities.SP_EYESIGHT)
-////					.inHotbar(0, InputMethod.CLICK)
-//					
-//					.addAbility("star_finger", ModStandAbilities.SP_STAR_FINGER)
+//					.addAbility("enhanced_eyesight", ModStandAbilities.SP_EYESIGHT)
 //					.inHotbar(0, InputMethod.CLICK)
-//					
-////					.addAbility("star_finger_swipe", ModStandAbilities.SP_STAR_FINGER_SWIPE)
-////					.inHotbarSlotVariation("star_finger", InputKey.Modifier.CONTROL, InputMethod.CLICK)
-//					
-//					.addAbility("inhale", ModStandAbilities.SP_INHALE)
-//					.inHotbar(0, InputMethod.HOLD)
-//					
-//					.addAbility("time_stop", ModStandAbilities.TIME_STOP)
-//					.inHotbar(0, InputMethod.CLICK)
+					
+					.addAbility("star_finger", ModStandAbilities.SP_STAR_FINGER)
+					.inHotbar(0, InputMethod.CLICK)
+					
+//					.addAbility("star_finger_swipe", ModStandAbilities.SP_STAR_FINGER_SWIPE)
+//					.inHotbarSlotVariation("star_finger", InputKey.Modifier.CONTROL, InputMethod.CLICK)
+					
+					.addAbility("inhale", ModStandAbilities.SP_INHALE)
+					.inHotbar(0, InputMethod.HOLD)
+					
+					.addAbility("time_stop", ModStandAbilities.TIME_STOP)
+					.inHotbar(0, InputMethod.CLICK)
 					
 					
 					.addSkill(StandUnlockableSkill.startingAbility("punch"))
 					.addSkill(StandUnlockableSkill.startingAbility("heavy_punch"))
-					.addSkill(StandUnlockableSkill.startingAbility("finisher_uppercut").prerequisiteSkill("heavy_punch"))
+					.addSkill(StandUnlockableSkill.startingAbility("uppercut").prerequisiteSkill("heavy_punch"))
 					.addSkill(StandUnlockableSkill.startingAbility("heavy_charged").prerequisiteSkill("heavy_punch"))
 					.addSkill(StandUnlockableSkill.startingAbility("barrage"))
 					.addSkill(StandUnlockableSkill.startingAbility("guard"))
@@ -158,7 +158,7 @@ public class ModStands {
 					.addSkill(StandUnlockableSkill.unlockableAbility("leave_object", 1).prerequisiteSkill("heal", "heavy_punch"))
 					.addSkill(StandUnlockableSkill.unlockableAbility("finisher_misshape", 1).prerequisiteSkill("heal", "heavy_punch"))
 					.addSkill(StandUnlockableSkill.unlockableAbility("revert_state", 1).withAbility("uncraft").prerequisiteSkill("repair_item"))
-					.addSkill(StandUnlockableSkill.unlockableAbility("restore_terrain", 1))
+					.addSkill(StandUnlockableSkill.unlockableAbility("restore_terrain", 1).withAbility("create_wall"))
 //					.addSkill(StandUnlockableSkill.unlockableAbility("fuse_with_rock", 1).prerequisiteSkill("finisher_misshape", "restore_terrain"))
 					.addSkill(StandUnlockableSkill.unlockableAbility("block_anchor", 1).withAbility("block_anchor_move"))
 					.addSkill(StandUnlockableSkill.unlockableAbility("block_bullet", 1).withAbility("blood_cutter"))

@@ -48,7 +48,7 @@
   "ripples_hud.resolve_bar.desc1.vamp": "",
   "ripples_hud.stamina_bar": "Стойкость Стенда: %s/%s",
   "ripples_hud.stamina_bar.desc": "Стойкость тратится при использовании способностей Стенда, и восстанавливается пассивно, когда вы не используете Стенд, или ещё быстрее, когда он отозван.\n%s",
-  "ripples_hud.stamina_bar.desc1.regular": "При низком уровне stamina ваш Стенд становится слабее, так что используйте его с умом.",
+  "ripples_hud.stamina_bar.desc1.regular": "При низком уровне стойкости ваш Стенд становится слабее, так что используйте его с умом.",
   "ripples_hud.stamina_bar.desc1.resolve": "Во время Истинной Решимости ваш Стенд не ослабевает от низкой стойкости.",
   "ripples_hud.stand_finisher": "Добивающий удар",
   "ripples_hud.stand_finisher.desc": "При использовании обычных ударов или нанесении урона шквалом ударов пополняется шкала добивающего удара, которая ускоряет следующий тяжёлый удар.\nКогда заполняется первая (белая) шкала, тяжёлый удар заменяется на особый добивающий удар.",
@@ -147,16 +147,20 @@
   "jojo_ripples.ability.bearing_shot": "Выстрел кусочком",
   
   
+  "jojo_ripples.skill.enhanced_eyesight": "Суперзрение",
+  "jojo_ripples.skill.enhanced_eyesight.desc": "#################################",
+  "jojo_ripples.ability.enhanced_eyesight": "Суперзрение",
+  
   "jojo_ripples.skill.star_finger": "Звёздный палец",
   "jojo_ripples.skill.star_finger.desc": "#################################",
-  "jojo_ripples.ability.star_finger": "Звёздный палец",
+  "jojo_ripples.ability.star_finger": "Звёздный палец (скоро)",
   
-  "jojo_ripples.skill.inhale": "Вдох",
+  "jojo_ripples.skill.inhale": "Звёздный вдох",
   "jojo_ripples.skill.inhale.desc": "#################################",
-  "jojo_ripples.ability.inhale": "Вдох",
+  "jojo_ripples.ability.inhale": "Звёздный вдох (скоро)",
   "jojo.subtitle.inhale": "Вдох",
   
   "jojo_ripples.skill.time_stop": "Остановка времени",
   "jojo_ripples.skill.time_stop.desc": "#################################",
-  "jojo_ripples.ability.time_stop": "Остановка времени (%ss)"
+  "jojo_ripples.ability.time_stop": "Остановка времени (%ss) (скоро)"
 }

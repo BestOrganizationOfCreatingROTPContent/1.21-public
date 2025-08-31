@@ -161,17 +161,21 @@
   "jojo_ripples.ability.bearing_shot": "Bearing Shot",
   
   
+  "jojo_ripples.skill.enhanced_eyesight": "Enhanced Vision",
+  "jojo_ripples.skill.enhanced_eyesight.desc": "#################################",
+  "jojo_ripples.ability.enhanced_eyesight": "Enhanced Vision",
+  
   "jojo_ripples.skill.star_finger": "Star Finger",
   "jojo_ripples.skill.star_finger.desc": "#################################",
-  "jojo_ripples.ability.star_finger": "Star Finger",
+  "jojo_ripples.ability.star_finger": "Star Finger (soon)",
   
   "jojo_ripples.skill.inhale": "Inhale",
   "jojo_ripples.skill.inhale.desc": "#################################",
-  "jojo_ripples.ability.inhale": "Inhale",
+  "jojo_ripples.ability.inhale": "Inhale (soon)",
   "jojo.subtitle.inhale": "Inhale",
   
   "jojo_ripples.skill.time_stop": "Time Stop",
   "jojo_ripples.skill.time_stop.desc": "#################################",
-  "jojo_ripples.ability.time_stop": "Time Stop (%ss)"
+  "jojo_ripples.ability.time_stop": "Time Stop (%ss) (soon)"
   
 }
