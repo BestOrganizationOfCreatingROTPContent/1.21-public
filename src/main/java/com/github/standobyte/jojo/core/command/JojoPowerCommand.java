@@ -30,14 +30,6 @@ public class JojoPowerCommand {
 			Commands.literal("power")
 				.requires(src -> src.hasPermission(2))
 				.then(
-				Commands.literal("clear")
-					.executes(src -> clearPower(src.getSource(), ImmutableList.of(src.getSource().getEntityOrException())))
-					.then(
-					Commands.argument("targets", EntityArgument.entities())
-						.executes(src -> clearPower(src.getSource(), EntityArgument.getEntities(src, "targets")))
-					)
-				)
-				.then(
 				Commands.literal("give")
 					.then(
 					Commands.argument("targets", EntityArgument.entities())
@@ -53,6 +45,22 @@ public class JojoPowerCommand {
 						)
 					)
 				)
+				.then(
+				Commands.literal("remove")
+					.executes(src -> removePower(src.getSource(), ImmutableList.of(src.getSource().getEntityOrException())))
+					.then(
+					Commands.argument("targets", EntityArgument.entities())
+						.executes(src -> removePower(src.getSource(), EntityArgument.getEntities(src, "targets")))
+					)
+				)
+//				.then(
+//				Commands.literal("fullclear")
+//					.executes(src -> fullClear(src.getSource(), ImmutableList.of(src.getSource().getEntityOrException())))
+//					.then(
+//					Commands.argument("targets", EntityArgument.entities())
+//						.executes(src -> fullClear(src.getSource(), EntityArgument.getEntities(src, "targets")))
+//					)
+//				)
 			)
 		);
 		JojoCommandsCommand.addCommand("power");
@@ -89,7 +97,7 @@ public class JojoPowerCommand {
 		}
 	}
 	
-	private static int clearPower(CommandSourceStack src, Collection<? extends Entity> targets) throws CommandSyntaxException {
+	private static int removePower(CommandSourceStack src, Collection<? extends Entity> targets) throws CommandSyntaxException {
 		int i = 0;
 		for (Entity entity : targets) {
 			if (entity instanceof LivingEntity living) {

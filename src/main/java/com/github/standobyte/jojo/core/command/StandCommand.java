@@ -31,14 +31,6 @@ public class StandCommand {
 			Commands.literal("stand")
 				.requires(src -> src.hasPermission(2))
 				.then(
-				Commands.literal("clear")
-					.executes(src -> clearStand(src.getSource(), ImmutableList.of(src.getSource().getEntityOrException())))
-					.then(
-					Commands.argument("targets", EntityArgument.entities())
-						.executes(src -> clearStand(src.getSource(), EntityArgument.getEntities(src, "targets")))
-					)
-				)
-				.then(
 				Commands.literal("give")
 					.then(
 					Commands.argument("targets", EntityArgument.entities())
@@ -54,6 +46,22 @@ public class StandCommand {
 						)
 					)
 				)
+				.then(
+				Commands.literal("remove")
+					.executes(src -> removeStand(src.getSource(), ImmutableList.of(src.getSource().getEntityOrException())))
+					.then(
+					Commands.argument("targets", EntityArgument.entities())
+						.executes(src -> removeStand(src.getSource(), EntityArgument.getEntities(src, "targets")))
+					)
+				)
+//				.then(
+//				Commands.literal("fullclear")
+//					.executes(src -> fullClear(src.getSource(), ImmutableList.of(src.getSource().getEntityOrException())))
+//					.then(
+//					Commands.argument("targets", EntityArgument.entities())
+//						.executes(src -> fullClear(src.getSource(), EntityArgument.getEntities(src, "targets")))
+//					)
+//				)
 			)
 		);
 		JojoCommandsCommand.addCommand("stand");
@@ -90,7 +98,7 @@ public class StandCommand {
 		}
 	}
 	
-	private static int clearStand(CommandSourceStack src, Collection<? extends Entity> targets) throws CommandSyntaxException {
+	private static int removeStand(CommandSourceStack src, Collection<? extends Entity> targets) throws CommandSyntaxException {
 		int i = 0;
 		for (Entity entity : targets) {
 			if (entity instanceof LivingEntity living) {
