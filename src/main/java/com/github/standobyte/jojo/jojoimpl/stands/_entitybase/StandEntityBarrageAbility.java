@@ -10,6 +10,7 @@ import com.github.standobyte.jojo.powersystem.ability.AbilityType;
 import com.github.standobyte.jojo.powersystem.entityaction.ActionPhase;
 import com.github.standobyte.jojo.powersystem.entityaction.EntityActionInstance;
 import com.github.standobyte.jojo.powersystem.entityaction.type.EntityActionType;
+import com.github.standobyte.jojo.powersystem.standpower.StandPower;
 import com.github.standobyte.jojo.powersystem.standpower.entity.StandEntity;
 import com.github.standobyte.jojo.powersystem.standpower.entity.StandEntityAbility;
 import com.github.standobyte.jojo.powersystem.standpower.entity.StandOffsetFromUser;
@@ -87,6 +88,8 @@ public class StandEntityBarrageAbility extends StandEntityAbility {
 						float dmgAmount = 1;
 						standEntityAttack(stand, targetLiving, dmgSource, dmgAmount);
 					}
+					StandPower standPower = StandPower.get(getPowerUser());
+					standPower.consumeStamina(4);
 				}
 			}
 		}

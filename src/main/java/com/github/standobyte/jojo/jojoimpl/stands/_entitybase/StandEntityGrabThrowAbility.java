@@ -11,6 +11,7 @@ import com.github.standobyte.jojo.powersystem.ability.AbilityType;
 import com.github.standobyte.jojo.powersystem.entityaction.ActionPhase;
 import com.github.standobyte.jojo.powersystem.entityaction.EntityActionInstance;
 import com.github.standobyte.jojo.powersystem.entityaction.type.EntityActionType;
+import com.github.standobyte.jojo.powersystem.standpower.StandPower;
 import com.github.standobyte.jojo.powersystem.standpower.entity.StandEntity;
 import com.github.standobyte.jojo.powersystem.standpower.entity.StandEntityAbility;
 import com.github.standobyte.jojo.powersystem.standpower.entity.StandOffsetFromUser;
@@ -91,6 +92,8 @@ public class StandEntityGrabThrowAbility extends StandEntityAbility {
 					Vec3 throwVec = performer.getLookAngle().scale(2);
 					grabbedEntity.setDeltaMovement(throwVec);
 				}
+				StandPower standPower = StandPower.get(getPowerUser());
+				standPower.consumeStamina(50);
 			}
 			aimAs = AimingEntity.PLAYER;
 		}

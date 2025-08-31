@@ -19,6 +19,7 @@ import com.github.standobyte.jojo.powersystem.standpower.type.StandType;
 import com.github.standobyte.jojo.powersystem.standpower.type.StandTypePersistentData;
 import com.github.standobyte.jojo.powersystem.standpower.type.SummonedStand;
 import com.github.standobyte.jojo.util.NBTUtil;
+import com.github.standobyte.jojo.util.StandUtil;
 import com.github.standobyte.jojo.util.entitycomponent.PostNbtReadEntityData;
 import com.github.standobyte.jojo.util.java.LerpValue;
 import com.mojang.datafixers.util.Either;
@@ -176,10 +177,22 @@ public class StandPower extends Power<StandPower> implements PostNbtReadEntityDa
 		if (!clientSide) {
 			stamina = Mth.clamp(stamina, 0, getMaxStamina());
 		}
-		if (this.staminaLerp.set(stamina, false)) {
+		if (this.staminaLerp.set(stamina, true)) {
 			if (!clientSide) {
 				PacketDistributor.sendToPlayersTrackingEntityAndSelf(user, new TrStaminaPacket(user.getId(), stamina));
 			}
+		}
+	}
+	
+	public boolean consumeStamina(float amount) {
+		float curAmount = getStamina();
+		if (curAmount >= amount) {
+			setStamina(curAmount - amount);
+			return true;
+		}
+		else {
+			setStamina(0);
+			return StandUtil.staminaDebuffDisabled(getUser());
 		}
 	}
 	

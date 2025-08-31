@@ -8,6 +8,7 @@ import com.github.standobyte.jojo.powersystem.ability.AbilityType;
 import com.github.standobyte.jojo.powersystem.entityaction.ActionPhase;
 import com.github.standobyte.jojo.powersystem.entityaction.EntityActionInstance;
 import com.github.standobyte.jojo.powersystem.entityaction.type.EntityActionType;
+import com.github.standobyte.jojo.powersystem.standpower.StandPower;
 import com.github.standobyte.jojo.powersystem.standpower.entity.StandEntity;
 import com.github.standobyte.jojo.powersystem.standpower.entity.StandEntityAbility;
 import com.github.standobyte.jojo.powersystem.standpower.entity.StandOffsetFromUser;
@@ -71,6 +72,8 @@ public class StandEntityGrabAbility extends StandEntityAbility {
 						LivingComponentGrab standGrab = performer.getData(ModDataAttachmentTypes.LIVING_GRAB.get());
 						standGrab.setGrabbedEntity(targetLiving);
 					}
+					StandPower standPower = StandPower.get(getPowerUser());
+					standPower.consumeStamina(10);
 				}
 				
 				if (target.getType() == TargetType.ENTITY) {

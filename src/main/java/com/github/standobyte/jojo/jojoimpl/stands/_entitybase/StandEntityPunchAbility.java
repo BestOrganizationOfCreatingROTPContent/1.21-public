@@ -143,6 +143,8 @@ public class StandEntityPunchAbility extends StandEntityAbility {
 							stand.addFinisherMeter(0.2f);
 						}
 					}
+					StandPower standPower = StandPower.get(getPowerUser());
+					standPower.consumeStamina(10);
 				}
 				/*
 				 *  During the punch, the Stand entity keeps rotating towards the target (keepStandAimedAtTarget()).

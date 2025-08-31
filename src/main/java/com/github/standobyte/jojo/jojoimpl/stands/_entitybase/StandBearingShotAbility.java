@@ -11,6 +11,7 @@ import com.github.standobyte.jojo.powersystem.ability.EntityActionAbility;
 import com.github.standobyte.jojo.powersystem.entityaction.ActionPhase;
 import com.github.standobyte.jojo.powersystem.entityaction.EntityActionInstance;
 import com.github.standobyte.jojo.powersystem.entityaction.type.EntityActionType;
+import com.github.standobyte.jojo.powersystem.standpower.StandPower;
 import com.github.standobyte.jojo.powersystem.standpower.entity.StandEntity;
 import com.github.standobyte.jojo.powersystem.standpower.entity.StandEntityAbility;
 import com.github.standobyte.jojo.powersystem.standpower.entity.StandOffsetFromUser;
@@ -85,6 +86,8 @@ public class StandBearingShotAbility extends StandEntityAbility {
 							serverLevel, itemStack, performer, stand, 0, ThrownNuggetBearingEntity.shotVelocity(itemStack), 1.0f);
 					
 					itemStack.consume(1, performer);
+					StandPower standPower = StandPower.get(getPowerUser());
+					standPower.consumeStamina(10);
 				}
 			}
 		}
