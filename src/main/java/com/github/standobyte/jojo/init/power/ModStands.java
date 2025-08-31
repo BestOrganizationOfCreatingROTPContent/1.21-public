@@ -65,7 +65,7 @@ public class ModStands {
 					.withBind(InputKey.RMB.withModifier(InputKey.Modifier.CONTROL), InputMethod.CLICK)
 					
 					.addAbility("grab_release", ModStandAbilities.GRAB_RELEASE)
-					.withBind(InputKey.RMB.withModifier(InputKey.Modifier.CONTROL), InputMethod.CLICK)
+					.withBind(InputKey.Q, InputMethod.CLICK)
 					
 					.addAbility("grabbed_throw", ModStandAbilities.GRAB_THROW)
 					.withBind(InputKey.RMB, InputMethod.HOLD)
