@@ -1,4 +1,5 @@
 {  
 	"stand_type": "jojo_ripples:gold_experience",
-	"color" : "#D7933B"
+	"color" : "#D7933B",
+	"story_part": "jojo_ripples:p5"
 }

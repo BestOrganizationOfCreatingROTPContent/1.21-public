@@ -290,6 +290,7 @@ public class StandSkinsLoader implements PreparableReloadListener {
 		private final ResourceLocation skinId;
 		private ResourceLocation standId;
 		private OptionalInt uiColor = OptionalInt.empty();
+		private Optional<ResourceLocation> storyPart = Optional.empty();
 		private Map<ResourceLocation, LayerDefinition> models;
 		private Map<ResourceLocation, AnimationSet.Builder> animations;
 		private Map<ResourceLocation, WeighedSoundEvents> soundEvents;
@@ -308,7 +309,7 @@ public class StandSkinsLoader implements PreparableReloadListener {
 		}
 		
 		private StandSkin makeSkin() {
-			StandSkin skin = new StandSkin(skinId, standId, uiColor);
+			StandSkin skin = new StandSkin(skinId, standId, uiColor, storyPart);
 			if (models != null) skin.withModels(models);
 			if (animations != null) skin.withAnimations(animations);
 			if (soundEvents != null) skin.withSoundEvents(soundEvents);
@@ -323,6 +324,9 @@ public class StandSkinsLoader implements PreparableReloadListener {
 		ResourceLocation.CODEC.decode(JsonOps.INSTANCE, skinInfoJson.get("stand_type")).ifSuccess(res -> builder.standId = res.getFirst());
 		if (skinInfoJson.has("color")) {
 			builder.uiColor = OptionalInt.of(0xff000000 | JSONUtil.parseColor(skinInfoJson.get("color")));
+		}
+		if (skinInfoJson.has("story_part")) {
+			builder.storyPart = Optional.of(ResourceLocation.parse(skinInfoJson.get("story_part").getAsString()));
 		}
 	}
 	

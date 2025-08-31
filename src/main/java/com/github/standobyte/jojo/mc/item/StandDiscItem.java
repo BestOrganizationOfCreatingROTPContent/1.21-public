@@ -3,11 +3,15 @@ package com.github.standobyte.jojo.mc.item;
 import java.util.List;
 import java.util.Optional;
 
+import com.github.standobyte.jojo.client.standskin.StandSkin;
+import com.github.standobyte.jojo.client.standskin.StandSkinsLoader;
 import com.github.standobyte.jojo.init.ModItemDataComponents;
 import com.github.standobyte.jojo.mc.item.component.StandWrittenOnDisc;
+import com.github.standobyte.jojo.mechanics.StoryPart;
 import com.github.standobyte.jojo.powersystem.PowerClass;
 import com.github.standobyte.jojo.powersystem.standpower.StandPower;
 
+import net.minecraft.core.Holder;
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResultHolder;
@@ -31,6 +35,14 @@ public class StandDiscItem extends Item {
 		Component standName = discStand.standInstance.getStandName(true);
 		if (standName != null) {
 			tooltip.add(standName);
+		}
+
+		StandSkin skin = StandSkinsLoader.getInstance().getSkin(discStand.standInstance);
+		if (skin != null) {
+			Holder<StoryPart> storyPart = skin.getStoryPart(ctx.registries());
+			if (storyPart != null) {
+				tooltip.add(StoryPart.partName(storyPart));
+			}
 		}
 	}
 

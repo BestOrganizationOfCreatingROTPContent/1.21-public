@@ -7,6 +7,8 @@ import java.util.Optional;
 import java.util.OptionalInt;
 import java.util.function.Function;
 
+import javax.annotation.Nullable;
+
 import com.github.standobyte.jojo.client.entityanim.AnimWithExtras;
 import com.github.standobyte.jojo.client.entityanim.AnimationSet;
 import com.github.standobyte.jojo.client.entityrender.stand.StandEntityModel;
@@ -15,14 +17,19 @@ import com.github.standobyte.jojo.client.entityrender.stand.StandEntityRenderer;
 import com.github.standobyte.jojo.client.standskin.sound.CustomPathSound;
 import com.github.standobyte.jojo.client.ui.utils.GuiIcon;
 import com.github.standobyte.jojo.client.utils.ResourcePathChecker;
+import com.github.standobyte.jojo.core.JojoRegistries;
+import com.github.standobyte.jojo.mechanics.StoryPart;
 import com.github.standobyte.jojo.powersystem.standpower.entity.StandEntity;
 
 import net.minecraft.client.model.Model;
 import net.minecraft.client.model.geom.builders.LayerDefinition;
 import net.minecraft.client.resources.sounds.Sound;
 import net.minecraft.client.sounds.WeighedSoundEvents;
+import net.minecraft.core.Holder;
+import net.minecraft.core.HolderLookup;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.MutableComponent;
+import net.minecraft.resources.ResourceKey;
 import net.minecraft.resources.ResourceLocation;
 
 public class StandSkin {
@@ -33,6 +40,7 @@ public class StandSkin {
 	public final Optional<ResourceLocation> nonDefaultId;
 	protected final ResourcePathChecker standTexture;
 	protected final OptionalInt color;
+	protected final Optional<ResourceLocation> storyPart;
 	
 	protected Map<ResourceLocation, LayerDefinition> models = new HashMap<>();
 	protected LayerDefinition standModel;
@@ -49,7 +57,7 @@ public class StandSkin {
 	protected Optional<GuiIcon> standIcon;
 	protected final Map<ResourceLocation, ResourcePathChecker> remapPathCache = new HashMap<>();
 	
-	public StandSkin(ResourceLocation skinId, ResourceLocation standId, OptionalInt color) {
+	public StandSkin(ResourceLocation skinId, ResourceLocation standId, OptionalInt color, Optional<ResourceLocation> storyPart) {
 		this.skinId = skinId;
 		this.standTypeId = standId;
 		this.standTexture = remapAssetPath(ResourceLocation.fromNamespaceAndPath(
@@ -58,6 +66,7 @@ public class StandSkin {
 		this.isDefault = skinId.equals(standId);
 		this.nonDefaultId = isDefault ? Optional.empty() : Optional.of(skinId);
 		this.color = color;
+		this.storyPart = storyPart;
 	}
 	
 	protected void withModels(Map<ResourceLocation, LayerDefinition> models) {
@@ -98,6 +107,27 @@ public class StandSkin {
 			return defaultSkin.color.getAsInt();
 		}
 		return 0xffffff;
+	}
+	
+	@Nullable
+	public Holder<StoryPart> getStoryPart(HolderLookup.Provider registries) {
+		ResourceLocation storyPartId = null;
+		if (this.storyPart.isPresent()) {
+			storyPartId = this.storyPart.get();
+		}
+		if (this != defaultSkin && defaultSkin != null && defaultSkin.storyPart.isPresent()) {
+			storyPartId = defaultSkin.storyPart.get();
+		}
+		
+		if (storyPartId != null) {
+			ResourceLocation id = storyPartId;
+			Holder<StoryPart> storyPart = registries.lookup(JojoRegistries.STORY_PARTS_REG_KEY)
+					.flatMap(registry -> registry.get(ResourceKey.create(JojoRegistries.STORY_PARTS_REG_KEY, id)))
+					.filter(Holder.Reference::isBound)
+					.orElse(null);
+			return storyPart;
+		}
+		return null;
 	}
 	
 	public ResourceLocation getTexture(ResourceLocation path) {

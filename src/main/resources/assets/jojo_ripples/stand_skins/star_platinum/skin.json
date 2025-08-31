@@ -1,4 +1,5 @@
 {  
 	"stand_type": "jojo_ripples:star_platinum",
-	"color" : "#8E45FF"
+	"color" : "#8E45FF",
+	"story_part": "jojo_ripples:p3"
 }
