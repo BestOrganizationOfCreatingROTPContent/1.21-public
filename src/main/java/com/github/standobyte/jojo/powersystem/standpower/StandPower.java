@@ -1,5 +1,6 @@
 package com.github.standobyte.jojo.powersystem.standpower;
 
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
@@ -9,6 +10,7 @@ import javax.annotation.Nullable;
 
 import com.github.standobyte.jojo.core.packet.fromserver.TrPowerStandInstancePacket;
 import com.github.standobyte.jojo.core.packet.fromserver.TrStandSkinPacket;
+import com.github.standobyte.jojo.init.core.ModEntityAttributes;
 import com.github.standobyte.jojo.powersystem.Power;
 import com.github.standobyte.jojo.powersystem.PowerClass;
 import com.github.standobyte.jojo.powersystem.standpower.entity.StandEntity;
@@ -25,6 +27,7 @@ import net.minecraft.core.HolderLookup;
 import net.minecraft.core.RegistryAccess;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.NbtOps;
+import net.minecraft.network.protocol.game.ClientboundUpdateAttributesPacket;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.util.Mth;
@@ -246,7 +249,7 @@ public class StandPower extends Power<StandPower> implements PostNbtReadEntityDa
 	public void syncToPlayer(ServerPlayer user) {
 		super.syncToPlayer(user);
 		PacketDistributor.sendToPlayer(user, new TrPowerStandInstancePacket(user.getId(), standInstance, getCurTypeData(), false));
-		PacketDistributor.sendToPlayer(user, new TrStaminaPacket(user.getId(), staminaLerp.get()));
+		syncStaminaFixed(user, user);
 		resolveHandler.syncToUser(user);
 		PacketDistributor.sendToPlayer(user, new TrStandSkinPacket(user.getId(), getSelectedSkin()));
 	}
@@ -255,9 +258,17 @@ public class StandPower extends Power<StandPower> implements PostNbtReadEntityDa
 	public void syncToTracking(ServerPlayer player) {
 		super.syncToTracking(player);
 		PacketDistributor.sendToPlayer(player, new TrPowerStandInstancePacket(user.getId(), standInstance, getCurTypeData(), true));
-		PacketDistributor.sendToPlayer(player, new TrStaminaPacket(user.getId(), staminaLerp.get()));
+		syncStaminaFixed(player, user);
 		resolveHandler.syncToTracking(user, player);
 		PacketDistributor.sendToPlayer(player, new TrStandSkinPacket(user.getId(), getSelectedSkin()));
+	}
+	
+	protected void syncStaminaFixed(ServerPlayer player, LivingEntity user) {
+		var durabilityAttribute = user.getAttribute(ModEntityAttributes.STAND_DURABILITY);
+		if (durabilityAttribute != null) {
+			player.connection.send(new ClientboundUpdateAttributesPacket(user.getId(), Collections.singletonList(durabilityAttribute)));
+		}
+		PacketDistributor.sendToPlayer(player, new TrStaminaPacket(user.getId(), staminaLerp.get()));
 	}
 	
 	@Override
