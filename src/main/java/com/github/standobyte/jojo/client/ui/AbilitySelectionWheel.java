@@ -17,6 +17,7 @@ import com.github.standobyte.jojo.client.input.controlscheme.ClientControlScheme
 import com.github.standobyte.jojo.client.input.controlscheme.ClientControlScheme.PowerClassAbility;
 import com.github.standobyte.jojo.client.standskin.StandSkin;
 import com.github.standobyte.jojo.client.standskin.StandSkinsLoader;
+import com.github.standobyte.jojo.client.standskin.sprites.AbilityIconSprites;
 import com.github.standobyte.jojo.client.ui.powerhud.tooltip.TooltipParams;
 import com.github.standobyte.jojo.client.ui.utils.BlitFloat;
 import com.github.standobyte.jojo.core.JojoMod;
@@ -35,6 +36,7 @@ import net.minecraft.ChatFormatting;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.screens.Screen;
+import net.minecraft.client.renderer.texture.TextureAtlasSprite;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.util.Mth;
@@ -44,17 +46,21 @@ public class AbilitySelectionWheel extends Screen implements ScreenLetsUseWASD {
 	protected static final ResourceLocation DEFAULT_TEXTURE = JojoMod.resLoc("textures/ability_wheel.png");
 	protected ResourceLocation texture;
 	public ClientControlScheme.Hotbar abilities;
+	protected StandPower standPower;
+	protected StandSkin standSkin;
 
 	public AbilitySelectionWheel(ClientControlScheme.Hotbar abilities) {
 		super(Component.translatable("jojo.screen.ability_selection_wheel"));
 		this.abilities = abilities;
-		
-		StandPower standPower = ClientPowerCache.getPower(PowerClass.STAND);
+	}
+	
+	public void init() {
+		standPower = ClientPowerCache.getPower(PowerClass.STAND);
 		if (standPower != null) {
 			StandSkinsLoader skinLoader = StandSkinsLoader.getInstance();
-			StandSkin skin = skinLoader.getSkin(standPower);
-			if (skin != null) {
-				texture = skin.getTexture(DEFAULT_TEXTURE);
+			standSkin = skinLoader.getSkin(standPower);
+			if (standSkin != null) {
+				texture = standSkin.getTexture(DEFAULT_TEXTURE);
 			}
 		}
 		if (texture == null) {
@@ -70,17 +76,24 @@ public class AbilitySelectionWheel extends Screen implements ScreenLetsUseWASD {
 //			GLFW.glfwSetInputMode(windowHandle, GLFW.GLFW_CURSOR, GLFW.GLFW_CURSOR_HIDDEN);
 //		}
 		if (newSelectedSlot.isPresent()) {
-			double angle = (newSelectedSlot.getAsInt() + 0.5) * 2 * Math.PI / abilities.slots.size();
-			double radius = 50;
 			double width = (double)window.getScreenWidth();
 			double height = (double)window.getScreenHeight();
-			double rX = radius / (double)window.getGuiScaledWidth() * width;
-			double rY = radius / (double)window.getGuiScaledHeight() * height;
-			double xpos = width / 2 + Math.sin(angle) * rX;
-			double ypos = height / 2 - Math.cos(angle) * rY;
+			int[] pos = posAtSector(newSelectedSlot.getAsInt(), abilities.slots.size(), 50);
+			double xpos = pos[0] / (double)window.getGuiScaledWidth() * width;
+			double ypos = pos[1] / (double)window.getGuiScaledHeight() * height;
 			GLFW.glfwSetCursorPos(windowHandle, xpos, ypos);
 		}
 		mouseIgnorePos = new int[] { ClientUtil.getScreenMouseX(), ClientUtil.getScreenMouseY() };
+	}
+	
+	protected int[] posAtSector(int index, int count, double distFromCenter) {
+		Window window = minecraft.getWindow();
+		double angle = (index + 0.5) * 2 * Math.PI / count;
+		double width = (double)window.getGuiScaledWidth();
+		double height = (double)window.getGuiScaledHeight();
+		double xpos = width / 2 + Math.sin(angle) * distFromCenter;
+		double ypos = height / 2 - Math.cos(angle) * distFromCenter;
+		return new int[] { (int) xpos, (int) ypos };
 	}
 	
 	public boolean checkIsIgnoringMouse(int mouseX, int mouseY) {
@@ -131,6 +144,28 @@ public class AbilitySelectionWheel extends Screen implements ScreenLetsUseWASD {
 			angle0 += angleStep;
 			if (highlight) {
 				pose.popPose();
+			}
+			
+			
+			var slot = abilities.slots.get(i);
+			KeyModifier curModifier = InputHandler.getInstance().getCurModifier();
+			AbilityIconSprites abilityIconSprites = StandSkinsLoader.getInstance().abilityIcons;
+
+			TextureAtlasSprite abilitySprite = null;
+			for (var byInputMethod : slot.binds.entrySet()) {
+				PowerClassAbility ability = byInputMethod.getValue().getFirst(curModifier);
+				if (ability != null) {
+					abilitySprite = abilityIconSprites.getAbilityIcon(ability.abilityName(), standSkin);
+					break;
+				}
+			}
+			
+			if (abilitySprite != null) {
+				int[] iconPos = posAtSector(i, n, 75);
+				float iconWidth = 16;
+				float iconHeight = 16;
+				BlitFloat.blit(pose, minecraft, abilitySprite, 
+						iconPos[0] - iconWidth / 2, iconPos[1] - iconHeight / 2, iconWidth, iconHeight, 0, BlitFloat.NO_TINT);
 			}
 		}
 		RenderSystem.disableBlend();
