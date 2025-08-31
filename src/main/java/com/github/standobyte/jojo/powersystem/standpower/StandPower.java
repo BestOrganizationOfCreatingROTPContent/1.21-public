@@ -169,9 +169,12 @@ public class StandPower extends Power<StandPower> implements PostNbtReadEntityDa
 	}
 	
 	public void setStamina(float stamina) {
-		stamina = Mth.clamp(stamina, 0, getMaxStamina());
+		boolean clientSide = user.level().isClientSide();
+		if (!clientSide) {
+			stamina = Mth.clamp(stamina, 0, getMaxStamina());
+		}
 		if (this.staminaLerp.set(stamina, false)) {
-			if (!user.level().isClientSide()) {
+			if (!clientSide) {
 				PacketDistributor.sendToPlayersTrackingEntityAndSelf(user, new TrStaminaPacket(user.getId(), stamina));
 			}
 		}
