@@ -1,7 +1,7 @@
 package com.github.standobyte.jojo.util.entitycomponent;
 
-import java.util.ArrayList;
-import java.util.List;
+import java.util.IdentityHashMap;
+import java.util.Map;
 
 import org.jetbrains.annotations.ApiStatus;
 
@@ -10,60 +10,60 @@ import net.minecraft.world.entity.player.Player;
 import net.neoforged.neoforge.attachment.IAttachmentHolder;
 
 public class DataEventListeners {
-	private List<SynchronizableEntityData> entityDataSync = new ArrayList<>();
-	private List<SynchronizablePlayerData> playerDataSync = new ArrayList<>();
-	private List<TickingEntityData> ticking = new ArrayList<>();
-	private List<PostNbtReadEntityData> postNbtCallback = new ArrayList<>();
+	private Map<Class<?>, SynchronizableEntityData> entityDataSync = new IdentityHashMap<>(4);
+	private Map<Class<?>, SynchronizablePlayerData> playerDataSync = new IdentityHashMap<>(4);
+	private Map<Class<?>, TickingEntityData> ticking = new IdentityHashMap<>(4);
+	private Map<Class<?>, PostNbtReadEntityData> postNbtCallback = new IdentityHashMap<>(4);
 	
 	public DataEventListeners(IAttachmentHolder entity) {}
 	
 	
 	@ApiStatus.Internal
 	public void addEntityDataSync(SynchronizableEntityData data) {
-		this.entityDataSync.add(data);
+		this.entityDataSync.put(data.getClass(), data);
 	}
 	
 	@ApiStatus.Internal
 	public void addPlayerDataSync(SynchronizablePlayerData data) {
-		this.entityDataSync.add(data);
-		this.playerDataSync.add(data);
+		this.entityDataSync.put(data.getClass(), data);
+		this.playerDataSync.put(data.getClass(), data);
 	}
 	
 	public void addTickingData(TickingEntityData data) {
-		this.ticking.add(data);
+		this.ticking.put(data.getClass(), data);
 	}
 	
 	public void addPostNbtReadCallback(PostNbtReadEntityData data) {
-		this.postNbtCallback.add(data);
+		this.postNbtCallback.put(data.getClass(), data);
 	}
 	
 	
 	public void onTracking(ServerPlayer tracking) {
-		for (var listener : entityDataSync) {
+		for (var listener : entityDataSync.values()) {
 			listener.syncToTracking(tracking);
 		}
 	}
 	
 	public void onSyncToPlayer(ServerPlayer player) {
-		for (var listener : playerDataSync) {
+		for (var listener : playerDataSync.values()) {
 			listener.syncToPlayer(player);
 		}
 	}
 	
 	public void onClone(Player newPlayer, boolean wasDeath) {
-		for (var listener : playerDataSync) {
+		for (var listener : playerDataSync.values()) {
 			listener.onPlayerClone(newPlayer, wasDeath);
 		}
 	}
 	
 	public void onTick() {
-		for (var listener : ticking) {
+		for (var listener : ticking.values()) {
 			listener.tick();
 		}
 	}
 	
 	public void afterNbtRead() {
-		for (var listener : postNbtCallback) {
+		for (var listener : postNbtCallback.values()) {
 			listener.afterNbtRead();
 		}
 	}
