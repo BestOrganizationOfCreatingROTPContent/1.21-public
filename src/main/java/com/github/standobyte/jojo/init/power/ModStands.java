@@ -156,7 +156,7 @@ public class ModStands {
 					.addSkill(StandUnlockableSkill.unlockableAbility("leap", 1))
 					.addSkill(StandUnlockableSkill.unlockableAbility("heal", 1))
 					.addSkill(StandUnlockableSkill.unlockableAbility("leave_object", 1).prerequisiteSkill("heal", "heavy_punch"))
-					.addSkill(StandUnlockableSkill.unlockableAbility("finisher_misshape", 1).prerequisiteSkill("heal", "heavy_punch"))
+					.addSkill(StandUnlockableSkill.unlockableAbility("disfiguring_punch", 1).prerequisiteSkill("heal", "heavy_punch"))
 					.addSkill(StandUnlockableSkill.unlockableAbility("revert_state", 1).withAbility("uncraft").prerequisiteSkill("repair_item"))
 					.addSkill(StandUnlockableSkill.unlockableAbility("restore_terrain", 1).withAbility("create_wall"))
 //					.addSkill(StandUnlockableSkill.unlockableAbility("fuse_with_rock", 1).prerequisiteSkill("finisher_misshape", "restore_terrain"))
