@@ -92,7 +92,7 @@ public class ControlsHudElement extends HudElement {
 		Power<?> power = input.getCurPower();
 		if (power == null || !power.hasPower()) return false;
 
-		return !hud.inContainerMenu.isDefault();
+		return !hud.inContainerMenu.isFalse();
 	}
 
 	@Override

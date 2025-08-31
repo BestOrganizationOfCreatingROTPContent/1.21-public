@@ -130,7 +130,8 @@ public class PowerHud {
 			Minecraft mc = Minecraft.getInstance();
 			int mouseX = -1;
 			int mouseY = -1;
-			if (!(mc.screen instanceof AbstractContainerScreen)) {
+			boolean isContainer = mc.screen instanceof AbstractContainerScreen;
+			if (!isContainer) {
 				if (mc.screen != null && hasElementTooltips(mc.screen)) {
 					mouseX = (int)(mc.mouseHandler.xpos()
 							* (double)mc.getWindow().getGuiScaledWidth()
@@ -140,10 +141,7 @@ public class PowerHud {
 							/ (double)mc.getWindow().getScreenHeight());
 				}
 			}
-			setupRender(TriState.FALSE, mouseX, mouseY);
-			renderAbilitiesHUD(guiGraphics, deltaTracker);
-			
-			setupRender(TriState.DEFAULT, mouseX, mouseY);
+			setupRender(isContainer ? TriState.FALSE : TriState.DEFAULT, mouseX, mouseY);
 			renderAbilitiesHUD(guiGraphics, deltaTracker);
 		}
 
@@ -204,7 +202,7 @@ public class PowerHud {
 
 		@Override
 		public boolean shouldRender() {
-			if (!hud.inContainerMenu.isDefault()) return false;
+			if (hud.inContainerMenu.isTrue()) return false;
 			StandPower standPower = ClientPowerCache.getPower(PowerClass.STAND);
 			return standPower != null && standPower.usesResolve();
 		}
@@ -313,7 +311,7 @@ public class PowerHud {
 
 		@Override
 		public boolean shouldRender() {
-			if (!hud.inContainerMenu.isDefault()) return false;
+			if (hud.inContainerMenu.isTrue()) return false;
 			StandPower standPower = ClientPowerCache.getPower(PowerClass.STAND);
 			return standPower != null && standPower.usesStamina();
 		}
@@ -342,14 +340,14 @@ public class PowerHud {
 			
 			MultiLineScreenTooltip tooltipText = (MultiLineScreenTooltip) this.tooltip.get();
 			tooltipText.setTitle(Component.translatable("ripples_hud.stamina_bar",
-					Component.literal(String.valueOf(standPower.getStamina())).withStyle(style -> style.withColor(color(standPower.getStaminaRatio()))),
-					Component.literal(String.valueOf(standPower.getMaxStamina()))
+					Component.literal(String.valueOf((int) standPower.getStamina())).withStyle(style -> style.withColor(color(standPower.getStaminaRatio()))),
+					Component.literal(String.valueOf((int) standPower.getMaxStamina()))
 					).withStyle(ChatFormatting.BLACK));
 			super.checkTooltip(mouseX, mouseY, deltaTracker);
 		}
 		
 		public static int color(float ratio) {
-			return FastColor.ARGB32.colorFromFloat(1, 1 - ratio, ratio, 0f);
+			return FastColor.ARGB32.colorFromFloat(1, (1 - ratio) * 0.6f, ratio * 0.6f, 0f);
 		}
 	}
 	
@@ -372,7 +370,7 @@ public class PowerHud {
 
 		@Override
 		public boolean shouldRender() {
-			if (!hud.inContainerMenu.isDefault()) return false;
+			if (hud.inContainerMenu.isTrue()) return false;
 			StandEntity stand = ClientGlobals.playerStandEntity;
 			return stand != null;
 		}
