@@ -38,10 +38,7 @@ public abstract class HudElement implements GuiEventListener {
 	
 	public HudElement(String name, SnappingH snappingHorizontal, SnappingV snappingVertical, int xOffset, int yOffset, int width, int height) {
 		this.name = name;
-		this.tooltipText = new MultiLineScreenTooltip(
-				Component.translatable("ripples_hud." + name).withStyle(ChatFormatting.BLACK), 
-				Component.translatable("ripples_hud." + name + ".desc").withStyle(ChatFormatting.ITALIC, ChatFormatting.DARK_GRAY));
-		this.tooltip.set(this.tooltipText);
+		initText();
 		this.snappingHorizontal = snappingHorizontal;
 		this.snappingVertical = snappingVertical;
 		switch (snappingHorizontal) {
@@ -55,6 +52,13 @@ public abstract class HudElement implements GuiEventListener {
 			default -> {}
 		}
 		updateRectangle(width, height);
+	}
+	
+	protected void initText() {
+		this.tooltipText = new MultiLineScreenTooltip(
+				Component.translatable("ripples_hud." + name).withStyle(ChatFormatting.BLACK), 
+				Component.translatable("ripples_hud." + name + ".desc").withStyle(ChatFormatting.ITALIC, ChatFormatting.DARK_GRAY));
+		this.tooltip.set(this.tooltipText);
 	}
 	
 	public void updateRectangle() {

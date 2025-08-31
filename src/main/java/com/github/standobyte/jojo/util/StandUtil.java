@@ -2,6 +2,7 @@ package com.github.standobyte.jojo.util;
 
 import javax.annotation.Nullable;
 
+import com.github.standobyte.jojo.init.ModStatusEffects;
 import com.github.standobyte.jojo.mechanics.grab.LivingComponentGrab;
 import com.github.standobyte.jojo.powersystem.Power;
 import com.github.standobyte.jojo.powersystem.PowerClass;
@@ -47,6 +48,10 @@ public class StandUtil {
 		}
 		
 		return null;
+	}
+	
+	public static boolean staminaDebuffDisabled(LivingEntity standUser) {
+		return ModStatusEffects.isInResolveEffect(standUser);
 	}
     
 }

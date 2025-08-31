@@ -7,12 +7,16 @@ import com.github.standobyte.jojo.client.ClientGlobals;
 import com.github.standobyte.jojo.client.ClientPowerCache;
 import com.github.standobyte.jojo.client.ClientUtil;
 import com.github.standobyte.jojo.client.standskin.StandSkinsLoader;
+import com.github.standobyte.jojo.client.ui.powerhud.tooltip.MultiLineScreenTooltip;
 import com.github.standobyte.jojo.client.ui.utils.BlitFloat;
 import com.github.standobyte.jojo.client.ui.utils.GuiIcon;
 import com.github.standobyte.jojo.core.JojoMod;
+import com.github.standobyte.jojo.init.power.ModPlayerPowers;
 import com.github.standobyte.jojo.powersystem.PowerClass;
+import com.github.standobyte.jojo.powersystem.playerpower.PlayerPower;
 import com.github.standobyte.jojo.powersystem.standpower.StandPower;
 import com.github.standobyte.jojo.powersystem.standpower.entity.StandEntity;
+import com.github.standobyte.jojo.util.StandUtil;
 import com.github.standobyte.v1_21_4_stuff.missingmethods.ARGB;
 import com.mojang.blaze3d.systems.RenderSystem;
 
@@ -180,6 +184,23 @@ public class PowerHud {
 				int xOffset, int yOffset, int width, int height) {
 			super(name, snappingHorizontal, snappingVertical, xOffset, yOffset, width, height);
 		}
+		
+		public MultiLineScreenTooltip tooltipVampire;
+		
+		@Override
+		protected void initText() {
+			this.tooltipText = new MultiLineScreenTooltip(
+					Component.translatable("ripples_hud." + name).withStyle(ChatFormatting.BLACK), 
+					Component.translatable("ripples_hud." + name + ".desc", 
+							Component.translatable("ripples_hud." + name + ".desc1.regular"))
+					.withStyle(ChatFormatting.ITALIC, ChatFormatting.DARK_GRAY));
+			this.tooltipVampire = new MultiLineScreenTooltip(
+					Component.translatable("ripples_hud." + name).withStyle(ChatFormatting.BLACK), 
+					Component.translatable("ripples_hud." + name + ".desc", 
+							Component.translatable("ripples_hud." + name + ".desc1.vamp"))
+					.withStyle(ChatFormatting.ITALIC, ChatFormatting.DARK_GRAY));
+			this.tooltip.set(this.tooltipText);
+		}
 
 		@Override
 		public boolean shouldRender() {
@@ -231,8 +252,18 @@ public class PowerHud {
 		@Override
 		protected void checkTooltip(double mouseX, double mouseY, DeltaTracker deltaTracker) {
 			StandPower standPower = ClientPowerCache.getPower(PowerClass.STAND);
+			
+			PlayerPower playerPower = ClientPowerCache.getPower(PowerClass.PLAYER_POWER);
+			if (playerPower != null && playerPower.getPowerType() == ModPlayerPowers.VAMPIRISM.get()) {
+				this.tooltip.set(this.tooltipVampire);
+			}
+			else {
+				this.tooltip.set(this.tooltipText);
+			}
+			
+			MultiLineScreenTooltip tooltipText = (MultiLineScreenTooltip) this.tooltip.get();
 			int resolveModeTimer = standPower.resolveHandler.resolveModeTimer.value;
-			if (resolveModeTimer > 0 ) {
+			if (resolveModeTimer > 0) {
 				tooltipText.setTitle(Component.translatable("ripples_hud.resolve_mode",
 						Component.literal(StringUtil.formatTickDuration(resolveModeTimer, Minecraft.getInstance().level.tickRateManager().tickrate()))
 						).withStyle(ChatFormatting.BOLD).withStyle(style -> style.withColor(0xFFC6151F)));
@@ -262,6 +293,23 @@ public class PowerHud {
 				int xOffset, int yOffset, int width, int height) {
 			super(name, snappingHorizontal, snappingVertical, xOffset, yOffset, width, height);
 		}
+		
+		public MultiLineScreenTooltip tooltipResolve;
+		
+		@Override
+		protected void initText() {
+			this.tooltipText = new MultiLineScreenTooltip(
+					Component.translatable("ripples_hud." + name).withStyle(ChatFormatting.BLACK), 
+					Component.translatable("ripples_hud." + name + ".desc", 
+							Component.translatable("ripples_hud." + name + ".desc1.regular"))
+					.withStyle(ChatFormatting.ITALIC, ChatFormatting.DARK_GRAY));
+			this.tooltipResolve = new MultiLineScreenTooltip(
+					Component.translatable("ripples_hud." + name).withStyle(ChatFormatting.BLACK), 
+					Component.translatable("ripples_hud." + name + ".desc", 
+							Component.translatable("ripples_hud." + name + ".desc1.resolve"))
+					.withStyle(ChatFormatting.ITALIC, ChatFormatting.DARK_GRAY));
+			this.tooltip.set(this.tooltipText);
+		}
 
 		@Override
 		public boolean shouldRender() {
@@ -284,6 +332,15 @@ public class PowerHud {
 		@Override
 		protected void checkTooltip(double mouseX, double mouseY, DeltaTracker deltaTracker) {
 			StandPower standPower = ClientPowerCache.getPower(PowerClass.STAND);
+			
+			if (StandUtil.staminaDebuffDisabled(Minecraft.getInstance().player)) {
+				this.tooltip.set(this.tooltipResolve);
+			}
+			else {
+				this.tooltip.set(this.tooltipText);
+			}
+			
+			MultiLineScreenTooltip tooltipText = (MultiLineScreenTooltip) this.tooltip.get();
 			tooltipText.setTitle(Component.translatable("ripples_hud.stamina_bar",
 					Component.literal(String.valueOf(standPower.getStamina())).withStyle(style -> style.withColor(color(standPower.getStaminaRatio()))),
 					Component.literal(String.valueOf(standPower.getMaxStamina()))
