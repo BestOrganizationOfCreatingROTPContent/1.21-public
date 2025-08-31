@@ -120,7 +120,7 @@ public class ControlsHudElement extends HudElement {
 	}
 	
 	@Override
-	protected void checkTooltip(double mouseX, double mouseY) {
+	protected void checkTooltip(double mouseX, double mouseY, DeltaTracker deltaTracker) {
 		InputHandler input = InputHandler.getInstance();
 		Power<?> power = input.getCurPower();
 		

@@ -16,6 +16,7 @@ import com.github.standobyte.jojo.powersystem.standpower.entity.StandEntity;
 import com.github.standobyte.v1_21_4_stuff.missingmethods.ARGB;
 import com.mojang.blaze3d.systems.RenderSystem;
 
+import net.minecraft.ChatFormatting;
 import net.minecraft.client.DeltaTracker;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphics;
@@ -26,6 +27,8 @@ import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.client.gui.screens.inventory.AbstractContainerScreen;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
+import net.minecraft.util.FastColor;
+import net.minecraft.util.StringUtil;
 import net.neoforged.api.distmarker.Dist;
 import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.fml.common.EventBusSubscriber;
@@ -224,6 +227,23 @@ public class PowerHud {
 				}
 			}
 		}
+		
+		@Override
+		protected void checkTooltip(double mouseX, double mouseY, DeltaTracker deltaTracker) {
+			StandPower standPower = ClientPowerCache.getPower(PowerClass.STAND);
+			int resolveModeTimer = standPower.resolveHandler.resolveModeTimer.value;
+			if (resolveModeTimer > 0 ) {
+				tooltipText.setTitle(Component.translatable("ripples_hud.resolve_mode",
+						Component.literal(StringUtil.formatTickDuration(resolveModeTimer, Minecraft.getInstance().level.tickRateManager().tickrate()))
+						).withStyle(ChatFormatting.BOLD).withStyle(style -> style.withColor(0xFFC6151F)));
+			}
+			else {
+				tooltipText.setTitle(Component.translatable("ripples_hud.resolve_bar",
+						Component.literal(String.valueOf((int) (standPower.getResolveRatio() * 100)))
+						).withStyle(ChatFormatting.BLACK));
+			}
+			super.checkTooltip(mouseX, mouseY, deltaTracker);
+		}
 	}
 	
 	
@@ -259,6 +279,20 @@ public class PowerHud {
 			Bars.renderHorizontalBar(guiGraphics.pose(), x, y, staminaRatio, BAR_HORIZONTAL_FILL, BlitFloat.NO_TINT);
 			BlitFloat.blit(guiGraphics.pose(), Minecraft.getInstance(), ICON, 
 					x - 12, y - 6, 20, 20, 0, BlitFloat.NO_TINT);
+		}
+		
+		@Override
+		protected void checkTooltip(double mouseX, double mouseY, DeltaTracker deltaTracker) {
+			StandPower standPower = ClientPowerCache.getPower(PowerClass.STAND);
+			tooltipText.setTitle(Component.translatable("ripples_hud.stamina_bar",
+					Component.literal(String.valueOf(standPower.getStamina())).withStyle(style -> style.withColor(color(standPower.getStaminaRatio()))),
+					Component.literal(String.valueOf(standPower.getMaxStamina()))
+					).withStyle(ChatFormatting.BLACK));
+			super.checkTooltip(mouseX, mouseY, deltaTracker);
+		}
+		
+		public static int color(float ratio) {
+			return FastColor.ARGB32.colorFromFloat(1, 1 - ratio, ratio, 0f);
 		}
 	}
 	

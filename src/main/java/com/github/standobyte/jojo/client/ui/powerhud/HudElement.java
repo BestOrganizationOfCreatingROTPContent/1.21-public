@@ -20,6 +20,7 @@ public abstract class HudElement implements GuiEventListener {
 	@ApiStatus.Internal
 	public PrototypeAbilityHud hud;
 	public String name;
+	public MultiLineScreenTooltip tooltipText;
     public PowerHudHintTooltipHolder tooltip = new PowerHudHintTooltipHolder();
 	protected double xOffsetL;
 	protected double xOffsetR;
@@ -31,41 +32,16 @@ public abstract class HudElement implements GuiEventListener {
 	public SnappingV snappingVertical;
 //	@Nullable public double[] draggedAt;
 	
-	public abstract boolean shouldRender();
-	public abstract void renderElement(GuiGraphics guiGraphics, DeltaTracker deltaTracker);
-	
-	public void render(GuiGraphics guiGraphics, DeltaTracker deltaTracker, double mouseX, double mouseY) {
-		updateRectangle();
-		isHovered = guiGraphics.containsPointInScissor((int) mouseX, (int) mouseY)
-				&& mouseX >= this.getX()
-				&& mouseY >= this.getY()
-				&& mouseX < this.getX() + this.getWidth()
-				&& mouseY < this.getY() + this.getHeight();
-		renderElement(guiGraphics, deltaTracker);
-		checkTooltip(mouseX, mouseY);
-	}
-	
-	public void render(GuiGraphics guiGraphics, DeltaTracker deltaTracker) {
-		updateRectangle();
-		renderElement(guiGraphics, deltaTracker);
-	}
-	
-	protected void checkTooltip(double mouseX, double mouseY) {
-		tooltip.refreshTooltipForNextRenderPass(isHovered, this.isFocused(), this.getRectangle());
-		if (tooltip.wasDisplayed) {
-			TooltipParams.set(TooltipParams.paperStyle());
-		}
-	}
-	
 	public HudElement(String name, int x0, int y0, int width, int height) {
 		this(name, SnappingH.LEFT, SnappingV.UP, x0, y0, width, height);
 	}
 	
 	public HudElement(String name, SnappingH snappingHorizontal, SnappingV snappingVertical, int xOffset, int yOffset, int width, int height) {
 		this.name = name;
-		this.tooltip.set(new MultiLineScreenTooltip(
+		this.tooltipText = new MultiLineScreenTooltip(
 				Component.translatable("ripples_hud." + name).withStyle(ChatFormatting.BLACK), 
-				Component.translatable("ripples_hud." + name + ".desc").withStyle(ChatFormatting.ITALIC, ChatFormatting.DARK_GRAY)));
+				Component.translatable("ripples_hud." + name + ".desc").withStyle(ChatFormatting.ITALIC, ChatFormatting.DARK_GRAY));
+		this.tooltip.set(this.tooltipText);
 		this.snappingHorizontal = snappingHorizontal;
 		this.snappingVertical = snappingVertical;
 		switch (snappingHorizontal) {
@@ -105,11 +81,39 @@ public abstract class HudElement implements GuiEventListener {
 		this.rectangle = new ScreenRectangle(new ScreenPosition((int) x0, (int) y0), width, height);
 	}
 
+	
 	public ScreenRectangle rectangle;
 	@Override
 	public ScreenRectangle getRectangle() {
 		return rectangle;
 	}
+	
+	public abstract boolean shouldRender();
+	public abstract void renderElement(GuiGraphics guiGraphics, DeltaTracker deltaTracker);
+	
+	public void render(GuiGraphics guiGraphics, DeltaTracker deltaTracker, double mouseX, double mouseY) {
+		updateRectangle();
+		isHovered = guiGraphics.containsPointInScissor((int) mouseX, (int) mouseY)
+				&& mouseX >= this.getX()
+				&& mouseY >= this.getY()
+				&& mouseX < this.getX() + this.getWidth()
+				&& mouseY < this.getY() + this.getHeight();
+		renderElement(guiGraphics, deltaTracker);
+		checkTooltip(mouseX, mouseY, deltaTracker);
+	}
+	
+	public void render(GuiGraphics guiGraphics, DeltaTracker deltaTracker) {
+		updateRectangle();
+		renderElement(guiGraphics, deltaTracker);
+	}
+	
+	protected void checkTooltip(double mouseX, double mouseY, DeltaTracker deltaTracker) {
+		tooltip.refreshTooltipForNextRenderPass(isHovered, this.isFocused(), this.getRectangle());
+		if (tooltip.wasDisplayed) {
+			TooltipParams.set(TooltipParams.paperStyle());
+		}
+	}
+	
 	
 	public int getX() { return rectangle.left(); }
 	public int getY() { return rectangle.top(); }

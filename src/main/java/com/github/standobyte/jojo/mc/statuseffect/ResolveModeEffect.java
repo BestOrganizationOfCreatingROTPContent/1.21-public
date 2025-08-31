@@ -25,6 +25,15 @@ public class ResolveModeEffect extends RotpStatusEffect {
 	}
 
 	@Override
+	public void onUpdated(LivingEntity entity, MobEffectInstance instance, @Nullable Entity source) {
+		super.onUpdated(entity, instance, source);
+		StandPower standPower = StandPower.get(entity);
+		if (standPower != null && standPower.usesResolve()) {
+			standPower.resolveHandler.onResolveEffectStart(standPower, entity, instance);
+		}
+	}
+
+	@Override
 	public void onRemoved(LivingEntity entity, MobEffectInstance instance) {
 		super.onRemoved(entity, instance);
 		StandPower standPower = StandPower.get(entity);

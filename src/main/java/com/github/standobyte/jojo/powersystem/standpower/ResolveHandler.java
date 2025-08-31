@@ -252,7 +252,7 @@ public class ResolveHandler {
 			setResolveValue(stand, stand.getMaxResolve());
 			
 			boolean hasMinDuration = false;
-			if (resolveEffect.getEffect() == ModStatusEffects.RESOLVE) {
+			if (resolveEffect.is(ModStatusEffects.RESOLVE)) {
 				int resolveLevel = resolveEffect.getAmplifier();
 				if (resolveLevel < RESOLVE_EFFECT_MAX.length) {
 					hasMinDuration = true;

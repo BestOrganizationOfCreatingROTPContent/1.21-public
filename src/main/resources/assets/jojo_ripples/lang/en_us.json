@@ -51,9 +51,10 @@
   "ripples_clothes_split": "Right click to split into %s and %s",
   "ripples_clothes_combine": "Left click on a %s to combine into %s",
   
-  "ripples_hud.resolve_bar": "Resolve",
-  "ripples_hud.resolve_bar.desc": "Attack non-passive targets with your Stand to build up Resolve meter. Higher Resolve gives resistance to all damage, up to 60%.\nWhen the meter is full, you can enter Resolve Mode, which, in addition to the damage resistance, temporarily disables low stamina debuffs.",
-  "ripples_hud.stamina_bar": "Stand Stamina",
+  "ripples_hud.resolve_bar": "Resolve: %s%%",
+  "ripples_hud.resolve_mode": "True Resolve: %s",
+  "ripples_hud.resolve_bar.desc": "Attack non-passive targets with your Stand to build up Resolve meter. Higher Resolve gives resistance to all damage, up to 60%.\nWhen the meter is full, you can enter True Resolve mode, which, in addition to the damage resistance, temporarily disables low stamina debuffs.",
+  "ripples_hud.stamina_bar": "Stand Stamina: %s/%s",
   "ripples_hud.stamina_bar.desc": "Stamina is spent on Stand abilities, and regenerates when the Stand is idle or is unsummoned.\nLow stamina makes your Stand weaker, so use your abilities wisely.",
   "ripples_hud.stand_finisher": "Stand Finisher",
   "ripples_hud.stand_finisher.desc": "Using regular punches or barraging someone builds up the finisher meter, which is spent to make the heavy attack faster.\nWhen the first (white) bar is full, your heavy attack is replaced with a special finisher attack.",
@@ -66,7 +67,7 @@
   "ripples_hud.modifier_alt": "Alt",
   "ripples_hud.key_modifier": "%s+%s",
   "ripples_hud.key_ability": "%s: %s",
-  "ripples_hud.ho#################################r_switch": "(%s to switch ability)",
+  "ripples_hud.hotbar_switch": "(%s to switch ability)",
   
   "jojo_ripples.class.stand": "Stand: %s",
   "jojo_ripples.class.player_power": "Character Power: %s",
