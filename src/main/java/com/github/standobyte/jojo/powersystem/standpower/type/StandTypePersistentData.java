@@ -41,7 +41,7 @@ public class StandTypePersistentData implements INBTSerializable<CompoundTag> {
 	
 	@Override
 	public void deserializeNBT(Provider provider, CompoundTag nbt) {
-//		this.resolveReached = nbt.getInt("resolveReached");
+		this.resolveReached = nbt.getInt("resolveReached");
 	}
 	
 	public void toBuf(FriendlyByteBuf buf, boolean isSentToTracking) {

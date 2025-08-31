@@ -37,8 +37,7 @@ import net.neoforged.neoforge.network.PacketDistributor;
 @EventBusSubscriber(modid = JojoMod.MOD_ID)
 public class ResolveHandler {
 	public static final float RESOLVE_DMG_REDUCTION = 0.6F;
-//	public static final Double[] DEFAULT_MAX_RESOLVE_VALUES = { 5000.0, 10000.0, 20000.0, 30000.0 };
-	public static final Double[] DEFAULT_MAX_RESOLVE_VALUES = { 500.0, 1000.0, 2000.0, 3000.0 };
+	public static final Double[] DEFAULT_MAX_RESOLVE_VALUES = { 5000.0, 10000.0, 20000.0, 30000.0 };
 	public static final float RESOLVE_FOR_DMG_POINT = 1F;
 	public static final int[] RESOLVE_EFFECT_MIN = { 300, 400, 500, 600, 600 };
 	public static final int[] RESOLVE_EFFECT_MAX = { 600, 1200, 1500, 1800, 2400 };
