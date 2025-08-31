@@ -6,6 +6,7 @@ import java.util.Map;
 import com.github.standobyte.jojo.client.ClientGlobals;
 import com.github.standobyte.jojo.client.ClientPowerCache;
 import com.github.standobyte.jojo.client.ClientUtil;
+import com.github.standobyte.jojo.client.standskin.StandSkinsLoader;
 import com.github.standobyte.jojo.client.ui.utils.BlitFloat;
 import com.github.standobyte.jojo.client.ui.utils.GuiIcon;
 import com.github.standobyte.jojo.core.JojoMod;
@@ -120,22 +121,22 @@ public class PowerHud {
 		@Override
 		public void render(GuiGraphics guiGraphics, DeltaTracker deltaTracker) {
 			Minecraft mc = Minecraft.getInstance();
+			int mouseX = -1;
+			int mouseY = -1;
 			if (!(mc.screen instanceof AbstractContainerScreen)) {
 				if (mc.screen != null && hasElementTooltips(mc.screen)) {
-					int mouseX = (int)(mc.mouseHandler.xpos()
+					mouseX = (int)(mc.mouseHandler.xpos()
 							* (double)mc.getWindow().getGuiScaledWidth()
 							/ (double)mc.getWindow().getScreenWidth());
-					int mouseY = (int)(mc.mouseHandler.ypos()
+					mouseY = (int)(mc.mouseHandler.ypos()
 							* (double)mc.getWindow().getGuiScaledHeight()
 							/ (double)mc.getWindow().getScreenHeight());
-					setupRender(TriState.FALSE, mouseX, mouseY);
 				}
-				else {
-					setupRender(TriState.FALSE);
-				}
-				renderAbilitiesHUD(guiGraphics, deltaTracker);
 			}
-			setupRender(TriState.DEFAULT);
+			setupRender(TriState.FALSE, mouseX, mouseY);
+			renderAbilitiesHUD(guiGraphics, deltaTracker);
+			
+			setupRender(TriState.DEFAULT, mouseX, mouseY);
 			renderAbilitiesHUD(guiGraphics, deltaTracker);
 		}
 
@@ -218,7 +219,8 @@ public class PowerHud {
 			if (resolveMode < 0) {
 				float multiplier = standPower.resolveHandler.getTotalBoostVisible(standPower.getUser());
 				if (multiplier > 1) {
-					guiGraphics.drawCenteredString(mc.font, Component.literal("x" + multiplier), x + width / 2, y + 20, 0xFFA00000);
+					Component multiplierText = Component.literal("x" + String.format("%.2f", multiplier));
+					guiGraphics.drawCenteredString(mc.font, multiplierText, x + width / 2, y + 20, StandSkinsLoader.getCurSkin().getColor());
 				}
 			}
 		}

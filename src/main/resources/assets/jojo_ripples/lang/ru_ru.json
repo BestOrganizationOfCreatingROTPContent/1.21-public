@@ -39,6 +39,24 @@
   "ripples_clothes_split": "ПКМ: разделить на %s и %s",
   "ripples_clothes_combine": "ЛКМ: объединить с %s в %s",
   
+  "ripples_hud.stand_resolve": "Решимость",
+  "ripples_hud.stand_resolve.desc": "Когда вы атакуете кого либо, кроме пассивных мобов, своим Стендом, заполняется ваша шкала Решимости. От Решимости увеличивается ваше сопротивление ко всем видам урона, вплоть до 60%.\nКогда шкала заполнена, вы можете войти в режим Решимости, в котором, помимо сопротивления урону, ваш Стенд не ослабевает при низком уровне ____.",
+  "ripples_hud.stand_stamina": "Stand Stamina",
+  "ripples_hud.stand_stamina.desc": "Stamina тратится при использовании способностей Стенда, и восстанавливается пассивно, когда вы не используете Стенд, или ещё быстрее, когда он отозван. При низком уровне stamina ваш Стенд становится слабее, так что используйте его с умом.",
+  "ripples_hud.stand_finisher": "Добивающий удар",
+  "ripples_hud.stand_finisher.desc": "При использовании обычных ударов или нанесении урона шквалом ударов пополняется шкала добивающего удара, которая ускоряет следующий тяжёлый удар.\nКогда заполняется первая (белая) шкала, тяжёлый удар заменяется на особый добивающий удар.",
+  "ripples_hud.energy_hamon": "Энергия Хамона",
+  "ripples_hud.energy_hamon.desc": "",
+  
+  "ripples_hud.hold_key": "Удерж. %s",
+  "ripples_hud.modifier_ctrl": "Ctrl",
+  "ripples_hud.modifier_shift": "Shift",
+  "ripples_hud.modifier_alt": "Alt",
+  "ripples_hud.hotbar_switch": "(%s - выбрать способность)",
+  
+  "jojo_ripples.class.stand": "Стенд: %s",
+  "jojo_ripples.class.player_power": "Сила персонажа: %s",
+  
   
   "jojo_ripples.power.hamon": "Хамон",
   "hamon.intro.tab": "Вступление",
@@ -62,6 +80,7 @@
   "moveset_group.stand.tooltip": "Эта клавиша активирует управление Стендом, но не призывает его сразу же - с помощью этого некоторые из способностей можно использовать, призвав только руки Стенда.",
   
   "stand.unknown": "Неизвестный Стенд: %s",
+  "effect.jojo_ripples.resolve": "Решимость",
 
   "jojo.message.action_condition.stand_user_too_far": "Вы и ваш Стенд слишком далеко друг от друга",
   
@@ -76,5 +95,61 @@
   "jojo_ripples.subtitle.ora": "ОРА",
   "jojo_ripples.subtitle.ora_rush": "ОРА ОРА ОРА",
   "jojo_ripples.subtitle.muda": "МУДА",
-  "jojo_ripples.subtitle.muda_rush": "МУДА МУДА МУДА"
+  "jojo_ripples.subtitle.muda_rush": "МУДА МУДА МУДА",
+  
+  "jojo_ripples.skill.punch": "Удар",
+  "jojo_ripples.skill.punch.desc": "#################################",
+  "jojo_ripples.skill.punch.controls": "#################################",
+  "jojo_ripples.ability.punch": "Удар",
+  
+  "jojo_ripples.skill.heavy_punch": "Тяжёлый удар",
+  "jojo_ripples.skill.heavy_punch.desc": "#################################",
+  "jojo_ripples.skill.heavy_punch.controls": "#################################",
+  "jojo_ripples.ability.heavy_punch": "Тяжёлый удар",
+  
+  "jojo_ripples.skill.uppercut": "Апперкот",
+  "jojo_ripples.skill.uppercut.desc": "#################################",
+  "jojo_ripples.skill.uppercut.controls": "#################################",
+  "jojo_ripples.ability.uppercut": "Апперкот",
+  
+  "jojo_ripples.skill.heavy_charged": "Усиленный тяжёлый удар",
+  "jojo_ripples.skill.heavy_charged.desc": "#################################",
+  "jojo_ripples.skill.heavy_charged.controls": "#################################",
+  "jojo_ripples.ability.heavy_charged": "Усиленный тяжёлый удар",
+  
+  "jojo_ripples.skill.barrage": "Шквал ударов",
+  "jojo_ripples.skill.barrage.desc": "#################################",
+  "jojo_ripples.skill.barrage.controls": "#################################",
+  "jojo_ripples.ability.barrage": "Шквал ударов",
+  
+  "jojo_ripples.skill.grab": "Захват",
+  "jojo_ripples.skill.grab.desc": "#################################",
+  "jojo_ripples.skill.grab.controls": "#################################",
+  "jojo_ripples.ability.grab": "Захват",
+  "jojo_ripples.ability.grab_release": "Отпустить",
+  
+  "jojo_ripples.skill.grabbed_throw": "Бросок",
+  "jojo_ripples.skill.grabbed_throw.desc": "#################################",
+  "jojo_ripples.skill.grabbed_throw.controls": "#################################",
+  "jojo_ripples.ability.grabbed_throw": "Бросок",
+  
+  "jojo_ripples.ability.manual_control": "Ручное управление",
+  "jojo_ripples.ability.items_swap_w_user": "Поменяться предметами",
+  "jojo_ripples.ability.items_swap_hands": "Переложить предметы в руках",
+  "jojo_ripples.ability.item_toss": "Выбросить",
+  "jojo_ripples.ability.bearing_shot": "Выстрел кусочком",
+  
+  
+  "jojo_ripples.skill.star_finger": "Звёздный палец",
+  "jojo_ripples.skill.star_finger.desc": "#################################",
+  "jojo_ripples.ability.star_finger": "Звёздный палец",
+  
+  "jojo_ripples.skill.inhale": "Вдох",
+  "jojo_ripples.skill.inhale.desc": "#################################",
+  "jojo_ripples.ability.inhale": "Вдох",
+  "jojo.subtitle.inhale": "Вдох",
+  
+  "jojo_ripples.skill.time_stop": "Остановка времени",
+  "jojo_ripples.skill.time_stop.desc": "#################################",
+  "jojo_ripples.ability.time_stop": "Остановка времени (%ss)"
 }

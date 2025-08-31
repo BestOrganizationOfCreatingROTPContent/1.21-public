@@ -51,14 +51,27 @@
   "ripples_clothes_split": "Right click to split into %s and %s",
   "ripples_clothes_combine": "Left click on a %s to combine into %s",
   
-  "_ripples_hud.stand_resolve": "",
-  "_ripples_hud.stand_stamina": "",
-  "_ripples_hud.stand_finisher": "",
-  "_ripples_hud.energy_hamon": "",
-  "_ripples_hud.stamina": "",
+  "ripples_hud.resolve_bar": "Resolve",
+  "ripples_hud.resolve_bar.desc": "Attack non-passive targets with your Stand to build up Resolve meter. Higher Resolve gives resistance to all damage, up to 60%.\nWhen the meter is full, you can enter Resolve Mode, which, in addition to the damage resistance, temporarily disables low stamina debuffs.",
+  "ripples_hud.stamina_bar": "Stand Stamina",
+  "ripples_hud.stamina_bar.desc": "Stamina is spent on Stand abilities, and regenerates when the Stand is idle or is unsummoned.\nLow stamina makes your Stand weaker, so use your abilities wisely.",
+  "ripples_hud.stand_finisher": "Stand Finisher",
+  "ripples_hud.stand_finisher.desc": "Using regular punches or barraging someone builds up the finisher meter, which is spent to make the heavy attack faster.\nWhen the first (white) bar is full, your heavy attack is replaced with a special finisher attack.",
+  "ripples_hud.energy_hamon": "Hamon Energy",
+  "ripples_hud.energy_hamon.desc": "",
   
+  "ripples_hud.hold_key": "Hold %s",
+  "ripples_hud.modifier_ctrl": "Ctrl",
+  "ripples_hud.modifier_shift": "Shift",
+  "ripples_hud.modifier_alt": "Alt",
+  "ripples_hud.key_modifier": "%s+%s",
+  "ripples_hud.key_ability": "%s: %s",
+  "ripples_hud.ho#################################r_switch": "(%s to switch ability)",
   
-  "jojo_ripples.power.hamon": "Hamon",
+  "jojo_ripples.class.stand": "Stand: %s",
+  "jojo_ripples.class.player_power": "Character Power: %s",
+  
+  "power.jojo_ripples.hamon": "Hamon",
   "hamon.intro.tab": "Introduction",
   "hamon.stats.tab": "Stats",
   "hamon.strength_skills.tab": "Combat Skills",
@@ -68,7 +81,7 @@
   "moveset_group.hamon.utility": "Hamon: Utility",
   
   
-  "jojo_ripples.power.vampirism": "Vampirism",
+  "power.jojo_ripples.vampirism": "Vampirism",
   "jojo_ripples.vampirism.skills": "Skills",
   
   
@@ -80,8 +93,12 @@
   "moveset_group.stand.tooltip": "This enables the controls of your Stand without immediately summoning it - some of the abilies let you summon just your Stand's arms this way.",
   
   "stand.unknown": "Unknown Stand: %s",
+  "effect.jojo_ripples.resolve": "Resolve",
 
   "jojo.message.action_condition.stand_user_too_far": "You and your Stand are too far away from each other",
+  
+  "stand.jojo_ripples.star_platinum": "Star Platinum",
+  "stand.jojo_ripples.crazy_diamond": "Crazy Diamond",
   
   "jojo_ripples.subtitle.stand_summon": "Stand summoned",
   "jojo_ripples.subtitle.stand_unsummon": "Stand unsummoned",
@@ -94,5 +111,62 @@
   "jojo_ripples.subtitle.ora": "ORA",
   "jojo_ripples.subtitle.ora_rush": "ORA ORA ORA",
   "jojo_ripples.subtitle.muda": "MUDA",
-  "jojo_ripples.subtitle.muda_rush": "MUDA MUDA MUDA"
+  "jojo_ripples.subtitle.muda_rush": "MUDA MUDA MUDA",
+  
+  "jojo_ripples.skill.punch": "Punch",
+  "jojo_ripples.skill.punch.desc": "#################################",
+  "jojo_ripples.skill.punch.controls": "#################################",
+  "jojo_ripples.ability.punch": "Punch",
+  
+  "jojo_ripples.skill.heavy_punch": "Heavy Punch",
+  "jojo_ripples.skill.heavy_punch.desc": "#################################",
+  "jojo_ripples.skill.heavy_punch.controls": "#################################",
+  "jojo_ripples.ability.heavy_punch": "Heavy Punch",
+  
+  "jojo_ripples.skill.uppercut": "Uppercut",
+  "jojo_ripples.skill.uppercut.desc": "#################################",
+  "jojo_ripples.skill.uppercut.controls": "#################################",
+  "jojo_ripples.ability.uppercut": "Uppercut",
+  
+  "jojo_ripples.skill.heavy_charged": "Charged Heavy Punch",
+  "jojo_ripples.skill.heavy_charged.desc": "#################################",
+  "jojo_ripples.skill.heavy_charged.controls": "#################################",
+  "jojo_ripples.ability.heavy_charged": "Charged Heavy Punch",
+  
+  "jojo_ripples.skill.barrage": "Punch Barrage",
+  "jojo_ripples.skill.barrage.desc": "#################################",
+  "jojo_ripples.skill.barrage.controls": "#################################",
+  "jojo_ripples.ability.barrage": "Punch Barrage",
+  
+  "jojo_ripples.skill.grab": "Grab",
+  "jojo_ripples.skill.grab.desc": "#################################",
+  "jojo_ripples.skill.grab.controls": "#################################",
+  "jojo_ripples.ability.grab": "Grab",
+  "jojo_ripples.ability.grab_release": "Release",
+  
+  "jojo_ripples.skill.grabbed_throw": "Throw",
+  "jojo_ripples.skill.grabbed_throw.desc": "#################################",
+  "jojo_ripples.skill.grabbed_throw.controls": "#################################",
+  "jojo_ripples.ability.grabbed_throw": "Throw",
+  
+  "jojo_ripples.ability.manual_control": "Manual control",
+  "jojo_ripples.ability.items_swap_w_user": "Swap items with Stand",
+  "jojo_ripples.ability.items_swap_hands": "Swap hands",
+  "jojo_ripples.ability.item_toss": "Drop",
+  "jojo_ripples.ability.bearing_shot": "Bearing Shot",
+  
+  
+  "jojo_ripples.skill.star_finger": "Star Finger",
+  "jojo_ripples.skill.star_finger.desc": "#################################",
+  "jojo_ripples.ability.star_finger": "Star Finger",
+  
+  "jojo_ripples.skill.inhale": "Inhale",
+  "jojo_ripples.skill.inhale.desc": "#################################",
+  "jojo_ripples.ability.inhale": "Inhale",
+  "jojo.subtitle.inhale": "Inhale",
+  
+  "jojo_ripples.skill.time_stop": "Time Stop",
+  "jojo_ripples.skill.time_stop.desc": "#################################",
+  "jojo_ripples.ability.time_stop": "Time Stop (%ss)"
+  
 }
