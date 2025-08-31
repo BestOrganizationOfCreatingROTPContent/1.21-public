@@ -181,6 +181,8 @@ public class StandPower extends Power<StandPower> implements PostNbtReadEntityDa
 	}
 	
 	protected void tickStamina() {
+		// FIXME the user's attributes (including ModEntityAttributes.STAND_DURABILITY) get sent a couple ticks later, resulting in stamina desync
+		// BUT NOOOOOOOOOOOOOOOO, LET'S INTRODUCE MINDFUCKING HOLDERS SYSTEM INSTEAD OF FIXING THIS SHIT
 		if (this.usesStamina()) {
 			float staminaRegen = getPowerType().getStaminaRegen(this);
 			staminaLerp.set(Mth.clamp(staminaLerp.get() + staminaRegen, 0, getMaxStamina()), true);
