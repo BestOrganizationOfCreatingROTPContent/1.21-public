@@ -7,6 +7,7 @@ import com.github.standobyte.jojo.client.ClientGlobals;
 import com.github.standobyte.jojo.client.ClientPowerCache;
 import com.github.standobyte.jojo.client.ClientUtil;
 import com.github.standobyte.jojo.client.ui.utils.BlitFloat;
+import com.github.standobyte.jojo.client.ui.utils.GuiIcon;
 import com.github.standobyte.jojo.core.JojoMod;
 import com.github.standobyte.jojo.powersystem.PowerClass;
 import com.github.standobyte.jojo.powersystem.standpower.StandPower;
@@ -22,6 +23,7 @@ import net.minecraft.client.gui.screens.ChatScreen;
 import net.minecraft.client.gui.screens.PauseScreen;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.client.gui.screens.inventory.AbstractContainerScreen;
+import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
 import net.neoforged.api.distmarker.Dist;
 import net.neoforged.bus.api.SubscribeEvent;
@@ -110,7 +112,7 @@ public class PowerHud {
 
 	
 		public HudElement controls = addElement(new ControlsHudElement("controls", 4, 44, -1, -1));
-		public HudElement resolveBar = addElement(new Resolve("resolve_bar", 12, 12, 29, 16));
+		public HudElement resolveBar = addElement(new Resolve("resolve_bar", 11, 12, 32, 16));
 		public HudElement staminaBar = addElement(new Stamina("stamina_bar", 61, 16, Bars.HORIZONTAL_LENGTH + 8, Bars.HORIZONTAL_WIDTH));
 		public HudElement finisherBar = addElement(new Finisher("stand_finisher", 
 				HudElement.SnappingH.CENTER, HudElement.SnappingV.CENTER, -16, -16, 32, 32));
@@ -160,10 +162,11 @@ public class PowerHud {
 		
 		
 	public static class Resolve extends HudElement {
-		public static final ResourceLocation HORIZONTAL_EMPTY = JojoMod.resLoc("textures/hud/stand_resolve_horizontal_empty.png");
-		public static final ResourceLocation HORIZONTAL_FULL = JojoMod.resLoc("textures/hud/stand_resolve_horizontal_full.png");
-		public static final ResourceLocation VERTICAL_EMPTY = JojoMod.resLoc("textures/hud/stand_resolve_vertical_empty.png");
-		public static final ResourceLocation VERTICAL_FULL = JojoMod.resLoc("textures/hud/stand_resolve_vertical_full.png");
+		public static final GuiIcon RESOLVE_MODE = new GuiIcon(JojoMod.resLoc("textures/hud/stand_resolve_mode_bar.png"), 40, 40);
+		public static final GuiIcon HORIZONTAL_EMPTY = new GuiIcon(JojoMod.resLoc("textures/hud/stand_resolve_horizontal_empty.png"), 32, 16);
+		public static final GuiIcon HORIZONTAL_FULL = new GuiIcon(JojoMod.resLoc("textures/hud/stand_resolve_horizontal_full.png"), 32, 16);
+		public static final GuiIcon VERTICAL_EMPTY = new GuiIcon(JojoMod.resLoc("textures/hud/stand_resolve_vertical_empty.png"), 16, 32);
+		public static final GuiIcon VERTICAL_FULL = new GuiIcon(JojoMod.resLoc("textures/hud/stand_resolve_vertical_full.png"), 16, 32);
 
 		public Resolve(String name, int x0, int y0, int width, int height) {
 			super(name, x0, y0, width, height);
@@ -184,20 +187,40 @@ public class PowerHud {
 		@Override
 		public void renderElement(GuiGraphics guiGraphics, DeltaTracker deltaTracker) {
 			StandPower standPower = ClientPowerCache.getPower(PowerClass.STAND);
-			float resolveRatio = standPower.getResolveRatio();
+			float partialTick = ClientUtil.partialTick(deltaTracker, false);
+			Minecraft mc = Minecraft.getInstance();
+			
 			int x = getX();
 			int y = getY();
 			int width = getWidth();
 			int height = getHeight();
-			Minecraft mc = Minecraft.getInstance();
-			BlitFloat.blit(guiGraphics.pose(), mc, HORIZONTAL_EMPTY, 
+			
+			GuiIcon emptySprite = HORIZONTAL_EMPTY;
+			GuiIcon fullSprite = HORIZONTAL_FULL;
+			
+			float resolveMode = standPower.resolveHandler.getResolveModeTimerRatio(standPower, partialTick);
+			if (resolveMode > 0) {
+				BlitFloat.blitRadial(guiGraphics.pose(), mc, RESOLVE_MODE.file, 
+						x + (width - RESOLVE_MODE.width) / 2, y + (height - RESOLVE_MODE.height) / 2, RESOLVE_MODE.width, RESOLVE_MODE.height, 0, 
+						0, resolveMode, BlitFloat.NO_TINT);
+			}
+			
+			float resolveRatio = standPower.getResolveRatio(partialTick);
+			BlitFloat.blit(guiGraphics.pose(), mc, emptySprite.file, 
 					x, y, width, height, 0, 
 					BlitFloat.NO_TINT);
-			float fillWidth = resolveRatio >= 1 ? width : Math.min(width * resolveRatio, width - 2);
-			BlitFloat.blit(guiGraphics.pose(), mc, HORIZONTAL_FULL, 
+			float fillWidth = resolveRatio >= 1 ? width : Math.min(width * resolveRatio, width - 5);
+			BlitFloat.blit(guiGraphics.pose(), mc, fullSprite.file, 
 					x, y, fillWidth, height, 0, 
 					0, 0, fillWidth, height, width, height, 
 					BlitFloat.NO_TINT);
+			
+			if (resolveMode < 0) {
+				float multiplier = standPower.resolveHandler.getTotalBoostVisible(standPower.getUser());
+				if (multiplier > 1) {
+					guiGraphics.drawCenteredString(mc.font, Component.literal("x" + multiplier), x + width / 2, y + 20, 0xFFA00000);
+				}
+			}
 		}
 	}
 	

@@ -1,6 +1,9 @@
 package com.github.standobyte.jojo.powersystem.standpower;
 
+import java.util.HashMap;
+import java.util.Map;
 import java.util.Optional;
+import java.util.function.Function;
 
 import javax.annotation.Nullable;
 
@@ -9,12 +12,17 @@ import com.github.standobyte.jojo.core.packet.fromserver.TrStandSkinPacket;
 import com.github.standobyte.jojo.powersystem.Power;
 import com.github.standobyte.jojo.powersystem.PowerClass;
 import com.github.standobyte.jojo.powersystem.standpower.entity.StandEntity;
+import com.github.standobyte.jojo.powersystem.standpower.packet.TrStaminaPacket;
 import com.github.standobyte.jojo.powersystem.standpower.type.StandType;
+import com.github.standobyte.jojo.powersystem.standpower.type.StandTypePersistentData;
 import com.github.standobyte.jojo.powersystem.standpower.type.SummonedStand;
 import com.github.standobyte.jojo.util.NBTUtil;
 import com.github.standobyte.jojo.util.entitycomponent.PostNbtReadEntityData;
+import com.github.standobyte.jojo.util.java.LerpValue;
+import com.mojang.datafixers.util.Either;
 
 import net.minecraft.core.HolderLookup;
+import net.minecraft.core.RegistryAccess;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.NbtOps;
 import net.minecraft.resources.ResourceLocation;
@@ -26,6 +34,10 @@ import net.neoforged.neoforge.network.PacketDistributor;
 public class StandPower extends Power<StandPower> implements PostNbtReadEntityData {
 	protected Optional<StandInstance> standInstance = Optional.empty();
 	protected SummonedStand summonedStand;
+	protected Map<ResourceLocation, Either<StandTypePersistentData, CompoundTag>> standData = new HashMap<>();
+	
+	protected LerpValue.Float staminaLerp = new LerpValue.Float();
+	public ResolveHandler resolveHandler = new ResolveHandler();
 	
 	public StandPower(LivingEntity user) {
 		super(user);
@@ -36,6 +48,8 @@ public class StandPower extends Power<StandPower> implements PostNbtReadEntityDa
 	@Override
 	public void tick() {
 		super.tick();
+		tickStamina();
+		tickResolve();
 		if (summonedStand != null) {
 			summonedStand.tickStand(getUser(), this);
 		}
@@ -61,7 +75,10 @@ public class StandPower extends Power<StandPower> implements PostNbtReadEntityDa
 		onSetPowerType(oldStand, getPowerType());
 		
 		if (!user.level().isClientSide()) {
-			PacketDistributor.sendToPlayersTrackingEntityAndSelf(user, new TrPowerStandInstancePacket(user.getId(), standInstance));
+			PacketDistributor.sendToPlayersTrackingEntity(user, new TrPowerStandInstancePacket(user.getId(), standInstance, getCurTypeData(), true));
+			if (user instanceof ServerPlayer player) {
+				PacketDistributor.sendToPlayer(player, new TrPowerStandInstancePacket(user.getId(), standInstance, getCurTypeData(), false));
+			}
 		}
 	}
 
@@ -107,14 +124,35 @@ public class StandPower extends Power<StandPower> implements PostNbtReadEntityDa
 	}
 	
 	
-	protected float stamina;
+	@Nullable
+	public StandTypePersistentData getCurTypeData() {
+		StandType standType = getPowerType();
+		if (standType == null) return null;
+		
+		var dataEntry = standData.get(standType.getId());
+		if (dataEntry == null) {
+			StandTypePersistentData data = standType.newDataInstance();
+			this.standData.put(standType.getId(), Either.left(data));
+			return data;
+		}
+		else {
+			return dataEntry.map(Function.identity(), readNbt -> {
+				StandTypePersistentData data = standType.newDataInstance();
+				RegistryAccess provider = getUser().registryAccess();
+				data.deserializeNBT(provider, readNbt);
+				this.standData.put(standType.getId(), Either.left(data));
+				return data;
+			});
+		}
+	}
+	
 	
 	public boolean usesStamina() {
 		return hasPower() ? getPowerType().usesStamina(this) : false;
 	}
 	
 	public float getStamina() {
-		return stamina;
+		return staminaLerp.get();
 	}
 	
 	public float getMaxStamina() {
@@ -128,38 +166,43 @@ public class StandPower extends Power<StandPower> implements PostNbtReadEntityDa
 	
 	public void setStamina(float stamina) {
 		stamina = Mth.clamp(stamina, 0, getMaxStamina());
-		if (this.stamina != stamina) {
-			this.stamina = stamina;
-			PacketDistributor.sendToPlayersTrackingEntityAndSelf(user, new TrStaminaPacket(user.getId(), stamina));
+		if (this.staminaLerp.set(stamina, false)) {
+			if (!user.level().isClientSide()) {
+				PacketDistributor.sendToPlayersTrackingEntityAndSelf(user, new TrStaminaPacket(user.getId(), stamina));
+			}
 		}
 	}
 	
+	protected void tickStamina() {
+		staminaLerp.lerpTick();
+	}
 	
-	protected float resolve;
 	
 	public boolean usesResolve() {
 		return hasPower() ? getPowerType().usesResolve(this) : false;
 	}
 	
 	public float getResolve() {
-		return resolve;
+		return resolveHandler.getResolveValue();
 	}
 	
 	public float getMaxResolve() {
-		return hasPower() ? getPowerType().getMaxResolve(this) : 0;
+		return hasPower() ? resolveHandler.getMaxResolveValue(this) : 0;
 	}
 	
-	public float getResolveRatio() {
+	public float getResolveRatio() { return getResolveRatio(1); }
+	
+	public float getResolveRatio(float partialTick) {
 		float maxResolve = getMaxResolve();
-		return maxResolve > 0 ? getResolve() / maxResolve : 0;
+		return maxResolve > 0 ? resolveHandler.resolveLerp.lerp(partialTick) / maxResolve : 0;
 	}
 	
-	public void setResolve(float resolve) {
-		resolve = Mth.clamp(resolve, 0, getMaxResolve());
-		if (this.resolve != resolve) {
-			this.resolve = resolve;
-			PacketDistributor.sendToPlayersTrackingEntityAndSelf(user, new TrResolvePacket(user.getId(), resolve));
-		}
+	public ResolveHandler getResolveHandler() {
+		return resolveHandler;
+	}
+	
+	protected void tickResolve() {
+		resolveHandler.tick(this);
 	}
 	
 	
@@ -190,18 +233,18 @@ public class StandPower extends Power<StandPower> implements PostNbtReadEntityDa
 	@Override
 	public void syncToPlayer(ServerPlayer user) {
 		super.syncToPlayer(user);
-		PacketDistributor.sendToPlayer(user, new TrPowerStandInstancePacket(user.getId(), standInstance));
-		PacketDistributor.sendToPlayer(user, new TrStaminaPacket(user.getId(), stamina));
-		PacketDistributor.sendToPlayer(user, new TrResolvePacket(user.getId(), resolve));
+		PacketDistributor.sendToPlayer(user, new TrPowerStandInstancePacket(user.getId(), standInstance, getCurTypeData(), false));
+		PacketDistributor.sendToPlayer(user, new TrStaminaPacket(user.getId(), staminaLerp.get()));
+		resolveHandler.syncToUser(user);
 		PacketDistributor.sendToPlayer(user, new TrStandSkinPacket(user.getId(), getSelectedSkin()));
 	}
 
 	@Override
 	public void syncToTracking(ServerPlayer player) {
 		super.syncToTracking(player);
-		PacketDistributor.sendToPlayer(player, new TrPowerStandInstancePacket(user.getId(), standInstance));
-		PacketDistributor.sendToPlayer(player, new TrStaminaPacket(user.getId(), stamina));
-		PacketDistributor.sendToPlayer(player, new TrResolvePacket(user.getId(), resolve));
+		PacketDistributor.sendToPlayer(player, new TrPowerStandInstancePacket(user.getId(), standInstance, getCurTypeData(), true));
+		PacketDistributor.sendToPlayer(player, new TrStaminaPacket(user.getId(), staminaLerp.get()));
+		resolveHandler.syncToTracking(user, player);
 		PacketDistributor.sendToPlayer(player, new TrStandSkinPacket(user.getId(), getSelectedSkin()));
 	}
 	
@@ -209,6 +252,9 @@ public class StandPower extends Power<StandPower> implements PostNbtReadEntityDa
 	protected void onPlayerCloneData(StandPower newEntityData, boolean wasDeath) {
 		super.onPlayerCloneData(newEntityData, wasDeath);
 		newEntityData.standInstance = this.standInstance;
+		newEntityData.standData = this.standData;
+		newEntityData.staminaLerp = this.staminaLerp;
+		newEntityData.resolveHandler.copyValues(this.resolveHandler, wasDeath);
 	}
 	
 	
@@ -218,8 +264,20 @@ public class StandPower extends Power<StandPower> implements PostNbtReadEntityDa
 		standInstance.ifPresent(
 				stand -> StandInstance.CODEC.encodeStart(NbtOps.INSTANCE, stand)
 				.ifSuccess(standNbt -> nbt.put("StandInstance", standNbt)));
-		nbt.putFloat("Stamina", stamina);
-		nbt.putFloat("Resolve", resolve);
+		
+		if (!standData.isEmpty()) {
+			CompoundTag dataNbt = new CompoundTag();
+			for (var dataEntry : standData.entrySet()) {
+				String key = dataEntry.getKey().toString();
+				dataEntry.getValue()
+				.ifLeft(data -> dataNbt.put(key, data.serializeNBT(provider)))
+				.ifRight(danaEntryNbt -> dataNbt.put(key, danaEntryNbt));
+			}
+			nbt.put("perStand", dataNbt);
+		}
+		
+		nbt.putFloat("Stamina", staminaLerp.get());
+		nbt.put("ResolveHandler", resolveHandler.writeNBT());
 		return nbt;
 	}
 
@@ -229,8 +287,17 @@ public class StandPower extends Power<StandPower> implements PostNbtReadEntityDa
 		standInstance = NBTUtil.getCompoundOptional(nbt, "StandInstance")
 				.flatMap(standNbt -> StandInstance.CODEC.decode(NbtOps.INSTANCE, standNbt).result())
 				.map(pair -> pair.getFirst());
-		stamina = nbt.getFloat("Stamina");
-		resolve = nbt.getFloat("Resolve");
+		
+		NBTUtil.getCompoundOptional(nbt, "perStand").ifPresent(dataNbt -> {
+			for (String key : dataNbt.getAllKeys()) {
+				if (dataNbt.get(key) instanceof CompoundTag compound) {
+					this.standData.put(ResourceLocation.parse(key), Either.right(compound));
+				}
+			}
+		});
+		
+		staminaLerp.set(nbt.getFloat("Stamina"), false);
+		NBTUtil.getCompoundOptional(nbt, "ResolveHandler").ifPresent(resolveHandler::readNBT);
 	}
 	
 	/* unlike deserializeNBT, this is called after the entity attributes are read, 

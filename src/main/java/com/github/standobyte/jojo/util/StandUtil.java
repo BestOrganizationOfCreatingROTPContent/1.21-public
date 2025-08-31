@@ -48,9 +48,5 @@ public class StandUtil {
 		
 		return null;
 	}
-	
-	public static boolean isInResolveEffect(LivingEntity user) {
-		return false;
-	}
     
 }

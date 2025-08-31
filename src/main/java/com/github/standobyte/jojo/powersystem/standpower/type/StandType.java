@@ -4,6 +4,7 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.stream.Stream;
 
+import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 
 import com.github.standobyte.jojo.client.standskin.StandSkinsLoader;
@@ -67,11 +68,6 @@ public class StandType extends PowerType {
 	}
 	
 	
-	public StandStats getStandStats() {
-		return stats;
-	}
-	
-	
 	@Override
 	public boolean isEnabled() {
 		return isEnabled;
@@ -79,6 +75,17 @@ public class StandType extends PowerType {
 	
 	public void setEnabled(boolean isEnabled) {
 		this.isEnabled = isEnabled;
+	}
+	
+	
+	public StandStats getStandStats() {
+		return stats;
+	}
+	
+	
+	@Nonnull
+	public StandTypePersistentData newDataInstance() {
+		return new StandTypePersistentData();
 	}
 	
 	
@@ -151,12 +158,9 @@ public class StandType extends PowerType {
 		return StandStatFormulas.getStaminaMultiplier(durability);
 	}
 	
+	
 	public boolean usesResolve(StandPower standPower) {
 		return true;
-	}
-	
-	public float getMaxResolve(StandPower standPower) {
-		return 30000;
 	}
 	
 	

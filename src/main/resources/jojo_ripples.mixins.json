@@ -10,7 +10,8 @@
     "grab.LivingEntityMixin",
     "standuseitems.ProjectileMixin",
 	"ProjectileHighSpeedSync",
-	"attributes.EntityMixin"
+	"attributes.EntityMixin",
+	"MobEffectLivingEntityMixin"
   ],
   "client": [
 	"client.v1_21_4_stuff.Model_1_21_2plus_Mixin",

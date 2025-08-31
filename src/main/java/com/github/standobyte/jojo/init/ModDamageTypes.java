@@ -12,6 +12,7 @@ import net.minecraft.world.damagesource.DamageType;
 public class ModDamageTypes {
 	/** Tags: 
 	 * jojo:can_hurt_stands, 
+	 * jojo_ripples:adds_resolve, 
 	 * minecraft:bypasses_cooldown, 
 	 * minecraft:bypasses_enchantments, 
 	 * minecraft:always_hurts_ender_dragon, 
@@ -30,5 +31,8 @@ public class ModDamageTypes {
 	public static final ResourceKey<DamageType> STAND_HEALTH_LINK = ResourceKey.create(Registries.DAMAGE_TYPE, JojoMod.resLoc("stand_health_link"));
 	
 	
-	public static final TagKey<DamageType> CAN_HURT_STANDS = TagKey.create(Registries.DAMAGE_TYPE, ResourceLocation.fromNamespaceAndPath("jojo", "can_hurt_stands"));
+	public static final TagKey<DamageType> CAN_HURT_STANDS = TagKey.create(Registries.DAMAGE_TYPE, 
+			ResourceLocation.fromNamespaceAndPath("jojo", "can_hurt_stands"));
+	public static final TagKey<DamageType> ADDS_RESOLVE = TagKey.create(Registries.DAMAGE_TYPE, 
+			ResourceLocation.fromNamespaceAndPath("jojo_ripples", "adds_resolve"));
 }

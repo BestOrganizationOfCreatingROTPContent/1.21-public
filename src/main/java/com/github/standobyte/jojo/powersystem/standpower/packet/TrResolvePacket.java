@@ -1,7 +1,8 @@
-package com.github.standobyte.jojo.powersystem.standpower;
+package com.github.standobyte.jojo.powersystem.standpower.packet;
 
 import com.github.standobyte.jojo.client.ClientProxy;
 import com.github.standobyte.jojo.core.PacketsRegister;
+import com.github.standobyte.jojo.powersystem.standpower.StandPower;
 
 import net.minecraft.network.RegistryFriendlyByteBuf;
 import net.minecraft.network.codec.ByteBufCodecs;
@@ -42,7 +43,7 @@ public record TrResolvePacket(int entityId, float resolve) implements CustomPack
 			Entity entity = ClientProxy.getEntityById(payload.entityId);
 			if (entity instanceof LivingEntity living) {
 				StandPower standPower = StandPower.get(living);
-				if (standPower != null) standPower.setResolve(payload.resolve);
+				if (standPower != null) standPower.resolveHandler.setResolveValue(standPower, payload.resolve);
 			}
 		}
 

@@ -1,7 +1,7 @@
 package com.github.standobyte.jojo.core.config;
 
 public class DefaultedValue<V> {
-	public final V defaultValue;
+	public V defaultValue;
 	public V value;
 	
 	public DefaultedValue(V defaultValue) {
@@ -15,7 +15,7 @@ public class DefaultedValue<V> {
 	
 	
 	public static class Int {
-		public final int defaultValue;
+		public int defaultValue;
 		public int value;
 		
 		public Int(int defaultValue) {
@@ -30,7 +30,7 @@ public class DefaultedValue<V> {
 	
 	
 	public static class Bool {
-		public final boolean defaultValue;
+		public boolean defaultValue;
 		public boolean value;
 		
 		public Bool(boolean defaultValue) {
@@ -45,7 +45,7 @@ public class DefaultedValue<V> {
 	
 	
 	public static class Float {
-		public final float defaultValue;
+		public float defaultValue;
 		public float value;
 		
 		public Float(float defaultValue) {
@@ -60,7 +60,7 @@ public class DefaultedValue<V> {
 	
 	
 	public static class Double {
-		public final double defaultValue;
+		public double defaultValue;
 		public double value;
 		
 		public Double(double defaultValue) {

@@ -9,14 +9,15 @@ import com.github.standobyte.jojo.client.standskin.sprites.AbilityIconSprites;
 import com.github.standobyte.jojo.client.text.IconSymbols;
 import com.github.standobyte.jojo.client.ui.powerhud.tooltip.TooltipParams;
 import com.github.standobyte.jojo.client.ui.utils.BlitFloat;
-import com.github.standobyte.jojo.client.ui.utils.TextUtil;
 import com.github.standobyte.jojo.client.ui.utils.GuiIcon;
 import com.github.standobyte.jojo.client.ui.utils.Scrolling;
+import com.github.standobyte.jojo.client.ui.utils.TextUtil;
 import com.github.standobyte.jojo.core.JojoMod;
 import com.github.standobyte.jojo.powersystem.PowerClass;
 import com.github.standobyte.jojo.powersystem.skill.UnlockableSkill;
 import com.github.standobyte.jojo.powersystem.standpower.StandPower;
 import com.github.standobyte.jojo.powersystem.standpower.StandUnlockableSkill;
+import com.github.standobyte.jojo.powersystem.standpower.type.StandTypePersistentData;
 import com.google.common.collect.Iterables;
 
 import net.minecraft.ChatFormatting;
@@ -33,7 +34,9 @@ public class StandSkillsScreen extends Screen implements IJojoMenuScreen {
 	
 	protected TabCategory category;
 	protected Tab tab;
-	
+
+	protected StandPower standPower;
+	protected StandTypePersistentData levelingData;
 	protected StandSkin standSkin;
 	protected Scrolling skillListScrolling;
 	protected Iterable<UnlockableSkill> skills;
@@ -57,7 +60,8 @@ public class StandSkillsScreen extends Screen implements IJojoMenuScreen {
 
 	@Override
     protected void init() {
-		StandPower standPower = ClientPowerCache.getPower(PowerClass.STAND);
+		standPower = ClientPowerCache.getPower(PowerClass.STAND);
+		levelingData = standPower.getCurTypeData();
 		skills = standPower.getPowerType().getUnlockableSkills();
 		skillListScrolling = new Scrolling(162, Iterables.size(skills) * 20 + 2);
 		standSkin = StandSkinsLoader.getInstance().getSkin(standPower);
@@ -122,6 +126,10 @@ public class StandSkillsScreen extends Screen implements IJojoMenuScreen {
 				guiGraphics.drawString(this.minecraft.font, controls.get(i), x + 90, y + 193 + 9 * i, textColor, false);
 			}
 		}
+		
+		Component levels = Component.literal(String.valueOf(levelingData.getResolveReached())).withStyle(ChatFormatting.BOLD);
+		guiGraphics.drawString(font, levels, 
+				x + 41 - font.width(levels) / 2, y + 32, standSkin.getColor(), false);
 		
 		renderTabs(guiGraphics, this);
 		

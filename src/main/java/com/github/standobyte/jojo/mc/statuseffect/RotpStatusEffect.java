@@ -1,0 +1,73 @@
+package com.github.standobyte.jojo.mc.statuseffect;
+
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Set;
+
+import javax.annotation.Nullable;
+
+import com.github.standobyte.jojo.core.JojoMod;
+
+import net.minecraft.core.Holder;
+import net.minecraft.core.particles.ParticleOptions;
+import net.minecraft.world.effect.MobEffect;
+import net.minecraft.world.effect.MobEffectCategory;
+import net.minecraft.world.effect.MobEffectInstance;
+import net.minecraft.world.entity.Entity;
+import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.entity.monster.Creeper;
+import net.minecraft.world.level.Explosion;
+import net.neoforged.bus.api.SubscribeEvent;
+import net.neoforged.fml.common.EventBusSubscriber;
+import net.neoforged.neoforge.common.EffectCure;
+import net.neoforged.neoforge.event.level.ExplosionEvent;
+
+@EventBusSubscriber(modid = JojoMod.MOD_ID)
+public class RotpStatusEffect extends MobEffect {
+	public boolean isUncurable;
+
+	public RotpStatusEffect(MobEffectCategory category, int color) {
+		super(category, color);
+	}
+	
+	public RotpStatusEffect(MobEffectCategory category, int color, ParticleOptions particle) {
+		super(category, color, particle);
+	}
+	
+
+	public void onAdded(LivingEntity entity, MobEffectInstance instance, @Nullable Entity source) {}
+	
+	public void onUpdated(LivingEntity entity, MobEffectInstance instance, @Nullable Entity source) {}
+
+	public void onRemoved(LivingEntity entity, MobEffectInstance instance) {}
+	
+
+	@SuppressWarnings("unchecked")
+	public <T extends RotpStatusEffect> T setUncurable() {
+		this.isUncurable = true;
+		return (T) this;
+	}
+
+	@Override
+	public void fillEffectCures(Set<EffectCure> cures, MobEffectInstance effectInstance) {
+		if (!isUncurable) {
+			super.fillEffectCures(cures, effectInstance);
+		}
+	}
+
+
+	@SubscribeEvent
+	public static void disableCreeperLingeringClouds(ExplosionEvent.Detonate event) {
+		Explosion explosion = event.getExplosion();
+		if (explosion.getDirectSourceEntity() instanceof Creeper creeper) {
+			Collection<Holder<MobEffect>> effects = new ArrayList<>(creeper.getActiveEffectsMap().keySet());
+			effects.forEach(effect -> {
+				if (/*effect == ModStatusEffects.BLEEDING.get() || */
+						effect instanceof RotpStatusEffect modEffect && modEffect.isUncurable) {
+					creeper.removeEffect(effect);
+				}
+			});
+		}
+	}
+
+}
