@@ -72,7 +72,11 @@ public class StandPower extends Power<StandPower> implements PostNbtReadEntityDa
 		if (user != null) {
 			StandStats.updateStandStatAttributes(this, user);
 		}
-		onSetPowerType(oldStand, getPowerType());
+		StandType newStand = getPowerType();
+		onSetPowerType(oldStand, newStand);
+		if (newStand == null) {
+			setStamina(0);
+		}
 		
 		if (!user.level().isClientSide()) {
 			PacketDistributor.sendToPlayersTrackingEntity(user, new TrPowerStandInstancePacket(user.getId(), standInstance, getCurTypeData(), true));
@@ -174,7 +178,10 @@ public class StandPower extends Power<StandPower> implements PostNbtReadEntityDa
 	}
 	
 	protected void tickStamina() {
-		staminaLerp.lerpTick();
+		if (this.usesStamina()) {
+			float staminaRegen = getPowerType().getStaminaRegen(this);
+			staminaLerp.set(Mth.clamp(staminaLerp.get() + staminaRegen, 0, getMaxStamina()), true);
+		}
 	}
 	
 	
