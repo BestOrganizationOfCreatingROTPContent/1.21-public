@@ -7,7 +7,6 @@ import java.util.stream.Stream;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 
-import com.github.standobyte.jojo.client.standskin.StandSkinsLoader;
 import com.github.standobyte.jojo.core.JojoRegistries;
 import com.github.standobyte.jojo.init.core.ModEntityAttributes;
 import com.github.standobyte.jojo.powersystem.MovesetBuilder;
@@ -197,15 +196,12 @@ public class StandType extends PowerType {
 		return PowerClass.STAND;
 	}
 	
-	protected Lazy<Component> name = Lazy.of(() -> Component.translatable(Util.makeDescriptionId("stand", this.getId())));
+	public Lazy<Component> name = Lazy.of(() -> Component.translatable(Util.makeDescriptionId("stand", this.getId())));
 	@Override
 	public Component getName(Power<?> playerPowerData) {
-		Component name = this.name.get();
-		if (playerPowerData.getUser().level().isClientSide()) {
-			int color = StandSkinsLoader.getInstance().getSkin(((StandPower) playerPowerData)).getColor();
-			return name.copy().withColor(color);
-		}
-		return name;
+		return ((StandPower) playerPowerData).getStandInstance()
+				.map(stand -> stand.getStandName(playerPowerData.getUser().level().isClientSide()))
+				.orElseGet(this.name::get);
 	}
 	
 }

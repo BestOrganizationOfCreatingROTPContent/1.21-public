@@ -9,6 +9,8 @@ import javax.annotation.Nullable;
 
 import org.jetbrains.annotations.ApiStatus;
 
+import com.github.standobyte.jojo.client.standskin.StandSkin;
+import com.github.standobyte.jojo.client.standskin.StandSkinsLoader;
 import com.github.standobyte.jojo.powersystem.standpower.type.StandType;
 import com.mojang.datafixers.util.Either;
 import com.mojang.serialization.Codec;
@@ -88,9 +90,17 @@ public class StandInstance {
 	
 	
 	@Nullable
-	public Component getStandName() {
+	public Component getStandName(boolean clientSide) {
 		StandType stand = getStandType();
-		return stand != null ? Component.translatable(stand.getId().toString()) : null;
+		Component name = stand.name.get();
+		if (clientSide) {
+			StandSkin skin = StandSkinsLoader.getInstance().getSkin(this);
+			if (skin != null) {
+				int color = skin.getColor();
+				return name.copy().withColor(color);
+			}
+		}
+		return name;
 	}
 	
 	

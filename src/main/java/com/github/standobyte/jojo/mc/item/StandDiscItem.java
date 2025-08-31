@@ -28,7 +28,7 @@ public class StandDiscItem extends Item {
 		StandWrittenOnDisc discStand = item.get(ModItemDataComponents.DISC_STAND.get());
 		if (discStand == null || !discStand.isValid()) return;
 		
-		Component standName = discStand.getStandName();
+		Component standName = discStand.standInstance.getStandName(true);
 		if (standName != null) {
 			tooltip.add(standName);
 		}
