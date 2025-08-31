@@ -237,7 +237,7 @@ public class InputHandler {
 					addKeyModifier(vanillaKey);
 				}
 				
-				if (heldAbility == null && clickAbility == null) {
+				if (heldAbility == null && clickAbility == null && mc.screen == null) {
 					checkStartHotbarSelection(key);
 				}
 			}
