@@ -111,13 +111,14 @@ public class ModStands {
 					.addSkill(StandUnlockableSkill.startingAbility("barrage"))
 					.addSkill(StandUnlockableSkill.startingAbility("guard"))
 					.addSkill(StandUnlockableSkill.startingAbility("grab"))
-					.addSkill(StandUnlockableSkill.startingAbility("enhanced_eyesight"))
+					.addSkill(StandUnlockableSkill.startingAbility("leap"))
 					
-					.addSkill(StandUnlockableSkill.unlockableAbility("leap", 1))
 					.addSkill(StandUnlockableSkill.unlockableAbility("grabbed_throw", 1).prerequisiteSkill("grab"))
 //					.addSkill(StandUnlockableSkill.unlockableAbility("grab_ground_slam", 1).prerequisiteSkill("grab"))
 //					.addSkill(StandUnlockableSkill.unlockableAbility("uppercut_ground_throw", 1).prerequisiteSkill("finisher_uppercut", "grab_ground_slam"))
 //					.addSkill(StandUnlockableSkill.unlockableAbility("grab_terrain", 1).withAbility("terrain_throw").prerequisiteSkill("grab")
+					
+					.addSkill(StandUnlockableSkill.startingAbility("enhanced_eyesight"))
 					.addSkill(StandUnlockableSkill.unlockableAbility("star_finger", 1)/*.withAbility("star_finger_swipe")*/)
 					.addSkill(StandUnlockableSkill.unlockableAbility("inhale", 1))
 					.addSkill(StandUnlockableSkill.unlockableAbility("time_stop", 1))
@@ -151,9 +152,9 @@ public class ModStands {
 					.addSkill(StandUnlockableSkill.startingAbility("barrage"))
 					.addSkill(StandUnlockableSkill.startingAbility("guard"))
 					.addSkill(StandUnlockableSkill.startingAbility("grab"))
+					.addSkill(StandUnlockableSkill.startingAbility("leap"))
+					
 					.addSkill(StandUnlockableSkill.startingAbility("repair_item"))
-
-					.addSkill(StandUnlockableSkill.unlockableAbility("leap", 1))
 					.addSkill(StandUnlockableSkill.unlockableAbility("heal", 1))
 					.addSkill(StandUnlockableSkill.unlockableAbility("leave_object", 1).prerequisiteSkill("heal", "heavy_punch"))
 					.addSkill(StandUnlockableSkill.unlockableAbility("disfiguring_punch", 1).prerequisiteSkill("heal", "heavy_punch"))
