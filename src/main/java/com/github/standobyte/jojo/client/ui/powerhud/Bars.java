@@ -2,6 +2,7 @@ package com.github.standobyte.jojo.client.ui.powerhud;
 
 import com.github.standobyte.jojo.client.ui.utils.BlitFloat;
 import com.github.standobyte.jojo.core.JojoMod;
+import com.github.standobyte.v1_21_4_stuff.missingmethods.ARGB;
 import com.mojang.blaze3d.vertex.PoseStack;
 
 import net.minecraft.client.Minecraft;
@@ -32,41 +33,47 @@ public class Bars {
 	public static final ResourceLocation BAR_VERTICAL_MINI_FILL = JojoMod.resLoc("textures/hud/bars/bar_vertical_mini_fill.png");
 
 	
-	public static void renderHorizontalBar(PoseStack poseStack, float x, float y, float barFill, int fillTint) {
-		renderHorizontalBar(poseStack, x, y, barFill, BAR_HORIZONTAL_FILL, fillTint);
+	public static void renderHorizontalBar(PoseStack poseStack, float x, float y, 
+			float barFill, int fillTint, float alpha) {
+		renderHorizontalBar(poseStack, x, y, barFill, BAR_HORIZONTAL_FILL, fillTint, alpha);
 	}
 	
-	public static void renderHorizontalBar(PoseStack poseStack, float x, float y, float barFill, ResourceLocation barFillSprite, int fillTint) {
+	public static void renderHorizontalBar(PoseStack poseStack, float x, float y, float barFill, 
+			ResourceLocation barFillSprite, int fillTint, float alpha) {
 		_renderHorizontalBar(poseStack, x, y, barFill, 
 				HORIZONTAL_LENGTH, HORIZONTAL_WIDTH, BAR_HORIZONTAL_EMPTY, BAR_HORIZONTAL_SCALE, 
-				barFillSprite, fillTint);
+				barFillSprite, fillTint, alpha);
 	}
 	
-	public static void renderHorizontalBarMini(PoseStack poseStack, float x, float y, float barFill, int fillTint) {
-		renderHorizontalBarMini(poseStack, x, y, barFill, BAR_HORIZONTAL_MINI_FILL, fillTint);
+	public static void renderHorizontalBarMini(PoseStack poseStack, float x, float y, 
+			float barFill, int fillTint, float alpha) {
+		renderHorizontalBarMini(poseStack, x, y, barFill, BAR_HORIZONTAL_MINI_FILL, fillTint, alpha);
 	}
 	
-	public static void renderHorizontalBarMini(PoseStack poseStack, float x, float y, float barFill, ResourceLocation barFillSprite, int fillTint) {
+	public static void renderHorizontalBarMini(PoseStack poseStack, float x, float y, float barFill, 
+			ResourceLocation barFillSprite, int fillTint, float alpha) {
 		_renderHorizontalBar(poseStack, x, y, barFill, 
 				HORIZONTAL_LENGTH_MINI, HORIZONTAL_WIDTH_MINI, BAR_HORIZONTAL_MINI_EMPTY, BAR_HORIZONTAL_MINI_SCALE, 
-				barFillSprite, fillTint);
+				barFillSprite, fillTint, alpha);
 	}
 	
 	public static void _renderHorizontalBar(PoseStack poseStack, float x, float y, float barFill, 
 			float length, float width, ResourceLocation barEmpty, ResourceLocation barScale, 
-			ResourceLocation barFillSprite, int fillTint) {
+			ResourceLocation barFillSprite, int fillTint, float alpha) {
+		int colorMain = ARGB.white(alpha);
+		int colorFill = ARGB.color(alpha, fillTint);
 		Minecraft mc = Minecraft.getInstance();
 		BlitFloat.blit(poseStack, mc, barEmpty, 
 				x, y, length, width, 0, 
-				BlitFloat.NO_TINT);
+				colorMain);
 		float fillULength = (length - 2) * barFill + 1;
 		BlitFloat.blit(poseStack, mc, barFillSprite, 
 				x, y, fillULength, width, 0, 
 				0, 0, fillULength, width, length, width, 
-				fillTint);
+				colorFill);
 		BlitFloat.blit(poseStack, mc, barScale, 
 				x, y, length, width, 0, 
-				BlitFloat.NO_TINT);
+				colorMain);
 	}
 	
 	

@@ -322,9 +322,10 @@ public class PowerHud {
 			float staminaRatio = standPower.getStaminaRatio();
 			int x = getX() + 8;
 			int y = getY();
-			Bars.renderHorizontalBar(guiGraphics.pose(), x, y, staminaRatio, BAR_HORIZONTAL_FILL, BlitFloat.NO_TINT);
+			float alpha = StandUtil.standIgnoresStaminaDebuff(Minecraft.getInstance().player) ? 0.5f : 1;
+			Bars.renderHorizontalBar(guiGraphics.pose(), x, y, staminaRatio, BAR_HORIZONTAL_FILL, BlitFloat.NO_TINT, alpha);
 			BlitFloat.blit(guiGraphics.pose(), Minecraft.getInstance(), ICON, 
-					x - 12, y - 6, 20, 20, 0, BlitFloat.NO_TINT);
+					x - 12, y - 6, 20, 20, 0, ARGB.white(alpha));
 		}
 		
 		@Override
