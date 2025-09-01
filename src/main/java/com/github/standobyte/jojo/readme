@@ -18,6 +18,7 @@ Terminology:
 	StandInstance - a data object describing the player's Stand (type, selected skin, parts taken away by Boy II Man, etc.)
 	SummonedStand (previously IStandManifestation) - an interface for objects that represents the user's currently summoned Stand. Most commonly it is going to be a StandEntity, but StandType subclasses can override it to use their own class.
 	PowerData (previously TypeSpecificData) - a data object corresponding to a PlayerPower type (e.g. HamonData would contain stuff like player's Hamon stats).
+	StandTypePersistentData (previously StandActionLearningProgress served this purpose) - sort of a counterpart to PowerData, contains player data per each Stand type, and is saved even if the Stand is removed from the player. Saves things like learned Stand skills.
 	
 	Ability (previously Action) - a component part of a moveset. Each class extending Ability contains the logic of a specific ability. Because a Moveset object is created per user, unlike the 1.16.5 version, each Ability object is also separate for each player, so now you actually can store temporary variables inside Ability objects - still not recommended, but at least it shouldn't break multiplayer now.
 	AbilityType - a singleton object that is registered in a NeoForge registry, allows to create multiple different objects of a specific Ability sub-class with different configs (kind of like a relation between EntityType and Entity - each EntityType corresponds to a subclass of Entity, and can create instances of their entity on demand).
