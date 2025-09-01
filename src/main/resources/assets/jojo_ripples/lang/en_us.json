@@ -62,6 +62,10 @@
   "ripples_hud.stamina_bar.desc1.resolve": "During True Resolve, your Stand does not weaker from low stamina.",
   "ripples_hud.stand_finisher": "Stand Finisher",
   "ripples_hud.stand_finisher.desc": "Using regular punches or barraging someone builds up the finisher meter, which is spent to make the heavy attack faster.\nWhen the first (white) bar is full, your heavy attack is replaced with a special finisher attack.",
+  "ripples_hud.stand_range": "Distance from user",
+  "ripples_hud.stand_range.desc": "If you move your Stand beyond its effective range, it gets weaker.\nAs a rule of thumb, stronger Stands have much lower range, which limits their high power to melee combat.",
+  "jojo_ripples.overlay.stand_strength": "Stand Strength: %s",
+  
   "ripples_hud.energy_hamon": "Hamon Energy",
   "ripples_hud.energy_hamon.desc": "",
   

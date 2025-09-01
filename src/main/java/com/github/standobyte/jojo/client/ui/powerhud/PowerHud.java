@@ -16,6 +16,7 @@ import com.github.standobyte.jojo.powersystem.PowerClass;
 import com.github.standobyte.jojo.powersystem.playerpower.PlayerPower;
 import com.github.standobyte.jojo.powersystem.standpower.StandPower;
 import com.github.standobyte.jojo.powersystem.standpower.entity.StandEntity;
+import com.github.standobyte.jojo.util.MathUtil;
 import com.github.standobyte.jojo.util.StandUtil;
 import com.github.standobyte.v1_21_4_stuff.missingmethods.ARGB;
 import com.mojang.blaze3d.systems.RenderSystem;
@@ -23,6 +24,7 @@ import com.mojang.blaze3d.systems.RenderSystem;
 import net.minecraft.ChatFormatting;
 import net.minecraft.client.DeltaTracker;
 import net.minecraft.client.Minecraft;
+import net.minecraft.client.gui.Font;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.LayeredDraw;
 import net.minecraft.client.gui.screens.ChatScreen;
@@ -122,6 +124,8 @@ public class PowerHud {
 		public HudElement controls = addElement(new ControlsHudElement("controls", 4, 44, -1, -1));
 		public HudElement resolveBar = addElement(new Resolve("resolve_bar", 11, 12, 32, 16));
 		public HudElement staminaBar = addElement(new Stamina("stamina_bar", 61, 16, Bars.HORIZONTAL_LENGTH + 8, Bars.HORIZONTAL_WIDTH));
+		public HudElement standRange = addElement(new StandRange("stand_range", 
+				(int) staminaBar.xOffsetL + staminaBar.getWidth() + 10, (int) staminaBar.yOffsetU, -1, -1));
 		public HudElement finisherBar = addElement(new Finisher("stand_finisher", 
 				HudElement.SnappingH.CENTER, HudElement.SnappingV.CENTER, -16, -16, 32, 32));
 		
@@ -406,6 +410,51 @@ public class PowerHud {
 				finisher -= 1;
 				i++;
 			}
+		}
+	}
+	
+	
+	public static class StandRange extends HudElement {
+
+		public StandRange(String name, int x0, int y0, int width, int height) {
+			super(name, x0, y0, width, height);
+		}
+
+		public StandRange(String name, SnappingH snappingHorizontal, SnappingV snappingVertical, 
+				int xOffset, int yOffset, int width, int height) {
+			super(name, snappingHorizontal, snappingVertical, xOffset, yOffset, width, height);
+		}
+
+		@Override
+		public boolean shouldRender() {
+			if (hud.inContainerMenu.isTrue()) return false;
+			StandEntity stand = ClientGlobals.playerStandEntity;
+			return stand != null && stand.isManuallyControlled();
+		}
+		
+		@Override
+		public void renderElement(GuiGraphics guiGraphics, DeltaTracker deltaTracker) {
+			StandEntity stand = ClientGlobals.playerStandEntity;
+			double distance = MathUtil.getAABBDistance(stand.getBoundingBox(), stand.getUser().getBoundingBox());
+			double damageFactor = stand.rangeEfficiency;
+			Font font = Minecraft.getInstance().font;
+
+			int x = this.getX();
+			int y = this.getY();
+			int width;
+			int height;
+			Component distanceString = Component.literal(String.format("%.2f m", distance));
+			guiGraphics.drawString(font, distanceString, x, y, 0xFFFFFFFF);
+			width = font.width(distanceString);
+			height = font.lineHeight;
+			if (damageFactor < 1) {
+				y += 12;
+				Component strength = Component.translatable("jojo_ripples.overlay.stand_strength", String.format("%.2f%%", damageFactor * 100F));
+				guiGraphics.drawString(font, strength, x, y, 0xFF4040);
+				width = Math.max(width, font.width(strength));
+				height += 12;
+			}
+			updateRectangle(width, height);
 		}
 	}
 	
