@@ -23,6 +23,7 @@ import com.github.standobyte.jojo.powersystem.standpower.StandStats;
 import com.github.standobyte.jojo.powersystem.standpower.type.StandType;
 import com.github.standobyte.jojo.powersystem.standpower.type.SummonedStand;
 import com.github.standobyte.jojo.util.MathUtil;
+import com.github.standobyte.jojo.util.MathUtil.AABBDist;
 import com.github.standobyte.jojo.util.StandUtil;
 import com.github.standobyte.jojo.util.UtilFunctions;
 import com.github.standobyte.jojo.util.damage.DamageUtil;
@@ -454,10 +455,13 @@ public class StandEntity extends LivingEntity implements SummonedStand, IEntityW
 		LivingEntity user = getUser();
 		Level level = this.level();
 		if (user != null && user.level() == level) {
-			double distance = MathUtil.getAABBDistance(this.getBoundingBox(), user.getBoundingBox());
+			AABBDist bbDistance = MathUtil.getAABBDistanceDetailed(this.getBoundingBox(), user.getBoundingBox());
+			double distance = bbDistance.distance();
 			double range = getMaxRange();
 			if (distance > range) {
-				Vec3 vecToUser = user.position().subtract(position()).scale(1 - range / distance);
+				Vec3 standPos = bbDistance.posBB1();
+				Vec3 userPos = bbDistance.posBB2();
+				Vec3 vecToUser = userPos.subtract(standPos).scale(1 - range / distance);
 				moveWithoutCollision(vecToUser);
 			}
 		}

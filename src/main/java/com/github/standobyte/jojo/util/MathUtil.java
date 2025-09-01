@@ -77,6 +77,82 @@ public final class MathUtil {
 		return Math.sqrt(xDiff * xDiff + yDiff * yDiff + zDiff * zDiff);
 	}
 	
+	public static AABBDist getAABBDistanceDetailed(AABB aabb1, AABB aabb2) {
+		double x1 = Math.min(aabb1.maxX, aabb2.maxX);
+		double x2 = Math.max(aabb1.minX, aabb2.minX);
+		double xBB1;
+		double xBB2;
+		double xDiff;
+		if (x1 >= x2) {
+			xDiff = 0;
+			double x = (x1 + x2) / 2;
+			xBB1 = x;
+			xBB2 = x;
+		}
+		else {
+			xDiff = x2 - x1;
+			if (x1 == aabb1.maxX) {
+				xBB1 = x1;
+				xBB2 = x2;
+			}
+			else {
+				xBB1 = x2;
+				xBB2 = x1;
+			}
+		}
+
+		double y1 = Math.min(aabb1.maxY, aabb2.maxY);
+		double y2 = Math.max(aabb1.minY, aabb2.minY);
+		double yBB1;
+		double yBB2;
+		double yDiff;
+		if (y1 >= y2) {
+			yDiff = 0;
+			double y = (y1 + y2) / 2;
+			yBB1 = y;
+			yBB2 = y;
+		}
+		else {
+			yDiff = y2 - y1;
+			if (y1 == aabb1.maxY) {
+				yBB1 = y1;
+				yBB2 = y2;
+			}
+			else {
+				yBB1 = y2;
+				yBB2 = y1;
+			}
+		}
+
+		double z1 = Math.min(aabb1.maxZ, aabb2.maxZ);
+		double z2 = Math.max(aabb1.minZ, aabb2.minZ);
+		double zBB1;
+		double zBB2;
+		double zDiff;
+		if (z1 >= z2) {
+			zDiff = 0;
+			double z = (z1 + z2) / 2;
+			zBB1 = z;
+			zBB2 = z;
+		}
+		else {
+			zDiff = z2 - z1;
+			if (z1 == aabb1.maxZ) {
+				zBB1 = z1;
+				zBB2 = z2;
+			}
+			else {
+				zBB1 = z2;
+				zBB2 = z1;
+			}
+		}
+		
+		double distance = Math.sqrt(xDiff * xDiff + yDiff * yDiff + zDiff * zDiff);
+		return new AABBDist(new Vec3(xBB1, yBB1, zBB1), new Vec3(xBB2, yBB2, zBB2), distance);
+	}
+	
+	public static record AABBDist(Vec3 posBB1, Vec3 posBB2, double distance) {}
+	
 	
 	public static int min(int num1, int num2, int... nums) {
 		int min = (num1 <= num2) ? num1 : num2;
