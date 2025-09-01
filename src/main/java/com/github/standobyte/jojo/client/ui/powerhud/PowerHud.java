@@ -331,7 +331,7 @@ public class PowerHud {
 		protected void checkTooltip(double mouseX, double mouseY, DeltaTracker deltaTracker) {
 			StandPower standPower = ClientPowerCache.getPower(PowerClass.STAND);
 			
-			if (StandUtil.staminaDebuffDisabled(Minecraft.getInstance().player)) {
+			if (StandUtil.standIgnoresStaminaDebuff(Minecraft.getInstance().player)) {
 				this.tooltip.set(this.tooltipResolve);
 			}
 			else {

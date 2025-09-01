@@ -11,6 +11,7 @@ public class StandEntityRenderState extends HumanoidRenderState {
 	public StandSkin skin;
 	public final EntityActionRenderState action = new EntityActionRenderState();
 	public int tint = -1;
+	public float alpha = 1;
 	public HumanoidPart[] visibleParts = HumanoidPart.ALL;
 	public boolean mayObstructView;
 }

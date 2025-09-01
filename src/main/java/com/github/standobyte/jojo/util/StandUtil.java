@@ -50,7 +50,7 @@ public class StandUtil {
 		return null;
 	}
 	
-	public static boolean staminaDebuffDisabled(LivingEntity standUser) {
+	public static boolean standIgnoresStaminaDebuff(LivingEntity standUser) {
 		return ModStatusEffects.isInResolveEffect(standUser);
 	}
     

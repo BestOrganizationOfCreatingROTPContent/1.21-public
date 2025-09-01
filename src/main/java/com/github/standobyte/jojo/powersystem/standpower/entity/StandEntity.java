@@ -23,6 +23,7 @@ import com.github.standobyte.jojo.powersystem.standpower.StandStats;
 import com.github.standobyte.jojo.powersystem.standpower.type.StandType;
 import com.github.standobyte.jojo.powersystem.standpower.type.SummonedStand;
 import com.github.standobyte.jojo.util.MathUtil;
+import com.github.standobyte.jojo.util.StandUtil;
 import com.github.standobyte.jojo.util.UtilFunctions;
 import com.github.standobyte.jojo.util.damage.DamageUtil;
 import com.github.standobyte.jojo.util.damage.StandLinkDamageSource;
@@ -85,17 +86,19 @@ public class StandEntity extends LivingEntity implements SummonedStand, IEntityW
 	protected ResourceLocation standId;
 	protected static final EntityDataAccessor<Byte> STAND_FLAGS = SynchedEntityData.defineId(StandEntity.class, EntityDataSerializers.BYTE);
 	protected static final EntityDataAccessor<Integer> USER_ID = SynchedEntityData.defineId(StandEntity.class, EntityDataSerializers.INT);
-	private WeakReference<LivingEntity> userRef = new WeakReference<LivingEntity>(null);
+	protected WeakReference<LivingEntity> userRef = new WeakReference<LivingEntity>(null);
 	protected StandPower userPower;
 	protected final LivingComponentAction standAction;
+	
+	protected static final EntityDataAccessor<Float> FINISHER_VALUE = SynchedEntityData.defineId(StandEntity.class, EntityDataSerializers.FLOAT);
 	
 	public static final double Y_OFFSET = 0.2;
 	protected static final Vec3 DEFAULT_USER_OFFSET = new Vec3(0.75, Y_OFFSET, -0.75);
 	public StandOffsetFromUser offsetFromUser;
+    public double rangeEfficiency = 1;
+    public double staminaCondition = 1;
 	
 	public ClientStandEntityStuff clientStuff;
-	
-	protected static final EntityDataAccessor<Float> FINISHER_VALUE = SynchedEntityData.defineId(StandEntity.class, EntityDataSerializers.FLOAT);
 
 	public StandEntity(EntityType<? extends StandEntity> type, Level level) {
 		super(type, level);
@@ -176,7 +179,8 @@ public class StandEntity extends LivingEntity implements SummonedStand, IEntityW
 		}
 		yHeadRot = getYRot();
 		yHeadRotO = yRotO;
-		
+
+        updateStrengthMultipliers();
 		tickFinisherMeter();
 	}
 	
@@ -596,8 +600,19 @@ public class StandEntity extends LivingEntity implements SummonedStand, IEntityW
 		return getAttributeValue(ModEntityAttributes.STAND_MAX_RANGE);
 	}
 	
-	public float getStandEfficiency() {
-		return 1;
+	public double getStandEfficiency() {
+		return rangeEfficiency * staminaCondition;
+	}
+
+	public void updateStrengthMultipliers() {
+		LivingEntity user = getUser();
+
+		rangeEfficiency = user != null ? StandStatFormulas.rangeStrengthFactor(getEffectiveRange(), getMaxRange(), distanceTo(user)) : 1;
+
+		if (user != null && userPower != null) {
+			staminaCondition = StandUtil.standIgnoresStaminaDebuff(user) ? 1
+					: 0.25 + Math.min((double) (userPower.getStamina() / userPower.getMaxStamina()) * 1.5, 0.75);
+		}
 	}
 
 

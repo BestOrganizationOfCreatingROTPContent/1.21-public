@@ -20,6 +20,7 @@ import net.minecraft.client.model.ArmedModel;
 import net.minecraft.client.model.EntityModel;
 import net.minecraft.client.model.geom.ModelPart;
 import net.minecraft.client.renderer.RenderType;
+import net.minecraft.util.FastColor;
 import net.minecraft.world.entity.HumanoidArm;
 
 public class StandEntityModel<T extends StandEntity, S extends StandEntityRenderState> extends EntityModel<T> implements ArmedModel {
@@ -83,6 +84,15 @@ public class StandEntityModel<T extends StandEntity, S extends StandEntityRender
 	
 	@Override
 	public void renderToBuffer(PoseStack poseStack, VertexConsumer buffer, int packedLight, int packedOverlay, int color) {
+		StandEntityRenderState renderState = RenderStateCrutches.currentStandEntityRenderState;
+		if (renderState != null) {
+			if (renderState.tint != -1) {
+				color = FastColor.ARGB32.multiply(color, renderState.tint);
+			}
+			if (renderState.alpha < 1) {
+				color = FastColor.ARGB32.color(FastColor.as8BitChannel(renderState.alpha), color);
+			}
+		}
 		((Model_1_21_2plus) this).jojo_ripples$root().render(poseStack, buffer, packedLight, packedOverlay, color);
 		Reminder.thatThisShouldBeInAnEntityModelMixinInstead();
 		if (BarrageSwings.currentlyRendering != null) {

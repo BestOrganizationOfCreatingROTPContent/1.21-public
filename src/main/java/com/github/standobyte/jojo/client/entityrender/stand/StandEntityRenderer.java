@@ -105,6 +105,7 @@ public class StandEntityRenderer<
 				getStandAnim(renderState), entity.clientStuff.barrageSwings);
 		
 		renderState.tint = -1;
+		renderState.alpha = (float) entity.rangeEfficiency;
 		
 		Minecraft mc = Minecraft.getInstance();
 		renderState.mayObstructView = mc.options.getCameraType().isFirstPerson() && mc.player != null && entity.getUser() == mc.player;
@@ -188,6 +189,7 @@ public class StandEntityRenderer<
 
 	public void render(T entity, S renderState, float entityYaw, float partialTicks, PoseStack poseStack, MultiBufferSource bufferSource, int light) {
 		RenderStateCrutches.currentEntityRenderState = renderState;
+		RenderStateCrutches.currentStandEntityRenderState = renderState;
 
 		setModelFrom(renderState);
 		
@@ -199,6 +201,7 @@ public class StandEntityRenderer<
 			super.render(entity, entityYaw, partialTicks, poseStack, bufferSource, light);
 		}
 		RenderStateCrutches.currentEntityRenderState = null;
+		RenderStateCrutches.currentStandEntityRenderState = null;
 
 	}
 

@@ -192,7 +192,7 @@ public class StandPower extends Power<StandPower> implements PostNbtReadEntityDa
 		}
 		else {
 			setStamina(0);
-			return StandUtil.staminaDebuffDisabled(getUser());
+			return StandUtil.standIgnoresStaminaDebuff(getUser());
 		}
 	}
 	
