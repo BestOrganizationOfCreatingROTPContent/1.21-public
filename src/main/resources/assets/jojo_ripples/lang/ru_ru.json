@@ -120,7 +120,7 @@
   "jojo_ripples.class.player_power": "Сила персонажа: %s",
   
   
-  "jojo_ripples.power.hamon": "Хамон",
+  "power.jojo_ripples.hamon": "Хамон",
   "hamon.intro.tab": "Вступление",
   "hamon.stats.tab": "Характеристики",
   "hamon.strength_skills.tab": "Боевые навыки",
@@ -130,7 +130,7 @@
   "moveset_group.hamon.utility": "Хамон: поддержка",
   
   
-  "jojo_ripples.power.vampirism": "Вампиризм",
+  "power.jojo_ripples.vampirism": "Вампиризм",
   "jojo_ripples.vampirism.skills": "Навыки",
   
 
