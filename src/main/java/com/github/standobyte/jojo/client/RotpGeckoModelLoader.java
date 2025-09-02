@@ -1,8 +1,13 @@
 package com.github.standobyte.jojo.client;
 
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
+import java.util.function.Consumer;
+
+import javax.annotation.Nullable;
 
 import org.jetbrains.annotations.ApiStatus;
 
@@ -10,18 +15,17 @@ import com.github.standobyte.jojo.client.entityrender.parsemodel.gecko.GeckoMode
 import com.github.standobyte.jojo.core.JojoMod;
 import com.github.standobyte.jojo.util.JSONUtil;
 import com.github.standobyte.jojo.util.StringUtil;
+import com.github.standobyte.v1_21_4_stuff.missingmethods.Zone;
+import com.github.standobyte.v1_21_4_stuff.missingmethods._ProfilerFiller;
 import com.google.gson.JsonElement;
 
+import net.minecraft.client.model.geom.ModelPart;
 import net.minecraft.client.model.geom.builders.LayerDefinition;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.packs.resources.Resource;
 import net.minecraft.server.packs.resources.ResourceManager;
 import net.minecraft.server.packs.resources.SimplePreparableReloadListener;
 import net.minecraft.util.profiling.ProfilerFiller;
-
-import com.github.standobyte.v1_21_4_stuff.missingmethods.Zone;
-import com.github.standobyte.v1_21_4_stuff.missingmethods._ProfilerFiller;
-
 import net.neoforged.neoforge.client.event.RegisterClientReloadListenersEvent;
 
 public class RotpGeckoModelLoader extends SimplePreparableReloadListener<Map<ResourceLocation, LayerDefinition>> {
@@ -40,11 +44,23 @@ public class RotpGeckoModelLoader extends SimplePreparableReloadListener<Map<Res
 		return instance;
 	}
 	
+	protected List<Consumer<RotpGeckoModelLoader>> listeners = new ArrayList<>();
+	public void addListener(Consumer<RotpGeckoModelLoader> listener) {
+		this.listeners.add(listener);
+	}
 	
-	private Map<ResourceLocation, LayerDefinition> models = new HashMap<>();
 	
+	public Map<ResourceLocation, LayerDefinition> models = new HashMap<>();
+
+	@Nullable
 	public LayerDefinition getModelDefinition(ResourceLocation path) {
 		return models.get(path);
+	}
+	
+	@Nullable
+	public ModelPart bakeModel(ResourceLocation path) {
+		LayerDefinition parsed = models.get(path);
+		return parsed != null ? parsed.bakeRoot() : null;
 	}
 	
 
@@ -83,6 +99,7 @@ public class RotpGeckoModelLoader extends SimplePreparableReloadListener<Map<Res
 		this.models.clear();
 		this.models.putAll(skinsRead);
 		JojoMod.getLogger().info("Loaded {} models", this.models.size());
+		listeners.forEach(listener -> listener.accept(this));
 	}
 
 }

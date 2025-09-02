@@ -20,13 +20,11 @@ import com.github.standobyte.jojo.mechanics.clothes.mannequin.MannequinItem;
 import com.github.standobyte.jojo.powersystem.standpower.StandInstance;
 import com.github.standobyte.jojo.powersystem.standpower.type.StandType;
 
-import net.minecraft.core.Holder;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.item.CreativeModeTab;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
-import net.minecraft.world.item.Items;
 import net.neoforged.bus.api.EventPriority;
 import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.fml.common.EventBusSubscriber;
@@ -53,7 +51,7 @@ public final class ModItems {
 
 	public static final DeferredHolder<CreativeModeTab, CreativeModeTab> MAIN_TAB = CREATIVE_MODE_TABS.register(JojoMod.MOD_ID + "_main", () -> CreativeModeTab.builder()
 			.title(Component.translatable("itemGroup." + JojoMod.MOD_ID + "_main"))
-			.icon(() -> Items.STICK.getDefaultInstance())
+			.icon(() -> DEBUG_ITEM.value().getDefaultInstance())
 			.displayItems((parameters, output) -> {
 				// most of the mod's items
 				Stream<StandType> stands = StandType.getAllEnabledStands();
