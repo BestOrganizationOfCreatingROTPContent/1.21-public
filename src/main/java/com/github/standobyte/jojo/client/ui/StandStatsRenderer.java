@@ -65,51 +65,62 @@ import net.neoforged.neoforge.client.event.ScreenEvent;
 public class StandStatsRenderer {
 	public static final ResourceLocation STAND_STATS_UI = JojoMod.resLoc("textures/gui/stand_stats.png");
 
+	protected static final GuiIcon standStatsToggleIcon = new GuiIcon(StandStatsRenderer.STAND_STATS_UI, 492, 492, 20, 20, 512, 512);
+	protected static final Tooltip standStatsHideTooltip = Tooltip.create(Component.translatable("jojo_ripples.stand_stat.button.hide"));
+	protected static final Tooltip standStatsShowTooltip = Tooltip.create(Component.translatable("jojo_ripples.stand_stat.button.show"));
+	protected static final GuiIcon bnwButton = new GuiIcon(StandStatsRenderer.STAND_STATS_UI, 464, 496, 8, 8, 512, 512);
+	protected static final GuiIcon bnwInvertedButton = new GuiIcon(StandStatsRenderer.STAND_STATS_UI, 472, 496, 8, 8, 512, 512);
+	protected static final GuiIcon bnwButtonHovered = new GuiIcon(StandStatsRenderer.STAND_STATS_UI, 464, 504, 8, 8, 512, 512);
+	protected static final GuiIcon bnwInvertedButtonHovered = new GuiIcon(StandStatsRenderer.STAND_STATS_UI, 472, 504, 8, 8, 512, 512);
+	
 	protected static Boolean renderStandStatsToggle;
 	protected static int standStatsTick;
+	protected static boolean thisScreenRendersStandStats_StupidCrutch;
 	public static StandPower standStatsPower;
 
 	protected static boolean screenHasStandStats(Screen screen) {
 		return screen instanceof PauseScreen pauseScreen && pauseScreen.showsPauseMenu();
 	}
-
+	
 	@SubscribeEvent
-	public static void afterScreenRender(ScreenEvent.Render.Post event) {
-		Screen screen = event.getScreen();
-
+	public static void onScreenOpened(ScreenEvent.Opening event) {
+		Screen screen = event.getNewScreen();
 		if (screenHasStandStats(screen)) {
-			Minecraft mc = screen.getMinecraft();
-			float partialTick = ClientUtil.partialTick(mc.getTimer(), true);
-			float alpha = ClientModSettings.getSettingsReadOnly().standStatsTranslucency;
-			boolean invertBnW = ClientModSettings.getSettingsReadOnly().standStatsInvertBnW;
-			int xButtonsRightEdge = screen.width / 2 + 102;
-			int windowWidth = screen.width;
-			int windowHeight = screen.height;
-
-			if (doStandStatsRender(screen)) {
-				StandStatsRenderer.renderStandStats(event.getGuiGraphics(), mc, 
-						windowWidth - StandStatsRenderer.statsWidth - 7, windowHeight - StandStatsRenderer.statsHeight - 7, 
-						windowWidth, windowHeight,
-						standStatsTick, partialTick, 
-						alpha, invertBnW,
-						event.getMouseX(), event.getMouseY(), windowWidth - xButtonsRightEdge - 14, 
-						standStatsPower, standStatsPower.getUser(), true, true, true);
+			setStandToRender(ClientPowerCache.getPower(PowerClass.STAND), event.getCurrentScreen() == null);
+		}
+	}
+	
+	public static void setStandToRender(StandPower standPower, boolean newScreen) {
+		/* it REALLY sucks that ScreenEvent.Closing is posted after ScreenEvent.Opening, 
+		 * this would make so much more sense if it was before (you close the old screen, then open the new one)
+		 */
+		thisScreenRendersStandStats_StupidCrutch = true;
+		standStatsPower = standPower;
+		if (standStatsPower != null && standStatsPower.hasPower() && newScreen) {
+			CosmeticStandStats handler = CosmeticStandStats.getHandler(standStatsPower);
+			if (handler != null) {
+				handler.onPauseScreenOpened();
 			}
 		}
 	}
 
-	protected static final GuiIcon standStatsToggleIcon = new GuiIcon(StandStatsRenderer.STAND_STATS_UI, 492, 492, 20, 20, 512, 512);
-	protected static final Tooltip standStatsHideTooltip = Tooltip.create(Component.translatable("jojo.stand_stat.button.hide"));
-	protected static final Tooltip standStatsShowTooltip = Tooltip.create(Component.translatable("jojo.stand_stat.button.show"));
-	protected static final GuiIcon bnwButton = new GuiIcon(StandStatsRenderer.STAND_STATS_UI, 464, 496, 8, 8, 512, 512);
-	protected static final GuiIcon bnwInvertedButton = new GuiIcon(StandStatsRenderer.STAND_STATS_UI, 472, 496, 8, 8, 512, 512);
-	protected static final GuiIcon bnwButtonHovered = new GuiIcon(StandStatsRenderer.STAND_STATS_UI, 464, 504, 8, 8, 512, 512);
-	protected static final GuiIcon bnwInvertedButtonHovered = new GuiIcon(StandStatsRenderer.STAND_STATS_UI, 472, 504, 8, 8, 512, 512);
+	@SubscribeEvent
+	public static void onScreenClosed(ScreenEvent.Closing event) {
+//		if (renderStandStatsToggle != null && renderStandStatsToggle) {
+//			renderStandStatsToggle = null;
+//		}
+		if (thisScreenRendersStandStats_StupidCrutch = true) {
+			thisScreenRendersStandStats_StupidCrutch = false;
+		}
+		else if (standStatsPower != null) {
+			standStatsPower = null;
+		}
+	}
+	
 	@SubscribeEvent(priority = EventPriority.NORMAL)
 	public static void addWidgets(ScreenEvent.Init.Post event) {
 		Screen screen = event.getScreen();
 		if (screenHasStandStats(screen)) {
-			standStatsPower = ClientPowerCache.getPower(PowerClass.STAND);
 			// TODO widgets
 			if (standStatsPower != null && standStatsPower.hasPower()) {
 				AbstractSliderButton statsBgAlphaSlider = new HeightScaledSlider(
@@ -181,12 +192,26 @@ public class StandStatsRenderer {
 	}
 
 	@SubscribeEvent
-	public static void onScreenClosed(ScreenEvent.Closing event) {
-//		if (renderStandStatsToggle != null && renderStandStatsToggle) {
-//			renderStandStatsToggle = null;
-//		}
-		if (standStatsPower != null) {
-			standStatsPower = null;
+	public static void afterScreenRender(ScreenEvent.Render.Post event) {
+		Screen screen = event.getScreen();
+
+		if (standStatsPower != null && standStatsPower.hasPower()
+				&& screenHasStandStats(screen) && doStandStatsRender(screen)) {
+			Minecraft mc = screen.getMinecraft();
+			float partialTick = ClientUtil.partialTick(mc.getTimer(), true);
+			float alpha = ClientModSettings.getSettingsReadOnly().standStatsTranslucency;
+			boolean invertBnW = ClientModSettings.getSettingsReadOnly().standStatsInvertBnW;
+			int xButtonsRightEdge = screen.width / 2 + 102;
+			int windowWidth = screen.width;
+			int windowHeight = screen.height;
+
+			StandStatsRenderer.renderStandStats(event.getGuiGraphics(), mc, 
+					windowWidth - StandStatsRenderer.statsWidth - 7, windowHeight - StandStatsRenderer.statsHeight - 7, 
+					windowWidth, windowHeight,
+					standStatsTick, partialTick, 
+					alpha, invertBnW,
+					event.getMouseX(), event.getMouseY(), windowWidth - xButtonsRightEdge - 14, 
+					standStatsPower, standStatsPower.getUser(), true, true, true);
 		}
 	}
 
@@ -227,7 +252,7 @@ public class StandStatsRenderer {
 
 	protected static final double LN_2 = Math.log(2);
 	public static enum StandStat {
-		STRENGTH        ("jojo.stand_stat.strength",       0,  -72) {
+		STRENGTH        ("jojo_ripples.stand_stat.strength",       0,  -72) {
 			@Override
 			float getValueConverted(StandPower standData, StandStats stats, float levelRatio) {
 				float value = (float) stats.power();
@@ -235,7 +260,7 @@ public class StandStatsRenderer {
 				return value;
 			}
 		},
-		SPEED           ("jojo.stand_stat.speed",          58, -39) {
+		SPEED           ("jojo_ripples.stand_stat.speed",          58, -39) {
 			@Override
 			float getValueConverted(StandPower standData, StandStats stats, float levelRatio) {
 				float value = (float) stats.speed();
@@ -243,7 +268,7 @@ public class StandStatsRenderer {
 				return value;
 			}
 		},
-		RANGE           ("jojo.stand_stat.range",          58,  32) {
+		RANGE           ("jojo_ripples.stand_stat.range",          58,  32) {
 			@Override
 			float getValueConverted(StandPower standData, StandStats stats, float levelRatio) {
 				float value = (float) (stats.rangeEffective() + (stats.rangeMax() - stats.rangeEffective()) * 0.5);
@@ -251,7 +276,7 @@ public class StandStatsRenderer {
 				return value;
 			}
 		},
-		DURABILITY      ("jojo.stand_stat.durability",     0,   65) {
+		DURABILITY      ("jojo_ripples.stand_stat.durability",     0,   65) {
 			@Override
 			float getValueConverted(StandPower standData, StandStats stats, float levelRatio) {
 				float value = (float) stats.durability();
@@ -259,7 +284,7 @@ public class StandStatsRenderer {
 				return value;
 			}
 		},
-		PRECISION       ("jojo.stand_stat.precision",     -58,  32) {
+		PRECISION       ("jojo_ripples.stand_stat.precision",     -58,  32) {
 			@Override
 			float getValueConverted(StandPower standData, StandStats stats, float levelRatio) {
 				float value = (float) stats.precision();
@@ -267,7 +292,7 @@ public class StandStatsRenderer {
 				return value;
 			}
 		},
-		DEV_POTENTIAL   ("jojo.stand_stat.dev_potential", -58, -39) {
+		DEV_POTENTIAL   ("jojo_ripples.stand_stat.dev_potential", -58, -39) {
 			@Override
 			float getValueConverted(StandPower standData, StandStats stats, float levelRatio) {
 				float value = 0;
@@ -504,9 +529,9 @@ public class StandStatsRenderer {
 
 		// stand name and user
 		if (tick >= HEXAGON_TICK_START) {
-			var standName = mc.font.split(Component.translatable("jojo.stand_stat.stand_name", 
+			var standName = mc.font.split(Component.translatable("jojo_ripples.stand_stat.stand_name", 
 					knownStand ? override.standName(power) : Component.translatable("multiplayer.status.unknown")), maxTextWidth);
-			var standUser = mc.font.split(Component.translatable("jojo.stand_stat.stand_user", 
+			var standUser = mc.font.split(Component.translatable("jojo_ripples.stand_stat.stand_user", 
 					knownUser ? user.getDisplayName() : Component.translatable("multiplayer.status.unknown")), 
 					maxTextWidth);
 			int width = 0;

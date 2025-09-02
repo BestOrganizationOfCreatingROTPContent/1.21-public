@@ -50,7 +50,7 @@ public class AbilitySelectionWheel extends Screen implements ScreenLetsUseWASD {
 	protected StandSkin standSkin;
 
 	public AbilitySelectionWheel(ClientControlScheme.Hotbar abilities) {
-		super(Component.translatable("jojo.screen.ability_selection_wheel"));
+		super(Component.translatable("jojo_ripples.screen.ability_selection_wheel"));
 		this.abilities = abilities;
 	}
 	

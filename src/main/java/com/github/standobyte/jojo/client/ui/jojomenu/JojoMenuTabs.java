@@ -32,7 +32,7 @@ public class JojoMenuTabs {
 			ClientUtil.renderPlayerFace(guiGraphics.pose(), x, y, Minecraft.getInstance().player);
 		}
 	}
-			.withName(Component.translatable("jojo.ui.player_menu"));
+			.withName(Component.translatable("jojo_ripples.ui.player_menu"));
 	
 	static {
 		if (JojoMod.disableDevStuff()) {
@@ -169,7 +169,7 @@ public class JojoMenuTabs {
 	// Controls
 	
 	public static final TabCategory CATEGORY_CONTROLS = new TabCategory()
-			.withName(Component.translatable("jojo.screen.edit_hud_layout"))
+			.withName(Component.translatable("jojo_ripples.screen.edit_hud_layout"))
 			.withIcon(new GuiIcon(JojoMod.resLoc("textures/gui/controls.png"), 16, 16));
 	
 	public static final Tab STAND_POWER_CONTROLS = new Tab(CATEGORY_CONTROLS, PowerClass.STAND, null) {

@@ -1,20 +1,6 @@
 package com.github.standobyte.jojo.client.ui;
 
-import java.util.List;
-
-import com.github.standobyte.jojo.client.config.ClientModSettingsScreen;
-import com.github.standobyte.jojo.core.JojoMod;
-
-import net.minecraft.client.gui.components.AbstractWidget;
-import net.minecraft.client.gui.screens.Screen;
-import net.minecraft.client.gui.screens.options.OptionsScreen;
-import net.neoforged.api.distmarker.Dist;
-import net.neoforged.bus.api.EventPriority;
-import net.neoforged.bus.api.SubscribeEvent;
-import net.neoforged.fml.common.EventBusSubscriber;
-import net.neoforged.neoforge.client.event.ScreenEvent;
-
-@EventBusSubscriber(modid = JojoMod.MOD_ID, value = Dist.CLIENT)
+//@EventBusSubscriber(modid = JojoMod.MOD_ID, value = Dist.CLIENT)
 public class GuiEventHandler {
 
 //	@SubscribeEvent
@@ -28,34 +14,6 @@ public class GuiEventHandler {
 //			}
 //			renderToBeContinuedArrow(event.getMatrixStack(), screen, screen.width, screen.height, partialTick);
 //		}
-//
-//		else if (screen instanceof IngameMenuScreen && ClientReflection.showsPauseMenu((IngameMenuScreen) screen)) {
-//			float alpha = ClientModSettings.getSettingsReadOnly().standStatsTranslucency;
-//			boolean invertBnW = ClientModSettings.getSettingsReadOnly().standStatsInvertBnW;
-//			int xButtonsRightEdge = screen.width / 2 + 102;
-//			int windowWidth = screen.width;
-//			int windowHeight = screen.height;
-//
-//			if (doStandStatsRender(screen)) {
-//				StandStatsRenderer.renderStandStats(event.getMatrixStack(), mc, 
-//						windowWidth - StandStatsRenderer.statsWidth - 7, windowHeight - StandStatsRenderer.statsHeight - 7, 
-//						windowWidth, windowHeight,
-//						standStatsTick, partialTick, 
-//						alpha, invertBnW,
-//						event.getMouseX(), event.getMouseY(), windowWidth - xButtonsRightEdge - 14);
-//			}
-//		}
-//	}
-//
-//	private static Boolean renderStandStats;
-//	private static boolean doStandStatsRender(Screen screen) {
-//		if (renderStandStats != null) {
-//			return renderStandStats;
-//		}
-//		int xButtonsRightEdge = screen.width / 2 + 102;
-//		int windowWidth = screen.width;
-//		int windowHeight = screen.height;
-//		return windowWidth - xButtonsRightEdge >= 167 && windowHeight > 204;
 //	}
 //
 //	private static void renderToBeContinuedArrow(MatrixStack matrixStack, AbstractGui ui, int screenWidth, int screenHeight, float partialTick) {
@@ -66,93 +24,10 @@ public class GuiEventHandler {
 //		AbstractGui.drawCenteredString(matrixStack, mc.font, Component.translatable("jojo.to_be_continued"), x + 61, y + 8, 0x525544);
 //	}
 //
-//	@SubscribeEvent
-//	public static void onTooltipRender(RenderTooltipEvent.PostText event) {
-//		List<? extends ITextProperties> lines = event.getLines();
-//		int x = event.getX();
-//		int y = event.getY();
-//		for (int i = 0; i < lines.size(); i++) {
-//			ITextProperties line = lines.get(i);
-//			if (line instanceof JojoTextComponentWrapper) {
-//				((JojoTextComponentWrapper) line).tooltipRenderExtra(event.getMatrixStack(), x, y - 0.5f);
-//			}
-//			if (i == 0) {
-//				y += 2;
-//			}
-//			y += 10;
-//		}
-//	}
-
-	@SubscribeEvent(priority = EventPriority.LOW)
-	public static void addToScreen(ScreenEvent.Init.Post event) {
-		Screen screen = event.getScreen();
-//		if (screen instanceof IngameMenuScreen && ClientReflection.showsPauseMenu((IngameMenuScreen) screen)) {
-//			IStandPower.getStandPowerOptional(mc.player).ifPresent(power -> {
-//				if (power.hasPower()) {
-//					AbstractSlider statsBgAlphaSlider = new HeightScaledSlider(
-//							screen.width - 160, screen.height - 6, 153, 6, StringTextComponent.EMPTY, 0.0D) {
-//						{
-//							this.value = MathHelper.inverseLerp(
-//									ClientModSettings.getSettingsReadOnly().standStatsTranslucency, 
-//									0.1, 1.0);
-//							updateMessage();
-//						}
-//
-//						@Override
-//						protected void updateMessage() {
-//							setMessage(StringTextComponent.EMPTY);
-//						}
-//
-//						@Override
-//						protected void applyValue() {
-//							ClientModSettings.getInstance().editSettings(settings -> {
-//								settings.standStatsTranslucency = (float) MathHelper.clampedLerp(0.1, 1.0, this.value);
-//							});
-//						}
-//					};
-//					statsBgAlphaSlider.visible = doStandStatsRender(screen);
-//					event.addWidget(statsBgAlphaSlider);
-//
-//					ImageMutableButton invertBnWButton = new ImageMutableButton(screen.width - 8, screen.height - 7, 
-//							8, 8, 464, 496, 8, StandStatsRenderer.STAND_STATS_UI, 512, 512, 
-//							button -> {
-//								ClientModSettings.getInstance().editSettings(settings -> {
-//									settings.standStatsInvertBnW = !settings.standStatsInvertBnW;
-//									((ImageMutableButton) button).xTexStart = settings.standStatsInvertBnW ? 472 : 464;
-//								});
-//							});
-//					invertBnWButton.xTexStart = ClientModSettings.getSettingsReadOnly().standStatsInvertBnW ? 472 : 464;
-//					invertBnWButton.visible = doStandStatsRender(screen);
-//					event.addWidget(invertBnWButton);
-//
-//					Button standStatsToggleButton = new ImageVanillaButton(screen.width - 28, screen.height - 28, 
-//							20, 20, 492, 492, StandStatsRenderer.STAND_STATS_UI, 512, 512, 
-//							button -> {
-//								renderStandStats = !doStandStatsRender(screen);
-//								statsBgAlphaSlider.visible = doStandStatsRender(screen);
-//								invertBnWButton.visible = doStandStatsRender(screen);
-//							}, 
-//							(button, matrixStack, x, y) -> {
-//								Component message = doStandStatsRender(screen) ? 
-//										Component.translatable("jojo.stand_stat.button.hide")
-//										: Component.translatable("jojo.stand_stat.button.show");
-//								screen.renderTooltip(matrixStack, message, x, y);
-//							}, 
-//							StringTextComponent.EMPTY);
-//					event.addWidget(standStatsToggleButton);
-//				}
-//			});
-//		}
-
-		/*else*/ if (screen instanceof OptionsScreen options) {
-			List<AbstractWidget> buttons = event.getListenersList().stream()
-					.filter(b -> b instanceof AbstractWidget)
-					.map(b -> (AbstractWidget) b)
-					.toList();
-			ClientModSettingsScreen.addSettingsButton(options, buttons, event::addListener);
-		}
-
-//		else if (screen instanceof ControlsScreen) {
+//	@SubscribeEvent(priority = EventPriority.LOW)
+//	public static void addToScreen(ScreenEvent.Init.Post event) {
+//		Screen screen = event.getScreen();
+//		if (screen instanceof ControlsScreen) {
 //			KeyBindingList controlList = ClientReflection.getControlList((ControlsScreen) screen);
 //			List<KeyBindingList.Entry> keyEntries = controlList.children();
 //
@@ -277,8 +152,8 @@ public class GuiEventHandler {
 //				event.addWidget(angeloRockGruntButton);
 //			}
 //		}
-	}
-
+//	}
+//
 //	@SubscribeEvent
 //	public static void onScreenOpened(GuiOpenEvent event) {
 //		Screen screen = event.getGui();
@@ -288,24 +163,10 @@ public class GuiEventHandler {
 //				ClientReflection.setSplash((MainMenuScreen) screen, splash);
 //			}
 //		}
-//		else if (screen instanceof IngameMenuScreen) {
-//			IStandPower.getStandPowerOptional(mc.player).resolve()
-//			.map(StandStatsRenderer.ICosmeticStandStats::getHandler)
-//			.ifPresent(StandStatsRenderer.ICosmeticStandStats::onPauseScreenOpened);
-//		}
-//		else if (screen == null) {
-//			onScreenClosed();
-//		}
 //	}
 //
 //	@SubscribeEvent(priority = EventPriority.LOWEST)
 //	public static void onScreenOpened2(GuiOpenEvent event) {
 //		IJojoScreen.rememberScreenTab(event.getGui());
-//	}
-//
-//	private static void onScreenClosed() {
-//		if (renderStandStats != null && renderStandStats) {
-//			renderStandStats = null;
-//		}
 //	}
 }
