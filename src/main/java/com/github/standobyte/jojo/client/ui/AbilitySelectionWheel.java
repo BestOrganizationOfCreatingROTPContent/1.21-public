@@ -18,8 +18,8 @@ import com.github.standobyte.jojo.client.input.controlscheme.ClientControlScheme
 import com.github.standobyte.jojo.client.standskin.StandSkin;
 import com.github.standobyte.jojo.client.standskin.StandSkinsLoader;
 import com.github.standobyte.jojo.client.standskin.sprites.AbilityIconSprites;
-import com.github.standobyte.jojo.client.ui.powerhud.tooltip.TooltipParams;
 import com.github.standobyte.jojo.client.ui.utils.BlitFloat;
+import com.github.standobyte.jojo.client.ui.utils.tooltip.TooltipParams;
 import com.github.standobyte.jojo.core.JojoMod;
 import com.github.standobyte.jojo.powersystem.Moveset;
 import com.github.standobyte.jojo.powersystem.Power;

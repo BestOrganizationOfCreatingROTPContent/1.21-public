@@ -1,47 +1,48 @@
 package com.github.standobyte.jojo.client.ui.widgets;
 
-import net.minecraft.client.Minecraft;
+import com.github.standobyte.jojo.client.ui.utils.GuiIcon;
+
 import net.minecraft.client.gui.Font;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.components.Button;
 import net.minecraft.client.gui.components.Tooltip;
 import net.minecraft.network.chat.CommonComponents;
 import net.minecraft.network.chat.Component;
-import net.minecraft.world.item.ItemStack;
 
-public class ItemButton extends Button {
-	public ItemStack item;
+public class IconButton extends Button {
+	public GuiIcon icon;
 
-	public ItemButton(int pX, int pY, int pWidth, int pHeight, 
-			ItemStack item, 
+	public IconButton(int pX, int pY, int pWidth, int pHeight, 
+			GuiIcon icon, 
 			Button.OnPress pOnPress) {
 		this(pX, pY, pWidth, pHeight, 
-				item, 
+				icon, 
 				pOnPress, null, CommonComponents.EMPTY);
 	}
 
-	public ItemButton(int pX, int pY, int pWidth, int pHeight, 
-			ItemStack item, 
+	public IconButton(int pX, int pY, int pWidth, int pHeight, 
+			GuiIcon icon, 
 			Button.OnPress pOnPress, Tooltip pOnTooltip) {
 		this(pX, pY, pWidth, pHeight, 
-				item, 
+				icon, 
 				pOnPress, pOnTooltip, CommonComponents.EMPTY);
 	}
 
-	public ItemButton(int pX, int pY, int pWidth, int pHeight, 
-			ItemStack item, 
+	public IconButton(int pX, int pY, int pWidth, int pHeight, 
+			GuiIcon icon, 
 			Button.OnPress pOnPress, Tooltip pOnTooltip, Component pMessage) {
 		super(new Button.Builder(pMessage, pOnPress).bounds(pX, pY, pWidth, pHeight).tooltip(pOnTooltip));
-		this.item = item;
+		this.icon = icon;
 	}
 
 	@Override
 	public void renderWidget(GuiGraphics guiGraphics, int mouseX, int mouseY, float partialTick) {
 		super.renderWidget(guiGraphics, mouseX, mouseY, partialTick);
-		int itemX = getX() + (width - 16) / 2;
-		int itemY = getY() + (height - 16) / 2;
-		guiGraphics.renderItem(item, itemX, itemY);
-		guiGraphics.renderItemDecorations(Minecraft.getInstance().font, item, itemX, itemY);
+		if (icon != null) {
+			float iconX = getX() + (width - icon.width) / 2;
+			float iconY = getY() + (height - icon.height) / 2;
+			icon.render(guiGraphics.pose(), iconX, iconY);
+		}
 	}
 
 	@Override

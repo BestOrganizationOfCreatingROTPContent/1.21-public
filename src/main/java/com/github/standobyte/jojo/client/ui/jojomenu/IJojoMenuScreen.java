@@ -4,8 +4,8 @@ import java.util.List;
 
 import javax.annotation.Nullable;
 
-import com.github.standobyte.jojo.client.ui.powerhud.tooltip.TooltipParams;
 import com.github.standobyte.jojo.client.ui.utils.BlitFloat;
+import com.github.standobyte.jojo.client.ui.utils.tooltip.TooltipParams;
 import com.github.standobyte.jojo.core.JojoMod;
 
 import net.minecraft.ChatFormatting;

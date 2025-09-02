@@ -6,7 +6,7 @@ import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.ModifyArg;
 
-import com.github.standobyte.jojo.client.ui.powerhud.tooltip.TooltipParams;
+import com.github.standobyte.jojo.client.ui.utils.tooltip.TooltipParams;
 
 import net.minecraft.client.gui.screens.inventory.tooltip.ClientTextTooltip;
 import net.minecraft.util.FormattedCharSequence;

@@ -3,9 +3,9 @@ package com.github.standobyte.jojo.client.ui.powerhud;
 import org.jetbrains.annotations.ApiStatus;
 
 import com.github.standobyte.jojo.client.ui.powerhud.PowerHud.PrototypeAbilityHud;
-import com.github.standobyte.jojo.client.ui.powerhud.tooltip.MultiLineScreenTooltip;
-import com.github.standobyte.jojo.client.ui.powerhud.tooltip.PowerHudHintTooltipHolder;
-import com.github.standobyte.jojo.client.ui.powerhud.tooltip.TooltipParams;
+import com.github.standobyte.jojo.client.ui.utils.tooltip.MultiLineScreenTooltip;
+import com.github.standobyte.jojo.client.ui.utils.tooltip.PowerHudHintTooltipHolder;
+import com.github.standobyte.jojo.client.ui.utils.tooltip.TooltipParams;
 
 import net.minecraft.ChatFormatting;
 import net.minecraft.client.DeltaTracker;

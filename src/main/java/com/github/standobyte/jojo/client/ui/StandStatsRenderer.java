@@ -18,11 +18,15 @@ import com.github.standobyte.jojo.client.ClientUtil;
 import com.github.standobyte.jojo.client.config.ClientModSettings;
 import com.github.standobyte.jojo.client.standskin.StandSkin;
 import com.github.standobyte.jojo.client.standskin.StandSkinsLoader;
-import com.github.standobyte.jojo.client.ui.powerhud.tooltip.MultiLineScreenTooltip;
-import com.github.standobyte.jojo.client.ui.powerhud.tooltip.TooltipParams;
 import com.github.standobyte.jojo.client.ui.utils.BlitFloat;
 import com.github.standobyte.jojo.client.ui.utils.GuiIcon;
 import com.github.standobyte.jojo.client.ui.utils.RGBUtil;
+import com.github.standobyte.jojo.client.ui.utils.tooltip.MultiLineScreenTooltip;
+import com.github.standobyte.jojo.client.ui.utils.tooltip.MutableTooltipWrapper;
+import com.github.standobyte.jojo.client.ui.utils.tooltip.TooltipParams;
+import com.github.standobyte.jojo.client.ui.widgets.HeightScaledSlider;
+import com.github.standobyte.jojo.client.ui.widgets.IconButton;
+import com.github.standobyte.jojo.client.ui.widgets.ImageButton2;
 import com.github.standobyte.jojo.core.JojoMod;
 import com.github.standobyte.jojo.powersystem.PowerClass;
 import com.github.standobyte.jojo.powersystem.standpower.StandPower;
@@ -37,9 +41,13 @@ import net.minecraft.ChatFormatting;
 import net.minecraft.Util;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.client.gui.components.AbstractSliderButton;
+import net.minecraft.client.gui.components.Button;
+import net.minecraft.client.gui.components.Tooltip;
 import net.minecraft.client.gui.screens.PauseScreen;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.client.renderer.RenderType;
+import net.minecraft.network.chat.CommonComponents;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.util.FastColor;
@@ -55,10 +63,11 @@ import net.neoforged.neoforge.client.event.ScreenEvent;
 
 @EventBusSubscriber(modid = JojoMod.MOD_ID, value = Dist.CLIENT)
 public class StandStatsRenderer {
+	public static final ResourceLocation STAND_STATS_UI = JojoMod.resLoc("textures/gui/stand_stats.png");
 
 	protected static Boolean renderStandStatsToggle;
 	protected static int standStatsTick;
-	protected static StandPower standStatsPower;
+	public static StandPower standStatsPower;
 
 	protected static boolean screenHasStandStats(Screen screen) {
 		return screen instanceof PauseScreen pauseScreen && pauseScreen.showsPauseMenu();
@@ -89,26 +98,83 @@ public class StandStatsRenderer {
 		}
 	}
 
-	@SubscribeEvent
+	protected static final GuiIcon standStatsToggleIcon = new GuiIcon(StandStatsRenderer.STAND_STATS_UI, 492, 492, 20, 20, 512, 512);
+	protected static final Tooltip standStatsHideTooltip = Tooltip.create(Component.translatable("jojo.stand_stat.button.hide"));
+	protected static final Tooltip standStatsShowTooltip = Tooltip.create(Component.translatable("jojo.stand_stat.button.show"));
+	protected static final GuiIcon bnwButton = new GuiIcon(StandStatsRenderer.STAND_STATS_UI, 464, 496, 8, 8, 512, 512);
+	protected static final GuiIcon bnwInvertedButton = new GuiIcon(StandStatsRenderer.STAND_STATS_UI, 472, 496, 8, 8, 512, 512);
+	protected static final GuiIcon bnwButtonHovered = new GuiIcon(StandStatsRenderer.STAND_STATS_UI, 464, 504, 8, 8, 512, 512);
+	protected static final GuiIcon bnwInvertedButtonHovered = new GuiIcon(StandStatsRenderer.STAND_STATS_UI, 472, 504, 8, 8, 512, 512);
+	@SubscribeEvent(priority = EventPriority.NORMAL)
 	public static void addWidgets(ScreenEvent.Init.Post event) {
 		Screen screen = event.getScreen();
 		if (screenHasStandStats(screen)) {
 			standStatsPower = ClientPowerCache.getPower(PowerClass.STAND);
 			// TODO widgets
-//			if (standStatsPower != null && standStatsPower.hasPower()) {
-//				AbstractSlider statsBgAlphaSlider = statsBgAlphaSlider();
-//				event.addWidget(statsBgAlphaSlider);
-//
-//				ImageMutableButton invertBnWButton = invertBnWButton();
-//				event.addWidget(invertBnWButton);
-//
-//				Button standStatsToggleButton = standStatsToggleButton();
-//				event.addWidget(standStatsToggleButton);
-//			}
+			if (standStatsPower != null && standStatsPower.hasPower()) {
+				AbstractSliderButton statsBgAlphaSlider = new HeightScaledSlider(
+						screen.width - 160, screen.height - 6, 153, 6, CommonComponents.EMPTY, 0.0D) {
+					{
+						this.value = Mth.inverseLerp(
+								ClientModSettings.getSettingsReadOnly().standStatsTranslucency, 
+								0.1, 1.0);
+						updateMessage();
+					}
+
+					@Override
+					protected void updateMessage() {
+						setMessage(CommonComponents.EMPTY);
+					}
+
+					@Override
+					protected void applyValue() {
+						ClientModSettings.getInstance().editSettings(settings -> {
+							settings.standStatsTranslucency = (float) Mth.clampedLerp(0.1, 1.0, this.value);
+						}, false);
+					}
+				};
+				statsBgAlphaSlider.visible = doStandStatsRender(screen);
+				event.addListener(statsBgAlphaSlider);
+				
+				ImageButton2 invertBnWButton = new ImageButton2(screen.width - 8, screen.height - 7, 8, 8, 
+						ClientModSettings.getSettingsReadOnly().standStatsInvertBnW ? 
+								bnwInvertedButton : bnwButton,
+						null,
+						ClientModSettings.getSettingsReadOnly().standStatsInvertBnW ? 
+								bnwInvertedButtonHovered : bnwButtonHovered,
+						null,
+						_button -> {
+							ClientModSettings.getInstance().editSettings(settings -> {
+								settings.standStatsInvertBnW = !settings.standStatsInvertBnW;
+								ImageButton2 button = (ImageButton2) _button;
+								button.spriteEnabled = ClientModSettings.getSettingsReadOnly().standStatsInvertBnW ? 
+										bnwInvertedButton : bnwButton;
+								button.spriteEnabledFocused = ClientModSettings.getSettingsReadOnly().standStatsInvertBnW ? 
+										bnwInvertedButtonHovered : bnwButtonHovered;
+							}, false);
+						});
+				invertBnWButton.visible = doStandStatsRender(screen);
+				event.addListener(invertBnWButton);
+
+				Button standStatsToggleButton = new IconButton(screen.width - 28, screen.height - 28, 
+						20, 20, standStatsToggleIcon, 
+						button -> {
+							renderStandStatsToggle = !doStandStatsRender(screen);
+							statsBgAlphaSlider.visible = doStandStatsRender(screen);
+							invertBnWButton.visible = doStandStatsRender(screen);
+						}, 
+						new MutableTooltipWrapper() {
+							@Override
+							public Tooltip updateToolip() {
+								return doStandStatsRender(screen) ? standStatsHideTooltip : standStatsShowTooltip;
+							}
+						});
+				event.addListener(standStatsToggleButton);
+			}
 		}
 	}
 
-	@SubscribeEvent(priority = EventPriority.HIGHEST)
+	@SubscribeEvent
 	public static void onClientTick(ClientTickEvent.Pre event) {
 		Minecraft mc = Minecraft.getInstance();
 		standStatsTick = screenHasStandStats(mc.screen) && doStandStatsRender(mc.screen) ? standStatsTick + 1 : 0;
@@ -134,67 +200,9 @@ public class StandStatsRenderer {
 		return windowWidth - xButtonsRightEdge >= 167 && windowHeight > 204;
 	}
 
-//	public static Button standStatsToggleButton() {
-//		Button standStatsToggleButton = new ImageVanillaButton(screen.width - 28, screen.height - 28, 
-//				20, 20, 492, 492, StandStatsRenderer.STAND_STATS_UI, 512, 512, 
-//				button -> {
-//					renderStandStats = !doStandStatsRender(screen);
-//					statsBgAlphaSlider.visible = doStandStatsRender(screen);
-//					invertBnWButton.visible = doStandStatsRender(screen);
-//				}, 
-//				(button, matrixStack, x, y) -> {
-//					ITextComponent message = doStandStatsRender(screen) ? 
-//							new TranslationTextComponent("jojo.stand_stat.button.hide")
-//							: new TranslationTextComponent("jojo.stand_stat.button.show");
-//					screen.renderTooltip(matrixStack, message, x, y);
-//				}, 
-//				StringTextComponent.EMPTY);
-//		return standStatsToggleButton;
-//	}
-//
-//	public static AbstractSlider statsBgAlphaSlider() {
-//		AbstractSlider statsBgAlphaSlider = new HeightScaledSlider(
-//				screen.width - 160, screen.height - 6, 153, 6, StringTextComponent.EMPTY, 0.0D) {
-//			{
-//				this.value = MathHelper.inverseLerp(
-//						ClientModSettings.getSettingsReadOnly().standStatsTranslucency, 
-//						0.1, 1.0);
-//				updateMessage();
-//			}
-//
-//			@Override
-//			protected void updateMessage() {
-//				setMessage(StringTextComponent.EMPTY);
-//			}
-//
-//			@Override
-//			protected void applyValue() {
-//				ClientModSettings.getInstance().editSettings(settings -> {
-//					settings.standStatsTranslucency = (float) MathHelper.clampedLerp(0.1, 1.0, this.value);
-//				});
-//			}
-//		};
-//		statsBgAlphaSlider.visible = doStandStatsRender(screen);
-//	}
-//
-//	public static ImageMutableButton invertBnWButton() {
-//		ImageMutableButton invertBnWButton = new ImageMutableButton(screen.width - 8, screen.height - 7, 
-//				8, 8, 464, 496, 8, StandStatsRenderer.STAND_STATS_UI, 512, 512, 
-//				button -> {
-//					ClientModSettings.getInstance().editSettings(settings -> {
-//						settings.standStatsInvertBnW = !settings.standStatsInvertBnW;
-//						((ImageMutableButton) button).xTexStart = settings.standStatsInvertBnW ? 472 : 464;
-//					});
-//				});
-//		invertBnWButton.xTexStart = ClientModSettings.getSettingsReadOnly().standStatsInvertBnW ? 472 : 464;
-//		invertBnWButton.visible = doStandStatsRender(screen);
-//		return invertBnWButton;
-//	}
 
 
 
-
-	public static final ResourceLocation STAND_STATS_UI = JojoMod.resLoc("textures/gui/stand_stats.png");
 
 	/*
 	 * "A" - 14+

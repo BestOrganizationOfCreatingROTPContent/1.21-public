@@ -1,4 +1,4 @@
-package com.github.standobyte.jojo.client.ui.powerhud.tooltip;
+package com.github.standobyte.jojo.client.ui.utils.tooltip;
 
 import java.util.ArrayList;
 import java.util.Collection;
