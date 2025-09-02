@@ -24,8 +24,16 @@ public class ClientUtil {
 //		}
 	}
 
-	public static float partialTick(DeltaTracker fuckThis, boolean worksInPauseToo) {
-		return fuckThis.getGameTimeDeltaPartialTick(worksInPauseToo);
+	public static float partialTick(DeltaTracker deltaTracker, boolean worksInPauseToo) {
+		if (worksInPauseToo) {
+			return switch (deltaTracker) {
+				case DeltaTracker.Timer timer -> timer.deltaTickResidual;
+				case DeltaTracker.DefaultValue defaultVal -> defaultVal.getGameTimeDeltaPartialTick(false);
+				default -> 0;
+			};
+		}
+		boolean runsNormally = false; // ????????????????
+		return deltaTracker.getGameTimeDeltaPartialTick(runsNormally);
 	}
 
 	public static int getScreenMouseX() {

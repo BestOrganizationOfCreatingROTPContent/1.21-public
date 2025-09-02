@@ -67,10 +67,10 @@ public class StandStatsRenderer {
 	@SubscribeEvent
 	public static void afterScreenRender(ScreenEvent.Render.Post event) {
 		Screen screen = event.getScreen();
-		Minecraft mc = screen.getMinecraft();
-		float partialTick = ClientUtil.partialTick(mc.getTimer(), true);
 
 		if (screenHasStandStats(screen)) {
+			Minecraft mc = screen.getMinecraft();
+			float partialTick = ClientUtil.partialTick(mc.getTimer(), true);
 			float alpha = ClientModSettings.getSettingsReadOnly().standStatsTranslucency;
 			boolean invertBnW = ClientModSettings.getSettingsReadOnly().standStatsInvertBnW;
 			int xButtonsRightEdge = screen.width / 2 + 102;
