@@ -111,7 +111,7 @@ public final class GeckoPerFaceCubeDefinition extends CubeDefinition {
 				x0y1z0, 
 				x0y1z1, 
 				x1y1z1});
-		if (faces.containsKey(Direction.WEST)) faceVertices.put(Direction.WEST, new ModelPart.Vertex[]{
+		if (faces.containsKey(Direction.EAST)) faceVertices.put(Direction.WEST, new ModelPart.Vertex[]{
 				x0y0z0, 
 				x0y0z1, 
 				x0y1z1, 
@@ -121,7 +121,7 @@ public final class GeckoPerFaceCubeDefinition extends CubeDefinition {
 				x0y0z0, 
 				x0y1z0, 
 				x1y1z0});
-		if (faces.containsKey(Direction.EAST)) faceVertices.put(Direction.EAST, new ModelPart.Vertex[]{
+		if (faces.containsKey(Direction.WEST)) faceVertices.put(Direction.EAST, new ModelPart.Vertex[]{
 				x1y0z1, 
 				x1y0z0, 
 				x1y1z0, 
@@ -137,10 +137,11 @@ public final class GeckoPerFaceCubeDefinition extends CubeDefinition {
 		for (Direction direction : Direction.values()) {
 			Direction uvPart = direction.getAxis() == Direction.Axis.Z ? direction : direction.getOpposite();
 			if (faces.containsKey(uvPart)) {
+				ModelPart.Vertex[] vertices = faceVertices.get(direction);
 				FaceUV uvPosSize = faces.get(uvPart);
 				float[] uvPos = uvPosSize.uv();
 				float[] uvSize = uvPosSize.uv_size();
-				polygons[polygonsCount++] = new ModelPart.Polygon(faceVertices.get(direction), 
+				polygons[polygonsCount++] = new ModelPart.Polygon(vertices, 
 						uvPos[0], uvPos[1], 
 						uvPos[0] + uvSize[0], uvPos[1] + uvSize[1], 
 						texWidth, texHeight, false, direction);

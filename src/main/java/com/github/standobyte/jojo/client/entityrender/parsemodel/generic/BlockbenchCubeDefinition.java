@@ -111,7 +111,7 @@ public final class BlockbenchCubeDefinition extends CubeDefinition {
 				x0y1z0, 
 				x0y1z1, 
 				x1y1z1});
-		if (faces.containsKey(Direction.WEST)) faceVertices.put(Direction.WEST, new ModelPart.Vertex[]{
+		if (faces.containsKey(Direction.EAST)) faceVertices.put(Direction.WEST, new ModelPart.Vertex[]{
 				x0y0z0, 
 				x0y0z1, 
 				x0y1z1, 
@@ -121,7 +121,7 @@ public final class BlockbenchCubeDefinition extends CubeDefinition {
 				x0y0z0, 
 				x0y1z0, 
 				x1y1z0});
-		if (faces.containsKey(Direction.EAST)) faceVertices.put(Direction.EAST, new ModelPart.Vertex[]{
+		if (faces.containsKey(Direction.WEST)) faceVertices.put(Direction.EAST, new ModelPart.Vertex[]{
 				x1y0z1, 
 				x1y0z0, 
 				x1y1z0, 
