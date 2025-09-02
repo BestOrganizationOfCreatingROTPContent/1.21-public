@@ -12,6 +12,7 @@ import com.github.standobyte.jojo.core.JojoMod;
 import com.github.standobyte.jojo.init.ModItems;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.logging.LogUtils;
+import com.mojang.math.Axis;
 
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.BlockEntityWithoutLevelRenderer;
@@ -48,9 +49,9 @@ public class CustomItemRenderers {
 				poseStack.scale(0.75f, 0.75f, 0.75f);
 				poseStack.translate(0.125f, 0f, 0);
 				Matrix3f lighting = poseStack.last().normal();
-//				lighting.mul(Vector3f.YP.rotationDegrees(-45));
-//				lighting.mul(Vector3f.XP.rotationDegrees(-45));
-//				lighting.mul(Vector3f.ZP.rotationDegrees(45));
+				lighting.rotate(Axis.YP.rotationDegrees(45));
+				lighting.rotate(Axis.XP.rotationDegrees(-45));
+				lighting.rotate(Axis.ZP.rotationDegrees(-45));
 				super.renderByItem(stack, displayContext, poseStack, buffer, packedLight, packedOverlay);
 				poseStack.popPose();
 			}
