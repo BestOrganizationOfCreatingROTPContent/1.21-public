@@ -14,6 +14,7 @@ import com.github.standobyte.jojo.client.ui.widgets.ButtonInLayout;
 import com.github.standobyte.jojo.client.ui.widgets.ItemButton;
 import com.github.standobyte.jojo.core.JojoMod;
 import com.github.standobyte.jojo.util.reflection.ClientReflection;
+import com.github.standobyte.v1_21_4_stuff.GuiScissor;
 
 import it.unimi.dsi.fastutil.objects.Object2CharArrayMap;
 import it.unimi.dsi.fastutil.objects.Object2CharMap;
@@ -540,7 +541,7 @@ public class ClientModSettingsScreen extends Screen {
         		double d1 = Math.max((double)l * 0.5, 3.0);
         		double d2 = 1 - (Math.sin((Math.PI / 2) * Math.cos((Math.PI * 2) * d0 / d1)) / 2.0 + 0.5);
         		double d3 = Mth.lerp(d2, 0.0, (double)l);
-        		guiGraphics.enableScissor(minX, minY, maxX, maxY);
+        		GuiScissor.enableScissor(guiGraphics, minX, minY, maxX, maxY);
         		guiGraphics.drawString(font, text, minX - (int)d3, j, color);
         		guiGraphics.disableScissor();
         	} else {

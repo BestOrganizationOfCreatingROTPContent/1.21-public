@@ -28,6 +28,7 @@ import com.github.standobyte.jojo.powersystem.standpower.entity.EntityStandType;
 import com.github.standobyte.jojo.powersystem.standpower.type.StandType;
 import com.github.standobyte.jojo.util.CommonEnums.Direction2D;
 import com.github.standobyte.jojo.util.MathUtil;
+import com.github.standobyte.v1_21_4_stuff.GuiScissor;
 import com.google.common.collect.Streams;
 import com.mojang.blaze3d.platform.Lighting;
 import com.mojang.blaze3d.systems.RenderSystem;
@@ -216,7 +217,7 @@ public class StandSkinsScreen extends Screen implements IJojoMenuScreen {
 		float ticks = tickCount + partialTick;
 		gui.pose().pushPose();
 		gui.pose().translate(x, y, 0);
-		gui.enableScissor(0, 0, WINDOW_INSIDE_WIDTH, WINDOW_INSIDE_HEIGHT);
+		GuiScissor.enableScissor(gui, 0, 0, WINDOW_INSIDE_WIDTH, WINDOW_INSIDE_HEIGHT);
 		if (skinFullView != null) {
 			skinFullView.render(gui, mouseX, mouseY, ticks);
 		}

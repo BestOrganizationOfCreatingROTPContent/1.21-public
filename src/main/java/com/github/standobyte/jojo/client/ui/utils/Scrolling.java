@@ -2,6 +2,8 @@ package com.github.standobyte.jojo.client.ui.utils;
 
 import javax.annotation.Nullable;
 
+import com.github.standobyte.v1_21_4_stuff.GuiScissor;
+
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.util.Mth;
@@ -39,9 +41,9 @@ public class Scrolling {
 	
 	
 	public void pushOffsetScissor(GuiGraphics guiGraphics, int y, int x0, int x1) {
+		GuiScissor.enableScissor(guiGraphics, x0, y, x1, y + uiHeight);
 		guiGraphics.pose().pushPose();
 		guiGraphics.pose().translate(0, scrollOffset, 0);
-		guiGraphics.enableScissor(x0, y, x1, y + uiHeight);
 	}
 	
 	public void pop(GuiGraphics guiGraphics) {
