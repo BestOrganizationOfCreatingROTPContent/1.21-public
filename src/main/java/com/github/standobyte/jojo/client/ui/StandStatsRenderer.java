@@ -537,17 +537,21 @@ public class StandStatsRenderer {
 			if (knownStand) {
 				override.standIcon(power).render(poseStack, x + statsWidth - 18 - width, standIconY);
 			}
+			int lineY = standNameY;
 			for (var line : standName) {
 				guiGraphics.drawString(mc.font, line, 
-						x + statsWidth - width, standNameY, standNameColor, true);
+						x + statsWidth - width, lineY, standNameColor, true);
+				lineY += mc.font.lineHeight;
 			}
 
 			if (knownUser) {
 				ClientUtil.renderEntityFace(poseStack, x + statsWidth - 18 - width, userIconY, user);
 			}
+			lineY = standUserY;
 			for (var line : standUser) {
 				guiGraphics.drawString(mc.font, line, 
-						x + statsWidth - width, standUserY, standNameColor, true);
+						x + statsWidth - width, lineY, standNameColor, true);
+				lineY += mc.font.lineHeight;
 			}
 		}
 
