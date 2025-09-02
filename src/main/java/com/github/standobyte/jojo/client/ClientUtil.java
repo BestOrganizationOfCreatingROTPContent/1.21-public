@@ -9,6 +9,7 @@ import net.minecraft.client.player.AbstractClientPlayer;
 import net.minecraft.client.resources.PlayerSkin;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.Entity;
+import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.player.PlayerModelPart;
 
 public class ClientUtil {
@@ -41,6 +42,12 @@ public class ClientUtil {
 				mc.mouseHandler.ypos()
 				* (double)mc.getWindow().getGuiScaledHeight()
 				/ (double)mc.getWindow().getScreenHeight());
+	}
+
+	public static void renderEntityFace(PoseStack poseStack, int x, int y, LivingEntity entity) {
+		if (entity instanceof AbstractClientPlayer player) {
+			renderPlayerFace(poseStack, x, y, player);
+		}
 	}
 
 	public static void renderPlayerFace(PoseStack poseStack, int x, int y, AbstractClientPlayer player) {

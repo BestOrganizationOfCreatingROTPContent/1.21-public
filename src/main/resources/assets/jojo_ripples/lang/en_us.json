@@ -101,6 +101,23 @@
   "moveset_default_group": "Moveset",
   "moveset_group.stand.tooltip": "This enables the controls of your Stand without immediately summoning it - some of the abilies let you summon just your Stand's arms this way.",
   
+  "jojo.stand_stat.strength": "Power",
+  "jojo.stand_stat.strength.desc": "Affects the physical damage from the Stand's attacks and, to a lesser extent, damage resistance from other Stand attacks.",
+  "jojo.stand_stat.speed": "Speed",
+  "jojo.stand_stat.speed.desc": "Affects the Stand's attack speed, movement speed, projectile fire rate, and barrage hit count.",
+  "jojo.stand_stat.range": "Range",
+  "jojo.stand_stat.range.desc": "Combines effective range - the maximum range at which the Stand doesn't lose its strength, and the maximum range, beyond which the Stand cannot move at all.",
+  "jojo.stand_stat.durability": "Stamina",
+  "jojo.stand_stat.durability.desc": "Affects the stamina total and the Stand's damage resistance from other Stand attacks.",
+  "jojo.stand_stat.precision": "Precision",
+  "jojo.stand_stat.precision.desc": "Increases the aiming capabilities of the Stand punches and projectile accuracy.",
+  "jojo.stand_stat.dev_potential": "Development Potential",
+  "jojo.stand_stat.dev_potential.desc": "Shows how much more applications of the Stand's abilities this character is yet to discover. As the user learns more Stand skills, this stat decreases.",
+  "jojo.stand_stat.stand_name": "Stand Name: %s",
+  "jojo.stand_stat.stand_user": "Stand User: %s",
+  "jojo.stand_stat.button.show": "Show Stand Stats",
+  "jojo.stand_stat.button.hide": "Hide Stand Stats",
+  
   "stand.unknown": "Unknown Stand: %s",
   "effect.jojo_ripples.resolve": "Resolve",
 
