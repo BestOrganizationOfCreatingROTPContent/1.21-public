@@ -11,10 +11,9 @@ import net.minecraft.client.Minecraft;
 import net.neoforged.api.distmarker.Dist;
 import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.fml.common.EventBusSubscriber;
-import net.neoforged.fml.common.EventBusSubscriber.Bus;
 import net.neoforged.neoforge.client.event.RenderFrameEvent;
 
-@EventBusSubscriber(value = Dist.CLIENT, bus = Bus.GAME)
+@EventBusSubscriber(value = Dist.CLIENT)
 public class ClientPowerCache {
 
 	@SubscribeEvent

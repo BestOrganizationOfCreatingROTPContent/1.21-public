@@ -38,21 +38,18 @@ import net.minecraft.util.StringUtil;
 import net.neoforged.api.distmarker.Dist;
 import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.fml.common.EventBusSubscriber;
-import net.neoforged.fml.common.EventBusSubscriber.Bus;
 import net.neoforged.neoforge.client.event.ContainerScreenEvent;
 import net.neoforged.neoforge.client.event.RegisterGuiLayersEvent;
 import net.neoforged.neoforge.client.event.ScreenEvent;
-import net.neoforged.neoforge.common.NeoForge;
 import net.neoforged.neoforge.common.util.TriState;
 
-@EventBusSubscriber(value = Dist.CLIENT, bus = Bus.MOD)
+@EventBusSubscriber(value = Dist.CLIENT)
 public class PowerHud {
 	public static PrototypeAbilityHud abilityHUDInstance;
 
 	@SubscribeEvent
 	public static void addHud(RegisterGuiLayersEvent event) {
 		event.registerAboveAll(JojoMod.resLoc("ability_hud"), abilityHUDInstance = new PrototypeAbilityHud());
-		NeoForge.EVENT_BUS.register(new GameBusEventHandler());
 	}
 	
 	
@@ -70,27 +67,23 @@ public class PowerHud {
 		return Minecraft.getInstance().screen instanceof AbstractContainerScreen;
 	}
 	
+	@SubscribeEvent
+	public static void onContainerMenuRender(ContainerScreenEvent.Render.Foreground event) {
+		GuiGraphics graphics = event.getGuiGraphics();
+		AbstractContainerScreen<?> screen = event.getContainerScreen();
+		graphics.pose().pushPose();
+		graphics.pose().translate(-screen.getGuiLeft(), -screen.getGuiTop(), 0.0F);
+		abilityHUDInstance.setupRender(TriState.TRUE);
+		abilityHUDInstance.renderAbilitiesHUD(graphics, Minecraft.getInstance().getTimer()/*getDeltaTracker()*/);
+		graphics.pose().popPose();
+	}
 	
-	public static class GameBusEventHandler {
-		
-		@SubscribeEvent
-		public void onContainerMenuRender(ContainerScreenEvent.Render.Foreground event) {
-			GuiGraphics graphics = event.getGuiGraphics();
-			AbstractContainerScreen<?> screen = event.getContainerScreen();
-			graphics.pose().pushPose();
-			graphics.pose().translate(-screen.getGuiLeft(), -screen.getGuiTop(), 0.0F);
-			abilityHUDInstance.setupRender(TriState.TRUE);
-			abilityHUDInstance.renderAbilitiesHUD(graphics, Minecraft.getInstance().getTimer()/*getDeltaTracker()*/);
-			graphics.pose().popPose();
-		}
-		
-		@SubscribeEvent
-		public void addDraggableToScreen(ScreenEvent.Init.Post event) {
-			Screen screen = event.getScreen();
-			if (canDragElementsOn(screen)) {
-				for (HudElement element : abilityHUDInstance.elements.values()) {
-					event.addListener(element);
-				}
+	@SubscribeEvent
+	public static void addDraggableToScreen(ScreenEvent.Init.Post event) {
+		Screen screen = event.getScreen();
+		if (canDragElementsOn(screen)) {
+			for (HudElement element : abilityHUDInstance.elements.values()) {
+				event.addListener(element);
 			}
 		}
 	}

@@ -21,7 +21,7 @@ import net.neoforged.neoforge.registries.DeferredRegister;
 import net.neoforged.neoforge.registries.NewRegistryEvent;
 import net.neoforged.neoforge.registries.RegistryBuilder;
 
-@EventBusSubscriber(modid = JojoMod.MOD_ID, bus = EventBusSubscriber.Bus.MOD)
+@EventBusSubscriber(modid = JojoMod.MOD_ID)
 public final class JojoRegistries {
 	public static final ResourceKey<Registry<AbilityType<?>>> ABILITY_TYPES_REG_KEY = ResourceKey.createRegistryKey(
 			JojoMod.resLoc("ability_type"));

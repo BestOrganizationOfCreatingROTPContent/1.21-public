@@ -10,10 +10,9 @@ import net.minecraft.client.gui.LayeredDraw;
 import net.neoforged.api.distmarker.Dist;
 import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.fml.common.EventBusSubscriber;
-import net.neoforged.fml.common.EventBusSubscriber.Bus;
 import net.neoforged.neoforge.client.event.RegisterGuiLayersEvent;
 
-@EventBusSubscriber(value = Dist.CLIENT, bus = Bus.MOD)
+@EventBusSubscriber(value = Dist.CLIENT)
 public class AdditionalHud {
 	public static ExtrasHudLayer instance;
 

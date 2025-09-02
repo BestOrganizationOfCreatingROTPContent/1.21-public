@@ -40,6 +40,8 @@ public class ModEntityAttributes {
 	public static final Holder<Attribute> STAND_PRECISION = ATTRIBUTES.register("stand_precision", 
 			() -> new RangedAttribute("attribute.name.jojo_ripples.stand_precision", 0, 0, 160).setSyncable(true));
 	
+	// TODO stamina regen attribute
+	
 	
 	@SubscribeEvent
 	public static void addModdedAttributes(EntityAttributeModificationEvent event) {

@@ -15,7 +15,7 @@ import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.fml.common.EventBusSubscriber;
 import net.neoforged.neoforge.client.event.RegisterClientReloadListenersEvent;
 
-@EventBusSubscriber(modid = JojoMod.MOD_ID, bus = EventBusSubscriber.Bus.MOD, value = Dist.CLIENT)
+@EventBusSubscriber(modid = JojoMod.MOD_ID, value = Dist.CLIENT)
 public class ModClientResources {
 
 	@SubscribeEvent
@@ -26,7 +26,7 @@ public class ModClientResources {
 		StandSkinsLoader.init(event);
 		AnimationLoader.init(event);
 		ClothesModelLoader.init(event);
-//		EntityShaders.resourceReload(event);
+		EntityShaders.resourceReload(event);
 	}
 	
 	public static Set<AutoCloseable> closeables = new HashSet<>();
