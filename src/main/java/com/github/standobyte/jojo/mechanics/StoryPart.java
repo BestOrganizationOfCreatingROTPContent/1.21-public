@@ -1,13 +1,21 @@
 package com.github.standobyte.jojo.mechanics;
 
+import java.util.Comparator;
+
+import javax.annotation.Nullable;
+
+import com.github.standobyte.jojo.client.standskin.StandSkin;
+import com.github.standobyte.jojo.client.standskin.StandSkinsLoader;
 import com.github.standobyte.jojo.client.text.sprite.IconGlyphInfo;
 import com.github.standobyte.jojo.client.text.sprite.IconGlyphsCache;
 import com.github.standobyte.jojo.client.ui.utils.GuiIcon;
 import com.github.standobyte.jojo.core.JojoRegistries;
+import com.github.standobyte.jojo.powersystem.standpower.StandInstance;
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 
 import net.minecraft.core.Holder;
+import net.minecraft.core.HolderLookup;
 import net.minecraft.network.chat.CommonComponents;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.MutableComponent;
@@ -27,7 +35,7 @@ public class StoryPart {
 	public StoryPart(TextColor nameColor) {
 		this.nameColor = nameColor;
 	}
-
+	
 
 	public static Component partName(Holder<StoryPart> holder) {
 		if (holder == null) return CommonComponents.EMPTY;
@@ -81,4 +89,33 @@ public class StoryPart {
 
 
 	public static final Codec<Holder<StoryPart>> REG_CODEC = RegistryFixedCodec.create(JojoRegistries.STORY_PARTS_REG_KEY);
+
+
+
+	@Nullable
+	public static Holder<StoryPart> getDefaultStoryPart(StandInstance standInstance, HolderLookup.Provider registries) {
+		if (FMLEnvironment.dist == Dist.CLIENT) {
+			StandSkin skin = StandSkinsLoader.getInstance().getSkin(standInstance);
+			if (skin != null) {
+				return skin.getStoryPart(registries);
+			}
+		}
+		return null;
+	}
+	
+	public static final Comparator<Holder<StoryPart>> COMPARATOR = (part1, part2) -> {
+		ResourceLocation id2 = getId(part2);
+		if (id2 == null) return -1;
+		ResourceLocation id1 = getId(part1);
+		if (id1 == null) return 1;
+		return id1.compareTo(id2);
+	};
+	
+	@Nullable
+	public static ResourceLocation getId(Holder<?> holder) {
+		if (holder == null) return null;
+		var key = holder.getKey();
+		return key != null ? key.location() : null;
+	}
+	
 }

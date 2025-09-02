@@ -1,6 +1,7 @@
 package com.github.standobyte.jojo.init;
 
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.List;
 import java.util.stream.Stream;
 
@@ -9,6 +10,7 @@ import com.github.standobyte.jojo.core.JojoRegistries;
 import com.github.standobyte.jojo.mc.item.DebugItem;
 import com.github.standobyte.jojo.mc.item.StandDiscItem;
 import com.github.standobyte.jojo.mc.item.component.StandWrittenOnDisc;
+import com.github.standobyte.jojo.mechanics.StoryPart;
 import com.github.standobyte.jojo.mechanics.clothes.ClothesItem;
 import com.github.standobyte.jojo.mechanics.clothes.itemdata.ClothesDataComponent;
 import com.github.standobyte.jojo.mechanics.clothes.itemdata.ClothesPiece;
@@ -18,6 +20,7 @@ import com.github.standobyte.jojo.mechanics.clothes.mannequin.MannequinItem;
 import com.github.standobyte.jojo.powersystem.standpower.StandInstance;
 import com.github.standobyte.jojo.powersystem.standpower.type.StandType;
 
+import net.minecraft.core.Holder;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.item.CreativeModeTab;
@@ -55,9 +58,13 @@ public final class ModItems {
 				// most of the mod's items
 				Stream<StandType> stands = StandType.getAllEnabledStands();
 				stands
-				.map(stand -> {
+				.map(StandInstance::new)
+				.sorted(Comparator.comparing(
+						(StandInstance stand) -> StoryPart.getDefaultStoryPart(stand, parameters.holders()),
+						StoryPart.COMPARATOR))
+				.map((StandInstance stand) -> {
 					ItemStack disc = new ItemStack(STAND_DISC.get());
-					disc.set(ModItemDataComponents.DISC_STAND.get(), new StandWrittenOnDisc(new StandInstance(stand)));
+					disc.set(ModItemDataComponents.DISC_STAND.get(), new StandWrittenOnDisc(stand));
 					return disc;
 				})
 				.forEach(item -> output.accept(item, CreativeModeTab.TabVisibility.PARENT_AND_SEARCH_TABS));
