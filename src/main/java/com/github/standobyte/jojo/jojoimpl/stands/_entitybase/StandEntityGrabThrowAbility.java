@@ -88,7 +88,7 @@ public class StandEntityGrabThrowAbility extends StandEntityAbility {
 				LivingComponentGrab standGrab = performer.getData(ModDataAttachmentTypes.LIVING_GRAB.get());
 				LivingEntity grabbedEntity = standGrab.getGrabbedEntity();
 				if (grabbedEntity != null) {
-					standGrab.setGrabbedEntity(null);
+					standGrab.setGrabTarget(null);
 					Vec3 throwVec = performer.getLookAngle().scale(2);
 					grabbedEntity.setDeltaMovement(throwVec);
 				}

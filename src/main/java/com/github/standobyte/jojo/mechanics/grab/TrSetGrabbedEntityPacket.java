@@ -42,7 +42,7 @@ public record TrSetGrabbedEntityPacket(int grabbingId, int grabbedId) implements
 			if (ClientProxy.getEntityById(payload.grabbingId) instanceof LivingEntity grabbingEntity) {
 				grabbingEntity
 				.getData(ModDataAttachmentTypes.LIVING_GRAB.get())
-				.setGrabbedEntity(ClientProxy.getEntityById(payload.grabbedId) instanceof LivingEntity grabbedEntity ? grabbedEntity : null);
+				.setGrabTarget(ClientProxy.getEntityById(payload.grabbedId) instanceof LivingEntity grabbedEntity ? grabbedEntity : null);
 			}
 		}
 		

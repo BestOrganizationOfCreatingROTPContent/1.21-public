@@ -43,7 +43,7 @@ public class StandUtil {
 		if (standPower != null) {
 			StandEntity standEntity = standPower.getSummonedStandEntity();
 			if (standEntity != null) {
-				return LivingComponentGrab.getGrabbedEntity(standEntity);
+				return LivingComponentGrab.getEntityGrabbedBy(standEntity);
 			}
 		}
 		

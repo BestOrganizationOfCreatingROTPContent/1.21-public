@@ -123,7 +123,7 @@ public class SwapUserStandItemsAbility extends Ability {
 					if (!stand.getOffhandItem().isEmpty()) {
 						LivingComponentGrab standGrab = stand.getData(ModDataAttachmentTypes.LIVING_GRAB.get());
 						if (standGrab != null) {
-							standGrab.setGrabbedEntity(null);
+							standGrab.setGrabTarget(null);
 						}
 					}
 				}

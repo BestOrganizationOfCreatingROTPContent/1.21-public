@@ -64,13 +64,13 @@ public class StandEntityGrabAbility extends StandEntityAbility {
 				ActionTarget target = HitResultUtil.clipEntityLook(standEntity, 
 						entity -> !entity.is(standEntity.getUser()) && StandEntityPunchAbility.canStandHit(standEntity, entity) && !(
 								entity instanceof LivingEntity living && (
-										LivingComponentGrab.getGrabbedEntity(living) != null
-										|| LivingComponentGrab.getGrabbingEntity(living) != null)), 
+										LivingComponentGrab.getEntityGrabbedBy(living) != null
+										|| LivingComponentGrab.getEntityGrabbing(living) != null)), 
 						0);
 				if (!level.isClientSide()) {
 					if (target.getType() == TargetType.ENTITY && target.getEntity() instanceof LivingEntity targetLiving) {
 						LivingComponentGrab standGrab = performer.getData(ModDataAttachmentTypes.LIVING_GRAB.get());
-						standGrab.setGrabbedEntity(targetLiving);
+						standGrab.setGrabTarget(targetLiving);
 					}
 					StandPower standPower = StandPower.get(getPowerUser());
 					standPower.consumeStamina(10);

@@ -41,7 +41,7 @@ public class LivingComponentGrab implements TickingEntityData {
 	
 	
 	@Nullable
-	public static LivingEntity getGrabbedEntity(LivingEntity grabbing) {
+	public static LivingEntity getEntityGrabbedBy(LivingEntity grabbing) {
 		if (!grabbing.hasData(ModDataAttachmentTypes.LIVING_GRAB.get())) return null;;
 		
 		LivingComponentGrab grabbing_ = grabbing.getData(ModDataAttachmentTypes.LIVING_GRAB.get());
@@ -49,7 +49,7 @@ public class LivingComponentGrab implements TickingEntityData {
 	}
 	
 	@Nullable
-	public static LivingEntity getGrabbingEntity(LivingEntity target) {
+	public static LivingEntity getEntityGrabbing(LivingEntity target) {
 		if (!target.hasData(ModDataAttachmentTypes.LIVING_GRAB.get())) return null;;
 		
 		LivingComponentGrab target_ = target.getData(ModDataAttachmentTypes.LIVING_GRAB.get());
@@ -63,7 +63,7 @@ public class LivingComponentGrab implements TickingEntityData {
 		tickBeingGrabbed();
 	}
 	
-	public void setGrabbedEntity(LivingEntity target) {
+	public void setGrabTarget(LivingEntity target) {
 		if (grabbedTarget != null && grabbedTarget != target) {
 			grabbedTarget
 			.getData(ModDataAttachmentTypes.LIVING_GRAB.get())
@@ -103,6 +103,10 @@ public class LivingComponentGrab implements TickingEntityData {
 				if (grabbing != null)	gravity.addTransientModifier(GRABBED_NO_GRAVITY);
 				else					gravity.removeModifier(GRABBED_NO_GRAVITY);
 			});
+
+			if (thisEntity.isPassenger()) {
+				thisEntity.stopRiding();
+			}
 		}
 
 		this.grabbingEntity = grabbing;
@@ -125,7 +129,7 @@ public class LivingComponentGrab implements TickingEntityData {
 	private void tickGrabbedEntity() {
 		if (grabbedTarget != null) {
 			if (!grabbedTarget.isAlive()) {
-				setGrabbedEntity(null);
+				setGrabTarget(null);
 			}
 		}
 	}
@@ -139,6 +143,9 @@ public class LivingComponentGrab implements TickingEntityData {
 							.add(0, grabbingEntity.getEyeHeight() - thisEntity.getEyeHeight(), 0));
 			thisEntity.setPos(grabbedPos.x, grabbedPos.y, grabbedPos.z);
 			thisEntity.setDeltaMovement(Vec3.ZERO);
+			for (Entity passenger : thisEntity.getPassengers()) {
+				thisEntity.positionRider(passenger);
+			}
 		}
 	}
 	

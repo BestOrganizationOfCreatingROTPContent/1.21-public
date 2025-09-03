@@ -31,7 +31,7 @@ public class StandEntityGrabReleaseAbility extends Ability {
 			if (standEntity != null) {
 				LivingComponentGrab standGrab = standEntity.getData(ModDataAttachmentTypes.LIVING_GRAB.get());
 				if (standGrab != null) {
-					standGrab.setGrabbedEntity(null);
+					standGrab.setGrabTarget(null);
 				}
 			}
 		}

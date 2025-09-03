@@ -895,7 +895,7 @@ public class StandEntity extends LivingEntity implements SummonedStand, IEntityW
 	
 	@Nullable
 	public HandOccupied getHandOccupiedBy(InteractionHand hand) {
-		if (hand == InteractionHand.OFF_HAND && LivingComponentGrab.getGrabbedEntity(this) != null) {
+		if (hand == InteractionHand.OFF_HAND && LivingComponentGrab.getEntityGrabbedBy(this) != null) {
 			return HandOccupied.GRABBED_TARGET;
 		}
 		ItemStack heldItem = getItemInHand(hand);
