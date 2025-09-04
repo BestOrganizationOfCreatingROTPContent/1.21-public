@@ -310,6 +310,12 @@ public class StandEntity extends LivingEntity implements SummonedStand, IEntityW
 	}
 	
 	protected boolean lookAtCurTarget(PrevRotations rotO) {
+		// FIXME when an entity is being grabbed, make it stay on the same position until the stand changes the offset
+		Entity grabbed = LivingComponentGrab.getEntityGrabbedBy(this);
+		if (grabbed != null) {
+			return false;
+		}
+		
 		ActionTarget lookTarget;
 		EntityActionInstance curAction = standAction.getAction();
 		boolean fullyRotateBody = curAction != null;
@@ -350,17 +356,21 @@ public class StandEntity extends LivingEntity implements SummonedStand, IEntityW
 		
 		if (targetPos != null) {
 			Vec2 rotations = MathUtil.lookAnglesTowards(targetPos, this, EntityAnchorArgument.Anchor.EYES);
-			this.setXRot(rotations.x);
-			this.setYRot(rotations.y);
 			if (fullyRotateBody) {
+				this.setXRot(rotations.x);
+				this.setYRot(rotations.y);
+				
 				this.setYHeadRot(this.getYRot());
 				this.setYBodyRot(this.getYRot());
 			}
 			else {
-				float maxHeadYRot = 37.5f;
-				float f2 = Mth.wrapDegrees(yBodyRot - this.getYRot());
-				float f3 = Mth.clamp(f2, -maxHeadYRot, maxHeadYRot);
-				this.setYHeadRot(this.getYRot() + f2 - f3);
+				float maxHeadYRot = 75;
+				float f2 = Mth.wrapDegrees(yBodyRot - rotations.y);
+				if (Math.abs(f2) < maxHeadYRot) {
+					this.setXRot(rotations.x);
+					this.setYRot(rotations.y);
+					this.setYHeadRot(this.getYRot());
+				}
 			}
 			this.xRotO = rotO.xRot;
 			this.yRotO = rotO.yRot;
