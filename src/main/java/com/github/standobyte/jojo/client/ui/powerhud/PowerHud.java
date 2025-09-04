@@ -43,7 +43,7 @@ import net.neoforged.neoforge.client.event.RegisterGuiLayersEvent;
 import net.neoforged.neoforge.client.event.ScreenEvent;
 import net.neoforged.neoforge.common.util.TriState;
 
-@EventBusSubscriber(value = Dist.CLIENT)
+@EventBusSubscriber(modid = JojoMod.MOD_ID, value = Dist.CLIENT)
 public class PowerHud {
 	public static PrototypeAbilityHud abilityHUDInstance;
 

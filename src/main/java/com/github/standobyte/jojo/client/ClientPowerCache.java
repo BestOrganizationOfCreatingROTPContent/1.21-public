@@ -3,6 +3,7 @@ package com.github.standobyte.jojo.client;
 import javax.annotation.Nullable;
 
 import com.github.standobyte.jojo.client.input.StandVanillaClickInput;
+import com.github.standobyte.jojo.core.JojoMod;
 import com.github.standobyte.jojo.powersystem.Power;
 import com.github.standobyte.jojo.powersystem.PowerClass;
 import com.github.standobyte.jojo.powersystem.ability.condition.AvailableAbilities;
@@ -13,7 +14,7 @@ import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.fml.common.EventBusSubscriber;
 import net.neoforged.neoforge.client.event.RenderFrameEvent;
 
-@EventBusSubscriber(value = Dist.CLIENT)
+@EventBusSubscriber(modid = JojoMod.MOD_ID, value = Dist.CLIENT)
 public class ClientPowerCache {
 
 	@SubscribeEvent

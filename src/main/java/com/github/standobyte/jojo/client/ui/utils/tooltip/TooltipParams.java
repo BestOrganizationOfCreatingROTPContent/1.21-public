@@ -2,6 +2,8 @@ package com.github.standobyte.jojo.client.ui.utils.tooltip;
 
 import java.util.OptionalInt;
 
+import com.github.standobyte.jojo.core.JojoMod;
+
 import net.neoforged.api.distmarker.Dist;
 import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.fml.common.EventBusSubscriber;
@@ -11,7 +13,7 @@ import net.neoforged.neoforge.client.event.RenderTooltipEvent;
  * {@link RenderTooltipEvent.Color} works well out of the box when you want to change the tooltip for an item,
  * but my case of changing the colors in my UI is more specific
  */
-@EventBusSubscriber(value = Dist.CLIENT)
+@EventBusSubscriber(modid = JojoMod.MOD_ID, value = Dist.CLIENT)
 public class TooltipParams {
 	public OptionalInt backgroundStart;
 	public OptionalInt backgroundEnd;
