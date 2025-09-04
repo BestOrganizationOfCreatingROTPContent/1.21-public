@@ -23,6 +23,7 @@ import net.minecraft.server.packs.resources.ResourceManager;
 import net.minecraft.world.entity.LivingEntity;
 import net.neoforged.neoforge.client.event.RenderLevelStageEvent;
 
+// FIXME fix the crash when you give the stand an enchanted item
 public class SeparateBufferEntityShader {
 	protected ResourceLocation postShaderId;
 	protected String outputShardName;
