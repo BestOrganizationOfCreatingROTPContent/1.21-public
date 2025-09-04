@@ -91,6 +91,7 @@ public class StandEntityGrabThrowAbility extends StandEntityAbility {
 					standGrab.setGrabTarget(null);
 					Vec3 throwVec = performer.getLookAngle().scale(2);
 					grabbedEntity.setDeltaMovement(throwVec);
+					grabbedEntity.hurtMarked = true;
 				}
 				StandPower standPower = StandPower.get(getPowerUser());
 				standPower.consumeStamina(50);
