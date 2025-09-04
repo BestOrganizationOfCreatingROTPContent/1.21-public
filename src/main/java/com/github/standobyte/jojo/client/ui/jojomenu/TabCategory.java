@@ -13,9 +13,7 @@ import com.github.standobyte.jojo.powersystem.PowerClass;
 import com.github.standobyte.jojo.powersystem.PowerType;
 import com.mojang.blaze3d.systems.RenderSystem;
 
-import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphics;
-import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.network.chat.Component;
 
 public class TabCategory implements IJojoMenuTab {
@@ -56,18 +54,13 @@ public class TabCategory implements IJojoMenuTab {
 		return tabs.stream().filter(Tab::isActive).toList();
 	}
 
-	
+
 	@Override
-	public boolean onClick(Minecraft mc, Screen curScreen) {
-		List<Tab> tabs = getActiveTabs();
-		if (!tabs.isEmpty()) {
-			// XXX (jojo menu) open the last tab in the category if it's active, otherwise open the first tab
-			return tabs.get(0).onClick(mc, curScreen);
-		}
-		return false;
+	public Tab getTabToOpen() {
+		return JojoMenuTabs.getTabToOpen(this);
 	}
-	
-	
+
+
 	protected Component name = Component.empty();
 	public TabCategory withName(Component name) {
 		this.name = name;

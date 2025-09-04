@@ -10,5 +10,10 @@ import net.minecraft.network.chat.Component;
 public interface IJojoMenuTab {
 	void renderIcon(GuiGraphics guiGraphics, int x, int y);
 	Component getName();
-	boolean onClick(Minecraft mc, @Nullable Screen curScreen);
+	Tab getTabToOpen();
+	
+	default boolean onClick(Minecraft mc, @Nullable Screen curScreen) {
+		Tab tab = getTabToOpen();
+		return tab != null && tab.onTabClick(mc, curScreen);
+	}
 }

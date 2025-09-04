@@ -1,6 +1,8 @@
 package com.github.standobyte.jojo.client.ui.jojomenu;
 
+import java.util.IdentityHashMap;
 import java.util.List;
+import java.util.Map;
 
 import com.github.standobyte.jojo.client.ClientPowerCache;
 import com.github.standobyte.jojo.client.ClientProxy;
@@ -20,8 +22,44 @@ import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
 
-// XXX (jojo menu) tab icons and names
 public class JojoMenuTabs {
+	public static Map<TabCategory, Tab> curTabs = new IdentityHashMap<>();
+	public static TabCategory curCategory;
+	
+	public static Tab getTabToOpenOnMenuKey() {
+		TabCategory category = curCategory;
+		if (category == null || !category.isActive()) {
+			List<TabCategory> active = TabCategory.getActiveCategories();
+			if (!active.isEmpty()) {
+				category = active.get(0);
+			}
+		}
+		return category != null ? getTabToOpen(category) : null;
+	}
+	
+	public static Tab getTabToOpen(TabCategory category) {
+		Tab tab = curTabs.get(category);
+		if (tab == null || !tab.isActive()) {
+			List<Tab> active = category.getActiveTabs();
+			if (!active.isEmpty()) {
+				return active.get(0);
+			}
+		}
+		return tab;
+	}
+	
+	public static boolean isSameTabOpened(Tab tab) {
+		TabCategory category = tab.getCategory();
+		return category == curCategory && curTabs.get(category) == tab;
+	}
+	
+	public static void onTabOpened(Tab tab) {
+		if (tab != null) {
+			curCategory = tab.getCategory();
+			curTabs.put(curCategory, tab);
+		}
+	}
+	
 	public static void initDefaults() {}
 	
 	// Player menu

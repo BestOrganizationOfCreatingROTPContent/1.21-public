@@ -3,12 +3,15 @@ package com.github.standobyte.jojo.client.input;
 import org.lwjgl.glfw.GLFW;
 
 import com.github.standobyte.jojo.client.ui.jojomenu.IJojoMenuScreen;
+import com.github.standobyte.jojo.client.ui.jojomenu.JojoMenuTabs;
+import com.github.standobyte.jojo.client.ui.jojomenu.Tab;
 import com.github.standobyte.jojo.core.JojoMod;
 import com.github.standobyte.jojo.core.packet.fromclient.ClNoParamsPacket;
 import com.github.standobyte.jojo.core.packet.fromclient.ClNoParamsPacket.PacketType;
 import com.mojang.blaze3d.platform.InputConstants;
 
 import net.minecraft.client.KeyMapping;
+import net.minecraft.client.Minecraft;
 import net.neoforged.neoforge.client.event.RegisterKeyMappingsEvent;
 import net.neoforged.neoforge.client.settings.KeyConflictContext;
 import net.neoforged.neoforge.network.PacketDistributor;
@@ -51,7 +54,16 @@ public class VanillaKeybinds {
 		}
 		
 		if (jojoStuffMenu.consumeClick()) {
-			IJojoMenuScreen.onScreenKeyPress();
+			Minecraft mc = Minecraft.getInstance();
+			if (mc.screen instanceof IJojoMenuScreen) {
+				mc.popGuiLayer();
+			}
+			else {
+				Tab tab = JojoMenuTabs.getTabToOpenOnMenuKey();
+				if (tab != null) {
+					tab.onClick(mc, mc.screen);
+				}
+			}
 		}
 	}
 	

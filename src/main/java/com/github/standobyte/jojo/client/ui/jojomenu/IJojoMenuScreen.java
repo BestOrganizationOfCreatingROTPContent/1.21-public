@@ -12,9 +12,12 @@ import net.minecraft.ChatFormatting;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.screens.Screen;
+import net.minecraft.client.resources.sounds.SimpleSoundInstance;
+import net.minecraft.client.sounds.SoundManager;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.MutableComponent;
 import net.minecraft.resources.ResourceLocation;
+import net.minecraft.sounds.SoundEvents;
 
 public interface IJojoMenuScreen {
 	public static final int DEFAULT_WIDTH = 230;
@@ -85,10 +88,18 @@ public interface IJojoMenuScreen {
 	
 	default boolean clickTab(double mouseX, double mouseY, int button, Screen screen) {
 		if (button == 0) {
-			IJojoMenuTab tab = getTabAt(mouseX, mouseY, screen);
-			
-			if (tab != null) {
-				return tab.onClick(screen.getMinecraft(), screen);
+			IJojoMenuTab tabWidget = getTabAt(mouseX, mouseY, screen);
+			if (tabWidget != null) {
+				Tab tabToOpen = tabWidget.getTabToOpen();
+				boolean playSound = tabToOpen != null && !JojoMenuTabs.isSameTabOpened(tabToOpen);
+				if (tabWidget.onClick(screen.getMinecraft(), screen)) {
+					if (playSound) {
+						SoundManager handler = Minecraft.getInstance().getSoundManager();
+						handler.play(SimpleSoundInstance.forUI(SoundEvents.BOOK_PAGE_TURN, 1.0F));
+					}
+					
+					return true;
+				}
 			}
 		}
 		return false;
@@ -119,17 +130,6 @@ public interface IJojoMenuScreen {
 		}
 		
 		return null;
-	}
-	
-	
-	public static void onScreenKeyPress() {
-		List<TabCategory> categories = TabCategory.getActiveCategories();
-		if (!categories.isEmpty()) {
-			TabCategory category = categories.get(0);
-			Tab tab = category.getActiveTabs().get(0);
-			Minecraft mc = Minecraft.getInstance();
-			tab.onClick(mc, mc.screen);
-		}
 	}
 	
 }

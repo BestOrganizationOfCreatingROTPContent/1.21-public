@@ -61,12 +61,18 @@ public class Tab implements IJojoMenuTab {
 		return this;
 	}
 
+
 	@Override
-	public boolean onClick(Minecraft mc, Screen curScreen) {
+	public Tab getTabToOpen() {
+		return this;
+	}
+	
+	public boolean onTabClick(Minecraft mc, Screen curScreen) {
 		if (newScreen != null) {
 			Screen screen = newScreen.apply(this);
 			if (screen != null) {
 				mc.setScreen(screen);
+				JojoMenuTabs.onTabOpened(this);
 				return true;
 			}
 		}
