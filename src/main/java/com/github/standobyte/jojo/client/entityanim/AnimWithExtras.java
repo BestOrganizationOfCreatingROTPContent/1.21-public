@@ -96,8 +96,9 @@ public class AnimWithExtras {
 				usePhaseTime = false;
 			}
 			else {
+				ActionPhase lastAnimPhase = iterPrevPhase.getValue().phase;
 				if (curPhase == null) {
-					if (taskPhase == iterPrevPhase.getValue().phase) {
+					if (taskPhase == lastAnimPhase) {
 						curPhase = iterPrevPhase;
 					}
 				}
@@ -105,23 +106,27 @@ public class AnimWithExtras {
 					float curPhaseTime = curPhase.getFloatKey();
 					float nextPhaseTime = nextPhase != null ? nextPhase.getFloatKey() : this.animation.lengthInSeconds();
 					switch (curPhase.getValue().timeAnimMode) {
-					case FIT_PHASE_LENGTH -> {
-						animSeconds = Mth.lerp(entityAction.phaseCompletion, curPhaseTime, nextPhaseTime);
-						appliedPhaseAnim = true;
+						case FIT_PHASE_LENGTH -> {
+							animSeconds = Mth.lerp(entityAction.phaseCompletion, curPhaseTime, nextPhaseTime);
+							appliedPhaseAnim = true;
+						}
+						case CONSTANT_LENGTH -> {
+							animSeconds = curPhaseTime + entityAction.phaseTime / 20f;
+//							if (entity != null && animSeconds >= this.animation.lengthInSeconds()) {
+//								entity.onSetPoseAnimEnded();
+//							}
+							appliedPhaseAnim = true;
+						}
+						case LOOP_BACK -> {
+							float loopLen = nextPhaseTime - curPhase.getValue().loopBackTo;
+							animSeconds = curPhaseTime + (entityAction.phaseTime / 20f) % loopLen;
+							appliedPhaseAnim = true;
+						}
 					}
-					case CONSTANT_LENGTH -> {
-						animSeconds = curPhaseTime + entityAction.phaseTime / 20f;
-//						if (entity != null && animSeconds >= this.animation.lengthInSeconds()) {
-//							entity.onSetPoseAnimEnded();
-//						}
-						appliedPhaseAnim = true;
-					}
-					case LOOP_BACK -> {
-						float loopLen = nextPhaseTime - curPhase.getValue().loopBackTo;
-						animSeconds = curPhaseTime + (entityAction.phaseTime / 20f) % loopLen;
-						appliedPhaseAnim = true;
-					}
-					}
+				}
+				else if (taskPhase.ordinal() > lastAnimPhase.ordinal()) {
+					animSeconds = this.animation.lengthInSeconds();
+					appliedPhaseAnim = true;
 				}
 			}
 		}

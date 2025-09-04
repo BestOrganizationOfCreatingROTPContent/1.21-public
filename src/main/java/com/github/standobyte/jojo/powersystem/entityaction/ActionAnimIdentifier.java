@@ -12,6 +12,7 @@ import com.mojang.datafixers.util.Pair;
 public class ActionAnimIdentifier {
 	public final String name;
 	public final int index;
+	public boolean isIdle = false;
 
 	protected ActionAnimIdentifier(String name) {
 		this(name, 0);
@@ -21,20 +22,29 @@ public class ActionAnimIdentifier {
 		this.name = name;
 		this.index = index;
 	}
+	
+	public ActionAnimIdentifier setIdle(boolean isIdle) {
+		this.isIdle = isIdle;
+		return this;
+	}
 
 	private static final Map<String, ActionAnimIdentifier> ANIM_IDS = new HashMap<>();
 	/**
 	 * Automatically splits the number at the end of the animation name.
 	 */
-	public static ActionAnimIdentifier getOrCreate(String animName) {
+	public static ActionAnimIdentifier getOrCreate(String animName, boolean setIdle) {
 		Pair<String, OptionalInt> enumeratedName = StringUtil.splitIntAtTheEnd(animName);
-		return ANIM_IDS.computeIfAbsent(animName, n -> new ActionAnimIdentifier(
+		ActionAnimIdentifier anim = ANIM_IDS.computeIfAbsent(animName, n -> new ActionAnimIdentifier(
 				enumeratedName.getFirst(), 
 				enumeratedName.getSecond().orElse(1) - 1 /* 1-based indexing in anims */));
+		if (setIdle) {
+			anim.isIdle = true;
+		}
+		return anim;
 	}
 	
 	public static ActionAnimIdentifier getOrCreate(AbilityId abilityId) {
-		return getOrCreate(abilityId.nameInMoveset());
+		return getOrCreate(abilityId.nameInMoveset(), false);
 	}
 	
 	@Override

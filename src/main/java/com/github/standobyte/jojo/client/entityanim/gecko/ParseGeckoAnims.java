@@ -89,7 +89,8 @@ public class ParseGeckoAnims {
 					Map.Entry<String, String> assignment = assignmentMap.entrySet().iterator().next();
 					String field = assignment.getKey();
 					String assignmentValue = assignment.getValue();
-					
+
+					// FIXME !! grab idle loopback keyframe
 					switch (field) {
 						case "phase" -> {
 							ActionPhase phase = ActionPhase.valueOf(assignmentValue);

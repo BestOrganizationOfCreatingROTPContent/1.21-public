@@ -12,8 +12,9 @@ displayName="Ripples of the Past"
 # logoFile="logo.png"
 authors="StandoByte"
 credits='''
+
     StandoByte - game design, programming
-    Yujin - structure design and building, player animations, 2D sprites
+    Yujin - 3D model animations, structure design and building, 2D sprites
     August_dr - 3D models and animations
 '''
 description='''

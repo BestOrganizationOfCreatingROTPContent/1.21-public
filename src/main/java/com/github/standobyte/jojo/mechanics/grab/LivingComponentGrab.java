@@ -34,6 +34,11 @@ public class LivingComponentGrab implements TickingEntityData {
 	private LivingEntity grabbingEntity = null;
 	private LivingEntity grabbedTarget = null;
 	
+	public float xRotWhenGrabbed;
+	public float yRotDiffWhenGrabbed;
+	public float yHeadRotDiffWhenGrabbed;
+	public float yBodyRotDiffWhenGrabbed;
+	
 	public LivingComponentGrab(LivingEntity entity) {
 		this.thisEntity = entity;
 		addTicking(entity);
@@ -94,7 +99,8 @@ public class LivingComponentGrab implements TickingEntityData {
 	
 	@ApiStatus.Internal
 	public void setGrabbedBy(LivingEntity grabbing) {
-		if (!thisEntity.level().isClientSide()) {
+		boolean clientSide = thisEntity.level().isClientSide();
+		if (!clientSide) {
 			Optional.ofNullable(thisEntity.getAttribute(Attributes.ATTACK_DAMAGE)).ifPresent(attackDamage -> {
 				if (grabbing != null)	attackDamage.addTransientModifier(GRABBED_NO_ATTACK_POWER);
 				else					attackDamage.removeModifier(GRABBED_NO_ATTACK_POWER);
@@ -104,12 +110,33 @@ public class LivingComponentGrab implements TickingEntityData {
 				else					gravity.removeModifier(GRABBED_NO_GRAVITY);
 			});
 
-			if (thisEntity.isPassenger()) {
+		}
+		if (grabbing != null) {
+			if (!clientSide && thisEntity.isPassenger()) {
 				thisEntity.stopRiding();
 			}
+			saveRotationDiff(grabbing);
 		}
 
 		this.grabbingEntity = grabbing;
+	}
+	
+	protected void saveRotationDiff(LivingEntity grabbing) {
+		this.xRotWhenGrabbed = thisEntity.getXRot();
+		float yRot = thisEntity.getYRot();
+		this.yRotDiffWhenGrabbed = yRot - grabbing.yBodyRot;
+		this.yHeadRotDiffWhenGrabbed = thisEntity.getYHeadRot() - yRot;
+		this.yBodyRotDiffWhenGrabbed = thisEntity.yBodyRot - yRot;
+	}
+	
+	public void applyRotationDiff() {
+		if (grabbingEntity != null) {
+			thisEntity.setXRot(this.xRotWhenGrabbed);
+			float yRot = grabbingEntity.getYRot() + this.yRotDiffWhenGrabbed;
+			thisEntity.setYRot(yRot);
+			thisEntity.setYHeadRot(yRot + this.yHeadRotDiffWhenGrabbed);
+			thisEntity.setYBodyRot(yRot + this.yBodyRotDiffWhenGrabbed);
+		}
 	}
 	
 	
@@ -136,9 +163,14 @@ public class LivingComponentGrab implements TickingEntityData {
 
 	public void setGrabbedPos() {
 		if (grabbingEntity != null) {
+//			HumanoidArm grabbingArm = HumanoidArm.LEFT;
 			Vec3 grabbedPos = grabbingEntity.position()
-					.add(new Vec3(0.25, 0, 1)
-							.xRot(-grabbingEntity.getXRot() * MathUtil.DEG_TO_RAD)
+					.add(new Vec3(/*grabbingArm == HumanoidArm.LEFT ? 0.25 : -0.25*/0, 0, 1)
+							/* lifting the target up and down a bit from x rotation would be cool, 
+							 * but we'd have to also adjust the grab animations for this and it's a PITA, 
+							 * so unfortunately this goes into the "commented out" hell
+							 */
+//							.xRot(-grabbingEntity.getXRot() * MathUtil.DEG_TO_RAD)
 							.yRot(-grabbingEntity.yBodyRot * MathUtil.DEG_TO_RAD)
 							.add(0, grabbingEntity.getEyeHeight() - thisEntity.getEyeHeight(), 0));
 			thisEntity.setPos(grabbedPos.x, grabbedPos.y, grabbedPos.z);
@@ -146,7 +178,15 @@ public class LivingComponentGrab implements TickingEntityData {
 			for (Entity passenger : thisEntity.getPassengers()) {
 				thisEntity.positionRider(passenger);
 			}
+			
+			if (!thisEntity.level().isClientSide()) {
+				applyRotationDiff();
+			}
 		}
+	}
+	
+	public void onFrameRender() {
+		applyRotationDiff();
 	}
 	
 	@SubscribeEvent

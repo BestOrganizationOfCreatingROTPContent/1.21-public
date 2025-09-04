@@ -9,6 +9,7 @@ import com.github.standobyte.jojo.client.shader.EntityShaders;
 import com.github.standobyte.jojo.client.standskin.StandSkin;
 import com.github.standobyte.jojo.client.standskin.StandSkinsLoader;
 import com.github.standobyte.jojo.core.JojoMod;
+import com.github.standobyte.jojo.mechanics.grab.LivingComponentGrab;
 import com.github.standobyte.jojo.powersystem.entityaction.ActionAnimIdentifier;
 import com.github.standobyte.jojo.powersystem.entityaction.EntityActionInstance;
 import com.github.standobyte.jojo.powersystem.standpower.entity.StandEntity;
@@ -74,7 +75,8 @@ public class StandEntityRenderer<
 //		return new Model(definition.bakeRoot(), RenderType::entityTranslucent);
 	}
 	
-	public static final ActionAnimIdentifier IDLE_ANIM = ActionAnimIdentifier.getOrCreate("idle");
+	public static final ActionAnimIdentifier IDLE_ANIM = ActionAnimIdentifier.getOrCreate("idle", true);
+	public static final ActionAnimIdentifier GRAB_IDLE_ANIM = ActionAnimIdentifier.getOrCreate("grab_idle", true);
 //	@Override // 1.21.2+
 	public void extractRenderState(T entity, S renderState, float partialTick) {
 //		super.extractRenderState(entity, renderState, partialTick); // 1.21.2+
@@ -92,13 +94,14 @@ public class StandEntityRenderer<
 		renderState.visibleParts = HumanoidPart.ALL;
 		
 		EntityActionInstance action = entity.getCurStandAction();
-		EntityActionRenderState.extract(renderState.action, 
-				entity, action, partialTick);
+		EntityActionRenderState.extract(renderState.action, entity, action, partialTick);
 		if (renderState.action.animId == null) {
-			renderState.action.animId = IDLE_ANIM;
+			renderState.action.animId = LivingComponentGrab.getEntityGrabbedBy(entity) != null ? GRAB_IDLE_ANIM : IDLE_ANIM;
+		}
+		if (renderState.action.animId.isIdle) {
 			renderState.action.time = entity.tickCount - entity.nonIdlePoseTimeStamp + partialTick;
 		}
-		if (renderState.action.animId != IDLE_ANIM) {
+		else {
 			entity.nonIdlePoseTimeStamp = entity.tickCount;
 		}
 		EntityActionRenderState.setAnim(renderState.action, renderState, 

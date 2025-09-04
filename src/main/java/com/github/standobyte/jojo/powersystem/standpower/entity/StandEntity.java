@@ -93,8 +93,7 @@ public class StandEntity extends LivingEntity implements SummonedStand, IEntityW
 	
 	protected static final EntityDataAccessor<Float> FINISHER_VALUE = SynchedEntityData.defineId(StandEntity.class, EntityDataSerializers.FLOAT);
 	
-	public static final double Y_OFFSET = 0.2;
-	protected static final Vec3 DEFAULT_USER_OFFSET = new Vec3(0.75, Y_OFFSET, -0.75);
+	public double Y_OFFSET = 0.2;
 	public StandOffsetFromUser offsetFromUser;
     public double rangeEfficiency = 1;
     public double staminaCondition = 1;
@@ -104,7 +103,7 @@ public class StandEntity extends LivingEntity implements SummonedStand, IEntityW
 	public StandEntity(EntityType<? extends StandEntity> type, Level level) {
 		super(type, level);
 		this.standAction = LivingComponentAction.getComponent(this);
-		this.offsetFromUser = new StandOffsetFromUser(this, DEFAULT_USER_OFFSET, StandOffsetFromUser.Rotations.BODY);
+		this.offsetFromUser = StandOffsetFromUser.createDefault(this);
 		setNoGravity(true);
 		if (level.isClientSide()) {
 			this.clientStuff = new ClientStandEntityStuff();
@@ -172,6 +171,7 @@ public class StandEntity extends LivingEntity implements SummonedStand, IEntityW
 		super.tick();
 		
 		if (user != null) {
+			UtilFunctions.wrapYRotationAngles(user);
 			updatePosition(user);
 			if (!level.isClientSide()) {
 				tickHealth(user);
@@ -310,12 +310,6 @@ public class StandEntity extends LivingEntity implements SummonedStand, IEntityW
 	}
 	
 	protected boolean lookAtCurTarget(PrevRotations rotO) {
-		// FIXME when an entity is being grabbed, make it stay on the same position until the stand changes the offset
-		Entity grabbed = LivingComponentGrab.getEntityGrabbedBy(this);
-		if (grabbed != null) {
-			return false;
-		}
-		
 		ActionTarget lookTarget;
 		EntityActionInstance curAction = standAction.getAction();
 		boolean fullyRotateBody = curAction != null;

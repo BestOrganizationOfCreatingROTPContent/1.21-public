@@ -26,9 +26,7 @@ public class StandEntityGrabAbility extends StandEntityAbility {
 
 	public StandEntityGrabAbility(AbilityType<?> abilityType, AbilityId abilityId) {
 		super(abilityType, abilityId);
-		setDefaultPhaseLength(ActionPhase.WINDUP, 10);
-		setDefaultPhaseLength(ActionPhase.PERFORM, 6);
-		setDefaultPhaseLength(ActionPhase.RECOVERY, 16);
+		setDefaultPhaseLength(ActionPhase.WINDUP, 9);
 		noFinisherBarDecay = true;
 	}
 	

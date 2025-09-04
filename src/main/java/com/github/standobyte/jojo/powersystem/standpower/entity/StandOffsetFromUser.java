@@ -3,6 +3,7 @@ package com.github.standobyte.jojo.powersystem.standpower.entity;
 import javax.annotation.Nullable;
 
 import com.github.standobyte.jojo.core.packet.fromserver.TrSyncStandOffsetPacket;
+import com.github.standobyte.jojo.mechanics.grab.LivingComponentGrab;
 import com.github.standobyte.jojo.powersystem.entityaction.type.EntityActionType;
 import com.github.standobyte.jojo.util.MathUtil;
 
@@ -18,6 +19,8 @@ public class StandOffsetFromUser {
 	public Vec3 idleOffset;
 	public Rotations idleRotations;
 	
+	@Nullable Vec3 grabIdleOffset;
+	
 	private Vec3 relativeOffset;
 	private Rotations rotations;
 	@Nullable public EntityActionType standAbility;
@@ -27,11 +30,22 @@ public class StandOffsetFromUser {
 	private float prevBodyRotDiff;
 	private int changedTimestamp;
 	
+	public static StandOffsetFromUser createDefault(StandEntity standEntity) {
+		StandOffsetFromUser offset = new StandOffsetFromUser(standEntity, new Vec3(0.75, standEntity.Y_OFFSET, -0.75), Rotations.BODY);
+		offset.grabOffset(new Vec3(-0.75, offset.idleOffset.y, 0.75));
+		return offset;
+	}
+	
 	public StandOffsetFromUser(StandEntity standEntity, Vec3 idleOffset, Rotations idleRotations) {
 		this.standEntity = standEntity;
 		this.idleOffset = idleOffset;
 		this.idleRotations = idleRotations;
 		setOffset(idleOffset, idleRotations);
+	}
+	
+	public StandOffsetFromUser grabOffset(Vec3 offset) {
+		this.grabIdleOffset = offset;
+		return this;
 	}
 	
 	public void setOffset(Vec3 offset, Rotations rotations) {
@@ -75,16 +89,16 @@ public class StandOffsetFromUser {
 	}
 	
 	public Vec3 getAbsoluteOffset(LivingEntity userEntity, boolean lerp) {
+		this.grabOffset(new Vec3(-1, idleOffset.y, 1.5));
+		if (grabIdleOffset != null && LivingComponentGrab.getEntityGrabbedBy(standEntity) != null) {
+			// FIXME ! grab idle offset lerp
+			return relativeToAbsolute(grabIdleOffset, Rotations.HEAD, userEntity);
+		}
+		
 		if (lerp && prevAbsoluteOffset == null) {
 			prevAbsoluteOffset = getAbsoluteOffset(userEntity, false);
 		}
-		
-		Vec3 absoluteOffset = relativeOffset;
-		if (rotations == Rotations.HEAD_XY) {
-			absoluteOffset = relativeOffset.xRot(-userEntity.getXRot() * MathUtil.DEG_TO_RAD);
-		}
-		float userYRot = rotations == Rotations.BODY ? userEntity.yBodyRot : userEntity.getYRot();
-		absoluteOffset = absoluteOffset.yRot(-userYRot * MathUtil.DEG_TO_RAD);
+		Vec3 absoluteOffset = relativeToAbsolute(relativeOffset, rotations, userEntity);
 		
 		if (lerp) {
 			double lerpAmount = getLerpAmount();
@@ -94,6 +108,16 @@ public class StandOffsetFromUser {
 					Mth.lerp(lerpAmount, prevAbsoluteOffset.z, absoluteOffset.z));
 		}
 		
+		return absoluteOffset;
+	}
+	
+	public static Vec3 relativeToAbsolute(Vec3 relativeVec, Rotations rotations, LivingEntity origin) {
+		Vec3 absoluteOffset = relativeVec;
+		if (rotations == Rotations.HEAD_XY) {
+			absoluteOffset = relativeVec.xRot(-origin.getXRot() * MathUtil.DEG_TO_RAD);
+		}
+		float userYRot = rotations == Rotations.BODY ? origin.yBodyRot : origin.getYRot();
+		absoluteOffset = absoluteOffset.yRot(-userYRot * MathUtil.DEG_TO_RAD);
 		return absoluteOffset;
 	}
 	

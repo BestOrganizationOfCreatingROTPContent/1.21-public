@@ -20,7 +20,7 @@ public abstract class SpecialEntityActionType implements EntityActionType {
 	public SpecialEntityActionType(String animFileName, ResourceLocation id) {
 		this.id = id;
 		this.animSet = id.withPath(animFileName);
-		this.anim = ActionAnimIdentifier.getOrCreate(id.getPath());
+		this.anim = ActionAnimIdentifier.getOrCreate(id.getPath(), false);
 	}
 
 
