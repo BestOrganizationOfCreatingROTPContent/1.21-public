@@ -59,33 +59,30 @@ public class UtilFunctions {
 	
 	public static void wrapYRotationAngles(LivingEntity entity) {
 		float yRot = entity.getYRot();
-		float diff = 0;
-		while (yRot < -180) { yRot += 360; diff += 360; }
-		while (yRot >= 180) { yRot -= 360; diff -= 360; }
-		if (diff != 0) {
-			entity.setYRot(yRot);
-			entity.yRotO += diff;
-			if (entity.level().isClientSide()) {
-				wrapClientSide(entity, diff);
-			}
+		float firstPersonArmBobDiff = 0;
+		while (yRot < -180) { yRot += 360; entity.setYRot(yRot); entity.yRotO += 360; firstPersonArmBobDiff += 360; }
+		while (yRot >= 180) { yRot -= 360; entity.setYRot(yRot); entity.yRotO -= 360; firstPersonArmBobDiff -= 360; }
+
+		while (yRot - entity.yBodyRot < -180.0F) {
+			entity.yBodyRot -= 360;
+			entity.yBodyRotO -= 360;
+		}
+		while (yRot - entity.yBodyRot >= 180.0F) {
+			entity.yBodyRot += 360;
+			entity.yBodyRotO += 360;
 		}
 
-		yRot = entity.yBodyRot;
-		diff = 0;
-		while (yRot < -180) { yRot += 360; diff += 360; }
-		while (yRot >= 180) { yRot -= 360; diff -= 360; }
-		if (diff != 0) {
-			entity.yBodyRot = yRot;
-			entity.yBodyRotO += diff;
+		while (yRot - entity.yHeadRot < -180.0F) {
+			entity.yHeadRot -= 360;
+			entity.yHeadRotO -= 360;
+		}
+		while (yRot - entity.yHeadRot >= 180.0F) {
+			entity.yHeadRot += 360;
+			entity.yHeadRotO += 360;
 		}
 
-		yRot = entity.yHeadRot;
-		diff = 0;
-		while (yRot < -180) { yRot += 360; diff += 360; }
-		while (yRot >= 180) { yRot -= 360; diff -= 360; }
-		if (diff != 0) {
-			entity.yHeadRot = yRot;
-			entity.yHeadRotO += diff;
+		if (entity.level().isClientSide()) {
+			wrapClientSide(entity, firstPersonArmBobDiff);
 		}
 	}
 	
