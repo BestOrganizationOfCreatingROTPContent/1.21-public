@@ -11,7 +11,7 @@ import javax.annotation.Nullable;
 
 import org.jetbrains.annotations.ApiStatus;
 
-import com.github.standobyte.jojo.client.entityanim.AnimWithExtras;
+import com.github.standobyte.jojo.client.entityanim.RotpAnimDefinition;
 import com.github.standobyte.jojo.client.entityrender.EntityActionRenderState;
 import com.github.standobyte.jojo.client.entityrender.stand.HumanoidPart;
 import com.github.standobyte.jojo.client.entityrender.stand.StandEntityModel;
@@ -44,7 +44,7 @@ public class BarrageSwings {
 	@ApiStatus.Internal float standPrecision;
 
 
-	public void frameStandBarrage(Minecraft mc, AnimWithExtras barrageAnim, String barrageTypeName, float curAnimTimeSecs, LivingEntityRenderState renderState) {
+	public void frameStandBarrage(Minecraft mc, RotpAnimDefinition barrageAnim, String barrageTypeName, float curAnimTimeSecs, LivingEntityRenderState renderState) {
 		frameUpdateSwings(mc);
 		frameUpdateBarrageType(barrageTypeName);
 		if (isBarragingAnim) {
@@ -81,7 +81,7 @@ public class BarrageSwings {
 		}
 	}
 
-	public void frameSetValuesAndAddNewSwings(AnimWithExtras barrageAnim, LivingEntityRenderState curRenderState, float curAnimTimeSecs, 
+	public void frameSetValuesAndAddNewSwings(RotpAnimDefinition barrageAnim, LivingEntityRenderState curRenderState, float curAnimTimeSecs, 
 			float swingsPerSecond, float standPrecision) {
 		this.swingsPerSecond = swingsPerSecond;
 		this.standPrecision = standPrecision;
@@ -113,7 +113,7 @@ public class BarrageSwings {
 
 	@FunctionalInterface
 	public static interface AddBarrageSwing {
-		void addSwings(BarrageSwings swings, AnimWithExtras barrageAnim, 
+		void addSwings(BarrageSwings swings, RotpAnimDefinition barrageAnim, 
 				LivingEntityRenderState curRenderState, float curAnimTimeSecs);
 	}
 
@@ -124,11 +124,11 @@ public class BarrageSwings {
 		protected static final LivingEntityRenderState sharedRenderState = new LivingEntityRenderState();
 		protected static final EntityActionRenderState sharedActionRenderState = new EntityActionRenderState();
 		
-		protected AnimWithExtras barrageAnim;
+		protected RotpAnimDefinition barrageAnim;
 		protected float ticks;
 		protected float ticksMax;
 
-		public BarrageSwing(AnimWithExtras barrageAnim, float startingAnim, float animMax) {
+		public BarrageSwing(RotpAnimDefinition barrageAnim, float startingAnim, float animMax) {
 			this.barrageAnim = barrageAnim;
 			this.ticks = startingAnim;
 			this.ticksMax = animMax;
@@ -155,7 +155,7 @@ public class BarrageSwings {
 		protected final Vec3 offset;
 		protected final float zRot;
 
-		public TwoHandedBarrageLoopSwing(AnimWithExtras barrageAnim, LivingEntityRenderState curRenderState, 
+		public TwoHandedBarrageLoopSwing(RotpAnimDefinition barrageAnim, LivingEntityRenderState curRenderState, 
 				float startingAnim, float animMax, HumanoidArm side, double maxOffset, float animTimeOffset) {
 			super(barrageAnim, startingAnim, animMax);
 			this.xRot = curRenderState.xRot;
@@ -172,7 +172,7 @@ public class BarrageSwings {
 			offset = new Vec3(leftOffset, upOffset, frontOffset);
 		}
 
-		public static void addSwings(BarrageSwings swings, AnimWithExtras barrageAnim, 
+		public static void addSwings(BarrageSwings swings, RotpAnimDefinition barrageAnim, 
 				LivingEntityRenderState curRenderState, float curAnimTimeSecs) {
 			float lastLoop = swings.loopLast;
 			float loopLen = 4;

@@ -9,7 +9,7 @@ import java.util.function.Function;
 
 import javax.annotation.Nullable;
 
-import com.github.standobyte.jojo.client.entityanim.AnimWithExtras;
+import com.github.standobyte.jojo.client.entityanim.RotpAnimDefinition;
 import com.github.standobyte.jojo.client.entityanim.AnimationSet;
 import com.github.standobyte.jojo.client.entityrender.stand.StandEntityModel;
 import com.github.standobyte.jojo.client.entityrender.stand.StandEntityRenderState;
@@ -216,10 +216,10 @@ public class StandSkin {
 		return null;
 	}
 	
-	public AnimWithExtras getAnimation(ResourceLocation modelId, Function<AnimationSet, AnimWithExtras> getAnim) {
+	public RotpAnimDefinition getAnimation(ResourceLocation modelId, Function<AnimationSet, RotpAnimDefinition> getAnim) {
 		AnimationSet anims = this.animations.get(modelId);
 		if (anims != null || this == defaultSkin) {
-			AnimWithExtras anim = getAnim.apply(anims);
+			RotpAnimDefinition anim = getAnim.apply(anims);
 			if (anim != null) {
 				return anim;
 			}
@@ -231,9 +231,9 @@ public class StandSkin {
 		return null;
 	}
 	
-	public AnimWithExtras getStandAnimation(Function<AnimationSet, AnimWithExtras> getAnim) {
+	public RotpAnimDefinition getStandAnimation(Function<AnimationSet, RotpAnimDefinition> getAnim) {
 		if (this.standEntityAnims != null) {
-			AnimWithExtras anim = getAnim.apply(this.standEntityAnims);
+			RotpAnimDefinition anim = getAnim.apply(this.standEntityAnims);
 			if (anim != null) {
 				return anim;
 			}

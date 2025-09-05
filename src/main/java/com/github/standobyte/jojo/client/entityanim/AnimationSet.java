@@ -19,32 +19,32 @@ import it.unimi.dsi.fastutil.ints.Int2ObjectMap;
  * Has some stuff specific to Stands, but it can be used for other entities as well.
  */
 public class AnimationSet {
-	protected final Map<String, List<AnimWithExtras>> namedAnimations;
-	protected AnimWithExtras idleAnim;
+	protected final Map<String, List<RotpAnimDefinition>> namedAnimations;
+	protected RotpAnimDefinition idleAnim;
 //	@Nullable protected AnimWithExtras curAnim;
 	
-	protected AnimationSet(Map<String, List<AnimWithExtras>> namedAnimations) {
+	protected AnimationSet(Map<String, List<RotpAnimDefinition>> namedAnimations) {
 		this.namedAnimations = namedAnimations;
 		this.idleAnim = getNamedAnim(StandEntityRenderer.IDLE_ANIM);
 	}
 
-	public AnimWithExtras getNamedAnim(ActionAnimIdentifier animId) {
-		List<AnimWithExtras> anims = namedAnimations.get(animId.name);
+	public RotpAnimDefinition getNamedAnim(ActionAnimIdentifier animId) {
+		List<RotpAnimDefinition> anims = namedAnimations.get(animId.name);
 		if (anims == null || anims.isEmpty()) return null;
 		return anims.get(animId.index % anims.size());
 	}
 	
-	public AnimWithExtras getStandIdleAnim() {
+	public RotpAnimDefinition getStandIdleAnim() {
 		return idleAnim;
 	}
 	
 	
 	public static class Builder {
-		Map<String, Int2ObjectMap<AnimWithExtras>> namedAnimations = new HashMap<>();
+		Map<String, Int2ObjectMap<RotpAnimDefinition>> namedAnimations = new HashMap<>();
 		
-		public void putNamedAnim(String name, AnimWithExtras anim) {
+		public void putNamedAnim(String name, RotpAnimDefinition anim) {
 			Pair<String, OptionalInt> enumeratedName = StringUtil.splitIntAtTheEnd(name);
-			Int2ObjectMap<AnimWithExtras> anims = this.namedAnimations.computeIfAbsent(
+			Int2ObjectMap<RotpAnimDefinition> anims = this.namedAnimations.computeIfAbsent(
 					enumeratedName.getFirst(), __ -> new Int2ObjectArrayMap<>());
 			anims.put(enumeratedName.getSecond().orElse(0), anim);
 		}
@@ -54,7 +54,7 @@ public class AnimationSet {
 		}
 		
 		public AnimationSet build() {
-			Map<String, List<AnimWithExtras>> anims = this.namedAnimations.entrySet().stream()
+			Map<String, List<RotpAnimDefinition>> anims = this.namedAnimations.entrySet().stream()
 					.collect(Collectors.toMap(
 							Map.Entry::getKey, 
 							entry -> entry.getValue()

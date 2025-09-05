@@ -3,7 +3,7 @@ package com.github.standobyte.jojo.client.entityrender.stand;
 import java.util.Optional;
 
 import com.github.standobyte.jojo.client.RotpGeckoModelLoader;
-import com.github.standobyte.jojo.client.entityanim.AnimWithExtras;
+import com.github.standobyte.jojo.client.entityanim.RotpAnimDefinition;
 import com.github.standobyte.jojo.client.entityrender.EntityActionRenderState;
 import com.github.standobyte.jojo.client.shader.EntityShaders;
 import com.github.standobyte.jojo.client.standskin.StandSkin;
@@ -124,11 +124,11 @@ public class StandEntityRenderer<
 		renderState.tint = -1;
 	}
 	
-	public AnimWithExtras getStandAnim(S renderState) {
+	public RotpAnimDefinition getStandAnim(S renderState) {
 		if (renderState.skin != null) {
 			EntityActionRenderState action = renderState.action;
 			if (action.animId != null) {
-				AnimWithExtras anim = renderState.skin.getStandAnimation(anims -> anims.getNamedAnim(action.animId));
+				RotpAnimDefinition anim = renderState.skin.getStandAnimation(anims -> anims.getNamedAnim(action.animId));
 				return anim;
 			}
 		}

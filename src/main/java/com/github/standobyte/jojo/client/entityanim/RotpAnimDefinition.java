@@ -20,14 +20,15 @@ import com.github.standobyte.jojo.client.entityanim.playerbend.PlayerModelBends;
 import com.github.standobyte.jojo.client.entityrender.EntityActionRenderState;
 import com.github.standobyte.jojo.powersystem.entityaction.ActionPhase;
 import com.github.standobyte.jojo.util.MathUtil;
+import com.github.standobyte.jojo.util.java.OptionalFloat;
 import com.github.standobyte.v1_21_4_stuff.OldPlayerModelJank;
 import com.github.standobyte.v1_21_4_stuff.missingmethods.Model_1_21_2plus;
 import com.github.standobyte.v1_21_4_stuff.missingmethods._PartPose;
 import com.github.standobyte.v1_21_4_stuff.renderstate.LivingEntityRenderState;
+import com.google.common.collect.Maps;
 
 import it.unimi.dsi.fastutil.floats.Float2ObjectMap;
 import net.minecraft.client.animation.AnimationChannel;
-import net.minecraft.client.animation.AnimationDefinition;
 import net.minecraft.client.animation.Keyframe;
 import net.minecraft.client.model.HumanoidModel;
 import net.minecraft.client.model.Model;
@@ -35,15 +36,20 @@ import net.minecraft.client.model.geom.ModelPart;
 import net.minecraft.client.model.geom.PartPose;
 import net.minecraft.util.Mth;
 
-public class AnimWithExtras {
-	public final AnimationDefinition animation;
+public class RotpAnimDefinition {
+	public final float lengthInSeconds;
+	public final OptionalFloat loopBackTo;
+	protected final Map<String, List<AnimationChannel>> boneAnimations;
 	protected final List<KeyframeQuery> queries;
 	public final AnimInstructionTimelines instructionTimelines;
 	
 //	public float animTime;
 	
-	public AnimWithExtras(AnimationDefinition anim, @Nullable List<KeyframeQuery> queries, AnimInstructionTimelines instructionTimelines) {
-		this.animation = anim;
+	public RotpAnimDefinition(float lengthInSeconds, OptionalFloat loopBackTo, Map<String, List<AnimationChannel>> boneAnimations, 
+			@Nullable List<KeyframeQuery> queries, AnimInstructionTimelines instructionTimelines) {
+		this.lengthInSeconds = lengthInSeconds;
+		this.loopBackTo = loopBackTo;
+		this.boneAnimations = boneAnimations;
 		this.queries = queries != null ? queries : Collections.emptyList();
 		this.instructionTimelines = instructionTimelines;
 	}
@@ -52,7 +58,7 @@ public class AnimWithExtras {
 	public void animate(Model model, LivingEntityRenderState renderState, float seconds, float animSpeed) {
 		Model_1_21_2plus _model = (Model_1_21_2plus) model;
 		evaluateQueries(renderState);
-		for (Map.Entry<String, List<AnimationChannel>> entry : animation.boneAnimations().entrySet()) {
+		for (Map.Entry<String, List<AnimationChannel>> entry : boneAnimations.entrySet()) {
 			_model.jojo_ripples$getAnyDescendantWithName(entry.getKey()).ifPresent(modelPart -> {
 				animateModelPart(this, modelPart, entry.getValue(), seconds, animSpeed);
 			});
@@ -61,7 +67,7 @@ public class AnimWithExtras {
 
 	public void animateVanillaPlayer(HumanoidModel<?> humanoidModel, LivingEntityRenderState renderState, float seconds, float animSpeed) {
 		evaluateQueries(renderState);
-		for (Map.Entry<String, List<AnimationChannel>> entry : animation.boneAnimations().entrySet()) {
+		for (Map.Entry<String, List<AnimationChannel>> entry : boneAnimations.entrySet()) {
 			ModelPart modelPart = PlayerModelBends.getModelPartForPlayerAnim(humanoidModel, entry.getKey());
 			animateModelPart(this, modelPart, entry.getValue(), seconds, animSpeed);
 		}
@@ -104,7 +110,7 @@ public class AnimWithExtras {
 				}
 				if (curPhase != null) {
 					float curPhaseTime = curPhase.getFloatKey();
-					float nextPhaseTime = nextPhase != null ? nextPhase.getFloatKey() : this.animation.lengthInSeconds();
+					float nextPhaseTime = nextPhase != null ? nextPhase.getFloatKey() : this.lengthInSeconds;
 					switch (curPhase.getValue().timeAnimMode) {
 						case FIT_PHASE_LENGTH -> {
 							animSeconds = Mth.lerp(entityAction.phaseCompletion, curPhaseTime, nextPhaseTime);
@@ -125,7 +131,7 @@ public class AnimWithExtras {
 					}
 				}
 				else if (taskPhase.ordinal() > lastAnimPhase.ordinal()) {
-					animSeconds = this.animation.lengthInSeconds();
+					animSeconds = this.lengthInSeconds;
 					appliedPhaseAnim = true;
 				}
 			}
@@ -133,7 +139,7 @@ public class AnimWithExtras {
 
 		if (!appliedPhaseAnim) {
 			float time = usePhaseTime ? entityAction.phaseTime : entityAction.time;
-			animSeconds = this.animation.looping() ? (time / 20f) % this.animation.lengthInSeconds() : time / 20f;
+			animSeconds = getAnimTime(time);
 		}
 		return animSeconds;
 	}
@@ -142,11 +148,19 @@ public class AnimWithExtras {
 	 * @return anim time in seconds
 	 */
 	public float getAnimTime(float ticks) {
-		return animation.looping() ? (ticks / 20.0f) % animation.lengthInSeconds() : ticks / 20.0f;
+		float time = ticks / 20f;
+		if (loopBackTo.isPresent()) {
+			float loopBackTo = this.loopBackTo.getAsFloat();
+			if (ticks > lengthInSeconds) {
+				float loopLen = lengthInSeconds - loopBackTo;
+				time = (time - loopBackTo) % loopLen + loopBackTo;
+			}
+		}
+		return time;
 	}
 	
 	
-	public static void animateModelPart(AnimWithExtras anim, ModelPart modelPart, List<AnimationChannel> transformations, float seconds, float animSpeed) {
+	public static void animateModelPart(RotpAnimDefinition anim, ModelPart modelPart, List<AnimationChannel> transformations, float seconds, float animSpeed) {
 		if (modelPart == null || !modelPart.visible) return;
 		for (AnimationChannel tf : transformations) {
 			Vector3f vec = calcVec(anim, tf, seconds, animSpeed);
@@ -156,7 +170,7 @@ public class AnimWithExtras {
 
 	protected static final Vector3f TEMP = new Vector3f();
 	
-	public static Vector3f calcVec(AnimWithExtras anim, AnimationChannel tf, float seconds, float animSpeed) {
+	public static Vector3f calcVec(RotpAnimDefinition anim, AnimationChannel tf, float seconds, float animSpeed) {
 		Keyframe[] keyframes = tf.keyframes();
 		anim.lerpKeyframes(keyframes, seconds, animSpeed);
 		if (tf.target() == AnimationChannel.Targets.ROTATION) {
@@ -217,43 +231,58 @@ public class AnimWithExtras {
 	
 	
 	public static class Builder {
-		protected final AnimationDefinition.Builder vanillaAnimBuilder;
+		protected float length;
+		protected final Map<String, List<AnimationChannel>> animationByBone = Maps.newHashMap();
+		protected OptionalFloat loopBackTo = OptionalFloat.empty();
 		protected List<KeyframeQuery> queries = null;
 		protected final AnimInstructionTimelines instructions = new AnimInstructionTimelines();
 		
-		public Builder(AnimationDefinition.Builder vanillaAnimBuilder) {
-			this.vanillaAnimBuilder = vanillaAnimBuilder;
+		public Builder(float lengthInSeconds) {
+			this.length = lengthInSeconds;
 		}
-		
-		public AnimationDefinition.Builder anim() {
-			return vanillaAnimBuilder;
+
+		public RotpAnimDefinition.Builder looping() {
+			return looping(0);
 		}
-		
-		public void addExpressionQuery(KeyframeQuery query) {
+
+		public RotpAnimDefinition.Builder looping(float loopBackToSec) {
+			this.loopBackTo = OptionalFloat.of(loopBackToSec);
+			return this;
+		}
+
+		public RotpAnimDefinition.Builder addAnimation(String bone, AnimationChannel animationChannel) {
+			this.animationByBone.computeIfAbsent(bone, p_329694_ -> new ArrayList<>()).add(animationChannel);
+			return this;
+		}
+
+		public RotpAnimDefinition.Builder addExpressionQuery(KeyframeQuery query) {
 			if (queries == null) queries = new ArrayList<>();
 			if (!query.isNumericLiteral()) {
 				queries.add(query);
 			}
+			return this;
 		}
 		
-		public void addActionPhaseKeyframe(AnimActionPhase value, float time) {
+		public RotpAnimDefinition.Builder addActionPhaseKeyframe(AnimActionPhase value, float time) {
 			if (instructions.phases == null) {
 				instructions.phases = new AnimObjTimeline<>();
 			}
 			instructions.phases.add(time, value);
+			return this;
 		}
 		
-		public void addFieldValueKeyframe(String field, String value, float time) {
+		public RotpAnimDefinition.Builder addFieldValueKeyframe(String field, String value, float time) {
 			if (instructions.stringVals == null) {
 				instructions.stringVals = new HashMap<>();
 			}
 			AnimObjTimeline<String> timeline = instructions.stringVals.computeIfAbsent(field, __ -> new AnimObjTimeline<>());
 			timeline.add(time, value);
+			return this;
 		}
 		
-		public AnimWithExtras build() {
+		public RotpAnimDefinition build() {
 			instructions.onFinishedParsing();
-			AnimWithExtras anim = new AnimWithExtras(vanillaAnimBuilder.build(), queries, instructions);
+			RotpAnimDefinition anim = new RotpAnimDefinition(length, loopBackTo, animationByBone, queries, instructions);
 			return anim;
 		}
 	}

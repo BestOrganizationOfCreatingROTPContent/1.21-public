@@ -32,7 +32,7 @@ public class RipplesPlayerRenderState {
 	}
 
 	public static boolean setupModelAnim(HumanoidModel<?> model, HumanoidRenderState vanillaRenderState, RipplesPlayerRenderState modRenderState) {
-		AnimWithExtras anim = modRenderState.entityAction.anim;
+		RotpAnimDefinition anim = modRenderState.entityAction.anim;
 		float seconds = modRenderState.entityAction.timeSeconds;
 //		if (anim == null) {
 //			anim = getPlayerAnim(modRenderState);
@@ -49,13 +49,13 @@ public class RipplesPlayerRenderState {
 		return false;
 	}
 	
-	public static AnimWithExtras getPlayerAnim(RipplesPlayerRenderState modRenderState) {
+	public static RotpAnimDefinition getPlayerAnim(RipplesPlayerRenderState modRenderState) {
 		if (modRenderState.animSet != null) {
 			EntityActionRenderState action = modRenderState.entityAction;
 			if (action.animId != null) {
 				AnimationSet animSet = AnimationLoader.getInstance().getAnimSet(modRenderState.animSet);
 				if (animSet != null) {
-					AnimWithExtras anim = animSet.getNamedAnim(action.animId);
+					RotpAnimDefinition anim = animSet.getNamedAnim(action.animId);
 					return anim;
 				}
 			}

@@ -95,7 +95,7 @@ public class AnimationLoader extends SimplePreparableReloadListener<Map<Resource
 		for (Map.Entry<String, JsonElement> animJsonEntry : modelAnimsJson.entrySet()) {
 			try {
 				JsonObject animJson = animJsonEntry.getValue().getAsJsonObject();
-				AnimWithExtras anim = ParseGeckoAnims.parseAnim(animJson);
+				RotpAnimDefinition anim = ParseGeckoAnims.parseAnim(animJson);
 				animSetBuilder.putNamedAnim(animJsonEntry.getKey(), anim);
 			}
 			catch (Exception e) {

@@ -5,7 +5,7 @@ import java.util.Map;
 
 import javax.annotation.Nullable;
 
-import com.github.standobyte.jojo.client.entityanim.AnimWithExtras;
+import com.github.standobyte.jojo.client.entityanim.RotpAnimDefinition;
 import com.github.standobyte.jojo.client.entityanim.barrage.BarrageSwings;
 import com.github.standobyte.jojo.client.utils.ModelUtil;
 import com.github.standobyte.jojo.powersystem.standpower.entity.StandEntity;
@@ -64,7 +64,7 @@ public class StandEntityModel<T extends StandEntity, S extends StandEntityRender
 
 		HumanoidPart.setPartsVisible(this, renderState.visibleParts);
 		
-		AnimWithExtras anim = renderState.action.anim;
+		RotpAnimDefinition anim = renderState.action.anim;
 		float seconds = renderState.action.timeSeconds;
 		if (anim != null) {
 			anim.animate(this, renderState, seconds, 1);

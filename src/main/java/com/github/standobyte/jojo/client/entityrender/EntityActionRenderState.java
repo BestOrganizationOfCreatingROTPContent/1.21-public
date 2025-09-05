@@ -2,8 +2,8 @@ package com.github.standobyte.jojo.client.entityrender;
 
 import javax.annotation.Nullable;
 
-import com.github.standobyte.jojo.client.entityanim.AnimWithExtras;
-import com.github.standobyte.jojo.client.entityanim.AnimWithExtras.TimelineKeys;
+import com.github.standobyte.jojo.client.entityanim.RotpAnimDefinition;
+import com.github.standobyte.jojo.client.entityanim.RotpAnimDefinition.TimelineKeys;
 import com.github.standobyte.jojo.client.entityanim.RipplesPlayerRenderState;
 import com.github.standobyte.jojo.client.entityanim.RipplesPlayerRenderState.RipplesRenderStateExtensionMixin;
 import com.github.standobyte.jojo.client.entityanim.barrage.BarrageSwings;
@@ -24,7 +24,7 @@ public class EntityActionRenderState {
 	public float phaseCompletion = -1;
 	public boolean disableCrouch = false;
 
-	public AnimWithExtras anim;
+	public RotpAnimDefinition anim;
 	public float timeSeconds;
 	@Nullable public BarrageSwings barrageSwings;
 
@@ -53,7 +53,7 @@ public class EntityActionRenderState {
 	}
 	
 	public static void setAnim(EntityActionRenderState renderState, LivingEntityRenderState vanillaRenderState, 
-			AnimWithExtras anim, @Nullable BarrageSwings barrageSwings) {
+			RotpAnimDefinition anim, @Nullable BarrageSwings barrageSwings) {
 		renderState.anim = anim;
 		renderState.timeSeconds = 0;
 		renderState.barrageSwings = barrageSwings;

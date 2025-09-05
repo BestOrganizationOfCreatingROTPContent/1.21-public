@@ -10,7 +10,7 @@ import java.util.function.IntFunction;
 import java.util.stream.Collectors;
 import java.util.stream.StreamSupport;
 
-import com.github.standobyte.jojo.client.entityanim.AnimWithExtras;
+import com.github.standobyte.jojo.client.entityanim.RotpAnimDefinition;
 import com.github.standobyte.jojo.client.entityanim.action.AnimActionPhase;
 import com.github.standobyte.jojo.client.entityanim.molang.KeyframeQuery;
 import com.github.standobyte.jojo.powersystem.entityaction.ActionPhase;
@@ -23,18 +23,17 @@ import it.unimi.dsi.fastutil.floats.Float2ObjectArrayMap;
 import it.unimi.dsi.fastutil.floats.Float2ObjectMap;
 import net.minecraft.client.animation.AnimationChannel;
 import net.minecraft.client.animation.AnimationChannel.Interpolation;
-import net.minecraft.client.animation.AnimationDefinition;
 import net.minecraft.client.animation.Keyframe;
 
 public class ParseGeckoAnims {
 	
 	// "geckolib_format_version": 2
-	public static AnimWithExtras parseAnim(JsonObject animJson) {
+	public static RotpAnimDefinition parseAnim(JsonObject animJson) {
 		
 		// Animation metadata
 		
 		float lengthSecs = animJson.has("animation_length") ? animJson.get("animation_length").getAsFloat() : 0;
-		AnimWithExtras.Builder builder = new AnimWithExtras.Builder(AnimationDefinition.Builder.withLength(lengthSecs));
+		RotpAnimDefinition.Builder builder = new RotpAnimDefinition.Builder(lengthSecs);
 
 		boolean loop = false;
 //		boolean holdOnLastFrame = false;
@@ -49,7 +48,7 @@ public class ParseGeckoAnims {
 			}
 		}
 		if (loop) {
-			builder.anim().looping();
+			builder.looping();
 		}
 		
 		// Keyframes
@@ -90,12 +89,14 @@ public class ParseGeckoAnims {
 					String field = assignment.getKey();
 					String assignmentValue = assignment.getValue();
 
-					// FIXME !! grab idle loopback keyframe
 					switch (field) {
 						case "phase" -> {
 							ActionPhase phase = ActionPhase.valueOf(assignmentValue);
 							AnimActionPhase animPhase = parseAnimPhase(phase, assignmentMap);
 							builder.addActionPhaseKeyframe(animPhase, time);
+						}
+						case "loopBack" -> {
+							builder.looping(Float.parseFloat(assignmentMap.get(field)));
 						}
 						default -> builder.addFieldValueKeyframe(field, assignmentValue, time);
 					}
@@ -105,11 +106,11 @@ public class ParseGeckoAnims {
 			}
 		}
 		
-		AnimWithExtras anim = builder.build();
+		RotpAnimDefinition anim = builder.build();
 		return anim;
 	}
 	
-	private static void parseKeyframes(AnimWithExtras.Builder anim, JsonObject boneTfJson, 
+	private static void parseKeyframes(RotpAnimDefinition.Builder anim, JsonObject boneTfJson, 
 			String targetName, AnimationChannel.Target target, String boneName) {
 		JsonElement element = boneTfJson.get(targetName);
 		if (element == null) return;
@@ -139,7 +140,7 @@ public class ParseGeckoAnims {
 		Keyframe[] vanillaKeyframes = Arrays.stream(keyframeQueries)
 				.map(KeyframeQuery::getKeyframe)
 				.toArray(size -> new Keyframe[keyframeQueries.length]);
-		anim.anim().addAnimation(boneName, new AnimationChannel(target, vanillaKeyframes));
+		anim.addAnimation(boneName, new AnimationChannel(target, vanillaKeyframes));
 		for (var query : keyframeQueries) {
 			anim.addExpressionQuery(query);
 		}
