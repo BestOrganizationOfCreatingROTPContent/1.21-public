@@ -2,6 +2,7 @@ package com.github.standobyte.jojo.mc.item;
 
 import java.util.List;
 
+import com.github.standobyte.jojo.client.ui.DebugFunctionsScreen;
 import com.github.standobyte.jojo.core.JojoRegistries;
 import com.github.standobyte.jojo.mechanics.StoryPart;
 
@@ -23,6 +24,9 @@ public class DebugItem extends Item {
 	@Override
 	public InteractionResultHolder<ItemStack> use(Level level, Player player, InteractionHand hand) {
         ItemStack item = player.getItemInHand(hand);
+        if (level.isClientSide()) {
+        	DebugFunctionsScreen.onDebugItemUsed();
+        }
 		return InteractionResultHolder.consume(item);
 	}
 
@@ -34,4 +38,33 @@ public class DebugItem extends Item {
 			});
 		});
 	}
+	
+	
+	public static String[] OPTIONS = new String[] {
+			"test1",
+			"test2",
+			"test3",
+			"test4",
+			"test5",
+			"test6",
+			"test7"
+	};
+	public static String[] getOptions() {
+		return OPTIONS;
+	}
+	
+	public static boolean onClientClick(String option) {
+		return switch (option) {
+			default -> {
+				yield false;
+			}
+		};
+	}
+	
+	public static void handleServer(String option, Player player) {
+		switch (option) {
+			default -> {}
+		};
+	}
+	
 }
