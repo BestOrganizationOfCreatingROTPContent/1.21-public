@@ -615,7 +615,8 @@ public class StandEntity extends LivingEntity implements SummonedStand, IEntityW
 	public void updateStrengthMultipliers() {
 		LivingEntity user = getUser();
 
-		rangeEfficiency = user != null ? StandStatFormulas.rangeStrengthFactor(getEffectiveRange(), getMaxRange(), distanceTo(user)) : 1;
+		rangeEfficiency = user != null ? StandStatFormulas.rangeStrengthFactor(getEffectiveRange(), getMaxRange(), 
+				MathUtil.getAABBDistance(this.getBoundingBox(), user.getBoundingBox())) : 1;
 
 		if (user != null && userPower != null) {
 			staminaCondition = StandUtil.standIgnoresStaminaDebuff(user) ? 1
