@@ -5,6 +5,7 @@ import com.github.standobyte.jojo.client.sound.ClientsideSoundsHelper;
 import com.github.standobyte.jojo.client.sound.sounds.EntityStoppableSoundInstance;
 import com.github.standobyte.jojo.init.ModDamageTypes;
 import com.github.standobyte.jojo.init.ModSoundEvents;
+import com.github.standobyte.jojo.mechanics.ServerBlockDestroyTracker;
 import com.github.standobyte.jojo.powersystem.ability.AbilityId;
 import com.github.standobyte.jojo.powersystem.ability.AbilityType;
 import com.github.standobyte.jojo.powersystem.entityaction.ActionPhase;
@@ -14,17 +15,22 @@ import com.github.standobyte.jojo.powersystem.standpower.StandPower;
 import com.github.standobyte.jojo.powersystem.standpower.entity.StandEntity;
 import com.github.standobyte.jojo.powersystem.standpower.entity.StandEntityAbility;
 import com.github.standobyte.jojo.powersystem.standpower.entity.StandOffsetFromUser;
+import com.github.standobyte.jojo.powersystem.standpower.entity.StandStatFormulas;
 import com.github.standobyte.jojo.util.damage.DamageUtil;
 import com.github.standobyte.jojo.util.damage.RipplesModifiedDamageSource;
 import com.github.standobyte.jojo.util.target.ActionTarget;
-import com.github.standobyte.jojo.util.target.ActionTarget.TargetType;
 import com.github.standobyte.jojo.util.target.AimingEntity;
 import com.github.standobyte.jojo.util.target.HitResultUtil;
 
+import net.minecraft.core.BlockPos;
+import net.minecraft.server.level.ServerLevel;
+import net.minecraft.sounds.SoundSource;
 import net.minecraft.world.damagesource.DamageSource;
 import net.minecraft.world.entity.EquipmentSlot;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.level.Level;
+import net.minecraft.world.level.block.SoundType;
+import net.minecraft.world.level.block.state.BlockState;
 
 public class StandEntityBarrageAbility extends StandEntityAbility {
 
@@ -81,12 +87,10 @@ public class StandEntityBarrageAbility extends StandEntityAbility {
 				}
 				else {
 					ActionTarget target = HitResultUtil.clipEntityLook(stand, entity -> StandEntityPunchAbility.canStandHit(stand, entity), 0);
-					if (target.getType() == TargetType.ENTITY && target.getEntity() instanceof LivingEntity targetLiving) {
-						var damageType = DamageUtil.type(level, ModDamageTypes.STAND_ATTACK);
-						DamageSource dmgSource = new DamageSource(damageType, performer);
-						((RipplesModifiedDamageSource) dmgSource).jojo_ripples$modifyKnockback(0, 0.1f);
-						float dmgAmount = 1;
-						standEntityAttack(stand, targetLiving, dmgSource, dmgAmount);
+					switch (target.getType()) {
+						case ENTITY -> dealDamage(target, level, stand);
+						case BLOCK -> mineBlock(target, level, stand);
+						default -> {}
 					}
 					StandPower standPower = StandPower.get(getPowerUser());
 					standPower.consumeStamina(4);
@@ -105,6 +109,43 @@ public class StandEntityBarrageAbility extends StandEntityAbility {
 		@Override
 		public boolean canBeCancelledInto(EntityActionType cancellingAbility) {
 			return cancellingAbility != this.ability;
+		}
+		
+		protected void dealDamage(ActionTarget entityTarget, Level level, StandEntity stand) {
+			if (entityTarget.getEntity() instanceof LivingEntity targetLiving) {
+				var damageType = DamageUtil.type(level, ModDamageTypes.STAND_ATTACK);
+				DamageSource dmgSource = new DamageSource(damageType, performer);
+				((RipplesModifiedDamageSource) dmgSource).jojo_ripples$modifyKnockback(0, 0.1f);
+				float dmgAmount = 1;
+				standEntityAttack(stand, targetLiving, dmgSource, dmgAmount);
+			}
+		}
+		
+		protected void mineBlock(ActionTarget blockTarget, Level level, StandEntity stand) {
+			BlockPos blockPos = blockTarget.getBlockPos();
+			BlockState blockState = level.getBlockState(blockPos);
+			
+			double standStrength = stand.getAttackDamage();
+			double standSpeed = stand.getAttackSpeed();
+			
+			float blockHardnessForStand = StandStatFormulas.getBlockHardness(standStrength, blockState, level, blockPos);
+			if (blockHardnessForStand >= 0) {
+				float standEfficiency = StandStatFormulas.getBarrageBlockMiningEfficiency(standStrength, standSpeed);
+				float destroyProgress = standEfficiency / blockHardnessForStand;
+				
+				boolean brokenBlock = ServerBlockDestroyTracker.addBlockDestroyProgress((ServerLevel) level, stand, blockPos, destroyProgress);
+				if (brokenBlock) {
+					boolean dropBlock = !isUserCreative();
+					level.destroyBlock(blockPos, dropBlock, stand);
+					return;
+				}
+			}
+			
+			if (curPhaseTick % 2 == 0) {
+				SoundType blockSounds = blockState.getSoundType(level, blockPos, stand);
+				level.playSound(null, blockPos, blockSounds.getHitSound(), SoundSource.BLOCKS, 
+						(blockSounds.getVolume() + 1.0F) / 8.0F, blockSounds.getPitch() * 0.5F);
+			}
 		}
 		
 	}

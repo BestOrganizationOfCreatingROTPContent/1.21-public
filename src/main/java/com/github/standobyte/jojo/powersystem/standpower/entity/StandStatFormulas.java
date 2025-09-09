@@ -1,7 +1,11 @@
 package com.github.standobyte.jojo.powersystem.standpower.entity;
 
+import javax.annotation.Nullable;
+
 import net.minecraft.core.BlockPos;
 import net.minecraft.util.Mth;
+import net.minecraft.world.item.Tier;
+import net.minecraft.world.item.Tiers;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.state.BlockState;
 
@@ -12,23 +16,79 @@ public class StandStatFormulas {
 		return damage;
 	}
 
+//	public static int getHeavyAttackWindup(double speed, float finisherMeter) {
+//		float f = (40 - (float) speed * 1.25F);
+//		float min = f / 3;
+//		float max = f * 2 / 3;
+//		return Mth.ceil(Mth.lerp(finisherMeter, max, min));
+//	}
+//
+//	public static int getHeavyAttackRecovery(double speed) {
+//		return getHeavyAttackRecovery(speed, 0);
+//	}
+//
+//	public static int getHeavyAttackRecovery(double speed, float punchFinisherMeter) {
+//		float max = (40 - (float) speed * 1.25F) * 0.75F;
+//		float min = max / 2;
+//		return Mth.floor(Mth.lerp(punchFinisherMeter, max, min));
+//	}
+
+
+
 	public static float getLightAttackDamage(double strength) {
 		float damage = Math.max((float) strength * 0.25F, 0.0001F);
 		return damage;
 	}
+
+//	private static final Random RANDOM = new Random();
+//	public static int getLightAttackWindup(double speed, float finisherMeter, float guardCounter, boolean firstPunch) {
+//		double val = (24 - speed) / 4;
+//		if (val <= 0) return 0;
+//
+//		if (val > 2) {
+//			val = Math.max(val * (1.0F - finisherMeter * 0.4F), 2);
+//		}
+//		val *= (1F - guardCounter);
+//
+//		if (firstPunch) {
+//			val /= 2;
+//		}
+//
+//		int ticks = Mth.floor(val);
+//		if (RANDOM.nextDouble() < val - ticks) ticks++;
+//		return ticks;
+//	}
+//
+//	public static int getLightAttackRecovery(double speed, float finisherMeter) {
+//		double val = (24 - speed) / 2;
+//		if (val <= 1) return 1;
+//		if (val > 4) {
+//			val = Math.max(val * (1.0F - finisherMeter * 0.4F), 4);
+//		}
+//		int ticks = Mth.ceil(val);
+//		return ticks;
+//	}
+
+
 
 	public static float getBarrageHitDamage(double strength) {
 		float damage = 0.04F + (float) strength * 0.01F;
 		return damage;
 	}
 
-	public static int getBarrageHitsPerSecond(double speed) {
-		return Math.max((int) (speed * 8.0 - 20.0), 0);
+	public static float getBarrageHitsPerSecond(double speed) {
+		return Math.max((float) speed * 8.0f - 20.0f, 0);
 	}
+
+//	public static int getBarrageRecovery(double speed) {
+//		return Mth.floor((40.0 - speed * 1.25) * 0.25);
+//	}
 
 	public static int getBarrageMaxDuration(double durability) {
 		return 20 + (int) (durability * 5.0);
 	}
+
+
 
 	public static float getPhysicalResistance(double durability, double strength, float blocked, float damageDealt) {
 		double x = (durability * 2 + strength * 1) / 3;
@@ -94,14 +154,6 @@ public class StandStatFormulas {
 		return Math.max((int) (30 - movementSpeed * 25), 2);
 	}
 
-	public static float getStandBreakBlockHardness(BlockState blockState, Level level, BlockPos blockPos) {
-		float hardness = blockState.getDestroySpeed(level, blockPos);
-		if (!blockState.requiresCorrectToolForDrops()) {
-			hardness *= 0.6f;
-		}
-		return hardness;
-	}
-
 	public static float rangeStrengthFactor(double rangeEffective, double rangeMax, double distance) {
 		if (distance <= rangeEffective || rangeEffective >= rangeMax) {
 			return 1F;
@@ -125,8 +177,74 @@ public class StandStatFormulas {
 		return inaccuracy * inaccuracyMultiplier;
 	}
 
-//	public static double projectileFireRateScaling(StandEntity standEntity, IStandPower standPower) {
-//		return standEntity.getAttackSpeed() / standPower.getType().getDefaultStats().getBaseAttackSpeed();
+//	public static double projectileFireRateScaling(StandEntity standEntity, StandPower standPower) {
+//		return standEntity.getAttackSpeed() / standPower.getPowerType().getStandStats().speed();
 //	}
-
+	
+	
+	private static BlockMiningTier[] miningTiers = new BlockMiningTier[] {
+			new BlockMiningTier.EmptyArms(), 
+			new BlockMiningTier.VanillaTierWrapper(Tiers.WOOD), 
+			new BlockMiningTier.VanillaTierWrapper(Tiers.STONE), 
+			new BlockMiningTier.VanillaTierWrapper(Tiers.IRON), 
+			new BlockMiningTier.VanillaTierWrapper(Tiers.DIAMOND), 
+			new BlockMiningTier.VanillaTierWrapper(Tiers.NETHERITE),
+			new BlockMiningTier.Any()
+	};
+	
+	@Nullable
+	public static BlockMiningTier getStandHarvestLevel(double strength) {
+		/* 2 - none
+		 * 5 - wood
+		 * 8 - stone
+		 * 11 - iron
+		 * 14 - diamond
+		 * 17 - netherite
+		 * 20 - netherite+
+		 */
+		int tier = (int) (strength - 2) / 3;
+		return miningTiers[Mth.clamp(tier, 0, miningTiers.length - 1)];
+	}
+	
+	public static interface BlockMiningTier {
+		boolean canMine(BlockState blockState);
+		
+		public static class EmptyArms implements BlockMiningTier {
+			@Override public boolean canMine(BlockState blockState) {
+				return !blockState.requiresCorrectToolForDrops();
+			}
+		}
+		
+		public static record VanillaTierWrapper(Tier tier) implements BlockMiningTier {
+			@Override public boolean canMine(BlockState blockState) {
+				return !(blockState.requiresCorrectToolForDrops() && blockState.is(tier.getIncorrectBlocksForDrops()));
+			}
+		}
+		
+		public static class Any implements BlockMiningTier {
+			@Override public boolean canMine(BlockState blockState) {
+				return true;
+			}
+		}
+	}
+	
+	public static float getBlockHardness(double strength, BlockState blockState, Level level, BlockPos blockPos) {
+		float hardness = blockState.getDestroySpeed(level, blockPos);
+		if (hardness < 0) {
+			return -1;
+		}
+		BlockMiningTier harvestTier = getStandHarvestLevel(strength);
+		boolean canMineOnTier = harvestTier.canMine(blockState);
+		
+		hardness *= canMineOnTier ? 30 : 100;
+		
+		return hardness;
+	}
+	
+	public static float getBarrageBlockMiningEfficiency(double strength, double speed) {
+		float multSpeed = getBarrageHitsPerSecond(speed) / 8;
+		float multStrength = strength > 17 ? (float) (strength - 16) * 2 : 1;
+		return multStrength * multSpeed;
+	}
+	
 }

@@ -5,6 +5,7 @@ import java.util.function.Supplier;
 import org.jetbrains.annotations.ApiStatus;
 
 import com.github.standobyte.jojo.core.JojoMod;
+import com.github.standobyte.jojo.mechanics.ServerBlockDestroyTracker;
 import com.github.standobyte.jojo.mechanics.clothes.EntityClothesInventory;
 import com.github.standobyte.jojo.mechanics.grab.LivingComponentGrab;
 import com.github.standobyte.jojo.powersystem.PowerClass;
@@ -14,6 +15,7 @@ import com.github.standobyte.jojo.powersystem.playerpower.PlayerPower;
 import com.github.standobyte.jojo.powersystem.standpower.StandPower;
 import com.github.standobyte.jojo.util.entitycomponent.DataEventListeners;
 
+import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.entity.LivingEntity;
 import net.neoforged.neoforge.attachment.AttachmentType;
 import net.neoforged.neoforge.registries.DeferredRegister;
@@ -22,6 +24,8 @@ import net.neoforged.neoforge.registries.NeoForgeRegistries;
 public final class ModDataAttachmentTypes {
 	public static final DeferredRegister<AttachmentType<?>> ATTACHMENT_TYPES = DeferredRegister.create(NeoForgeRegistries.ATTACHMENT_TYPES, JojoMod.MOD_ID);
 	
+	
+	// Entity
 
 	@ApiStatus.Internal
 	public static final Supplier<AttachmentType<DataEventListeners>> DATA_EVENT_HELPER = ATTACHMENT_TYPES.register("event_listener", 
@@ -45,5 +49,11 @@ public final class ModDataAttachmentTypes {
 	
 	public static final Supplier<AttachmentType<LivingComponentGrab>> LIVING_GRAB = ATTACHMENT_TYPES.register("living_grab", 
 			() -> AttachmentType.builder(entity -> entity instanceof LivingEntity living ? new LivingComponentGrab(living) : null).build());
+	
+	
+	// Level
+	
+	public static final Supplier<AttachmentType<ServerBlockDestroyTracker>> BLOCK_DESTROY = ATTACHMENT_TYPES.register("block_destroy",
+			() -> AttachmentType.builder(obj -> obj instanceof ServerLevel level ? new ServerBlockDestroyTracker(level) : null).build());
 	
 }

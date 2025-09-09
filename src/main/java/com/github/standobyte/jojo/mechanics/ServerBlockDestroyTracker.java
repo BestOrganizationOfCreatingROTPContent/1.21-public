@@ -1,0 +1,141 @@
+package com.github.standobyte.jojo.mechanics;
+
+import java.util.HashMap;
+import java.util.Map;
+import java.util.concurrent.atomic.AtomicInteger;
+
+import javax.annotation.Nullable;
+
+import org.jetbrains.annotations.ApiStatus;
+
+import com.github.standobyte.jojo.init.ModDataAttachmentTypes;
+
+import net.minecraft.core.BlockPos;
+import net.minecraft.network.protocol.game.ClientboundBlockDestructionPacket;
+import net.minecraft.server.level.ServerLevel;
+import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.util.Mth;
+import net.minecraft.world.entity.Entity;
+import net.minecraft.world.level.Level;
+import net.minecraft.world.level.block.state.BlockState;
+import net.neoforged.bus.api.SubscribeEvent;
+import net.neoforged.fml.common.EventBusSubscriber;
+import net.neoforged.neoforge.event.tick.LevelTickEvent;
+
+@EventBusSubscriber
+public class ServerBlockDestroyTracker {
+	public final ServerLevel level;
+	protected static AtomicInteger counter = new AtomicInteger();
+	protected Map<BlockPos, BlockDestroy> blockDestroy = new HashMap<>();
+
+	public ServerBlockDestroyTracker(ServerLevel level) {
+		this.level = level;
+	}
+
+	public static boolean addBlockDestroyProgress(ServerLevel level, @Nullable Entity entity, 
+			BlockPos blockPos, float progress/*, int ticksBeforeRevert*/) {
+		ServerBlockDestroyTracker tracker = level.getData(ModDataAttachmentTypes.BLOCK_DESTROY.get());
+		if (tracker == null) return false;
+		
+		BlockDestroy blockProgress = tracker.blockDestroy.computeIfAbsent(blockPos, 
+				pos -> new BlockDestroy(counter.getAndIncrement() % 16383 /* 2 bytes of varint */));
+//		blockProgress.ticksBeforeRevert = ticksBeforeRevert;
+		boolean remove = blockProgress.setAndSyncProgress(blockProgress.progress + progress, blockPos, level);
+		if (remove) {
+			tracker.blockDestroy.remove(blockPos);
+		}
+		return blockProgress.progress >= 1;
+	}
+
+	public void tickPost() {
+		var iter = blockDestroy.entrySet().iterator();
+		while (iter.hasNext()) {
+			var blockEntry = iter.next();
+			BlockPos blockPos = blockEntry.getKey();
+			BlockDestroy progress = blockEntry.getValue();
+			BlockState blockState = level.getBlockState(blockPos);
+			if (blockState.isAir()) {
+				progress.progress = 0;
+				sync(blockPos, progress, level);
+				iter.remove();
+			}
+//			else {
+//				if (progress.ticksBeforeRevert > 0) {
+//					--progress.ticksBeforeRevert;
+//				}
+//				else {
+//					boolean remove = progress.setAndSyncProgress(progress.progress - 0.01f, blockPos, level);
+//					if (remove) {
+//						iter.remove();
+//					}
+//				}
+//			}
+
+		}
+	}
+
+	@ApiStatus.Internal
+	public static class BlockDestroy {
+		public final int id;
+		public float progress;
+//		public int ticksBeforeRevert;
+
+		protected BlockDestroy(int id) {
+			this.id = id;
+		}
+		
+		public boolean setAndSyncProgress(float value, BlockPos blockPos, ServerLevel level) {
+			int prevProgress = this.getVanillaProgressValue();
+			this.progress = value;
+			int newProgress = this.getVanillaProgressValue();
+			if (newProgress != prevProgress) {
+				sync(blockPos, this, level);
+			}
+			return this.progress <= 0 || this.progress >= 1;
+		}
+
+		public int getVanillaProgressValue() {
+			return progress <= 0 ? -1 : Mth.clamp((int) (progress * 10f), 0, 10);
+		}
+	}
+	
+	protected static void sync(BlockPos blockPos, BlockDestroy progress, ServerLevel level) {
+		for (ServerPlayer serverplayer : level.getServer().getPlayerList().getPlayers()) {
+			if (serverplayer != null && serverplayer.level() == level) {
+				double d0 = (double)blockPos.getX() - serverplayer.getX();
+				double d1 = (double)blockPos.getY() - serverplayer.getY();
+				double d2 = (double)blockPos.getZ() - serverplayer.getZ();
+				if (d0 * d0 + d1 * d1 + d2 * d2 < 1024.0) {
+					serverplayer.connection.send(new ClientboundBlockDestructionPacket(
+							progress.id, blockPos, progress.getVanillaProgressValue()));
+				}
+			}
+		}
+	}
+	
+	
+	@SubscribeEvent
+	public static void onLevelTick(LevelTickEvent.Post event) {
+		Level level = event.getLevel();
+		if (!level.isClientSide()) {
+			var attachmentType = ModDataAttachmentTypes.BLOCK_DESTROY.get();
+			if (level.hasData(attachmentType)) {
+				ServerBlockDestroyTracker tracker = level.getData(attachmentType);
+				tracker.tickPost();
+			}
+		}
+	}
+	
+	public static float getBlockDestroyProgress(ServerLevel level, BlockPos blockPos) {
+		var attachmentType = ModDataAttachmentTypes.BLOCK_DESTROY.get();
+		if (level.hasData(attachmentType)) {
+			ServerBlockDestroyTracker tracker = level.getData(attachmentType);
+			BlockDestroy progress = tracker.blockDestroy.get(blockPos);
+			if (progress != null) {
+				return progress.progress;
+			}
+		}
+		return 0;
+	}
+
+}
