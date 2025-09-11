@@ -31,14 +31,15 @@ public interface EntityActionType {
 	/**
 	 * A helper method to create the action to be set to the performer when they user uses an ability (e.g. a Hamon attack).
 	 * @param level The method is called both on server and on the player user's client.
-	 * @param user The player/mob user.
+	 * @param powerUser The player/mob the ability belongs to.
+	 * @param performer The entity actually performing the action, can be the user entity itself or the user's Stand entity.
 	 * @param extraInput The extra input needed for some abilities to work, defined by overriding {@link Ability#writeExtraInput(FriendlyByteBuf, LivingEntity)}
 	 * @return The instance of the action, to be able to stop it when the player stops holding the button.
 	 */
-	default EntityActionInstance initActionOnAbilityUse(Level level, LivingEntity user, @Nullable FriendlyByteBuf extraInput) {
+	default EntityActionInstance initActionOnAbilityUse(Level level, LivingEntity powerUser, LivingEntity performer, @Nullable FriendlyByteBuf extraInput) {
 		EntityActionInstance action = createActionObj();
-		initActionFromConfig(action, level, user);
-		action.start();
+		initActionFromConfig(action, level, powerUser, performer);
+		action.setStartingPhase();
 		if (extraInput != null) {
 			action.extraClientInput(extraInput);
 		}
@@ -46,7 +47,8 @@ public interface EntityActionType {
 	}
 
 	@ApiStatus.OverrideOnly
-	default void initActionFromConfig(EntityActionInstance action, Level level, LivingEntity user) {
+	default void initActionFromConfig(EntityActionInstance action, Level level, 
+			LivingEntity powerUser, LivingEntity performer) {
 		for (ActionPhase phase : ActionPhase.values()) {
 			action.phasesLength.put(phase, phase == ActionPhase.PERFORM ? 1f : 0f);
 		}

@@ -34,6 +34,7 @@ import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.level.Level;
 
 public class StandEntityPunchAbility extends StandEntityAbility {
+	@Deprecated
 	public List<String> punchNames;
 
 	public StandEntityPunchAbility(AbilityType<?> abilityType, AbilityId abilityId) {
@@ -44,6 +45,14 @@ public class StandEntityPunchAbility extends StandEntityAbility {
 		punchNames = new ArrayList<>();
 		punchNames.add(this.abilityId.nameInMoveset());
 		noFinisherBarDecay = true;
+	}
+	
+	@Override
+	public void initActionFromConfig(EntityActionInstance action, Level level, LivingEntity standUser, LivingEntity standEntity) {
+		super.initActionFromConfig(action, level, standUser, standEntity);
+		if (!level.isClientSide()) {
+			
+		}
 	}
 	
 	@Override

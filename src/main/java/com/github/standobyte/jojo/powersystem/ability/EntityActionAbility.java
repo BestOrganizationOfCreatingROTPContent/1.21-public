@@ -1,5 +1,8 @@
 package com.github.standobyte.jojo.powersystem.ability;
 
+import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
+
 import org.jetbrains.annotations.ApiStatus;
 
 import com.github.standobyte.jojo.core.molang.MolangValue;
@@ -29,8 +32,9 @@ public class EntityActionAbility extends Ability implements EntityActionType {
 			InputMethod inputMethod, float clickHoldResolveTime) {
 		if (level.isClientSide()) return null;
 
-		EntityActionInstance action = initActionOnAbilityUse(level, user, extraClientInput);
-		HeldInput actionOrQueue = LivingComponentAction.getComponent(user)
+		LivingEntity performer = user;
+		EntityActionInstance action = initActionOnAbilityUse(level, user, performer, extraClientInput);
+		HeldInput actionOrQueue = LivingComponentAction.getComponent(performer)
 				.bufferOrSetAction(action, user, inputMethod, clickHoldResolveTime);
 		return actionOrQueue;
 	}
@@ -42,7 +46,8 @@ public class EntityActionAbility extends Ability implements EntityActionType {
 	 * or are context-dependent.
 	 */
 	@ApiStatus.OverrideOnly
-	public void initActionFromConfig(EntityActionInstance action, Level level, LivingEntity user) {
+	public void initActionFromConfig(EntityActionInstance action, Level level, 
+			LivingEntity powerUser, LivingEntity performer) {
 		var map = action.phasesLength;
 		if (!map.containsKey(ActionPhase.BUTTON_CHARGE))	map.put(ActionPhase.BUTTON_CHARGE,	buttonChargePhase.getAsFloat());
 		if (!map.containsKey(ActionPhase.WINDUP))			map.put(ActionPhase.WINDUP,			windupPhase.getAsFloat());
@@ -63,6 +68,13 @@ public class EntityActionAbility extends Ability implements EntityActionType {
 			case RECOVERY -> recoveryPhase = new MolangValue.Literal(length);
 		}
 	}
+	
+	@Nullable protected ActionPhase buttonHoldingPhase;
+	public void setButtonHoldPhase(@Nonnull ActionPhase buttonHoldingPhase) {
+		this.buttonHoldingPhase = buttonHoldingPhase;
+		setDefaultPhaseLength(buttonHoldingPhase, 999999);
+	}
+	
 
 	@Override
 	public ActionAnimIdentifier getEntityAnim(EntityActionInstance action) {

@@ -1,7 +1,5 @@
 package com.github.standobyte.jojo.powersystem.entityaction;
 
-import java.util.EnumMap;
-import java.util.Map;
 import java.util.Optional;
 
 import javax.annotation.Nonnull;
@@ -18,8 +16,9 @@ import com.github.standobyte.jojo.util.mc.EntityResolver;
 import com.github.standobyte.jojo.util.network.NetworkUtil;
 import com.github.standobyte.jojo.util.target.ActionTarget;
 import com.github.standobyte.jojo.util.target.AimingEntity;
-import com.github.standobyte.v1_21_4_stuff.missingmethods._Util;
 
+import it.unimi.dsi.fastutil.objects.Object2FloatArrayMap;
+import it.unimi.dsi.fastutil.objects.Object2FloatMap;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.network.RegistryFriendlyByteBuf;
 import net.minecraft.server.level.ServerLevel;
@@ -41,7 +40,7 @@ public class EntityActionInstance implements HeldInput {
 	/** Is used in network code, to make sure server and client are on the same page when sending changes to the action's phases from server */
 	@ApiStatus.Internal public int id;
 	@Nonnull public final EntityActionType ability;
-	@ApiStatus.Internal public Map<ActionPhase, Float> phasesLength;
+	@ApiStatus.Internal public Object2FloatMap<ActionPhase> phasesLength = new Object2FloatArrayMap<>();
 	
 	@Nonnull protected ActionPhase phase;
 	protected int curPhaseTick;
@@ -59,19 +58,18 @@ public class EntityActionInstance implements HeldInput {
 	
 	public EntityActionInstance(EntityActionType ability) {
 		this.ability = ability;
-		this.phasesLength = new EnumMap<>(ActionPhase.class);
 	}
 	
 	/**
 	 * After the phase lengths have been initialized properly, this sets up the action's starting phase
 	 */
-	public void start() {
+	public void setStartingPhase() {
 		for (ActionPhase phase : ActionPhase.values()) {
 			if (!phasesLength.containsKey(phase)) {
 				phasesLength.put(phase, 0f);
 			}
 		}
-		startPhase(ActionPhase.values()[0]);
+		setPhaseStart(ActionPhase.values()[0]);
 	}
 	
 	public void extraClientInput(FriendlyByteBuf input) {}
@@ -187,7 +185,7 @@ public class EntityActionInstance implements HeldInput {
 	public final float calcFullTicks(ActionPhase targetPhase, float targetPhaseTick) {
 		float sum = 0;
 		for (ActionPhase phase : ActionPhase.values()) {
-			float length = phasesLength.get(phase);
+			float length = phasesLength.getFloat(phase);
 			if (phase == targetPhase) {
 				length = Math.min(length, targetPhaseTick);
 			}
@@ -260,7 +258,7 @@ public class EntityActionInstance implements HeldInput {
 
 	@ApiStatus.NonExtendable
 	public void forceStop() {
-		startPhase(null);
+		setPhaseStart(null);
 	}
 
 	@ApiStatus.NonExtendable
@@ -290,7 +288,7 @@ public class EntityActionInstance implements HeldInput {
 		this.phasePartialTick = partialTick;
 	}
 	
-	public void startPhase(ActionPhase phase) {
+	public void setPhaseStart(ActionPhase phase) {
 		setPhase(phase, 0);
 	}
 
@@ -308,7 +306,7 @@ public class EntityActionInstance implements HeldInput {
 		}
 		this.phase = phase;
 		this.curPhaseTick = tick;
-		this.curPhaseLength = phase != null ? phasesLength.get(phase) : -1;
+		this.curPhaseLength = phase != null ? phasesLength.getFloat(phase) : -1;
 		
 		this.phasePartialTick = Mth.clamp(prevPhaseTick - prevTickLength, 0, 1);
 		
@@ -366,7 +364,7 @@ public class EntityActionInstance implements HeldInput {
 			
 			int ordinal = phase.ordinal() + 1;
 			ActionPhase nextPhase = ordinal < ActionPhase.values().length ? ActionPhase.values()[ordinal] : null;
-			startPhase(nextPhase);
+			setPhaseStart(nextPhase);
 		}
 	}
 
@@ -386,7 +384,9 @@ public class EntityActionInstance implements HeldInput {
 			action.ability.encodeAbility(action.getPowerUser(), buffer);
 
 			buffer.writeVarInt(action.id);
-			action.phasesLength.values().forEach(buffer::writeFloat);
+			for (ActionPhase phase : ActionPhase.values()) {
+				buffer.writeFloat(action.phasesLength.getFloat(phase));
+			}
 			buffer.writeVarInt(action.phase.ordinal());
 			buffer.writeVarInt(action.curPhaseTick);
 			buffer.writeFloat(action.phasePartialTick);
@@ -403,7 +403,9 @@ public class EntityActionInstance implements HeldInput {
 			EntityActionInstance action = EntityActionType.decodeAbilityAction(level, buffer);
 			if (action != null) {
 				action.id = buffer.readVarInt();
-				action.phasesLength = _Util.makeEnumMap(ActionPhase.class, __ -> buffer.readFloat());
+				for (ActionPhase phase : ActionPhase.values()) {
+					action.phasesLength.put(phase, buffer.readFloat());
+				}
 				action.phase = ActionPhase.values()[buffer.readVarInt()];
 				action.curPhaseTick = buffer.readVarInt();
 				action.phasePartialTick = buffer.readFloat();

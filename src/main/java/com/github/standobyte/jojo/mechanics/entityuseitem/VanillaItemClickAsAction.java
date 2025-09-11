@@ -37,7 +37,7 @@ public class VanillaItemClickAsAction extends SpecialEntityActionType {
 
 		public ItemClickInstance() {
 			this(ModSpecialActions.RMB_CLICK_ITEM.get());
-			this.start();
+			this.setStartingPhase();
 		}
 
 		protected ItemClickInstance(EntityActionType ability) {

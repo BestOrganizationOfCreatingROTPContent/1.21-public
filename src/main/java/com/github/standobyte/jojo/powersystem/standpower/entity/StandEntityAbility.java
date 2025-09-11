@@ -37,8 +37,8 @@ public class StandEntityAbility extends EntityActionAbility {
 			StandPower power, StandEntity standEntity, InputMethod inputMethod, 
 			FriendlyByteBuf extraClientInput, float skipWindupTime) {
 		if (level.isClientSide()) return null;
-		
-		EntityActionInstance action = ability.initActionOnAbilityUse(level, user, extraClientInput);
+
+		EntityActionInstance action = ability.initActionOnAbilityUse(level, user, standEntity, extraClientInput);
 		HeldInput actionOrQueue = standEntity.getStandActionComponent().bufferOrSetAction(action, user, inputMethod, skipWindupTime);
 		return actionOrQueue;
 	}

@@ -41,7 +41,7 @@ public class VanillaItemUseAsAction extends SpecialEntityActionType {
 
 		public ItemUsingInstance() {
 			this(ModSpecialActions.RMB_USING_ITEM.get());
-			this.start();
+			this.setStartingPhase();
 		}
 
 		protected ItemUsingInstance(EntityActionType ability) {

@@ -45,7 +45,7 @@ public class CrazyDRepairItemAbility extends StandEntityAbility {
 
 	public CrazyDRepairItemAbility(AbilityType<?> abilityType, AbilityId abilityId) {
 		super(abilityType, abilityId);
-		setDefaultPhaseLength(ActionPhase.PERFORM, 999999);
+		setButtonHoldPhase(ActionPhase.PERFORM);
 	}
 
 	@Override
@@ -126,7 +126,7 @@ public class CrazyDRepairItemAbility extends StandEntityAbility {
 		@Override
 		public void onButtonStopHold() {
 			if (getPhase() != ActionPhase.RECOVERY) {
-				startPhase(ActionPhase.RECOVERY);
+				setPhaseStart(ActionPhase.RECOVERY);
 				syncPhaseChanges();
 			}
 		}

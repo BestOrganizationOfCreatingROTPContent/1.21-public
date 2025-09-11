@@ -32,7 +32,7 @@ public class StandCallbackWhenShooting {
 			// if the stand is throwing multiple, for example, snowballs because the player is holding RMB, 
 			// reset the 10 tick timer (recovery phase of VanillaItemClickAsAction.ItemClickInstance)
 			else if (curAction.ability == ModSpecialActions.RMB_CLICK_ITEM.get()) {
-				curAction.start();
+				curAction.setStartingPhase();
 				curAction.syncPhaseChanges();
 			}
 			

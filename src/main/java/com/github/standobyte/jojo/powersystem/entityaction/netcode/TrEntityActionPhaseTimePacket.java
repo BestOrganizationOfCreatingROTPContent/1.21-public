@@ -1,8 +1,5 @@
 package com.github.standobyte.jojo.powersystem.entityaction.netcode;
 
-import java.util.EnumMap;
-import java.util.Map;
-
 import com.github.standobyte.jojo.client.ClientProxy;
 import com.github.standobyte.jojo.core.PacketsRegister;
 import com.github.standobyte.jojo.powersystem.entityaction.ActionPhase;
@@ -10,6 +7,8 @@ import com.github.standobyte.jojo.powersystem.entityaction.EntityActionInstance;
 import com.github.standobyte.jojo.powersystem.entityaction.LivingComponentAction;
 import com.github.standobyte.jojo.util.network.NetworkUtil;
 
+import it.unimi.dsi.fastutil.objects.Object2FloatArrayMap;
+import it.unimi.dsi.fastutil.objects.Object2FloatMap;
 import net.minecraft.network.RegistryFriendlyByteBuf;
 import net.minecraft.network.codec.ByteBufCodecs;
 import net.minecraft.network.codec.StreamCodec;
@@ -22,7 +21,7 @@ import net.neoforged.neoforge.network.handling.IPayloadContext;
 
 public record TrEntityActionPhaseTimePacket(int performerId, 
 		int actionId, 
-		Map<ActionPhase, Float> phasesLength, 
+		Object2FloatMap<ActionPhase> phasesLength, 
 		ActionPhase phase, 
 		int curPhaseTick) implements CustomPacketPayload {
 	
@@ -49,7 +48,7 @@ public record TrEntityActionPhaseTimePacket(int performerId,
 				ByteBufCodecs.INT, TrEntityActionPhaseTimePacket::performerId,
 				ByteBufCodecs.VAR_INT, TrEntityActionPhaseTimePacket::actionId,
 				ByteBufCodecs.map(
-						size -> new EnumMap<>(ActionPhase.class), 
+						size -> new Object2FloatArrayMap<>(), 
 						NeoForgeStreamCodecs.enumCodec(ActionPhase.class), 
 						ByteBufCodecs.FLOAT), TrEntityActionPhaseTimePacket::phasesLength,
 				NeoForgeStreamCodecs.enumCodec(ActionPhase.class).apply(NetworkUtil::nullableCodec), TrEntityActionPhaseTimePacket::phase,

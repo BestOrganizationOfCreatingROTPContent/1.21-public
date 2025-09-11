@@ -7,7 +7,6 @@ import com.github.standobyte.jojo.mechanics.entityuseitem.StandCallbackWhenShoot
 import com.github.standobyte.jojo.powersystem.Power;
 import com.github.standobyte.jojo.powersystem.ability.AbilityId;
 import com.github.standobyte.jojo.powersystem.ability.AbilityType;
-import com.github.standobyte.jojo.powersystem.ability.EntityActionAbility;
 import com.github.standobyte.jojo.powersystem.entityaction.ActionPhase;
 import com.github.standobyte.jojo.powersystem.entityaction.EntityActionInstance;
 import com.github.standobyte.jojo.powersystem.entityaction.type.EntityActionType;
@@ -28,7 +27,7 @@ public class StandBearingShotAbility extends StandEntityAbility {
 
 	public StandBearingShotAbility(AbilityType<?> abilityType, AbilityId abilityId) {
 		super(abilityType, abilityId);
-		setDefaultPhaseLength(ActionPhase.PERFORM, 999999);
+		setButtonHoldPhase(ActionPhase.PERFORM);
 		setDefaultPhaseLength(ActionPhase.RECOVERY, 10);
 	}
 	
@@ -61,13 +60,12 @@ public class StandBearingShotAbility extends StandEntityAbility {
 
 		public StandBearingShot(EntityActionType ability) {
 			super(ability);
-			((EntityActionAbility) ability).setDefaultPhaseLength(ActionPhase.RECOVERY, 10);
 		}
 
 		@Override
 		public void onButtonStopHold() {
 			if (getPhase() != ActionPhase.RECOVERY) {
-				startPhase(ActionPhase.RECOVERY);
+				setPhaseStart(ActionPhase.RECOVERY);
 				syncPhaseChanges();
 				
 				StandEntity stand = performer instanceof StandEntity s ? s : null;

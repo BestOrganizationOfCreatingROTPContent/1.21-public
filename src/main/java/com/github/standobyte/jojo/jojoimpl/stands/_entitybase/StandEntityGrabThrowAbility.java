@@ -27,7 +27,7 @@ public class StandEntityGrabThrowAbility extends StandEntityAbility {
 	public StandEntityGrabThrowAbility(AbilityType<?> abilityType, AbilityId abilityId) {
 		super(abilityType, abilityId);
 		setDefaultPhaseLength(ActionPhase.BUTTON_CHARGE, 16);
-		setDefaultPhaseLength(ActionPhase.WINDUP, 999999);
+		setButtonHoldPhase(ActionPhase.WINDUP);
 		setDefaultPhaseLength(ActionPhase.PERFORM, 6);
 		setDefaultPhaseLength(ActionPhase.RECOVERY, 12);
 	}
@@ -57,7 +57,7 @@ public class StandEntityGrabThrowAbility extends StandEntityAbility {
 					syncPhaseChanges();
 				}
 				case WINDUP -> {
-					startPhase(ActionPhase.PERFORM);
+					setPhaseStart(ActionPhase.PERFORM);
 					syncPhaseChanges();
 				}
 				default -> {}

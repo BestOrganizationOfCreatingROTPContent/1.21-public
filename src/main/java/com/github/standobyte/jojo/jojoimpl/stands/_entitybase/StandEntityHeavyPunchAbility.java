@@ -63,7 +63,7 @@ public class StandEntityHeavyPunchAbility extends StandEntityAbility {
 			if (level.isClientSide() && ClientGlobals.canHearStands && !(playedSwingSound && playedStandCrySound) && performer instanceof StandEntity stand) {
 				if (!playedSwingSound) {
 					// how many ticks are left before the end of the 'perform' phase (when actionPerformEnd() is called)
-					int ticksDiff = (int) (calcFullTicks(ActionPhase.PERFORM, phasesLength.get(ActionPhase.PERFORM)) - getFullTicksPassed());
+					int ticksDiff = (int) (calcFullTicks(ActionPhase.PERFORM, phasesLength.getFloat(ActionPhase.PERFORM)) - getFullTicksPassed());
 					if (ticksDiff <= 5) {
 						level.playLocalSound(stand.getX(), stand.getEyeY(), stand.getZ(), ClientsideSoundsHelper.withStandSkin(
 								ModSoundEvents.STAND_PUNCH_HEAVY_SWING.get(), stand.getStandId(), stand.getStandSkin()), 

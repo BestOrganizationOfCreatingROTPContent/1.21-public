@@ -41,6 +41,14 @@ public class StandEntityBarrageAbility extends StandEntityAbility {
 		noFinisherBarDecay = true;
 	}
 	
+	@Override
+	public void initActionFromConfig(EntityActionInstance action, Level level, LivingEntity standUser, LivingEntity standEntity) {
+		super.initActionFromConfig(action, level, standUser, standEntity);
+		if (!level.isClientSide() && standEntity instanceof StandEntity stand) {
+			action.phasesLength.put(ActionPhase.PERFORM, StandStatFormulas.getBarrageMaxDuration(stand.getDurability()));
+		}
+	}
+	
 	
 	@Override
 	public EntityActionInstance createActionObj() {
@@ -101,7 +109,7 @@ public class StandEntityBarrageAbility extends StandEntityAbility {
 		@Override
 		public void onButtonStopHold() {
 			if (getPhase() != ActionPhase.RECOVERY) {
-				startPhase(ActionPhase.RECOVERY);
+				setPhaseStart(ActionPhase.RECOVERY);
 				syncPhaseChanges();
 			}
 		}

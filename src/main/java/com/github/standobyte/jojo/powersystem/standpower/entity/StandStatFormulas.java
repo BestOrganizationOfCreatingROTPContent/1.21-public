@@ -80,12 +80,8 @@ public class StandStatFormulas {
 		return Math.max((float) speed * 8.0f - 20.0f, 0);
 	}
 
-//	public static int getBarrageRecovery(double speed) {
-//		return Mth.floor((40.0 - speed * 1.25) * 0.25);
-//	}
-
-	public static int getBarrageMaxDuration(double durability) {
-		return 20 + (int) (durability * 5.0);
+	public static float getBarrageMaxDuration(double durability) {
+		return 20 + ((float) durability * 5.0f);
 	}
 
 

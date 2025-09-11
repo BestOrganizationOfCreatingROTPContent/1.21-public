@@ -32,7 +32,7 @@ public class HamonSunlightYellowOverdriveAbility extends EntityActionAbility {
 		public void onButtonStopHold() {
 			if (getPhase() == ActionPhase.WINDUP) {
 				if (getPhaseTick() >= 10) {
-					startPhase(ActionPhase.PERFORM);
+					setPhaseStart(ActionPhase.PERFORM);
 					syncPhaseChanges();
 				}
 				else {
