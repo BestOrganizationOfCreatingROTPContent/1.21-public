@@ -10,11 +10,11 @@ import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
 import com.github.standobyte.jojo.client.entityanim.IHumanoidAnimModel;
-import com.github.standobyte.jojo.client.entityanim.RipplesPlayerRenderState;
-import com.github.standobyte.jojo.client.entityanim.RipplesPlayerRenderState.RipplesRenderStateExtensionMixin;
 import com.github.standobyte.jojo.client.entityanim.playerbend.IPlayerBendModel;
 import com.github.standobyte.jojo.client.entityanim.playerbend.IPlayerLimbBend;
 import com.github.standobyte.jojo.client.entityanim.playerbend.PlayerModelBends;
+import com.github.standobyte.jojo.client.entityrender.RipplesPlayerRenderState;
+import com.github.standobyte.jojo.client.entityrender.RipplesPlayerRenderState.RipplesRenderStateExtensionMixin;
 import com.github.standobyte.v1_21_4_stuff.missingmethods.Model_1_21_2plus;
 import com.github.standobyte.v1_21_4_stuff.renderstate.HumanoidRenderState;
 import com.google.common.collect.ImmutableList;

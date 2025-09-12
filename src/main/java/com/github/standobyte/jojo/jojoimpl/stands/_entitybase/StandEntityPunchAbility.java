@@ -20,15 +20,16 @@ import com.github.standobyte.jojo.powersystem.standpower.StandPower;
 import com.github.standobyte.jojo.powersystem.standpower.entity.StandEntity;
 import com.github.standobyte.jojo.powersystem.standpower.entity.StandEntityAbility;
 import com.github.standobyte.jojo.powersystem.standpower.entity.StandOffsetFromUser;
+import com.github.standobyte.jojo.powersystem.standpower.entity.StandStatFormulas;
 import com.github.standobyte.jojo.util.damage.DamageUtil;
 import com.github.standobyte.jojo.util.target.ActionTarget;
 import com.github.standobyte.jojo.util.target.ActionTarget.TargetType;
 import com.github.standobyte.jojo.util.target.AimingEntity;
 import com.github.standobyte.jojo.util.target.HitResultUtil;
+import com.github.standobyte.v1_21_4_stuff.missingmethods._EntitySelector;
 
 import net.minecraft.world.damagesource.DamageSource;
 import net.minecraft.world.entity.Entity;
-import com.github.standobyte.v1_21_4_stuff.missingmethods._EntitySelector;
 import net.minecraft.world.entity.EquipmentSlot;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.level.Level;
@@ -45,14 +46,6 @@ public class StandEntityPunchAbility extends StandEntityAbility {
 		punchNames = new ArrayList<>();
 		punchNames.add(this.abilityId.nameInMoveset());
 		noFinisherBarDecay = true;
-	}
-	
-	@Override
-	public void initActionFromConfig(EntityActionInstance action, Level level, LivingEntity standUser, LivingEntity standEntity) {
-		super.initActionFromConfig(action, level, standUser, standEntity);
-		if (!level.isClientSide()) {
-			
-		}
 	}
 	
 	@Override
@@ -94,6 +87,14 @@ public class StandEntityPunchAbility extends StandEntityAbility {
 	@Override
 	public EntityActionInstance createActionObj() {
 		return new StandEntityPunch(this);
+	}
+	
+	@Override
+	public void initActionFromConfig(EntityActionInstance action, Level level, LivingEntity standUser, LivingEntity standEntity) {
+		super.initActionFromConfig(action, level, standUser, standEntity);
+		if (!level.isClientSide()) {
+			
+		}
 	}
 	
 	public static class StandEntityPunch extends EntityActionInstance {
@@ -147,7 +148,7 @@ public class StandEntityPunchAbility extends StandEntityAbility {
 					if (target.getType() == TargetType.ENTITY && target.getEntity() instanceof LivingEntity targetLiving) {
 						var damageType = DamageUtil.type(level, ModDamageTypes.STAND_ATTACK);
 						DamageSource dmgSource = new DamageSource(damageType, performer);
-						float dmgAmount = 4.625f;
+						float dmgAmount = StandStatFormulas.getLightAttackDamage(stand.getAttackDamage());
 						if (standEntityAttack(stand, targetLiving, dmgSource, dmgAmount)) {
 							stand.addFinisherMeter(0.2f);
 						}

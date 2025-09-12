@@ -13,6 +13,7 @@ import com.github.standobyte.jojo.powersystem.standpower.StandPower;
 import com.github.standobyte.jojo.powersystem.standpower.entity.StandEntity;
 import com.github.standobyte.jojo.powersystem.standpower.entity.StandEntityAbility;
 import com.github.standobyte.jojo.powersystem.standpower.entity.StandOffsetFromUser;
+import com.github.standobyte.jojo.powersystem.standpower.entity.StandStatFormulas;
 import com.github.standobyte.jojo.util.damage.DamageUtil;
 import com.github.standobyte.jojo.util.damage.RipplesModifiedDamageSource;
 import com.github.standobyte.jojo.util.target.ActionTarget;
@@ -29,8 +30,8 @@ public class StandEntityHeavyPunchAbility extends StandEntityAbility {
 
 	public StandEntityHeavyPunchAbility(AbilityType<?> abilityType, AbilityId abilityId) {
 		super(abilityType, abilityId);
-		setDefaultPhaseLength(ActionPhase.WINDUP, 10);
-		setDefaultPhaseLength(ActionPhase.PERFORM, 6);
+		setDefaultPhaseLength(ActionPhase.WINDUP, 16);
+		setDefaultPhaseLength(ActionPhase.PERFORM, 5);
 		setDefaultPhaseLength(ActionPhase.RECOVERY, 16);
 		noFinisherBarDecay = true;
 	}
@@ -41,7 +42,17 @@ public class StandEntityHeavyPunchAbility extends StandEntityAbility {
 		return new StandEntityHeavyPunch(this);
 	}
 	
+	@Override
+	public void initActionFromConfig(EntityActionInstance action, Level level, 
+			LivingEntity powerUser, LivingEntity performer) {
+		super.initActionFromConfig(action, level, powerUser, performer);
+		if (!level.isClientSide() && performer instanceof StandEntity stand) {
+			action.phasesLength.put(ActionPhase.WINDUP, StandStatFormulas.getHeavyAttackWindup(stand.getAttackSpeed(), stand.getFinisherMeter()));
+		}
+	}
+	
 	public static class StandEntityHeavyPunch extends EntityActionInstance {
+		protected float finisherValue;
 		protected boolean playedSwingSound;
 		protected boolean playedStandCrySound;
 
@@ -54,6 +65,9 @@ public class StandEntityHeavyPunchAbility extends StandEntityAbility {
 			setStandOffset(0, 2, StandOffsetFromUser.Rotations.HEAD_XY, false);
 			keepStandAimedAtTarget();
 			aimAs = AimingEntity.STAND;
+			if (performer instanceof StandEntity stand) {
+				finisherValue = stand.getFinisherMeter();
+			}
 			tossStandHeldItems(EquipmentSlot.OFFHAND, EquipmentSlot.MAINHAND);
 		}
 		
@@ -62,9 +76,9 @@ public class StandEntityHeavyPunchAbility extends StandEntityAbility {
 			Level level = performer.level();
 			if (level.isClientSide() && ClientGlobals.canHearStands && !(playedSwingSound && playedStandCrySound) && performer instanceof StandEntity stand) {
 				if (!playedSwingSound) {
-					// how many ticks are left before the end of the 'perform' phase (when actionPerformEnd() is called)
-					int ticksDiff = (int) (calcFullTicks(ActionPhase.PERFORM, phasesLength.getFloat(ActionPhase.PERFORM)) - getFullTicksPassed());
-					if (ticksDiff <= 5) {
+					// how many ticks are left before the start of the 'perform' phase (when actionPerformStart() is called)
+					int ticksDiff = (int) (calcFullTicks(ActionPhase.PERFORM, 0) - getFullTicksPassed());
+					if (ticksDiff <= 4) {
 						level.playLocalSound(stand.getX(), stand.getEyeY(), stand.getZ(), ClientsideSoundsHelper.withStandSkin(
 								ModSoundEvents.STAND_PUNCH_HEAVY_SWING.get(), stand.getStandId(), stand.getStandSkin()), 
 								stand.getSoundSource(), 1, 1, false);
@@ -91,11 +105,12 @@ public class StandEntityHeavyPunchAbility extends StandEntityAbility {
 						var damageType = DamageUtil.type(level, ModDamageTypes.STAND_ATTACK);
 						DamageSource dmgSource = new DamageSource(damageType, performer);
 						((RipplesModifiedDamageSource) dmgSource).jojo_ripples$modifyKnockback(1f, 1);
-						float dmgAmount = 13.875f;
+						float dmgAmount = StandStatFormulas.getHeavyAttackDamage(stand.getAttackDamage());
 						standEntityAttack(stand, targetLiving, dmgSource, dmgAmount);
 					}
 					StandPower standPower = StandPower.get(getPowerUser());
 					standPower.consumeStamina(10);
+					stand.consumeFinisherMeter(1.0001f);
 				}
 				if (target.getType() == TargetType.ENTITY) {
 					standRotationTarget = target;

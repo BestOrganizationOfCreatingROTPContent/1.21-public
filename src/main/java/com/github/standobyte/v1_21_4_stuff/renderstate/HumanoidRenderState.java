@@ -1,7 +1,7 @@
 package com.github.standobyte.v1_21_4_stuff.renderstate;
 
-import com.github.standobyte.jojo.client.entityanim.RipplesPlayerRenderState;
-import com.github.standobyte.jojo.client.entityanim.RipplesPlayerRenderState.RipplesRenderStateExtensionMixin;
+import com.github.standobyte.jojo.client.entityrender.RipplesPlayerRenderState;
+import com.github.standobyte.jojo.client.entityrender.RipplesPlayerRenderState.RipplesRenderStateExtensionMixin;
 
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.entity.EquipmentSlot;

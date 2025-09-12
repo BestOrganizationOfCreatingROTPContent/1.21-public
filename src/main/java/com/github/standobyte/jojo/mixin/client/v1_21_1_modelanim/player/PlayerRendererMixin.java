@@ -5,8 +5,8 @@ import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
-import com.github.standobyte.jojo.client.entityanim.RipplesPlayerRenderState;
-import com.github.standobyte.jojo.client.entityanim.RipplesPlayerRenderState.RipplesRenderStateExtensionMixin;
+import com.github.standobyte.jojo.client.entityrender.RipplesPlayerRenderState;
+import com.github.standobyte.jojo.client.entityrender.RipplesPlayerRenderState.RipplesRenderStateExtensionMixin;
 import com.github.standobyte.v1_21_4_stuff.renderstate.HumanoidRenderState;
 import com.github.standobyte.v1_21_4_stuff.renderstate.RenderStateCrutches;
 import com.mojang.blaze3d.vertex.PoseStack;

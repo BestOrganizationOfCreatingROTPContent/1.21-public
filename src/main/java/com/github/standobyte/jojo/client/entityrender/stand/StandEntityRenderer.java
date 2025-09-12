@@ -104,7 +104,7 @@ public class StandEntityRenderer<
 		else {
 			entity.nonIdlePoseTimeStamp = entity.tickCount;
 		}
-		EntityActionRenderState.setAnim(renderState.action, renderState, 
+		EntityActionRenderState.setAnim(renderState.action, renderState, entity, 
 				getStandAnim(renderState), entity.clientStuff.barrageSwings);
 		
 		renderState.tint = -1;
@@ -120,7 +120,7 @@ public class StandEntityRenderer<
 		renderState.standId = standId;
 		renderState.action.animId = StandEntityRenderer.IDLE_ANIM;
 		renderState.action.time = ticks;
-		EntityActionRenderState.setAnim(renderState.action, renderState, this.getStandAnim(renderState), null);
+		EntityActionRenderState.setAnim(renderState.action, renderState, null, this.getStandAnim(renderState), null);
 		renderState.tint = -1;
 	}
 	

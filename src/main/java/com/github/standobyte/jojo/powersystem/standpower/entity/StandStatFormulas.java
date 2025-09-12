@@ -15,23 +15,14 @@ public class StandStatFormulas {
 		float damage = Math.max((float) strength, 1F) * 0.75f;
 		return damage;
 	}
-
-//	public static int getHeavyAttackWindup(double speed, float finisherMeter) {
-//		float f = (40 - (float) speed * 1.25F);
-//		float min = f / 3;
-//		float max = f * 2 / 3;
-//		return Mth.ceil(Mth.lerp(finisherMeter, max, min));
-//	}
-//
-//	public static int getHeavyAttackRecovery(double speed) {
-//		return getHeavyAttackRecovery(speed, 0);
-//	}
-//
-//	public static int getHeavyAttackRecovery(double speed, float punchFinisherMeter) {
-//		float max = (40 - (float) speed * 1.25F) * 0.75F;
-//		float min = max / 2;
-//		return Mth.floor(Mth.lerp(punchFinisherMeter, max, min));
-//	}
+	
+	public static float getHeavyAttackWindup(double speed, float finisherMeter) {
+		float f = (30 - (float) speed * 0.75f);
+		float min = f / 3;
+		float max = f * 2 / 3;
+		finisherMeter = Math.min(finisherMeter / 2, 1);
+		return Mth.lerp(finisherMeter, max, min);
+	}
 
 
 
@@ -40,9 +31,8 @@ public class StandStatFormulas {
 		return damage;
 	}
 
-//	private static final Random RANDOM = new Random();
-//	public static int getLightAttackWindup(double speed, float finisherMeter, float guardCounter, boolean firstPunch) {
-//		double val = (24 - speed) / 4;
+//	public static float getLightAttackWindup(double speed, float finisherMeter, float guardCounter, boolean firstPunch) {
+//		float val = (24 - (float) speed) / 4;
 //		if (val <= 0) return 0;
 //
 //		if (val > 2) {
@@ -54,19 +44,7 @@ public class StandStatFormulas {
 //			val /= 2;
 //		}
 //
-//		int ticks = Mth.floor(val);
-//		if (RANDOM.nextDouble() < val - ticks) ticks++;
-//		return ticks;
-//	}
-//
-//	public static int getLightAttackRecovery(double speed, float finisherMeter) {
-//		double val = (24 - speed) / 2;
-//		if (val <= 1) return 1;
-//		if (val > 4) {
-//			val = Math.max(val * (1.0F - finisherMeter * 0.4F), 4);
-//		}
-//		int ticks = Mth.ceil(val);
-//		return ticks;
+//		return val;
 //	}
 
 
@@ -116,18 +94,20 @@ public class StandStatFormulas {
 	public static float getStaminaMultiplier(double durability) {
 		return 1 + (float) durability / 16;
 	}
+	
 
-	public static float getBlockStaminaCost(float incomingDamage) {
+	public static float getGuardStaminaCost(float incomingDamage) {
 		return (float) Math.pow(incomingDamage, 2) / 2;
 	}
 
-	public static int getBlockingBreakTicks(double durability) {
+	public static int getGuardBreakTicks(double durability) {
 		return Math.max(240 - (int) (durability * 10), 80);
 	}
 
 	public static float getMaxBarrageParryTickDamage(double durability) {
 		return Math.max(((float) durability - 4F) * 0.125F, 0);
 	}
+	
 
 	public static float getLeapStrength(double strength) {
 		return (float) Math.min(strength, 40) / 5F;
@@ -138,10 +118,6 @@ public class StandStatFormulas {
 		return pokaHz;
 	}
 
-	public static double getMovementSpeed(double speed) {
-		return 0.1 + speed * 0.05;
-	}
-
 	public static int leapCooldown(double movementSpeed) {
 		return dashCooldown(movementSpeed) * 2 + 5;
 	}
@@ -149,6 +125,11 @@ public class StandStatFormulas {
 	public static int dashCooldown(double movementSpeed) {
 		return Math.max((int) (30 - movementSpeed * 25), 2);
 	}
+
+	public static double getMovementSpeed(double speed) {
+		return 0.1 + speed * 0.05;
+	}
+	
 
 	public static float rangeStrengthFactor(double rangeEffective, double rangeMax, double distance) {
 		if (distance <= rangeEffective || rangeEffective >= rangeMax) {

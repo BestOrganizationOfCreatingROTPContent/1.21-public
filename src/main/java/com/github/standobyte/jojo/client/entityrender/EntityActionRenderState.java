@@ -4,16 +4,17 @@ import javax.annotation.Nullable;
 
 import com.github.standobyte.jojo.client.entityanim.RotpAnimDefinition;
 import com.github.standobyte.jojo.client.entityanim.RotpAnimDefinition.TimelineKeys;
-import com.github.standobyte.jojo.client.entityanim.RipplesPlayerRenderState;
-import com.github.standobyte.jojo.client.entityanim.RipplesPlayerRenderState.RipplesRenderStateExtensionMixin;
 import com.github.standobyte.jojo.client.entityanim.barrage.BarrageSwings;
+import com.github.standobyte.jojo.client.entityrender.RipplesPlayerRenderState.RipplesRenderStateExtensionMixin;
 import com.github.standobyte.jojo.client.entityrender.stand.StandEntityRenderState;
 import com.github.standobyte.jojo.powersystem.entityaction.ActionAnimIdentifier;
 import com.github.standobyte.jojo.powersystem.entityaction.ActionPhase;
 import com.github.standobyte.jojo.powersystem.entityaction.EntityActionInstance;
+import com.github.standobyte.jojo.powersystem.standpower.entity.StandEntity;
+import com.github.standobyte.jojo.powersystem.standpower.entity.StandStatFormulas;
+import com.github.standobyte.v1_21_4_stuff.renderstate.LivingEntityRenderState;
 
 import net.minecraft.client.Minecraft;
-import com.github.standobyte.v1_21_4_stuff.renderstate.LivingEntityRenderState;
 import net.minecraft.world.entity.LivingEntity;
 
 public class EntityActionRenderState {
@@ -23,6 +24,9 @@ public class EntityActionRenderState {
 	public float phaseTime = -1;
 	public float phaseCompletion = -1;
 	public boolean disableCrouch = false;
+	
+	public float barragePrecision = 12;
+	public float barrageSwingsPerSecond = 80;
 
 	public RotpAnimDefinition anim;
 	public float timeSeconds;
@@ -52,7 +56,7 @@ public class EntityActionRenderState {
 		renderState.barrageSwings = null;
 	}
 	
-	public static void setAnim(EntityActionRenderState renderState, LivingEntityRenderState vanillaRenderState, 
+	public static void setAnim(EntityActionRenderState renderState, LivingEntityRenderState vanillaRenderState, @Nullable LivingEntity entity, 
 			RotpAnimDefinition anim, @Nullable BarrageSwings barrageSwings) {
 		renderState.anim = anim;
 		renderState.timeSeconds = 0;
@@ -62,6 +66,11 @@ public class EntityActionRenderState {
 			if (barrageSwings != null) {
 				String barrageType = anim.instructionTimelines.getStringTimelineVal(TimelineKeys.BARRAGE, renderState.timeSeconds);
 				barrageSwings.frameStandBarrage(Minecraft.getInstance(), anim, barrageType, renderState.timeSeconds, vanillaRenderState);
+				
+				if (entity instanceof StandEntity stand) {
+					renderState.barrageSwingsPerSecond = StandStatFormulas.getBarrageHitsPerSecond(stand.getAttackSpeed());
+					renderState.barragePrecision = (float) stand.getPrecision();
+				}
 			}
 		}
 	}

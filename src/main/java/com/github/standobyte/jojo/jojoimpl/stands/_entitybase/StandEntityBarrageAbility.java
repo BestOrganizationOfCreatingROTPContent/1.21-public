@@ -41,21 +41,23 @@ public class StandEntityBarrageAbility extends StandEntityAbility {
 		noFinisherBarDecay = true;
 	}
 	
-	@Override
-	public void initActionFromConfig(EntityActionInstance action, Level level, LivingEntity standUser, LivingEntity standEntity) {
-		super.initActionFromConfig(action, level, standUser, standEntity);
-		if (!level.isClientSide() && standEntity instanceof StandEntity stand) {
-			action.phasesLength.put(ActionPhase.PERFORM, StandStatFormulas.getBarrageMaxDuration(stand.getDurability()));
-		}
-	}
-	
 	
 	@Override
 	public EntityActionInstance createActionObj() {
 		return new StandEntityBarrage(this);
 	}
 	
+	@Override
+	public void initActionFromConfig(EntityActionInstance action, Level level, 
+			LivingEntity powerUser, LivingEntity performer) {
+		super.initActionFromConfig(action, level, powerUser, performer);
+		if (!level.isClientSide() && performer instanceof StandEntity stand) {
+			action.phasesLength.put(ActionPhase.PERFORM, StandStatFormulas.getBarrageMaxDuration(stand.getDurability()));
+		}
+	}
+	
 	public static class StandEntityBarrage extends EntityActionInstance {
+		public int hitsThisTick;
 
 		public StandEntityBarrage(EntityActionType ability) {
 			super(ability);
@@ -85,6 +87,11 @@ public class StandEntityBarrageAbility extends StandEntityAbility {
 		@Override
 		public void actionTick() {
 			if (getPhase() == ActionPhase.PERFORM && performer instanceof StandEntity stand) {
+				float hitsPerSec = StandStatFormulas.getBarrageHitsPerSecond(stand.getAttackSpeed());
+				float hitsPerTick = hitsPerSec / 20;
+				int curTick = (curPhaseTick - 1) % 20 + 1; // 1~20
+				hitsThisTick = (int) (hitsPerTick * curTick) - (int) (hitsPerTick * (curTick - 1));
+				
 				Level level = performer.level();
 				if (level.isClientSide()) {
 					if (ClientGlobals.canHearStands) {
@@ -124,8 +131,10 @@ public class StandEntityBarrageAbility extends StandEntityAbility {
 				var damageType = DamageUtil.type(level, ModDamageTypes.STAND_ATTACK);
 				DamageSource dmgSource = new DamageSource(damageType, performer);
 				((RipplesModifiedDamageSource) dmgSource).jojo_ripples$modifyKnockback(0, 0.1f);
-				float dmgAmount = 1;
+				float dmgAmount = StandStatFormulas.getBarrageHitDamage(stand.getAttackDamage()) * hitsThisTick;
 				standEntityAttack(stand, targetLiving, dmgSource, dmgAmount);
+				
+				stand.addFinisherMeter(0.005f * hitsThisTick);
 			}
 		}
 		

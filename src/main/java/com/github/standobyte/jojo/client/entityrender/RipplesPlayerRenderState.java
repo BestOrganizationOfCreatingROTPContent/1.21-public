@@ -1,8 +1,10 @@
-package com.github.standobyte.jojo.client.entityanim;
+package com.github.standobyte.jojo.client.entityrender;
 
 import javax.annotation.Nullable;
 
-import com.github.standobyte.jojo.client.entityrender.EntityActionRenderState;
+import com.github.standobyte.jojo.client.entityanim.AnimationLoader;
+import com.github.standobyte.jojo.client.entityanim.AnimationSet;
+import com.github.standobyte.jojo.client.entityanim.RotpAnimDefinition;
 import com.github.standobyte.jojo.powersystem.entityaction.EntityActionInstance;
 import com.github.standobyte.jojo.powersystem.entityaction.LivingComponentAction;
 import com.github.standobyte.v1_21_4_stuff.renderstate.HumanoidRenderState;
@@ -25,7 +27,7 @@ public class RipplesPlayerRenderState {
 		if (action != null) {
 			modRenderState.animSet = action.ability.getEntityAnimSet(entity);
 		}
-		EntityActionRenderState.setAnim(modRenderState.entityAction, vanillaRenderState, 
+		EntityActionRenderState.setAnim(modRenderState.entityAction, vanillaRenderState, entity, 
 				getPlayerAnim(modRenderState), null);
 		
 		if (modRenderState.entityAction.disableCrouch) vanillaRenderState.isCrouching = false;

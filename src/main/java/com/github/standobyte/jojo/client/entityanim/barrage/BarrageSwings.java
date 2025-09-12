@@ -39,9 +39,6 @@ public class BarrageSwings {
 	@ApiStatus.Internal public boolean isBarragingAnim = false;
 	@ApiStatus.Internal public String barrageType;
 	@ApiStatus.Internal public AddBarrageSwing addSwingFunction;
-	
-	@ApiStatus.Internal float swingsPerSecond;
-	@ApiStatus.Internal float standPrecision;
 
 
 	public void frameStandBarrage(Minecraft mc, RotpAnimDefinition barrageAnim, String barrageTypeName, float curAnimTimeSecs, LivingEntityRenderState renderState) {
@@ -49,7 +46,7 @@ public class BarrageSwings {
 		frameUpdateBarrageType(barrageTypeName);
 		if (isBarragingAnim) {
 			// TODO (barrage anim) stat formulas
-			frameSetValuesAndAddNewSwings(barrageAnim, renderState, curAnimTimeSecs, 100, 12);
+			frameSetValuesAndAddNewSwings(barrageAnim, renderState, curAnimTimeSecs);
 		}
 	}
 
@@ -81,10 +78,7 @@ public class BarrageSwings {
 		}
 	}
 
-	public void frameSetValuesAndAddNewSwings(RotpAnimDefinition barrageAnim, LivingEntityRenderState curRenderState, float curAnimTimeSecs, 
-			float swingsPerSecond, float standPrecision) {
-		this.swingsPerSecond = swingsPerSecond;
-		this.standPrecision = standPrecision;
+	public void frameSetValuesAndAddNewSwings(RotpAnimDefinition barrageAnim, LivingEntityRenderState curRenderState, float curAnimTimeSecs) {
 		addSwingFunction.addSwings(this, barrageAnim, curRenderState, curAnimTimeSecs);
 	}
 
@@ -139,7 +133,7 @@ public class BarrageSwings {
 		}
 
 		public boolean removeSwing() {
-			return ticks >= ticksMax * 0.75F;
+			return ticks >= ticksMax;// * 0.75F;
 		}
 
 		public abstract void poseAndRender(EntityModel<?> model, 
@@ -178,11 +172,14 @@ public class BarrageSwings {
 			float loopLen = 4;
 			float loop = curRenderState.ageInTicks / loopLen;
 			if (swings.isBarragingAnim && loop > lastLoop) {
-				float hits = swings.swingsPerSecond / 20F * Math.min(loop - lastLoop, 1) * loopLen;
+				EntityActionRenderState stats = EntityActionRenderState.getFrom(curRenderState);
+				
+				float hits = stats.barrageSwingsPerSecond / 20F * Math.min(loop - lastLoop, 1) * loopLen;
 				int swingsToAdd = MathUtil.fractionRandomInc(hits);
 				if (swingsToAdd > 0) {
 					HumanoidArm side = HumanoidArm.RIGHT;
-					double maxOffset = 1 - swings.standPrecision / 40;
+					stats.barragePrecision = 8;
+					double maxOffset = 1 - stats.barragePrecision / 64;
 					if (RANDOM.nextBoolean()) side = side.getOpposite();
 
 					for (int i = 0; i < swingsToAdd; i++) {
@@ -221,7 +218,8 @@ public class BarrageSwings {
 			ModelPart arm = getNoXRotArm(model, side);
 			arm.zRot = arm.zRot + zMult * zRot;
 			// XXX (barrage anim) some layers are not translucent (armor, clothes, mannequin model, etc.)
-			color = RGBUtil.scaleAlpha(color, 0.75f);
+			float alpha = 0.75f * zMult;
+			color = RGBUtil.scaleAlpha(color, alpha);
 			((Model_1_21_2plus) model).jojo_ripples$root().render(poseStack, buffer, packedLight, packedOverlay, color);
 			poseStack.popPose();
 		}
