@@ -241,6 +241,11 @@ public class EntityActionInstance implements HeldInput {
 	}
 
 	@ApiStatus.NonExtendable
+	public float getCurPhaseLength() {
+		return curPhaseLength;
+	}
+
+	@ApiStatus.NonExtendable
 	public ActionPhase getPhase() {
 		return phase;
 	}

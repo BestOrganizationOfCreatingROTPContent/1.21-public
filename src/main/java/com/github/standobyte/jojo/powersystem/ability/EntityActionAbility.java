@@ -5,6 +5,7 @@ import javax.annotation.Nullable;
 
 import org.jetbrains.annotations.ApiStatus;
 
+import com.github.standobyte.jojo.client.ui.powerhud.WindupIndicator;
 import com.github.standobyte.jojo.core.molang.MolangValue;
 import com.github.standobyte.jojo.powersystem.ability.controls.InputMethod;
 import com.github.standobyte.jojo.powersystem.entityaction.ActionAnimIdentifier;
@@ -79,6 +80,39 @@ public class EntityActionAbility extends Ability implements EntityActionType {
 	@Override
 	public ActionAnimIdentifier getEntityAnim(EntityActionInstance action) {
 		return anim;
+	}
+	
+	
+	protected LivingEntity getPerformer(LivingEntity user) {
+		return user;
+	}
+	
+	@Override
+	public WindupIndicator cl_windupIndicator(LivingEntity clientPlayer, WindupIndicator indicator) {
+		indicator.maxValue = buttonChargePhase.getAsFloat() > 0 ? 1 : 0;
+		indicator.value = -1;
+		
+		if (indicator.maxValue > 0) {
+			LivingEntity performer = getPerformer(clientPlayer);
+			if (performer != null) {
+				EntityActionInstance curAction = LivingComponentAction.getCurEntityAction(performer);
+				if (curAction != null && curAction.ability == this) {
+					indicator.maxValue = curAction.phasesLength.getFloat(ActionPhase.BUTTON_CHARGE);
+					if (curAction.getPhase() == ActionPhase.BUTTON_CHARGE) {
+						float buttonChargeLength = curAction.getCurPhaseLength();
+						if (buttonChargeLength > 0) {
+							indicator.value = curAction.getPhaseTick();
+						}
+					}
+					else {
+						indicator.value = indicator.maxValue;
+					}
+				}
+			}
+			return indicator;
+		}
+		
+		return super.cl_windupIndicator(clientPlayer, indicator);
 	}
 
 }

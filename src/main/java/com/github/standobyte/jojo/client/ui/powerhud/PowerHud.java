@@ -138,8 +138,10 @@ public class PowerHud {
 							/ (double)mc.getWindow().getScreenHeight());
 				}
 			}
+			WindupAtCrosshair.setRender(null);
 			setupRender(isContainer ? TriState.FALSE : TriState.DEFAULT, mouseX, mouseY);
 			renderAbilitiesHUD(guiGraphics, deltaTracker);
+			WindupAtCrosshair.renderCrosshair(guiGraphics, deltaTracker, mc);
 		}
 
 		public void renderAbilitiesHUD(GuiGraphics guiGraphics, DeltaTracker deltaTracker) {
@@ -383,6 +385,7 @@ public class PowerHud {
 			float y = getY();// + 0.5f;
 			float width = getWidth();// - 1;
 			float height = getHeight();// - 1;
+			// FIXME finisher bar is off-center
 			int i = 0;
 			ResourceLocation bar;
 			int color = ARGB.white(0.5f);

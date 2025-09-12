@@ -9,6 +9,7 @@ import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 
 import com.github.standobyte.jojo.client.ClientPowerCache;
+import com.github.standobyte.jojo.client.ClientUtil;
 import com.github.standobyte.jojo.client.input.AbilityInputState;
 import com.github.standobyte.jojo.client.input.InputHandler;
 import com.github.standobyte.jojo.client.input.controlscheme.AllControlSchemes;
@@ -34,6 +35,7 @@ import com.github.standobyte.jojo.powersystem.ability.condition.AvailableAbiliti
 import com.github.standobyte.jojo.powersystem.ability.condition.AvailableAbilities.AbilityConditionCheck;
 import com.github.standobyte.jojo.powersystem.ability.controls.InputMethod;
 import com.github.standobyte.jojo.powersystem.standpower.StandPower;
+import com.github.standobyte.v1_21_4_stuff.missingmethods.ARGB;
 import com.mojang.blaze3d.platform.InputConstants;
 import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.datafixers.util.Pair;
@@ -50,6 +52,7 @@ import net.minecraft.client.renderer.texture.TextureAtlasSprite;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.util.FastColor.ARGB32;
+import net.minecraft.util.Mth;
 import net.neoforged.neoforge.client.settings.KeyModifier;
 import net.neoforged.neoforge.common.util.TriState;
 
@@ -76,6 +79,11 @@ public class ControlsHudElement extends HudElement {
 			new GuiIcon(HOTBARS_TEX,   0,  50, 390, 50, 512, 512),
 			new GuiIcon(HOTBARS_TEX,   0,   0, 410, 50, 512, 512)
 	};
+	@Nullable
+	public GuiIcon getHotbarSprite(int elementCount) {
+		return elementCount > 0 ? HOTBARS[Math.min(elementCount, HOTBARS.length) - 1] : null;
+	}
+	
 	public static final GuiIcon HOTBAR_SELECTION = new GuiIcon(HOTBARS_TEX, 450, 10, 52, 52, 512, 512);
 
 	public ControlsHudElement(String name, int x0, int y0, int width, int height) { super(name, x0, y0, width, height); }
@@ -104,6 +112,7 @@ public class ControlsHudElement extends HudElement {
 		Power<?> power = input.getCurPower();
 		Font font = mc.font;
 		ClientControlScheme controlScheme = AllControlSchemes.getForPowerType(power.getPowerType());
+		float partialTick = ClientUtil.partialTick(deltaTracker, false);
 
 		int color = 0xFFFFFFFF;
 		@Nullable StandSkin standSkin = null;
@@ -116,7 +125,7 @@ public class ControlsHudElement extends HudElement {
 
 		this.prepare(hud, controlScheme, font, input.getCurModifier(), power, standSkin);
 		// TODO (controls HUD) update size
-		this.renderControls(this.getX(), this.getY(), guiGraphics, deltaTracker, font, color);
+		this.renderControls(this.getX(), this.getY(), mc, guiGraphics, deltaTracker, font, color, partialTick);
 	}
 	
 	@Override
@@ -394,7 +403,8 @@ public class ControlsHudElement extends HudElement {
 	}
 
 
-	public void renderControls(int x, int y, GuiGraphics guiGraphics, DeltaTracker deltaTracker, Font font, int textColor) {
+	public void renderControls(int x, int y, Minecraft mc, GuiGraphics guiGraphics, 
+			DeltaTracker deltaTracker, Font font, int textColor, float partialTick) {
 		RenderSystem.enableBlend();
 		RenderSystem.defaultBlendFunc();
 
@@ -417,9 +427,7 @@ public class ControlsHudElement extends HudElement {
 
 				for (Map.Entry<InputMethod, AbilityBindUI> abilitySprite : bind.abilities.entrySet()) {
 					AbilityBindUI ability = abilitySprite.getValue();
-					BlitFloat.blit(guiGraphics.pose(), Minecraft.getInstance(), ability.sprite, 
-							x + 3, y + 3, 16, 16, 10, 
-							abilityColor(BlitFloat.NO_TINT, ability.ability));
+					renderAbility(guiGraphics, x, y, ability, mc, partialTick);
 					x += SLOT_WIDTH;
 				}
 
@@ -449,9 +457,7 @@ public class ControlsHudElement extends HudElement {
 
 				for (HotbarSlotUI slot : hotbar.slots) {
 					if (slot.sprite != null) {
-						BlitFloat.blit(guiGraphics.pose(), Minecraft.getInstance(), slot.sprite.sprite, 
-								x + 3, y + 3, 16, 16, 10, 
-								abilityColor(BlitFloat.NO_TINT, slot.sprite.ability));
+						renderAbility(guiGraphics, x, y, slot.sprite, mc, partialTick);
 					}
 					if (slot == hotbar.selected) {
 						HOTBAR_SELECTION.render(guiGraphics.pose(), x - 15, y - 15);
@@ -474,10 +480,47 @@ public class ControlsHudElement extends HudElement {
 		RenderSystem.disableBlend();
 	}
 
-	@Nullable
-	public GuiIcon getHotbarSprite(int elementCount) {
-		return elementCount > 0 ? HOTBARS[Math.min(elementCount, HOTBARS.length) - 1] : null;
+	static final WindupIndicator windupIndicator = new WindupIndicator();
+	public static void renderAbility(GuiGraphics guiGraphics, float x, float y, AbilityBindUI abilityUi, Minecraft mc, float partialTick) {
+		boolean hotbarsEnabled = true;
+		BlitFloat.blit(guiGraphics.pose(), Minecraft.getInstance(), abilityUi.sprite, 
+				x + 3, y + 3, 16, 16, 0, 
+				abilityColor(BlitFloat.NO_TINT, abilityUi.ability));
+		
+		if (mc.player != null) {
+			WindupIndicator windup = abilityUi.ability.ability.cl_windupIndicator(mc.player, windupIndicator);
+			if (windup != null) {
+				float alpha = !hotbarsEnabled ? 0.25F : 1.0F;
+				renderWindupIndicator(guiGraphics, x + 13, y + 13, windup.value, windup.maxValue, mc, alpha, partialTick);
+				WindupAtCrosshair.setRender(windup);
+			}
+		}
 	}
+	
+	public static void renderWindupIndicator(GuiGraphics guiGraphics, float x, float y, float value, float maxValue, Minecraft mc, float alpha, float partialTick) {
+		if (maxValue > 0) {
+			float ratio;
+			if (value < 0) {
+				ratio = 0;
+				alpha *= 0.75F;
+			}
+			else {
+				ratio = Mth.clamp(((float) value + partialTick) / (float) maxValue, 0, 1);
+			}
+			int color = ARGB.white(alpha);
+			
+			BlitFloat.blitRadial(guiGraphics.pose(), mc, WINDUP_EMPTY.file, 
+					x, y, WINDUP_EMPTY.width, WINDUP_EMPTY.height, 100, 
+					ratio * (float) Math.PI * 2, 1 - ratio, color);
+			
+			BlitFloat.blitRadial(guiGraphics.pose(), mc, WINDUP_FULL.file, 
+					x, y, WINDUP_FULL.width, WINDUP_FULL.height, 0, 
+					0, ratio, color);
+		}
+	}
+	
+	public static final GuiIcon WINDUP_EMPTY = new GuiIcon(JojoMod.resLoc("textures/gui/windup_empty.png"), 13, 13);
+	public static final GuiIcon WINDUP_FULL = new GuiIcon(JojoMod.resLoc("textures/gui/windup_full.png"), 13, 13);
 
 
 

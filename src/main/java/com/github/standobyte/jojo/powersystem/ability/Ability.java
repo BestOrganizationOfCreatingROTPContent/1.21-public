@@ -8,6 +8,7 @@ import org.jetbrains.annotations.ApiStatus;
 import com.github.standobyte.jojo.client.ClientProxy;
 import com.github.standobyte.jojo.client.input.AbilityInputState;
 import com.github.standobyte.jojo.client.input.InputHandler;
+import com.github.standobyte.jojo.client.ui.powerhud.WindupIndicator;
 import com.github.standobyte.jojo.powersystem.Power;
 import com.github.standobyte.jojo.powersystem.ability.condition.AvailableAbilities;
 import com.github.standobyte.jojo.powersystem.ability.condition.AvailableAbilities.AbilityConditionCheck;
@@ -110,6 +111,11 @@ public class Ability {
 			state.setFlag(AbilityInputState.VISIBLE_TRANSLUCENT, true);
 		}
 		return state;
+	}
+	
+	@Nullable
+	public WindupIndicator cl_windupIndicator(LivingEntity clientPlayer, WindupIndicator indicator) {
+		return null;
 	}
 	
 	// 

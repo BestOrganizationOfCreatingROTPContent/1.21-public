@@ -8,6 +8,7 @@ import com.github.standobyte.jojo.powersystem.ability.controls.InputMethod;
 import com.github.standobyte.jojo.powersystem.entityaction.EntityActionInstance;
 import com.github.standobyte.jojo.powersystem.entityaction.HeldInput;
 import com.github.standobyte.jojo.powersystem.standpower.StandPower;
+import com.github.standobyte.jojo.util.StandUtil;
 
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.world.entity.LivingEntity;
@@ -41,6 +42,12 @@ public class StandEntityAbility extends EntityActionAbility {
 		EntityActionInstance action = ability.initActionOnAbilityUse(level, user, standEntity, extraClientInput);
 		HeldInput actionOrQueue = standEntity.getStandActionComponent().bufferOrSetAction(action, user, inputMethod, skipWindupTime);
 		return actionOrQueue;
+	}
+	
+	
+	@Override
+	protected LivingEntity getPerformer(LivingEntity user) {
+		return StandUtil.getSummonedStand(user);
 	}
 
 }
