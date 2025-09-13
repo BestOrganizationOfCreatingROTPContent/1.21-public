@@ -208,10 +208,10 @@
   "jojo_ripples.ability.grab": "Захват",
   "jojo_ripples.ability.grab_release": "Отпустить",
   
-  "jojo_ripples.skill.grabbed_throw": "Бросок",
-  "jojo_ripples.skill.grabbed_throw.desc": "#################################",
-  "jojo_ripples.skill.grabbed_throw.controls": "#################################",
-  "jojo_ripples.ability.grabbed_throw": "Бросок",
+  "jojo_ripples.skill.grab_throw": "Бросок",
+  "jojo_ripples.skill.grab_throw.desc": "#################################",
+  "jojo_ripples.skill.grab_throw.controls": "#################################",
+  "jojo_ripples.ability.grab_throw": "Бросок",
   
   "jojo_ripples.ability.manual_control": "Ручное управление",
   "jojo_ripples.ability.items_swap_w_user": "Поменяться предметами",

@@ -24,6 +24,10 @@ public class ClientUtil {
 //		}
 	}
 
+	public static float partialTick() {
+		return partialTick(Minecraft.getInstance().getTimer(), false);
+	}
+
 	public static float partialTick(DeltaTracker deltaTracker, boolean worksInPauseToo) {
 		if (worksInPauseToo) {
 			return switch (deltaTracker) {

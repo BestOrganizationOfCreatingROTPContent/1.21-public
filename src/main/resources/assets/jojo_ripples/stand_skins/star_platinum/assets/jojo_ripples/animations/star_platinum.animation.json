@@ -18507,6 +18507,12 @@
 						"vector": [0, 0, 0]
 					}
 				}
+			},
+			"timeline": {
+				"0.0": "phase = BUTTON_CHARGE;",
+				"0.5": ["phase = WINDUP;", "phase.loopBack = 0.5;"],
+				"2.5": "phase = PERFORM;",
+				"3.0": "phase = RECOVERY;"
 			}
 		},
 		"inhale": {

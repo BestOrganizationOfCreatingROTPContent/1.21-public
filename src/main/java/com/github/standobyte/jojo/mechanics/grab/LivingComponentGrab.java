@@ -6,13 +6,17 @@ import javax.annotation.Nullable;
 
 import org.jetbrains.annotations.ApiStatus;
 
+import com.github.standobyte.jojo.client.ClientUtil;
+import com.github.standobyte.jojo.client.utils.ModelUtil;
 import com.github.standobyte.jojo.core.JojoMod;
 import com.github.standobyte.jojo.init.ModDataAttachmentTypes;
 import com.github.standobyte.jojo.util.MathUtil;
 import com.github.standobyte.jojo.util.UtilFunctions;
 import com.github.standobyte.jojo.util.entitycomponent.TickingEntityData;
 
+import net.minecraft.util.Mth;
 import net.minecraft.world.entity.Entity;
+import net.minecraft.world.entity.HumanoidArm;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.ai.attributes.AttributeModifier;
 import net.minecraft.world.entity.ai.attributes.Attributes;
@@ -161,18 +165,40 @@ public class LivingComponentGrab implements TickingEntityData {
 		}
 	}
 
+	protected static Vec3 armChokeOffset = new Vec3(0, 0.125, 0);
 	public void setGrabbedPos() {
 		if (grabbingEntity != null) {
-//			HumanoidArm grabbingArm = HumanoidArm.LEFT;
-			Vec3 grabbedPos = grabbingEntity.position()
-					.add(new Vec3(/*grabbingArm == HumanoidArm.LEFT ? 0.25 : -0.25*/0, 0, 1)
-							/* lifting the target up and down a bit from x rotation would be cool, 
-							 * but we'd have to also adjust the grab animations for this and it's a PITA, 
-							 * so unfortunately this goes into the "commented out" hell
-							 */
-//							.xRot(-grabbingEntity.getXRot() * MathUtil.DEG_TO_RAD)
-							.yRot(-grabbingEntity.yBodyRot * MathUtil.DEG_TO_RAD)
-							.add(0, grabbingEntity.getEyeHeight() - thisEntity.getEyeHeight(), 0));
+			HumanoidArm grabbingArm = HumanoidArm.LEFT;
+			Vec3 grabOffset = new Vec3(0, grabbingEntity.getEyeHeight() - thisEntity.getEyeHeight(), 0);
+			
+			boolean useModelArmPos = grabbingEntity.level().isClientSide();
+			if (useModelArmPos) {
+				armChokeOffset = new Vec3(0, 0.125, 0);
+				Vec3 animOffset = ModelUtil.getModelPartPos(grabbingEntity, 
+						grabbingArm == HumanoidArm.LEFT ? "left_item" : "right_item", armChokeOffset);
+				if (animOffset != null) {
+					float yBodyRot = (-Mth.lerp(ClientUtil.partialTick(), 
+							grabbingEntity.yBodyRotO, grabbingEntity.yBodyRot)) * MathUtil.DEG_TO_RAD;
+					animOffset = animOffset.yRot(yBodyRot);
+					grabOffset = grabOffset.add(animOffset);
+					// XXX sync the offset to the server?
+				}
+				else {
+					useModelArmPos = false;
+				}
+			}
+			
+			if (!useModelArmPos) {
+				grabOffset = grabOffset.add(new Vec3(grabbingArm == HumanoidArm.LEFT ? 0.2 : -0.2, 0, 0.875)
+						/* lifting the target up and down a bit from x rotation would be cool, 
+						 * but we'd have to also adjust the grab animations for this and it's a PITA, 
+						 * so unfortunately this goes into the "commented out" hell
+						 */
+						// .xRot(-grabbingEntity.getXRot() * MathUtil.DEG_TO_RAD)
+						.yRot(-grabbingEntity.yBodyRot * MathUtil.DEG_TO_RAD));
+			}
+			
+			Vec3 grabbedPos = grabbingEntity.position().add(grabOffset);
 			thisEntity.setPos(grabbedPos.x, grabbedPos.y, grabbedPos.z);
 			thisEntity.setDeltaMovement(Vec3.ZERO);
 			for (Entity passenger : thisEntity.getPassengers()) {

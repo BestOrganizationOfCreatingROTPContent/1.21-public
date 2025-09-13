@@ -67,6 +67,7 @@ public class StandEntityGrabThrowAbility extends StandEntityAbility {
 		@Override
 		public void actionPerformStart() {
 			if (performer instanceof StandEntity standEntity) {
+				// FIXME (grab & throw) apply the offset even if the stand has a grabbed target
 				setStandOffset(0, Math.max(standEntity.offsetFromUser.getRelativeOffset().z, 0) + 2,
 						StandOffsetFromUser.Rotations.HEAD_XY,
 						false);
@@ -88,9 +89,16 @@ public class StandEntityGrabThrowAbility extends StandEntityAbility {
 				LivingComponentGrab standGrab = performer.getData(ModDataAttachmentTypes.LIVING_GRAB.get());
 				LivingEntity grabbedEntity = standGrab.getGrabbedEntity();
 				if (grabbedEntity != null) {
-					// FIXME ! lerp from grab idle offset
+					// FIXME (grab & throw) lerp from grab idle offset
 					standGrab.setGrabTarget(null);
 					Vec3 throwVec = performer.getLookAngle().scale(2);
+					// TODO add the user running vec to the throw vec
+//					if (!(performer instanceof StandEntity stand && !stand.isFollowingUser())) {
+//						LivingEntity user = getPowerUser();
+//						// player movement vec doesn't sync to server btw
+//						Vec3 userSprintVec = user.getDeltaMovement().subtract(0, user.getGravity() * 0.98 /* and this will be wrong in some cases, check LivingEntity#travel */, 0);
+//						throwVec = throwVec.add(userSprintVec);
+//					}
 					grabbedEntity.setDeltaMovement(throwVec);
 					grabbedEntity.hurtMarked = true;
 				}

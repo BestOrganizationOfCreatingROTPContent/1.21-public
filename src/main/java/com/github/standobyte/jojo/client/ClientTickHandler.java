@@ -57,7 +57,9 @@ public class ClientTickHandler {
 	protected static void limitEntityRotation(LivingEntity entity) {
 		AttachmentType<LivingComponentGrab> attType = ModDataAttachmentTypes.LIVING_GRAB.get();
 		if (entity.hasData(attType)) {
-			entity.getData(attType).onFrameRender();
+			LivingComponentGrab grabComponent = entity.getData(attType);
+			grabComponent.onFrameRender();
+			grabComponent.setGrabbedPos();
 		}
 	}
 	

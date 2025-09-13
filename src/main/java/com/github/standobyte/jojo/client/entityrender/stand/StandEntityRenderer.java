@@ -158,14 +158,23 @@ public class StandEntityRenderer<
 //    }
 
 	protected void setModelFrom(S renderState) {
-		StandSkin standSkin = renderState.skin;
-		this.model = standSkin != null ? (M) standSkin.getStandModel(this) : null;
-		if (this.model == null) {
-			this.model = missingSkinModel.get();
-			if (standSkin != null) {
-				renderState.tint = standSkin.getColor();
-			}
+		this.model = getEntityModel(renderState);
+		if (this.model == missingSkinModel.get() && renderState.skin != null) {
+			renderState.tint = renderState.skin.getColor();
 		}
+	}
+	
+	public M getEntityModel(T entity) {
+		return getEntityModel(createRenderState(entity, 1));
+	}
+	
+	public M getEntityModel(S renderState) {
+		StandSkin standSkin = renderState.skin;
+		M model = standSkin != null ? (M) standSkin.getStandModel(this) : null;
+		if (model == null) {
+			model = missingSkinModel.get();
+		}
+		return model;
 	}
 	
 	

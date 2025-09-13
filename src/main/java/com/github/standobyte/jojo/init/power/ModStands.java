@@ -67,7 +67,7 @@ public class ModStands {
 					.addAbility("grab_release", ModStandAbilities.GRAB_RELEASE)
 					.withBind(InputKey.Q, InputMethod.CLICK)
 					
-					.addAbility("grabbed_throw", ModStandAbilities.GRAB_THROW)
+					.addAbility("grab_throw", ModStandAbilities.GRAB_THROW)
 					.withBind(InputKey.RMB, InputMethod.HOLD)
 					
 //					.addAbility("grab_punch", ModStandAbilities.PUNCH)
@@ -113,7 +113,7 @@ public class ModStands {
 					.addSkill(StandUnlockableSkill.startingAbility("grab"))
 					.addSkill(StandUnlockableSkill.startingAbility("leap"))
 					
-					.addSkill(StandUnlockableSkill.unlockableAbility("grabbed_throw", 1).prerequisiteSkill("grab"))
+					.addSkill(StandUnlockableSkill.unlockableAbility("grab_throw", 1).prerequisiteSkill("grab"))
 //					.addSkill(StandUnlockableSkill.unlockableAbility("grab_ground_slam", 1).prerequisiteSkill("grab"))
 //					.addSkill(StandUnlockableSkill.unlockableAbility("uppercut_ground_throw", 1).prerequisiteSkill("finisher_uppercut", "grab_ground_slam"))
 //					.addSkill(StandUnlockableSkill.unlockableAbility("grab_terrain", 1).withAbility("terrain_throw").prerequisiteSkill("grab")

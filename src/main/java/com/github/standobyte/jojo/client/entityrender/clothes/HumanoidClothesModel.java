@@ -103,7 +103,7 @@ public class HumanoidClothesModel extends HumanoidModel/*<HumanoidRenderState>*/
 	
 	
 	public void initClothesSlots() {
-		var modelParts = ModelUtil.getAllNamedModelParts(((Model_1_21_2plus) this).jojo_ripples$root());
+		var modelParts = ModelUtil.mapNamedModelParts(((Model_1_21_2plus) this).jojo_ripples$root());
 		for (Map.Entry<String, ModelPart> modelPart : modelParts.entrySet()) {
 			String name = modelPart.getKey();
 			if (name.length() >= 5 && name.startsWith("slot")) {

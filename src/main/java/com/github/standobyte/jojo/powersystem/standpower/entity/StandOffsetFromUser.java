@@ -91,7 +91,7 @@ public class StandOffsetFromUser {
 	public Vec3 getAbsoluteOffset(LivingEntity userEntity, boolean lerp) {
 		this.grabOffset(new Vec3(-1, idleOffset.y, 1.5));
 		if (grabIdleOffset != null && LivingComponentGrab.getEntityGrabbedBy(standEntity) != null) {
-			// FIXME ! grab idle offset lerp
+			// FIXME (grab & throw) lerp the grab idle offset
 			return relativeToAbsolute(grabIdleOffset, Rotations.HEAD, userEntity);
 		}
 		

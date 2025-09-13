@@ -222,10 +222,10 @@
   "jojo_ripples.ability.grab": "Grab",
   "jojo_ripples.ability.grab_release": "Release",
   
-  "jojo_ripples.skill.grabbed_throw": "Throw",
-  "jojo_ripples.skill.grabbed_throw.desc": "#################################",
-  "jojo_ripples.skill.grabbed_throw.controls": "#################################",
-  "jojo_ripples.ability.grabbed_throw": "Throw",
+  "jojo_ripples.skill.grab_throw": "Throw",
+  "jojo_ripples.skill.grab_throw.desc": "#################################",
+  "jojo_ripples.skill.grab_throw.controls": "#################################",
+  "jojo_ripples.ability.grab_throw": "Throw",
   
   "jojo_ripples.ability.manual_control": "Manual control",
   "jojo_ripples.ability.items_swap_w_user": "Swap items with Stand",
