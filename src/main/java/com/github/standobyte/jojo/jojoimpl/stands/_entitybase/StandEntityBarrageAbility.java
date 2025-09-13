@@ -28,7 +28,6 @@ import net.minecraft.sounds.SoundSource;
 import net.minecraft.world.damagesource.DamageSource;
 import net.minecraft.world.entity.EquipmentSlot;
 import net.minecraft.world.entity.LivingEntity;
-import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.SoundType;
 import net.minecraft.world.level.block.state.BlockState;
@@ -53,13 +52,13 @@ public class StandEntityBarrageAbility extends StandEntityAbility {
 			LivingEntity powerUser, LivingEntity performer) {
 		super.initActionFromConfig(action, level, powerUser, performer);
 		if (!level.isClientSide() && performer instanceof StandEntity stand) {
-			if (powerUser instanceof Player player && player.getAbilities().instabuild) {
+//			if (powerUser instanceof Player player && player.getAbilities().instabuild) {
 //				action.phasesLength.put(ActionPhase.PERFORM, 999999);
 //				action.phasesLength.put(ActionPhase.RECOVERY, 0);
-			}
-			else {
+//			}
+//			else {
 				action.phasesLength.put(ActionPhase.PERFORM, StandStatFormulas.getBarrageMaxDuration(stand.getDurability()));
-			}
+//			}
 		}
 	}
 	
