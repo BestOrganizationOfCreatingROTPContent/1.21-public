@@ -159,10 +159,18 @@
   "jojo_ripples.stand_stat.button.show": "Показать характеристики Стенда",
   "jojo_ripples.stand_stat.button.hide": "Скрыть характеристики Стенда",
   
+  "attribute.name.jojo_ripples.stand_strength": "Мощь Стенда",
+  "attribute.name.jojo_ripples.stand_speed": "Скорость Стенда",
+  "attribute.name.jojo_ripples.stand_effective_range": "Эффективная дальность Стенда",
+  "attribute.name.jojo_ripples.stand_max_range": "Максимальная дальность Стенда",
+  "attribute.name.jojo_ripples.stand_durability": "Выносливость Стенда",
+  "attribute.name.jojo_ripples.stand_precision": "Точность Стенда",
+  
   "stand.unknown": "Неизвестный Стенд: %s",
   "effect.jojo_ripples.resolve": "Решимость",
 
   "jojo.message.action_condition.stand_user_too_far": "Вы и ваш Стенд слишком далеко друг от друга",
+  "jojo.message.action_condition.stand_too_slow": "Ваш Стенд слишком медленный",
   
   "jojo_ripples.subtitle.stand_summon": "Стенд призван",
   "jojo_ripples.subtitle.stand_unsummon": "Стенд отозван",

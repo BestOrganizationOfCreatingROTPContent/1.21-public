@@ -6,8 +6,10 @@ import com.github.standobyte.jojo.client.sound.sounds.EntityStoppableSoundInstan
 import com.github.standobyte.jojo.init.ModDamageTypes;
 import com.github.standobyte.jojo.init.ModSoundEvents;
 import com.github.standobyte.jojo.mechanics.ServerBlockDestroyTracker;
+import com.github.standobyte.jojo.powersystem.Power;
 import com.github.standobyte.jojo.powersystem.ability.AbilityId;
 import com.github.standobyte.jojo.powersystem.ability.AbilityType;
+import com.github.standobyte.jojo.powersystem.ability.condition.ConditionCheck;
 import com.github.standobyte.jojo.powersystem.entityaction.ActionPhase;
 import com.github.standobyte.jojo.powersystem.entityaction.EntityActionInstance;
 import com.github.standobyte.jojo.powersystem.entityaction.type.EntityActionType;
@@ -16,6 +18,8 @@ import com.github.standobyte.jojo.powersystem.standpower.entity.StandEntity;
 import com.github.standobyte.jojo.powersystem.standpower.entity.StandEntityAbility;
 import com.github.standobyte.jojo.powersystem.standpower.entity.StandOffsetFromUser;
 import com.github.standobyte.jojo.powersystem.standpower.entity.StandStatFormulas;
+import com.github.standobyte.jojo.util.StandUtil;
+import com.github.standobyte.jojo.util.StandUtil.StandStat;
 import com.github.standobyte.jojo.util.damage.DamageUtil;
 import com.github.standobyte.jojo.util.damage.RipplesModifiedDamageSource;
 import com.github.standobyte.jojo.util.target.ActionTarget;
@@ -39,6 +43,16 @@ public class StandEntityBarrageAbility extends StandEntityAbility {
 		setDefaultPhaseLength(ActionPhase.PERFORM, StandStatFormulas.getBarrageMaxDuration(8));
 		setDefaultPhaseLength(ActionPhase.RECOVERY, 10);
 		noFinisherBarDecay = true;
+	}
+	
+	@Override
+	public ConditionCheck checkSpecificConditions(Power<?> context) {
+		double standAttackSpeed = StandUtil.getPhysicalStatValue((StandPower) context, StandStat.ATTACK_SPEED);
+		float hits = StandStatFormulas.getBarrageHitsPerSecond(standAttackSpeed);
+		if (hits <= 0) {
+			return ConditionCheck.createNegative("stand_too_slow");
+		}
+		return super.checkSpecificConditions(context);
 	}
 	
 	

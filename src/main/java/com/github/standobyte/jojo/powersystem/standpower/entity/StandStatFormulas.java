@@ -17,7 +17,7 @@ public class StandStatFormulas {
 	}
 	
 	public static float getHeavyAttackWindup(double speed, float finisherMeter) {
-		float f = (30 - (float) speed * 0.75f);
+		float f = Math.max(30 - (float) speed * 0.75f, 0);
 		float min = f / 3;
 		float max = f * 2 / 3;
 		finisherMeter = Math.min(finisherMeter / 2, 1);

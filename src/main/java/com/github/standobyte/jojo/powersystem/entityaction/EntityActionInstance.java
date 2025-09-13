@@ -372,7 +372,7 @@ public class EntityActionInstance implements HeldInput {
 		this.curPhaseTick = tick;
 		this.curPhaseLength = phase != null ? phasesLength.getFloat(phase) : -1;
 		
-		this.phasePartialTick = Mth.clamp(prevPhaseTick - prevTickLength, 0, 1);
+		this.phasePartialTick = Mth.clamp(prevPhaseTick - prevTickLength, 0, 0.9999f);
 		
 		checkNextPhase();
 	}

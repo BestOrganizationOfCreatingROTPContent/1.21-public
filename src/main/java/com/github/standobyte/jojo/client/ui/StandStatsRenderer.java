@@ -251,7 +251,7 @@ public class StandStatsRenderer {
 	}
 
 	protected static final double LN_2 = Math.log(2);
-	public static enum StandStat {
+	public static enum HexagonStandStat {
 		STRENGTH        ("jojo_ripples.stand_stat.strength",       0,  -72) {
 			@Override
 			float getValueConverted(StandPower standData, StandStats stats, float levelRatio) {
@@ -311,7 +311,7 @@ public class StandStatsRenderer {
 		public final int x;
 		public final int y;
 
-		private StandStat(String name, int x, int y) {
+		private HexagonStandStat(String name, int x, int y) {
 			this.name = Component.translatable(name).withStyle(ChatFormatting.BLACK);
 			this.desc = Component.translatable(name + ".desc").withStyle(ChatFormatting.DARK_GRAY);
 			this.x = x;
@@ -345,11 +345,11 @@ public class StandStatsRenderer {
 
 		public void preStatsRenderFrame(StandPower standData, float partialTick) {}
 
-		public float statConvertedValue(StandStat stat, StandPower standData, StandStats stats, float statLeveling) {
+		public float statConvertedValue(HexagonStandStat stat, StandPower standData, StandStats stats, float statLeveling) {
 			return stat.getValueConverted(standData, stats, statLeveling);
 		}
 
-		public String statRankLetter(StandStat stat, StandPower standData, double statConvertedValue) {
+		public String statRankLetter(HexagonStandStat stat, StandPower standData, double statConvertedValue) {
 			return getRankFromConvertedValue(statConvertedValue);
 		}
 
@@ -363,8 +363,8 @@ public class StandStatsRenderer {
 			return skin != null ? skin.getStandIcon() : null;
 		}
 
-		protected Map<StandStat, MultiLineScreenTooltip> tooltip = new EnumMap<>(StandStat.class);
-		public List<FormattedCharSequence> statTooltip(StandStat standStat, Minecraft mc, StandPower standData) {
+		protected Map<HexagonStandStat, MultiLineScreenTooltip> tooltip = new EnumMap<>(HexagonStandStat.class);
+		public List<FormattedCharSequence> statTooltip(HexagonStandStat standStat, Minecraft mc, StandPower standData) {
 			return tooltip.computeIfAbsent(standStat, stat -> {
 				MultiLineScreenTooltip tooltip = new MultiLineScreenTooltip(stat.name, stat.desc);
 				return tooltip;
@@ -425,7 +425,7 @@ public class StandStatsRenderer {
 		String[] statRank = new String[6];
 
 		for (int i = 0; i < statVal.length; i++) {
-			StandStat stat = StandStat.values()[i];
+			HexagonStandStat stat = HexagonStandStat.values()[i];
 			statVal[i] = override.statConvertedValue(stat, power, stats, statLeveling);
 			statRank[i] = override.statRankLetter(stat, power, statVal[i]);
 		}
@@ -588,7 +588,7 @@ public class StandStatsRenderer {
 			int letterFullTick = letterStartTick + letterTicks;
 			if (tick_ < letterStartTick) continue;
 
-			StandStat stat = StandStat.values()[i];
+			HexagonStandStat stat = HexagonStandStat.values()[i];
 			float statX = xCenter + stat.x;
 			float statY = yCenter + stat.y;
 			String statRankLetter = knownStats ? statRank[i] : "?";

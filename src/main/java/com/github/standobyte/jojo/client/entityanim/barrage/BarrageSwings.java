@@ -177,7 +177,7 @@ public class BarrageSwings {
 				int swingsToAdd = MathUtil.fractionRandomInc(hits / 2);
 				if (swingsToAdd > 0) {
 					HumanoidArm side = HumanoidArm.RIGHT;
-					double maxOffset = 1 - stats.barragePrecision / 64;
+					double maxOffset = Math.max(1 - stats.barragePrecision / 64, 0);
 					if (RANDOM.nextBoolean()) side = side.getOpposite();
 
 					for (int i = 0; i < swingsToAdd; i++) {
