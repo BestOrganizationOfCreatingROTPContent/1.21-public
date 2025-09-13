@@ -33,6 +33,7 @@ import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.util.Mth;
 import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.entity.player.Player;
 import net.neoforged.neoforge.network.PacketDistributor;
 
 public class StandPower extends Power<StandPower> implements PostNbtReadEntityData {
@@ -160,6 +161,9 @@ public class StandPower extends Power<StandPower> implements PostNbtReadEntityDa
 	}
 	
 	public float getStamina() {
+		if (isUserCreative()) {
+			return getMaxStamina();
+		}
 		return staminaLerp.get();
 	}
 	
@@ -185,6 +189,9 @@ public class StandPower extends Power<StandPower> implements PostNbtReadEntityDa
 	}
 	
 	public boolean consumeStamina(float amount) {
+		if (isUserCreative()) {
+			return true;
+		}
 		float curAmount = getStamina();
 		if (curAmount >= amount) {
 			setStamina(curAmount - amount);
@@ -350,6 +357,12 @@ public class StandPower extends Power<StandPower> implements PostNbtReadEntityDa
 	
 	public static Optional<StandPower> getOptional(LivingEntity entity) {
 		return PowerClass.STAND.getOptional(entity);
+	}
+	
+	
+	public final boolean isUserCreative() {
+		LivingEntity user = getUser();
+		return user instanceof Player player && player.getAbilities().instabuild;
 	}
 
 }

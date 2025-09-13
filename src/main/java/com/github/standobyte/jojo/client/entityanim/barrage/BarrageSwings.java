@@ -18,16 +18,16 @@ import com.github.standobyte.jojo.client.entityrender.stand.StandEntityModel;
 import com.github.standobyte.jojo.client.ui.utils.RGBUtil;
 import com.github.standobyte.jojo.powersystem.entityaction.ActionPhase;
 import com.github.standobyte.jojo.util.MathUtil;
+import com.github.standobyte.v1_21_4_stuff.missingmethods.Model_1_21_2plus;
+import com.github.standobyte.v1_21_4_stuff.renderstate.LivingEntityRenderState;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.VertexConsumer;
 
 import net.minecraft.Util;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.model.EntityModel;
-import com.github.standobyte.v1_21_4_stuff.missingmethods.Model_1_21_2plus;
 import net.minecraft.client.model.HumanoidModel;
 import net.minecraft.client.model.geom.ModelPart;
-import com.github.standobyte.v1_21_4_stuff.renderstate.LivingEntityRenderState;
 import net.minecraft.util.Mth;
 import net.minecraft.world.entity.HumanoidArm;
 import net.minecraft.world.phys.Vec3;
@@ -45,7 +45,6 @@ public class BarrageSwings {
 		frameUpdateSwings(mc);
 		frameUpdateBarrageType(barrageTypeName);
 		if (isBarragingAnim) {
-			// TODO (barrage anim) stat formulas
 			frameSetValuesAndAddNewSwings(barrageAnim, renderState, curAnimTimeSecs);
 		}
 	}
@@ -129,7 +128,7 @@ public class BarrageSwings {
 		}
 
 		public void addDelta(float delta) {
-			ticks += delta * 0.75F;
+			ticks += delta * 0.5F;
 		}
 
 		public boolean removeSwing() {
@@ -175,10 +174,9 @@ public class BarrageSwings {
 				EntityActionRenderState stats = EntityActionRenderState.getFrom(curRenderState);
 				
 				float hits = stats.barrageSwingsPerSecond / 20F * Math.min(loop - lastLoop, 1) * loopLen;
-				int swingsToAdd = MathUtil.fractionRandomInc(hits);
+				int swingsToAdd = MathUtil.fractionRandomInc(hits / 2);
 				if (swingsToAdd > 0) {
 					HumanoidArm side = HumanoidArm.RIGHT;
-					stats.barragePrecision = 8;
 					double maxOffset = 1 - stats.barragePrecision / 64;
 					if (RANDOM.nextBoolean()) side = side.getOpposite();
 
@@ -201,8 +199,8 @@ public class BarrageSwings {
 				int packedLight, int packedOverlay, int color) {
 			setOnlyOneArmVisible(model, side);
 			float loopCompletion = ticks / ticksMax;
-			float zMult = loopCompletion < 0.5 ? loopCompletion * 2 : (1 - loopCompletion) * 2;
-			double zAdditional = 0.5 * zMult;
+			float swingAmount = loopCompletion < 0.5 ? loopCompletion * 2 : (1 - loopCompletion) * 2;
+			double zAdditional = 0.5 * swingAmount;
 			Vec3 offsetRot = new Vec3(offset.x, -offset.y, offset.z + zAdditional).xRot(xRot * MathUtil.DEG_TO_RAD);
 			poseStack.pushPose();
 			poseStack.translate(offsetRot.x, offsetRot.y, -offsetRot.z);
@@ -216,9 +214,13 @@ public class BarrageSwings {
 			float seconds = barrageAnim.getAnimTime(sharedActionRenderState);
 			barrageAnim.animate(model, sharedRenderState, seconds, 1);
 			ModelPart arm = getNoXRotArm(model, side);
-			arm.zRot = arm.zRot + zMult * zRot;
+			
+			arm.zRot = Mth.lerp(swingAmount, arm.zRot, arm.zRot + zRot * 1.25f);
+			arm.yRot = Mth.lerp(swingAmount, arm.yRot, 0);
+			arm.xRot = Mth.lerp(swingAmount, arm.xRot, (float) -Math.PI * 0.5f);
+			
 			// XXX (barrage anim) some layers are not translucent (armor, clothes, mannequin model, etc.)
-			float alpha = 0.75f * zMult;
+			float alpha = 0.75f * swingAmount;
 			color = RGBUtil.scaleAlpha(color, alpha);
 			((Model_1_21_2plus) model).jojo_ripples$root().render(poseStack, buffer, packedLight, packedOverlay, color);
 			poseStack.popPose();

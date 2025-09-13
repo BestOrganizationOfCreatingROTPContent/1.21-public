@@ -312,7 +312,7 @@ public class PowerHud {
 		public boolean shouldRender() {
 			if (hud.inContainerMenu.isTrue()) return false;
 			StandPower standPower = ClientPowerCache.getPower(PowerClass.STAND);
-			return standPower != null && standPower.usesStamina();
+			return standPower != null && !standPower.isUserCreative() && standPower.usesStamina();
 		}
 		
 		@Override
