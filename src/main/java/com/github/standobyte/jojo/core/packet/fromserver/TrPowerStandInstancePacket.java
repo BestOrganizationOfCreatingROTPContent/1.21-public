@@ -21,23 +21,25 @@ import net.neoforged.neoforge.network.handling.IPayloadContext;
 
 public class TrPowerStandInstancePacket implements CustomPacketPayload {
 	private final int entityId;
-	private final Optional<StandInstance> standInstance;
+	private final Optional<StandInstance.NetworkData> standInstance;
 	private boolean isSentToTracking;
 	private StandTypePersistentData serverPerStandTypeData;
 	private FriendlyByteBuf clientPerStandTypeData;
 	
 	public TrPowerStandInstancePacket(int entityId, Optional<StandInstance> standInstance, 
 			StandTypePersistentData playerStandTypeData, boolean isSentToTracking) {
+		this(entityId, isSentToTracking, 
+				standInstance.map(StandInstance.NetworkData::wrap), 
+				playerStandTypeData);
+	}
+	
+	private TrPowerStandInstancePacket(int entityId, boolean isSentToTracking, 
+			Optional<StandInstance.NetworkData> standInstance, 
+			StandTypePersistentData playerStandTypeData) {
 		this.entityId = entityId;
 		this.standInstance = standInstance;
 		this.isSentToTracking = isSentToTracking;
 		this.serverPerStandTypeData = playerStandTypeData;
-	}
-	
-	private TrPowerStandInstancePacket(int entityId, Optional<StandInstance> standInstance, boolean isSentToTracking) {
-		this.entityId = entityId;
-		this.standInstance = standInstance;
-		this.isSentToTracking = isSentToTracking;
 	}
 	
 	
@@ -54,12 +56,13 @@ public class TrPowerStandInstancePacket implements CustomPacketPayload {
 			return type;
 		}
 
-		public static final StreamCodec<FriendlyByteBuf, Optional<StandInstance>> STAND_INSTANCE_OPTIONAL_CODEC = StandInstance.NETWORK_CODEC.apply(ByteBufCodecs::optional);
+		public static final StreamCodec<FriendlyByteBuf, Optional<StandInstance.NetworkData>> STAND_INSTANCE_OPTIONAL_CODEC = 
+				StandInstance.NetworkData.NETWORK_CODEC.apply(ByteBufCodecs::optional);
 		@Override
 		public void encode(TrPowerStandInstancePacket packet, RegistryFriendlyByteBuf buf) {
 			buf.writeInt(packet.entityId);
-			STAND_INSTANCE_OPTIONAL_CODEC.encode(buf, packet.standInstance);
 			buf.writeBoolean(packet.isSentToTracking);
+			STAND_INSTANCE_OPTIONAL_CODEC.encode(buf, packet.standInstance);
 			if (packet.serverPerStandTypeData != null) {
 				packet.serverPerStandTypeData.toBuf(buf, packet.isSentToTracking);
 			}
@@ -69,8 +72,9 @@ public class TrPowerStandInstancePacket implements CustomPacketPayload {
 		public TrPowerStandInstancePacket decode(RegistryFriendlyByteBuf buf) {
 			TrPowerStandInstancePacket packet = new TrPowerStandInstancePacket(
 					buf.readInt(), 
+					buf.readBoolean(), 
 					STAND_INSTANCE_OPTIONAL_CODEC.decode(buf),
-					buf.readBoolean());
+					null);
 			packet.clientPerStandTypeData = NetworkUtil.extraPacketData(buf);
 			return packet;
 		}
@@ -81,7 +85,7 @@ public class TrPowerStandInstancePacket implements CustomPacketPayload {
 			if (entity instanceof LivingEntity living) {
 				StandPower standPower = StandPower.get(living);
 				if (standPower != null) {
-					standPower.setStandInstance(payload.standInstance);
+					standPower.setStandInstance(payload.standInstance.map(StandInstance.NetworkData::get));
 					var perTypePlayerData = standPower.getCurTypeData();
 					if (perTypePlayerData != null) {
 						perTypePlayerData.fromBuf(payload.clientPerStandTypeData, payload.isSentToTracking);

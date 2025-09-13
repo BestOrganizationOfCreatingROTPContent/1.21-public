@@ -115,13 +115,44 @@ public class StandInstance {
 						return stand;
 					}));
 	
-	public static final StreamCodec<FriendlyByteBuf, StandInstance> NETWORK_CODEC = StreamCodec.composite(
-			ResourceLocation.STREAM_CODEC, instance -> instance.getStandId(),
-			ResourceLocation.STREAM_CODEC.apply(ByteBufCodecs::optional), StandInstance::getSelectedSkin,
-			(ResourceLocation standId, Optional<ResourceLocation> skin) -> {
-				StandInstance stand = fromStandId(standId);
-				stand.setCustomSkin(skin);
-				return stand;
-			});
+	
+	/**
+	 * Because of datapack Stands, if the Stand type query were to happen right at the moment of packet decoding, 
+	 * it would be too early, when the datapack packet is not handled yet,
+	 * so we need an intermediate class that lazily creates the Stand instance
+	 */
+	public static class NetworkData {
+		private final ResourceLocation standTypeId;
+		private final Optional<ResourceLocation> skin;
+		private StandInstance standInstance;
+		
+		public static NetworkData wrap(@Nonnull StandInstance standInstance) {
+			NetworkData data = new NetworkData(standInstance.getStandId(), standInstance.skin);
+			data.standInstance = standInstance;
+			return data;
+		}
+		
+		public NetworkData(ResourceLocation standTypeId, Optional<ResourceLocation> skin) {
+			this.standTypeId = standTypeId;
+			this.skin = skin;
+		}
+		
+		public static void encode(FriendlyByteBuf buffer, StandInstance instance) {
+			NETWORK_CODEC.encode(buffer, wrap(instance));
+		}
+		
+		public static final StreamCodec<FriendlyByteBuf, StandInstance.NetworkData> NETWORK_CODEC = StreamCodec.composite(
+				ResourceLocation.STREAM_CODEC, instance -> instance.standTypeId,
+				ResourceLocation.STREAM_CODEC.apply(ByteBufCodecs::optional), instance -> instance.skin,
+				StandInstance.NetworkData::new);
+		
+		public StandInstance get() {
+			if (this.standInstance == null) {
+				this.standInstance = StandInstance.fromStandId(standTypeId);
+				this.standInstance.skin = this.skin;
+			}
+			return this.standInstance;
+		}
+	}
 
 }

@@ -1,18 +1,13 @@
 package com.github.standobyte.jojo.core.packet.fromserver;
 
-import java.util.Optional;
-
 import com.github.standobyte.jojo.client.ClientProxy;
 import com.github.standobyte.jojo.core.PacketsRegister;
-import com.github.standobyte.jojo.powersystem.standpower.StandInstance;
 import com.github.standobyte.jojo.powersystem.standpower.StandPower;
 import com.github.standobyte.jojo.powersystem.standpower.type.StandTypePersistentData;
 import com.github.standobyte.jojo.util.network.NetworkUtil;
 
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.network.RegistryFriendlyByteBuf;
-import net.minecraft.network.codec.ByteBufCodecs;
-import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.network.protocol.common.custom.CustomPacketPayload;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.Entity;
@@ -50,7 +45,6 @@ public class TrStandDataPacket implements CustomPacketPayload {
 			return type;
 		}
 
-		public static final StreamCodec<FriendlyByteBuf, Optional<StandInstance>> STAND_INSTANCE_OPTIONAL_CODEC = StandInstance.NETWORK_CODEC.apply(ByteBufCodecs::optional);
 		@Override
 		public void encode(TrStandDataPacket packet, RegistryFriendlyByteBuf buf) {
 			buf.writeInt(packet.entityId);

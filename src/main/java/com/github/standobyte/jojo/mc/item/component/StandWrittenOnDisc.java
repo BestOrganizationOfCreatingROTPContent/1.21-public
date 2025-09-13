@@ -7,19 +7,27 @@ import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.network.codec.StreamCodec;
 
 public class StandWrittenOnDisc {
-	public final StandInstance standInstance;
+	protected final StandInstance.NetworkData standInstance;
 
 	public StandWrittenOnDisc(StandInstance stand) {
-		this.standInstance = stand;
+		this.standInstance = StandInstance.NetworkData.wrap(stand);
+	}
+
+	public StandWrittenOnDisc(StandInstance.NetworkData standSynced) {
+		this.standInstance = standSynced;
 	}
 	
 	
+	public StandInstance getInstance() {
+		return standInstance.get();
+	}
+	
 	public StandInstance copyStandInstance() {
-		return standInstance.copy();
+		return getInstance().copy();
 	}
 	
 	public boolean isValid() {
-		return standInstance != null;
+		return standInstance != null && getInstance() != null;
 	}
 	
 
@@ -35,9 +43,9 @@ public class StandWrittenOnDisc {
 	}
 	
 	public static final Codec<StandWrittenOnDisc> CODEC = StandInstance.CODEC.xmap(
-			StandWrittenOnDisc::new, discData -> discData.standInstance);
+			StandWrittenOnDisc::new, discData -> discData.getInstance());
 	
-	public static final StreamCodec<FriendlyByteBuf, StandWrittenOnDisc> STREAM_CODEC = StandInstance.NETWORK_CODEC.map(
+	public static final StreamCodec<FriendlyByteBuf, StandWrittenOnDisc> STREAM_CODEC = StandInstance.NetworkData.NETWORK_CODEC.map(
 			StandWrittenOnDisc::new, discData -> discData.standInstance);
 
 }

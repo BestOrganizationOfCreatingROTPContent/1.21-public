@@ -32,12 +32,12 @@ public class StandDiscItem extends Item {
 		StandWrittenOnDisc discStand = item.get(ModItemDataComponents.DISC_STAND.get());
 		if (discStand == null || !discStand.isValid()) return;
 		
-		Component standName = discStand.standInstance.getStandName(true);
+		Component standName = discStand.getInstance().getStandName(true);
 		if (standName != null) {
 			tooltip.add(standName);
 		}
 
-		StandSkin skin = StandSkinsLoader.getInstance().getSkin(discStand.standInstance);
+		StandSkin skin = StandSkinsLoader.getInstance().getSkin(discStand.getInstance());
 		if (skin != null) {
 			Holder<StoryPart> storyPart = skin.getStoryPart(ctx.registries());
 			if (storyPart != null) {
