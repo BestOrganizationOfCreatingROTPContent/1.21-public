@@ -45,7 +45,10 @@ public class HeldKeyTimer {
 	}
 	
 	public void setInputMethod(InputMethod inputMethod) {
-		this.inputMethod = unambiguous.apply(InputMethod.HOLD);
+		this.inputMethod = unambiguous.apply(inputMethod);
+		if (inputMethod == InputMethod.CLICK) {
+			InputHandler.getInstance().onResolvedKeyAsClick(key);
+		}
 	}
 	
 	@Nullable

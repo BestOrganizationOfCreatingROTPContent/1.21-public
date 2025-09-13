@@ -13,6 +13,7 @@ import java.util.Set;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 
+import org.apache.commons.lang3.mutable.MutableInt;
 import org.lwjgl.glfw.GLFW;
 
 import com.github.standobyte.jojo.client.ClientGlobals;
@@ -293,7 +294,7 @@ public class InputHandler {
 	// Held keys stuff
 	
 	public Map<ClientKeyWrapper, HeldKeyTimer> _heldKeys = new HashMap<>();
-//	public Map<Ability, HeldKeyTimer> _hudAbilitiesClicked = new IdentityHashMap<>();
+	public Map<ClientKeyWrapper, MutableInt> _recentlyClicked = new HashMap<>();
 	
 	public HeldKeyTimer getHeldKeyTimer(ClientKeyWrapper key) {
 		return _heldKeys.get(key);
@@ -312,6 +313,21 @@ public class InputHandler {
 		for (var heldKey : _heldKeys.values()) {
 			heldKey.incTicks();
 		}
+		
+		for (MutableInt timer : _recentlyClicked.values()) {
+			if (timer.intValue() >= 0) {
+				timer.decrement();
+			}
+		}
+	}
+	
+	public void onResolvedKeyAsClick(ClientKeyWrapper key) {
+		_recentlyClicked.computeIfAbsent(key, __ -> new MutableInt(0)).setValue(3);
+	}
+	
+	public boolean wasKeyClickedRecently(ClientKeyWrapper key) {
+		MutableInt timer = _recentlyClicked.get(key);
+		return timer != null && timer.intValue() >= 0;
 	}
 	
 	

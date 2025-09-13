@@ -438,7 +438,7 @@ public class ControlsHudElement extends HudElement {
 
 					boolean isClicked = switch (ability.inputMethod) {
 						case CLICK -> {
-							yield false;
+							yield modInput.wasKeyClickedRecently(ability.keybind);
 						}
 						case HOLD -> {
 							HeldKeyTimer heldKeyTimer = modInput.getHeldKeyTimer(ability.keybind);
