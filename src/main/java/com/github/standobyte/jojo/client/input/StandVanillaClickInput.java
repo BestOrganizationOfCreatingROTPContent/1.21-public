@@ -44,7 +44,7 @@ public class StandVanillaClickInput {
 						event.setSwingHand(false);
 						
 						ClientKeyWrapper key = ClientKeyWrapper.make(InputConstants.Type.MOUSE, keyCode);
-						InputHandler.getInstance().heldKeys.put(key, new HeldKeyTimer(key, false, KeyModifier.NONE));
+						InputHandler.getInstance().putHeldKeyTimer(key, new HeldKeyTimer(key, false, KeyModifier.NONE));
 
 						HitResult target = Minecraft.getInstance().hitResult;
 						PacketDistributor.sendToServer(new ClStandClickPacket(target, key.keyId(), InteractionHand.MAIN_HAND, InteractionHand.OFF_HAND));

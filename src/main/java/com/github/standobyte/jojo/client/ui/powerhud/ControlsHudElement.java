@@ -11,6 +11,7 @@ import javax.annotation.Nullable;
 import com.github.standobyte.jojo.client.ClientPowerCache;
 import com.github.standobyte.jojo.client.ClientUtil;
 import com.github.standobyte.jojo.client.input.AbilityInputState;
+import com.github.standobyte.jojo.client.input.HeldKeyTimer;
 import com.github.standobyte.jojo.client.input.InputHandler;
 import com.github.standobyte.jojo.client.input.controlscheme.AllControlSchemes;
 import com.github.standobyte.jojo.client.input.controlscheme.ClientControlScheme;
@@ -170,7 +171,9 @@ public class ControlsHudElement extends HudElement {
 	public static class AbilityBindUI {
 		public AbilityConditionCheck ability;
 		public TextureAtlasSprite sprite;
-		public Component keybind;
+		public ClientKeyWrapper keybind;
+		public InputMethod inputMethod;
+		public Component keybindName;
 		public Component keybindAbilityName;
 	}
 	
@@ -393,7 +396,9 @@ public class ControlsHudElement extends HudElement {
 
 				bindUI.ability = ability;
 				bindUI.sprite = abilitySprites.getAbilityIcon(ability.ability, standSkin);
-				bindUI.keybind = bindName;
+				bindUI.keybind = key;
+				bindUI.inputMethod = inputMethod;
+				bindUI.keybindName = bindName;
 				bindUI.keybindAbilityName = Component.translatable("ripples_hud.key_ability", bindName, ability.ability.getName(abilityCtx));
 
 				return bindUI;
@@ -407,7 +412,9 @@ public class ControlsHudElement extends HudElement {
 			DeltaTracker deltaTracker, Font font, int textColor, float partialTick) {
 		RenderSystem.enableBlend();
 		RenderSystem.defaultBlendFunc();
-
+		
+		InputHandler modInput = InputHandler.getInstance();
+		
 		for (BindUI bind : this.binds) {
 			GuiIcon hotbarSprite = getHotbarSprite(bind.abilities.size());
 			if (hotbarSprite != null) {
@@ -428,6 +435,20 @@ public class ControlsHudElement extends HudElement {
 				for (Map.Entry<InputMethod, AbilityBindUI> abilitySprite : bind.abilities.entrySet()) {
 					AbilityBindUI ability = abilitySprite.getValue();
 					renderAbility(guiGraphics, x, y, ability, mc, partialTick);
+
+					boolean isClicked = switch (ability.inputMethod) {
+						case CLICK -> {
+							yield false;
+						}
+						case HOLD -> {
+							HeldKeyTimer heldKeyTimer = modInput.getHeldKeyTimer(ability.keybind);
+							yield heldKeyTimer != null && heldKeyTimer.getInputMethod() == InputMethod.HOLD;
+						}
+					};
+					if (isClicked) {
+						HOTBAR_SELECTION.render(guiGraphics.pose(), x - 15, y - 15);
+					}
+					
 					x += SLOT_WIDTH;
 				}
 
@@ -510,11 +531,11 @@ public class ControlsHudElement extends HudElement {
 			int color = ARGB.white(alpha);
 			
 			BlitFloat.blitRadial(guiGraphics.pose(), mc, WINDUP_EMPTY.file, 
-					x, y, WINDUP_EMPTY.width, WINDUP_EMPTY.height, 100, 
+					x, y, WINDUP_EMPTY.width, WINDUP_EMPTY.height, 10, 
 					ratio * (float) Math.PI * 2, 1 - ratio, color);
 			
 			BlitFloat.blitRadial(guiGraphics.pose(), mc, WINDUP_FULL.file, 
-					x, y, WINDUP_FULL.width, WINDUP_FULL.height, 0, 
+					x, y, WINDUP_FULL.width, WINDUP_FULL.height, 10, 
 					0, ratio, color);
 		}
 	}

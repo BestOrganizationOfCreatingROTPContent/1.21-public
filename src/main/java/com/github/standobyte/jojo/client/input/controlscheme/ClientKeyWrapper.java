@@ -76,6 +76,14 @@ public class ClientKeyWrapper {
 	public int hashCode() {
 		return keyId();
 	}
+	
+	
+	@Override
+	public String toString() {
+		return switch (device) {
+			case KEYBOARD_MOUSE -> getVanillaKey().toString();
+		};
+	}
 
 
 	protected static Short2ObjectMap<ClientKeyWrapper> cache = new Short2ObjectOpenHashMap<>();

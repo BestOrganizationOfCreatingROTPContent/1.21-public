@@ -81,10 +81,10 @@ public class InputHandler {
 		return instance;
 	}
 	
-	public VanillaKeybinds keybinds;
+	public VanillaKeybinds vanillaKeybinds;
 	
 	private void registerBindings(RegisterKeyMappingsEvent event) {
-		this.keybinds = VanillaKeybinds.register(event);
+		this.vanillaKeybinds = VanillaKeybinds.register(event);
 	}
 	
 	@Deprecated
@@ -94,16 +94,14 @@ public class InputHandler {
 	
 	@SubscribeEvent
 	public void handleKeyBindingsPost(ClientTickEvent.Post event) {
-		keybinds.handleTick();
-		for (var heldKey : heldKeys.values()) {
-			heldKey.incTicks();
-		}
+		vanillaKeybinds.handleTick();
+		tickHeldKeyTimers();
 		tickReleaseEventQueue();
 	}
 	
 	@SubscribeEvent
 	public void onFrameUpdate(RenderFrameEvent.Pre event) {
-		holdingLAlt = heldKeys.containsKey(lAlt);
+		holdingLAlt = _heldKeys.containsKey(lAlt);
 		float tickDelta = mc.getTimer()/*getDeltaTracker()*/.getRealtimeDeltaTicks();
 		frameUpdateHeldKeys(tickDelta);
 	}
@@ -166,7 +164,7 @@ public class InputHandler {
 	}
 	
 	@SubscribeEvent(priority = EventPriority.HIGH)
-	public void handleMouseScroll2(ScreenEvent.MouseScrolled.Pre event) {
+	public void handleMouseScrollWithWheelOpened(ScreenEvent.MouseScrolled.Pre event) {
 		if (mc.getConnection() == null) return;
 		if (hotbarScroll(event.getScrollDeltaY())) {
 			event.setCanceled(true);
@@ -213,24 +211,28 @@ public class InputHandler {
 				@Nullable Ability clickAbility = input.clickAbility != null ? input.clickAbility.ability : null;
 				
 				boolean ambiguousClickOrHold = heldAbility != null && clickAbility != null;
+				InputMethod inputMethod = 
+						ambiguousClickOrHold ? null : 
+						heldAbility != null ? InputMethod.HOLD : 
+						clickAbility != null ? InputMethod.CLICK : 
+						null;
 				cancelVanilla |= heldAbility != null || clickAbility != null;
 
 				HeldKeyTimer heldKeyTimer = new HeldKeyTimer(key, cancelVanilla, keyModifier);
 				if (ambiguousClickOrHold) {
 					// TODO (!!!!) only do this if both abilities have a windup (if not, then idfk, it's 2AM rn)
 					// also consider that the windup might be shorted than 4 ticks
-					heldKeyTimer.clickHoldResolve = new ClickHoldResolve(power, heldAbility, clickAbility);
+					heldKeyTimer.setResolveInputMethod(new ClickHoldResolve(power, heldAbility, clickAbility));
 				}
-				else {
-					if (heldAbility != null) {
-						doInput(InputEventType.PRESS_HOLD, keyId, power, heldAbility, input.heldAbility.conditionCheck, 0);
-					}
-					else if (clickAbility != null) {
-						doInput(InputEventType.PRESS_CLICK, keyId, power, clickAbility, input.clickAbility.conditionCheck, 0);
+				else if (inputMethod != null) {
+					heldKeyTimer.setInputMethod(inputMethod);
+					switch (inputMethod) {
+						case HOLD -> doInput(InputEventType.PRESS_HOLD, keyId, power, heldAbility, input.heldAbility.conditionCheck, 0);
+						case CLICK -> doInput(InputEventType.PRESS_CLICK, keyId, power, clickAbility, input.clickAbility.conditionCheck, 0);
 					}
 				}
 				
-				heldKeys.put(key, heldKeyTimer);
+				putHeldKeyTimer(key, heldKeyTimer);
 				
 				Key vanillaKey = key.getVanillaKey();
 				if (vanillaKey != null) {
@@ -242,13 +244,11 @@ public class InputHandler {
 				}
 			}
 			case InputConstants.RELEASE -> {
-				HeldKeyTimer heldTicks = heldKeys.remove(key);
-				
+				HeldKeyTimer heldTicks = getHeldKeyTimer(key);
 				if (heldTicks != null) {
-					if (heldTicks.clickHoldResolve != null) {
-						clickHeldOnRelease(heldTicks, keyId);
-					}
+					clickHeldOnRelease(heldTicks, keyId);
 					doInput(InputEventType.RELEASE, keyId, null, null, ConditionCheck.POSITIVE, 0);
+					removeHeldKeyTimer(key);
 				}
 
 				Key vanillaKey = key.getVanillaKey();
@@ -258,7 +258,7 @@ public class InputHandler {
 				checkStopHotbarSelection(key);
 			}
 			case InputConstants.REPEAT -> {
-				HeldKeyTimer heldKey = heldKeys.get(key);
+				HeldKeyTimer heldKey = getHeldKeyTimer(key);
 				cancelVanilla |= heldKey != null && heldKey.cancelVanilla;
 			}
 		}
@@ -286,37 +286,61 @@ public class InputHandler {
 	
 	@Deprecated
 	public boolean inputsDisabled() {
-		return mc.screen != null || heldKeys.containsKey(lAlt);
+		return mc.screen != null || _heldKeys.containsKey(lAlt);
 	}
 	
 	
 	// Held keys stuff
 	
-	public Map<ClientKeyWrapper, HeldKeyTimer> heldKeys = new HashMap<>();
+	public Map<ClientKeyWrapper, HeldKeyTimer> _heldKeys = new HashMap<>();
+//	public Map<Ability, HeldKeyTimer> _hudAbilitiesClicked = new IdentityHashMap<>();
+	
+	public HeldKeyTimer getHeldKeyTimer(ClientKeyWrapper key) {
+		return _heldKeys.get(key);
+	}
+	
+	public void putHeldKeyTimer(ClientKeyWrapper key, HeldKeyTimer timer) {
+		_heldKeys.put(key, timer);
+	}
+	
+	public HeldKeyTimer removeHeldKeyTimer(ClientKeyWrapper key) {
+		HeldKeyTimer timer = _heldKeys.remove(key);
+		return timer;
+	}
+	
+	protected void tickHeldKeyTimers() {
+		for (var heldKey : _heldKeys.values()) {
+			heldKey.incTicks();
+		}
+	}
+	
 	
 	public boolean isHeld(ClientKeyWrapper key, @Nullable KeyModifier modifier) {
-		HeldKeyTimer timer = heldKeys.get(key);
+		HeldKeyTimer timer = getHeldKeyTimer(key);
 		if (timer != null) {
 			return modifier == null || timer.modifier == modifier;
 		}
 		return false;
 	}
 	
-	private void clickHeldOnRelease(HeldKeyTimer heldTicks, short keyId) {
-		ClickHoldResolve keyResolution = heldTicks.clickHoldResolve;
-		var wasItClick = keyResolution.keyReleased();
-		if (wasItClick != null && wasItClick.input() == ClickHoldResolve.InputState.CLICK) {
-			Power<?> power = keyResolution.power;
-			Ability ability = keyResolution.clickAbility;
-			ConditionCheck conditionCheck = ClientPowerCache.getAvailableMoves(power.getPowerClass(), power).getConditionCheck(ability);
-			float ticksToResolveClick = wasItClick.timeTook();
-			doInput(InputEventType.PRESS_CLICK, keyId, power, ability, conditionCheck, ticksToResolveClick);
+	private void clickHeldOnRelease(HeldKeyTimer heldKeyTimer, short keyId) {
+		ClickHoldResolve keyResolution = heldKeyTimer.getResolvingInputMethod();
+		if (keyResolution != null) {
+			ClickHoldResolve.Result wasItClick = keyResolution.keyReleased();
+			if (wasItClick != null && wasItClick.input() == ClickHoldResolve.InputState.CLICK) {
+				Power<?> power = keyResolution.power;
+				Ability ability = keyResolution.clickAbility;
+				ConditionCheck conditionCheck = ClientPowerCache.getAvailableMoves(power.getPowerClass(), power).getConditionCheck(ability);
+				float ticksToResolveClick = wasItClick.timeTook();
+				doInput(InputEventType.PRESS_CLICK, keyId, power, ability, conditionCheck, ticksToResolveClick);
+				heldKeyTimer.setInputMethod(InputMethod.CLICK);
+			}
 		}
 	}
 	
 	private void frameUpdateHeldKeys(float tickDelta) {
-		for (var timer : heldKeys.values()) {
-			ClickHoldResolve keyResolution = timer.clickHoldResolve;
+		for (HeldKeyTimer timer : _heldKeys.values()) {
+			ClickHoldResolve keyResolution = timer.getResolvingInputMethod();
 			if (keyResolution != null) {
 				var changedState = keyResolution.frameUpdate(tickDelta);
 				if (changedState != null) {
@@ -328,7 +352,7 @@ public class InputHandler {
 							ConditionCheck conditionCheck = ClientPowerCache.getAvailableMoves(power.getPowerClass(), power).getConditionCheck(ability);
 							float ticksToResolveHeld = changedState.timeTook();
 							doInput(InputEventType.PRESS_HOLD, timer.key.keyId(), power, ability, conditionCheck, ticksToResolveHeld);
-							timer.clickHoldResolve = null;
+							timer.setInputMethod(InputMethod.HOLD);
 						}
 						default -> {}
 					}
