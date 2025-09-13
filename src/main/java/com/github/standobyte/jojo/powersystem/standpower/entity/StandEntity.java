@@ -619,8 +619,7 @@ public class StandEntity extends LivingEntity implements SummonedStand, IEntityW
 				MathUtil.getAABBDistance(this.getBoundingBox(), user.getBoundingBox())) : 1;
 
 		if (user != null && userPower != null) {
-			staminaCondition = StandUtil.standIgnoresStaminaDebuff(user) ? 1
-					: 0.25 + Math.min((double) (userPower.getStamina() / userPower.getMaxStamina()) * 1.5, 0.75);
+			staminaCondition = StandUtil.staminaCondition(userPower);
 		}
 	}
 

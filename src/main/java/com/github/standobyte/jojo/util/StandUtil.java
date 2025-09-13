@@ -66,6 +66,11 @@ public class StandUtil {
 		return ModStatusEffects.isInResolveEffect(standUser);
 	}
 	
+	public static double staminaCondition(StandPower standPower) {
+		return standIgnoresStaminaDebuff(standPower.getUser()) ? 1
+				: 0.25 + Math.min((double) (standPower.getStamina() / standPower.getMaxStamina()) * 1.5, 0.75);
+	}
+	
 	
 	public static double getPhysicalStatValue(StandPower standPower, StandStat stat) {
 		StandEntity standEntity = standPower.getSummonedStandEntity();
@@ -85,7 +90,7 @@ public class StandUtil {
 				case DURABILITY -> ModEntityAttributes.STAND_DURABILITY;
 				case PRECISION -> ModEntityAttributes.STAND_PRECISION;
 			};
-			return AttributeUtil.getValueOrDefault(user, attribute, 0);
+			return AttributeUtil.getValueOrDefault(user, attribute, 0) * staminaCondition(standPower);
 		}
 		
 		else return 0;
