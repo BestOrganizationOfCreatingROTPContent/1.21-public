@@ -13,7 +13,6 @@ import com.github.standobyte.jojo.client.ClientUtil;
 import com.github.standobyte.jojo.client.input.InputHandler;
 import com.github.standobyte.jojo.client.input.controlscheme.ClientControlScheme;
 import com.github.standobyte.jojo.client.input.controlscheme.ClientControlScheme.HotbarSlot;
-import com.github.standobyte.jojo.client.input.controlscheme.ClientControlScheme.KeyModifierMap;
 import com.github.standobyte.jojo.client.input.controlscheme.ClientControlScheme.PowerClassAbility;
 import com.github.standobyte.jojo.client.standskin.StandSkin;
 import com.github.standobyte.jojo.client.standskin.StandSkinsLoader;
@@ -152,8 +151,9 @@ public class AbilitySelectionWheel extends Screen implements ScreenLetsUseWASD {
 			AbilityIconSprites abilityIconSprites = StandSkinsLoader.getInstance().abilityIcons;
 
 			TextureAtlasSprite abilitySprite = null;
-			for (var byInputMethod : slot.binds.entrySet()) {
-				PowerClassAbility ability = byInputMethod.getValue().getFirst(curModifier);
+			
+			for (InputMethod inputMethod : InputMethod.values()) {
+				PowerClassAbility ability = slot.binds.getFirst(curModifier, inputMethod);
 				if (ability != null) {
 					abilitySprite = abilityIconSprites.getAbilityIcon(ability.abilityName(), standSkin);
 					break;
@@ -179,8 +179,8 @@ public class AbilitySelectionWheel extends Screen implements ScreenLetsUseWASD {
 			hoveredSlot = abilities.slots.get(hoveredSlotIndex);
 			KeyModifier curModifier = InputHandler.getInstance().getCurModifier();
 			for (InputMethod inputMethod : InputMethod.values()) {
-				KeyModifierMap byInputMethod = hoveredSlot.binds.get(inputMethod);		if (byInputMethod == null) continue;
-				PowerClassAbility abilityPath = byInputMethod.getFirst(curModifier);	if (abilityPath == null) continue;
+				PowerClassAbility abilityPath = hoveredSlot.binds
+						.getFirst(curModifier, inputMethod);							if (abilityPath == null) continue;
 				Power<?> power = ClientPowerCache.getPower(abilityPath.powerClass());	if (power == null) continue;
 				Moveset moveset = power.getMoveset();									if (moveset == null) continue;
 				Ability ability = moveset.getAbility(abilityPath.abilityName());		if (ability == null) continue;

@@ -222,13 +222,13 @@ public class ControlsHudElement extends HudElement {
 		AbilityIconSprites abilityIconSprites = StandSkinsLoader.getInstance().abilityIcons;
 
 		// separate keybinds
-		Map<ClientKeyWrapper, Map<InputMethod, KeyModifierMap>> binds = curGroup.binds;
+		Map<ClientKeyWrapper, KeyModifierMap> binds = curGroup.binds;
 		for (var bindEntry : binds.entrySet()) {
 			ClientKeyWrapper key = bindEntry.getKey();
 			BindUI bindUI = new BindUI();
-			for (var byInputMethod : bindEntry.getValue().entrySet()) {
-				InputMethod inputMethod = byInputMethod.getKey();
-				KeyModifierMap bindsForInputMethod = byInputMethod.getValue();
+			
+			for (InputMethod inputMethod : InputMethod.values()) {
+				KeyModifierMap bindsForInputMethod = bindEntry.getValue();
 
 				AbilityBindUI abilityBindUI = makeBindUI(inputMethod, bindsForInputMethod, power, 
 						modifier, availableAbilities, key, false, 
@@ -271,10 +271,9 @@ public class ControlsHudElement extends HudElement {
 					HotbarSlotUI slotUI = new HotbarSlotUI();
 					slotUI.bind = new BindUI();
 					slotUI.bind.keybind = getKeyName(key);
-
-					for (var byInputMethod : slot.binds.entrySet()) {
-						InputMethod inputMethod = byInputMethod.getKey();
-						PowerClassAbility ability = byInputMethod.getValue().getFirst(modifier);
+					
+					for (InputMethod inputMethod : InputMethod.values()) {
+						PowerClassAbility ability = slot.binds.getFirst(modifier, inputMethod);
 						if (ability != null) {
 							AbilityBindUI bind = makeAbilityBindUI(key, null, 
 									inputMethod, availableAbilities._inMoveset.get(ability.abilityName()), power, 
@@ -353,7 +352,7 @@ public class ControlsHudElement extends HudElement {
 			@Nonnull KeyModifier modifier, AvailableAbilities available, ClientKeyWrapper key, boolean withModifierName, 
 			AbilityIconSprites abilitySprites, @Nullable StandSkin standSkin, 
 			Font font, TriState inContainerMenu) {
-		List<PowerClassAbility> boundAbilities = binds.getAll(modifier);
+		List<PowerClassAbility> boundAbilities = binds.getAll(modifier, inputMethod);
 		if (boundAbilities.isEmpty()) {
 			return null;
 		}
