@@ -36,10 +36,10 @@ public class EntityActionRenderState {
 	public static void extract(EntityActionRenderState renderState, LivingEntity performerEntity, @Nullable EntityActionInstance action, float partialTick) {
 		if (action != null) {
 			renderState.animId = action.ability.getEntityAnim(action);
-			renderState.time = action.getFullTicksPassed() + partialTick;
+			renderState.time = action.getAnimFullTicksPassed(partialTick);
 			renderState.actionPhase = action.getPhase();
-			renderState.phaseTime = action.getPhaseTick() + partialTick;
-			renderState.phaseCompletion = action.getPhaseRatio(partialTick);
+			renderState.phaseTime = action.getAnimPhaseTick(partialTick);
+			renderState.phaseCompletion = action.getAnimPhaseRatio(partialTick);
 			renderState.disableCrouch = true;
 		}
 		else {

@@ -114,7 +114,7 @@ public class Ability {
 	}
 	
 	@Nullable
-	public WindupIndicator cl_windupIndicator(LivingEntity clientPlayer, WindupIndicator indicator) {
+	public WindupIndicator cl_windupIndicator(LivingEntity clientPlayer, WindupIndicator indicator, float partialTick) {
 		return null;
 	}
 	

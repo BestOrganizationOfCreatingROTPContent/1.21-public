@@ -488,16 +488,16 @@ public class ControlsHudElement extends HudElement {
 				abilityColor(BlitFloat.NO_TINT, abilityUi.ability));
 		
 		if (mc.player != null) {
-			WindupIndicator windup = abilityUi.ability.ability.cl_windupIndicator(mc.player, windupIndicator);
+			WindupIndicator windup = abilityUi.ability.ability.cl_windupIndicator(mc.player, windupIndicator, partialTick);
 			if (windup != null) {
 				float alpha = !hotbarsEnabled ? 0.25F : 1.0F;
-				renderWindupIndicator(guiGraphics, x + 13, y + 13, windup.value, windup.maxValue, mc, alpha, partialTick);
+				renderWindupIndicator(guiGraphics, x + 13, y + 13, windup.value, windup.maxValue, mc, alpha);
 				WindupAtCrosshair.setRender(windup);
 			}
 		}
 	}
 	
-	public static void renderWindupIndicator(GuiGraphics guiGraphics, float x, float y, float value, float maxValue, Minecraft mc, float alpha, float partialTick) {
+	public static void renderWindupIndicator(GuiGraphics guiGraphics, float x, float y, float value, float maxValue, Minecraft mc, float alpha) {
 		if (maxValue > 0) {
 			float ratio;
 			if (value < 0) {
@@ -505,7 +505,7 @@ public class ControlsHudElement extends HudElement {
 				alpha *= 0.75F;
 			}
 			else {
-				ratio = Mth.clamp(((float) value + partialTick) / (float) maxValue, 0, 1);
+				ratio = Mth.clamp(value / maxValue, 0, 1);
 			}
 			int color = ARGB.white(alpha);
 			

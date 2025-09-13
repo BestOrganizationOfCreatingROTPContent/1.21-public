@@ -49,6 +49,7 @@ public class StandEntityHeavyPunchChargedAbility extends StandEntityAbility {
 	}
 	
 	public static class StandEntityChargedHeavy extends EntityActionInstance {
+		protected float buttonChargeRatio;
 
 		public StandEntityChargedHeavy(EntityActionType ability) {
 			super(ability);
@@ -71,6 +72,13 @@ public class StandEntityHeavyPunchChargedAbility extends StandEntityAbility {
 					syncPhaseChanges();
 				}
 				default -> {}
+			}
+		}
+		
+		@Override
+		public void onSetPhase(ActionPhase newPhase) {
+			if (getPhase() == ActionPhase.BUTTON_CHARGE && newPhase != ActionPhase.BUTTON_CHARGE) {
+				this.buttonChargeRatio = getPhaseRatio();
 			}
 		}
 		

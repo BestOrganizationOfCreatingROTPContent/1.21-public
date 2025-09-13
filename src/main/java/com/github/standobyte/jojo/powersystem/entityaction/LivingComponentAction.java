@@ -73,7 +73,7 @@ public class LivingComponentAction implements SynchronizablePlayerData, TickingE
 					/* 
 					 * Skipping too much makes the light punch animations look too choppy.
 					 * On the other hand, this mechanic encourages timing the input clicking:
-					 * if the player spam clicks, the inputs get buffered and the punches not get any windup skip,
+					 * if the player spams clicks, the inputs get buffered and the punches not get any windup skip,
 					 * however if they click after the punch PERFORM phase is over, they still get some windup skipping.
 					 * So if they time the inputs just after the punch, the combo speed gets faster.
 					 * At the start of a combo (action == null) they get full windup skipping time, 
@@ -81,9 +81,8 @@ public class LivingComponentAction implements SynchronizablePlayerData, TickingE
 					 */
 					time = Math.min(time, action.curPhaseLength / 4);
 				}
-				float phaseTime = Math.max(action.curPhaseLength - time, 1);
-				action.phasesLength.put(action.phase, phaseTime);
-				action.curPhaseLength = phaseTime;
+				time = Math.min(time, action.curPhaseLength - 1);
+				action.setSkipWindupPhase(action.phase, time);
 			}
 			default -> {}
 		}

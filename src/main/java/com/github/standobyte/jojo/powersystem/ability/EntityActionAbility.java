@@ -88,7 +88,7 @@ public class EntityActionAbility extends Ability implements EntityActionType {
 	}
 	
 	@Override
-	public WindupIndicator cl_windupIndicator(LivingEntity clientPlayer, WindupIndicator indicator) {
+	public WindupIndicator cl_windupIndicator(LivingEntity clientPlayer, WindupIndicator indicator, float partialTick) {
 		indicator.maxValue = buttonChargePhase.getAsFloat() > 0 ? 1 : 0;
 		indicator.value = -1;
 		
@@ -97,14 +97,14 @@ public class EntityActionAbility extends Ability implements EntityActionType {
 			if (performer != null) {
 				EntityActionInstance curAction = LivingComponentAction.getCurEntityAction(performer);
 				if (curAction != null && curAction.ability == this) {
-					indicator.maxValue = curAction.phasesLength.getFloat(ActionPhase.BUTTON_CHARGE);
 					if (curAction.getPhase() == ActionPhase.BUTTON_CHARGE) {
-						float buttonChargeLength = curAction.getCurPhaseLength();
-						if (buttonChargeLength > 0) {
-							indicator.value = curAction.getPhaseTick();
+						indicator.maxValue = curAction.getAnimPhaseLength(partialTick);
+						if (indicator.maxValue > 0) {
+							indicator.value = curAction.getAnimPhaseTick(partialTick);
 						}
 					}
 					else {
+						indicator.maxValue = curAction.phasesLength.getFloat(ActionPhase.BUTTON_CHARGE);
 						indicator.value = indicator.maxValue;
 					}
 				}
@@ -112,7 +112,7 @@ public class EntityActionAbility extends Ability implements EntityActionType {
 			return indicator;
 		}
 		
-		return super.cl_windupIndicator(clientPlayer, indicator);
+		return super.cl_windupIndicator(clientPlayer, indicator, partialTick);
 	}
 
 }

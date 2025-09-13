@@ -41,6 +41,7 @@ public class EntityActionInstance implements HeldInput {
 	@ApiStatus.Internal public int id;
 	@Nonnull public final EntityActionType ability;
 	@ApiStatus.Internal public Object2FloatMap<ActionPhase> phasesLength = new Object2FloatArrayMap<>();
+	@ApiStatus.Internal @Nullable public Object2FloatMap<ActionPhase> skippedWindupPhase = null;
 	
 	@Nonnull protected ActionPhase phase;
 	protected int curPhaseTick;
@@ -70,6 +71,16 @@ public class EntityActionInstance implements HeldInput {
 			}
 		}
 		setPhaseStart(ActionPhase.values()[0]);
+	}
+	
+	public void setSkipWindupPhase(ActionPhase phase, float time) {
+		skippedWindupPhase = new Object2FloatArrayMap<>();
+		skippedWindupPhase.put(phase, time);
+		if (this.phase == phase) {
+			float tick = getPhaseTick() + time;
+			this.curPhaseTick = (int) tick;
+			this.phasePartialTick = tick - this.curPhaseTick;
+		}
 	}
 	
 	public void extraClientInput(FriendlyByteBuf input) {}
@@ -251,13 +262,61 @@ public class EntityActionInstance implements HeldInput {
 	}
 
 	@ApiStatus.NonExtendable
-	public float getPhaseRatio(float renderPartialTick) {
+	public float getPhaseRatio() {
 		if (curPhaseLength == 0) throw new IllegalStateException();
-		return (getPhaseTick() + renderPartialTick) / curPhaseLength;
+		return Math.min(getPhaseTick() / curPhaseLength, 1);
 	}
 	
 	public float getFullTicksPassed() {
 		return calcFullTicks(this.phase, this.getPhaseTick());
+	}
+	
+	/* When a click and a hold ability share the same key, the code (LivingComponentAction#skipWindupTime(EntityActionInstance, float))
+	 * adjusts for the time it took to distinguish between the two by skipping a little bit of the windup phase.
+	 * For the sake of keeping animations smooth and abilities consistent, this is handled differently for actual action phases and animations.
+	 * 
+	 * For the actual phase timer, the real phase length is preserved, and the skipped time is added to the timer
+	 *   (the windup phase will start at tick 4/20).
+	 * In the animations, the skipped time is deducted from the phase length
+	 *   (the windup animation will start at tick 0/16).
+	 */
+	
+	@ApiStatus.NonExtendable
+	public float getAnimPhaseTick(float partialTick) {
+		float phaseTick = curPhaseTick + phasePartialTick;
+		if (skippedWindupPhase != null) {
+			phaseTick -= skippedWindupPhase.getOrDefault(this.phase, 0);
+		}
+		return phaseTick + partialTick;
+	}
+	
+	@ApiStatus.NonExtendable
+	public float getAnimPhaseLength(float partialTick) {
+		float phaseLength = curPhaseLength;
+		if (skippedWindupPhase != null) {
+			phaseLength -= skippedWindupPhase.getOrDefault(this.phase, 0);
+		}
+		return phaseLength;
+	}
+
+	@ApiStatus.NonExtendable
+	public float getAnimPhaseRatio(float partialTick) {
+		if (curPhaseLength == 0) throw new IllegalStateException();
+		float phaseTick = getAnimPhaseTick(partialTick);
+		float phaseLength = getAnimPhaseLength(partialTick);
+		return phaseTick / phaseLength;
+	}
+	
+	public float getAnimFullTicksPassed(float partialTick) {
+		float ticks = getFullTicksPassed();
+		if (skippedWindupPhase != null) {
+			for (ActionPhase phase : ActionPhase.values()) {
+				float skipped = skippedWindupPhase.getFloat(phase);
+				ticks -= skipped;
+				if (phase == getPhase()) break;
+			}
+		}
+		return ticks + partialTick;
 	}
 	
 
@@ -318,6 +377,7 @@ public class EntityActionInstance implements HeldInput {
 		checkNextPhase();
 	}
 	
+	// XXX only sync actual phase changes
 	public void syncPhaseChanges() {
 		if (performer != null && !performer.level().isClientSide()) {
 			PacketDistributor.sendToPlayersTrackingEntityAndSelf(performer, new TrEntityActionPhaseTimePacket(performer.getId(), 
@@ -392,6 +452,13 @@ public class EntityActionInstance implements HeldInput {
 			for (ActionPhase phase : ActionPhase.values()) {
 				buffer.writeFloat(action.phasesLength.getFloat(phase));
 			}
+			NetworkUtil.writeOptionally(action.skippedWindupPhase, buffer, (buf, map) -> {
+				buf.writeVarInt(map.size());
+				for (var entry : map.object2FloatEntrySet()) {
+					buf.writeEnum(entry.getKey());
+					buf.writeFloat(entry.getFloatValue());
+				}
+			});
 			buffer.writeVarInt(action.phase.ordinal());
 			buffer.writeVarInt(action.curPhaseTick);
 			buffer.writeFloat(action.phasePartialTick);
@@ -411,6 +478,14 @@ public class EntityActionInstance implements HeldInput {
 				for (ActionPhase phase : ActionPhase.values()) {
 					action.phasesLength.put(phase, buffer.readFloat());
 				}
+				action.skippedWindupPhase = NetworkUtil.readOptional(buffer, (buf) -> {
+					Object2FloatArrayMap<ActionPhase> map = new Object2FloatArrayMap<>();
+					int size = buf.readVarInt();
+					for (int i = 0; i < size; i++) {
+						map.put(buf.readEnum(ActionPhase.class), buf.readFloat());
+					}
+					return map;
+				}).orElse(null);
 				action.phase = ActionPhase.values()[buffer.readVarInt()];
 				action.curPhaseTick = buffer.readVarInt();
 				action.phasePartialTick = buffer.readFloat();
