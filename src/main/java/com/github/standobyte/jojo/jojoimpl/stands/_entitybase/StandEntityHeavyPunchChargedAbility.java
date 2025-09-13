@@ -22,6 +22,7 @@ import com.github.standobyte.jojo.util.target.ActionTarget.TargetType;
 import com.github.standobyte.jojo.util.target.AimingEntity;
 import com.github.standobyte.jojo.util.target.HitResultUtil;
 
+import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.damagesource.DamageSource;
 import net.minecraft.world.entity.EquipmentSlot;
 import net.minecraft.world.entity.LivingEntity;
@@ -109,6 +110,8 @@ public class StandEntityHeavyPunchChargedAbility extends StandEntityAbility {
 			if (performer instanceof StandEntity stand) {
 				ActionTarget target = HitResultUtil.clipEntityLook(stand, entity -> StandEntityPunchAbility.canStandHit(stand, entity), 0);
 				if (!level.isClientSide()) {
+					StandPower standPower = StandPower.get(getPowerUser());
+					
 					if (target.getType() == TargetType.ENTITY && target.getEntity() instanceof LivingEntity targetLiving) {
 						var damageType = DamageUtil.type(level, ModDamageTypes.STAND_ATTACK);
 						DamageSource dmgSource = new DamageSource(damageType, performer);
@@ -116,7 +119,13 @@ public class StandEntityHeavyPunchChargedAbility extends StandEntityAbility {
 						float dmgAmount = 27.75f;
 						standEntityAttack(stand, targetLiving, dmgSource, dmgAmount);
 					}
-					StandPower standPower = StandPower.get(getPowerUser());
+					
+					if (StandEntityPunchAbility.playHitSound(target, level)) {
+						StandUtil.broadcastSound((ServerLevel) level, target.getCenterPos(), 
+								ModSoundEvents.STAND_PUNCH_HEAVY_CHARGED, true, standPower, 
+								stand.getSoundSource(), 1, 1);
+					}
+					
 					standPower.consumeStamina(100);
 				}
 				if (target.getType() == TargetType.ENTITY) {

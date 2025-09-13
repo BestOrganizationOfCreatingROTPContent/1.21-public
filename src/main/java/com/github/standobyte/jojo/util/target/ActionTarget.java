@@ -261,4 +261,19 @@ public class ActionTarget {
 		BLOCK,
 		ENTITY
 	}
+	
+	
+	public Vec3 getCenterPos() {
+		return switch (getType()) {
+			case ENTITY -> {
+				Entity targetEntity = getEntity();
+				yield new Vec3(targetEntity.getX(), targetEntity.getY(0.5), targetEntity.getZ());
+			}
+			case BLOCK -> {
+				yield Vec3.atCenterOf(getBlockPos());
+			}
+			default -> null;
+		};
+	}
+	
 }

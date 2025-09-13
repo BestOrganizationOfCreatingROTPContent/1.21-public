@@ -14,6 +14,7 @@ import com.github.standobyte.jojo.powersystem.standpower.entity.StandEntity;
 import com.github.standobyte.jojo.powersystem.standpower.entity.StandEntityAbility;
 import com.github.standobyte.jojo.powersystem.standpower.entity.StandOffsetFromUser;
 import com.github.standobyte.jojo.powersystem.standpower.entity.StandStatFormulas;
+import com.github.standobyte.jojo.util.StandUtil;
 import com.github.standobyte.jojo.util.damage.DamageUtil;
 import com.github.standobyte.jojo.util.damage.RipplesModifiedDamageSource;
 import com.github.standobyte.jojo.util.target.ActionTarget;
@@ -21,6 +22,7 @@ import com.github.standobyte.jojo.util.target.ActionTarget.TargetType;
 import com.github.standobyte.jojo.util.target.AimingEntity;
 import com.github.standobyte.jojo.util.target.HitResultUtil;
 
+import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.damagesource.DamageSource;
 import net.minecraft.world.entity.EquipmentSlot;
 import net.minecraft.world.entity.LivingEntity;
@@ -101,6 +103,8 @@ public class StandEntityHeavyPunchAbility extends StandEntityAbility {
 			if (performer instanceof StandEntity stand) {
 				ActionTarget target = HitResultUtil.clipEntityLook(stand, entity -> StandEntityPunchAbility.canStandHit(stand, entity), 0);
 				if (!level.isClientSide()) {
+					StandPower standPower = StandPower.get(getPowerUser());
+					
 					if (target.getType() == TargetType.ENTITY && target.getEntity() instanceof LivingEntity targetLiving) {
 						var damageType = DamageUtil.type(level, ModDamageTypes.STAND_ATTACK);
 						DamageSource dmgSource = new DamageSource(damageType, performer);
@@ -108,7 +112,13 @@ public class StandEntityHeavyPunchAbility extends StandEntityAbility {
 						float dmgAmount = StandStatFormulas.getHeavyAttackDamage(stand.getAttackDamage());
 						standEntityAttack(stand, targetLiving, dmgSource, dmgAmount);
 					}
-					StandPower standPower = StandPower.get(getPowerUser());
+					
+					if (StandEntityPunchAbility.playHitSound(target, level)) {
+						StandUtil.broadcastSound((ServerLevel) level, target.getCenterPos(), 
+								ModSoundEvents.STAND_PUNCH_HEAVY, true, standPower, 
+								stand.getSoundSource(), 1, 1);
+					}
+					
 					standPower.consumeStamina(10);
 					stand.consumeFinisherMeter(1.0001f);
 				}

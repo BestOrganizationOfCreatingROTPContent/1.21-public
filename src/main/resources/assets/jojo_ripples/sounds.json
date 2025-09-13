@@ -28,6 +28,10 @@
     "subtitle": "jojo_ripples.subtitle.stand_attack_strong",
     "sounds": [ "jojo_ripples:stand_punch_heavy" ]
   },
+  "stand_punch_heavy_charged": {
+    "subtitle": "jojo_ripples.subtitle.stand_attack_strong",
+    "sounds": [ "jojo_ripples:stand_punch_heavy" ]
+  },
   "stand_leap": {
     "sounds": [ "jojo_ripples:stand_leap" ]
   },

@@ -2,6 +2,7 @@ package com.github.standobyte.jojo.util;
 
 import javax.annotation.Nullable;
 
+import com.github.standobyte.jojo.core.packet.fromserver.StandSkinSoundPacket;
 import com.github.standobyte.jojo.init.ModStatusEffects;
 import com.github.standobyte.jojo.init.core.ModEntityAttributes;
 import com.github.standobyte.jojo.mechanics.grab.LivingComponentGrab;
@@ -12,8 +13,15 @@ import com.github.standobyte.jojo.powersystem.standpower.entity.StandEntity;
 import com.github.standobyte.jojo.util.mc.AttributeUtil;
 
 import net.minecraft.core.Holder;
+import net.minecraft.server.level.ServerLevel;
+import net.minecraft.sounds.SoundEvent;
+import net.minecraft.sounds.SoundSource;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.ai.attributes.Attribute;
+import net.minecraft.world.phys.Vec3;
+import net.neoforged.neoforge.event.EventHooks;
+import net.neoforged.neoforge.event.PlayLevelSoundEvent;
+import net.neoforged.neoforge.network.PacketDistributor;
 
 public class StandUtil {
 
@@ -89,5 +97,22 @@ public class StandUtil {
 		DURABILITY,
 		PRECISION
 	}
-    
+	
+	
+	public static void broadcastSound(ServerLevel level, Vec3 pos, Holder<SoundEvent> sound, 
+			boolean onlyForStandUsers, StandPower userPower, 
+			SoundSource category, float volume, float pitch) {
+		PlayLevelSoundEvent.AtPosition event = EventHooks.onPlaySoundAtPosition(level, pos.x, pos.y, pos.z, sound, category, volume, pitch);
+		if (event.isCanceled() || event.getSound() == null) return;
+		
+		sound = event.getSound();
+		category = event.getSource();
+		volume = event.getNewVolume();
+		pitch = event.getNewPitch();
+		
+		StandSkinSoundPacket packet = StandSkinSoundPacket.play(pos, sound, onlyForStandUsers, userPower, category, volume, pitch);
+		double range = sound.value().getRange(volume);
+		PacketDistributor.sendToPlayersNear(level, null, pos.x, pos.y, pos.z, range, packet);
+	}
+
 }

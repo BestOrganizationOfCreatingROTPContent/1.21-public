@@ -17,6 +17,7 @@ public class ModSoundEvents {
 	public static final DeferredHolder<SoundEvent, SoundEvent> STAND_PUNCH_LIGHT = SOUNDS.register("stand_punch_light", SoundEvent::createVariableRangeEvent);
 	public static final DeferredHolder<SoundEvent, SoundEvent> STAND_PUNCH_BARRAGE = SOUNDS.register("stand_punch_barrage", SoundEvent::createVariableRangeEvent);
 	public static final DeferredHolder<SoundEvent, SoundEvent> STAND_PUNCH_HEAVY = SOUNDS.register("stand_punch_heavy", SoundEvent::createVariableRangeEvent);
+	public static final DeferredHolder<SoundEvent, SoundEvent> STAND_PUNCH_HEAVY_CHARGED = SOUNDS.register("stand_punch_heavy_charged", SoundEvent::createVariableRangeEvent);
 	public static final DeferredHolder<SoundEvent, SoundEvent> STAND_LEAP = SOUNDS.register("stand_leap", SoundEvent::createVariableRangeEvent);
 	public static final DeferredHolder<SoundEvent, SoundEvent> STAND_PUNCH_SWING = SOUNDS.register("stand_punch_swing", SoundEvent::createVariableRangeEvent);
 	public static final DeferredHolder<SoundEvent, SoundEvent> STAND_PUNCH_HEAVY_SWING = SOUNDS.register("stand_punch_heavy_swing", SoundEvent::createVariableRangeEvent);
