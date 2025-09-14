@@ -5,6 +5,8 @@ import static com.github.standobyte.jojo.core.JojoRegistries.ABILITY_TYPES;
 import com.github.standobyte.jojo.jojoimpl.stands._entitybase.StandBearingShotAbility;
 import com.github.standobyte.jojo.jojoimpl.stands._entitybase.StandEntityBarrageAbility;
 import com.github.standobyte.jojo.jojoimpl.stands._entitybase.StandEntityGrabAbility;
+import com.github.standobyte.jojo.jojoimpl.stands._entitybase.StandEntityGrabBarrage;
+import com.github.standobyte.jojo.jojoimpl.stands._entitybase.StandEntityGrabPunch;
 import com.github.standobyte.jojo.jojoimpl.stands._entitybase.StandEntityGrabReleaseAbility;
 import com.github.standobyte.jojo.jojoimpl.stands._entitybase.StandEntityGrabThrowAbility;
 import com.github.standobyte.jojo.jojoimpl.stands._entitybase.StandEntityHeavyPunchAbility;
@@ -62,6 +64,12 @@ public final class ModStandAbilities {
 	
 	public static final DeferredHolder<AbilityType<?>, AbilityType<StandEntityGrabThrowAbility>> GRAB_THROW = ABILITY_TYPES.register(
 			"stand_grab_throw", key -> new AbilityType<>(key, StandEntityGrabThrowAbility::new));
+	
+	public static final DeferredHolder<AbilityType<?>, AbilityType<StandEntityGrabPunch>> GRAB_PUNCH = ABILITY_TYPES.register(
+			"stand_grab_punch", key -> new AbilityType<>(key, StandEntityGrabPunch::new));
+	
+	public static final DeferredHolder<AbilityType<?>, AbilityType<StandEntityGrabBarrage>> GRAB_BARRAGE = ABILITY_TYPES.register(
+			"stand_grab_barrage", key -> new AbilityType<>(key, StandEntityGrabBarrage::new));
 
 	
 	public static final DeferredHolder<AbilityType<?>, AbilityType<StarFingerAbility>> SP_STAR_FINGER = ABILITY_TYPES.register(

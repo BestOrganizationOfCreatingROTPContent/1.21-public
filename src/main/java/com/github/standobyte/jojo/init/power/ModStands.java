@@ -67,12 +67,10 @@ public class ModStands {
 					.addAbility("grab_throw", ModStandAbilities.GRAB_THROW)
 					.withBind(InputKey.RMB, InputMethod.HOLD)
 					
-//					.addAbility("grab_punch", ModStandAbilities.PUNCH)
-//					.addAbility("grab_punch2", ModStandAbilities.PUNCH)
-//					.addAbility("grab_punch3", ModStandAbilities.PUNCH)
-//					.addAbility("grab_punch4", ModStandAbilities.PUNCH)
+					.addAbility("grab_punch", ModStandAbilities.GRAB_PUNCH)
+					.addAbility("grab_barrage", ModStandAbilities.GRAB_BARRAGE)
+					
 //					.addAbility("grab_ground_slam", ModStandAbilities.HEAVY_PUNCH)
-//					.addAbility("grab_barrage", ModStandAbilities.BARRAGE)
 //					.addAbility("grab_terrain", ModStandAbilities.GRAB_TERRAIN)
 //					.addAbility("terrain_throw", ModStandAbilities.GRAB_TERRAIN_THROW)
 					

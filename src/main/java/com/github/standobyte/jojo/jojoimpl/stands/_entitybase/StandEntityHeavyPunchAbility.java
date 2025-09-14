@@ -20,7 +20,6 @@ import com.github.standobyte.jojo.util.damage.RipplesModifiedDamageSource;
 import com.github.standobyte.jojo.util.target.ActionTarget;
 import com.github.standobyte.jojo.util.target.ActionTarget.TargetType;
 import com.github.standobyte.jojo.util.target.AimingEntity;
-import com.github.standobyte.jojo.util.target.HitResultUtil;
 
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.damagesource.DamageSource;
@@ -101,7 +100,7 @@ public class StandEntityHeavyPunchAbility extends StandEntityAbility {
 		public void actionPerformStart() {
 			Level level = level();
 			if (performer instanceof StandEntity stand) {
-				ActionTarget target = HitResultUtil.clipEntityLook(stand, entity -> StandEntityPunchAbility.canStandHit(stand, entity), 0);
+				ActionTarget target = getPunchTarget(stand);
 				if (!level.isClientSide()) {
 					StandPower standPower = StandPower.get(getPowerUser());
 					
@@ -129,6 +128,10 @@ public class StandEntityHeavyPunchAbility extends StandEntityAbility {
 					aimAs = AimingEntity.PLAYER;
 				}
 			}
+		}
+		
+		protected ActionTarget getPunchTarget(StandEntity stand) {
+			return StandEntityPunchAbility.aimAtPunchTarget(stand);
 		}
 		
 	}

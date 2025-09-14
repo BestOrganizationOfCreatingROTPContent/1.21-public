@@ -79,6 +79,7 @@ public class ModelUtil {
 	
 	public static final Map<Model, Map<String, ModelPart[]>> __cache = new IdentityHashMap<>();
 	@Nullable
+	// FIXME ModelUtil.getModelPartPos (this shit is still incorrect)
 	public static Vec3 getModelPartPos(Model model, String modelPartName, Vec3 finalOffset) {
 		ModelPart modelRoot = ((Model_1_21_2plus) model).jojo_ripples$root();
 		if (modelRoot == null) return null;

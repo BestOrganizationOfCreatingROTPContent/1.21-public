@@ -312,7 +312,7 @@ public class StandEntity extends LivingEntity implements SummonedStand, IEntityW
 	protected boolean lookAtCurTarget(PrevRotations rotO) {
 		ActionTarget lookTarget;
 		EntityActionInstance curAction = standAction.getAction();
-		boolean fullyRotateBody = curAction != null;
+		boolean fullyRotateBody = curAction != null && LivingComponentGrab.getEntityGrabbedBy(this) == null;
 		if (curAction != null) {
 			lookTarget = curAction.standRotationTarget;
 			if (lookTarget == null) {

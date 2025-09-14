@@ -8,7 +8,11 @@ import com.github.standobyte.jojo.client.sound.sounds.EntityStoppableSoundInstan
 import com.github.standobyte.jojo.init.ModDamageTypes;
 import com.github.standobyte.jojo.init.ModSoundEvents;
 import com.github.standobyte.jojo.mechanics.ServerBlockDestroyTracker;
+import com.github.standobyte.jojo.mechanics.grab.LivingComponentGrab;
+import com.github.standobyte.jojo.powersystem.Moveset;
 import com.github.standobyte.jojo.powersystem.Power;
+import com.github.standobyte.jojo.powersystem.PowerClass;
+import com.github.standobyte.jojo.powersystem.ability.Ability;
 import com.github.standobyte.jojo.powersystem.ability.AbilityId;
 import com.github.standobyte.jojo.powersystem.ability.AbilityType;
 import com.github.standobyte.jojo.powersystem.ability.condition.ConditionCheck;
@@ -26,7 +30,6 @@ import com.github.standobyte.jojo.util.damage.DamageUtil;
 import com.github.standobyte.jojo.util.damage.RipplesModifiedDamageSource;
 import com.github.standobyte.jojo.util.target.ActionTarget;
 import com.github.standobyte.jojo.util.target.AimingEntity;
-import com.github.standobyte.jojo.util.target.HitResultUtil;
 
 import net.minecraft.core.BlockPos;
 import net.minecraft.server.level.ServerLevel;
@@ -56,6 +59,23 @@ public class StandEntityBarrageAbility extends StandEntityAbility {
 			return ConditionCheck.createNegative("stand_too_slow");
 		}
 		return super.checkSpecificConditions(context);
+	}
+	
+	@Override
+	public Ability replaceWithSubAbility(Power<?> context) {
+		StandPower standPower = PowerClass.STAND.cast(context);
+		if (standPower != null) {
+			Moveset moveset = standPower.getMoveset();
+			
+			StandEntity standEntity = standPower.getSummonedStandEntity();
+			if (standEntity != null) {
+				if (LivingComponentGrab.getEntityGrabbedBy(standEntity) != null) {
+					return moveset.getAbility("grab_barrage");
+				}
+			}
+		}
+		
+		return super.replaceWithSubAbility(context);
 	}
 	
 	
@@ -111,10 +131,7 @@ public class StandEntityBarrageAbility extends StandEntityAbility {
 		@Override
 		public void actionTick() {
 			if (getPhase() == ActionPhase.PERFORM && performer instanceof StandEntity stand) {
-				float hitsPerSec = StandStatFormulas.getBarrageHitsPerSecond(stand.getAttackSpeed());
-				float hitsPerTick = hitsPerSec / 20;
-				int curTick = (curPhaseTick - 1) % 20 + 1; // 1~20
-				hitsThisTick = (int) (hitsPerTick * curTick) - (int) (hitsPerTick * (curTick - 1));
+				hitsThisTick = (int) getHitsPerTick(stand);
 				
 				Level level = performer.level();
 				if (level.isClientSide()) {
@@ -126,12 +143,12 @@ public class StandEntityBarrageAbility extends StandEntityAbility {
 				}
 				else {
 					StandPower standPower = StandPower.get(getPowerUser());
-					ActionTarget target = HitResultUtil.clipEntityLook(stand, entity -> StandEntityPunchAbility.canStandHit(stand, entity), 0);
+					ActionTarget target = getPunchTarget(stand);
 
 					if (StandEntityPunchAbility.playHitSound(target, level)) {
 						hitSoundPos = target.getCenterPos();
 					}
-					if (curTick % 3 == 0 && hitSoundPos != null) {
+					if (curPhaseTick % 3 == 0 && hitSoundPos != null) {
 						StandUtil.broadcastSound((ServerLevel) level, hitSoundPos, 
 								ModSoundEvents.STAND_PUNCH_BARRAGE, true, standPower, 
 								stand.getSoundSource(), 
@@ -162,6 +179,17 @@ public class StandEntityBarrageAbility extends StandEntityAbility {
 		@Override
 		public boolean canBeCancelledInto(EntityActionType cancellingAbility) {
 			return cancellingAbility != this.ability;
+		}
+		
+		protected float getHitsPerTick(StandEntity stand) {
+			float hitsPerSec = StandStatFormulas.getBarrageHitsPerSecond(stand.getAttackSpeed());
+			float hitsPerTick = hitsPerSec / 20;
+			int curTick = (curPhaseTick - 1) % 20 + 1; // 1~20
+			return (hitsPerTick * curTick) - (int) (hitsPerTick * (curTick - 1));
+		}
+		
+		protected ActionTarget getPunchTarget(StandEntity stand) {
+			return StandEntityPunchAbility.aimAtPunchTarget(stand);
 		}
 		
 		protected void dealDamage(ActionTarget entityTarget, Level level, StandEntity stand) {

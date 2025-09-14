@@ -10144,7 +10144,8 @@
 							"vector": [-2.94368, 23.21061, 105.11528]
 						},
 						"0.3333": {
-							"vector": [-86.18827, 38.1236, 100.61173]
+							"vector": [-86.18827, 38.1236, 100.61173],
+							"easing": "easeInCubic"
 						},
 						"1.0": {
 							"vector": [-19.61491, 4.94551, 26.12495]
@@ -10168,7 +10169,8 @@
 							"vector": [-94.5685, 71.6909, -94.53072]
 						},
 						"0.3333": {
-							"vector": [-92.70582, 65.46694, -92.57371]
+							"vector": [-92.70582, 65.46694, -92.57371],
+							"easing": "easeInCubic"
 						},
 						"1.0": {
 							"vector": [-91.14225, 10.48903, -90.31982]
@@ -10265,6 +10267,11 @@
 						}
 					}
 				}
+			},
+			"timeline": {
+				"0.0": "phase = WINDUP;",
+				"0.2917": "phase = PERFORM;",
+				"0.4167": "phase = RECOVERY;"
 			}
 		},
 		"grab_barrage": {
@@ -15899,6 +15906,11 @@
 						}
 					}
 				}
+			},
+			"timeline": {
+				"0.0": "phase = WINDUP;",
+				"0.25": ["phase = PERFORM;", "phase.loopBack = 0.25;", "barrage = GRAB_RIGHT;"],
+				"5.9167": ["phase = RECOVERY;", "barrage = null;"]
 			}
 		},
 		"grab_uppercut": {
@@ -16727,7 +16739,8 @@
 						}
 					}
 				}
-			}
+			},
+			"timeline": {}
 		},
 		"break_free": {
 			"animation_length": 1.2,

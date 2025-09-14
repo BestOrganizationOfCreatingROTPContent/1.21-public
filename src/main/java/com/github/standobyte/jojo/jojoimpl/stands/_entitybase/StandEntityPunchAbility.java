@@ -7,6 +7,7 @@ import com.github.standobyte.jojo.client.ClientGlobals;
 import com.github.standobyte.jojo.client.sound.ClientsideSoundsHelper;
 import com.github.standobyte.jojo.init.ModDamageTypes;
 import com.github.standobyte.jojo.init.ModSoundEvents;
+import com.github.standobyte.jojo.mechanics.grab.LivingComponentGrab;
 import com.github.standobyte.jojo.powersystem.Moveset;
 import com.github.standobyte.jojo.powersystem.Power;
 import com.github.standobyte.jojo.powersystem.PowerClass;
@@ -48,6 +49,25 @@ public class StandEntityPunchAbility extends StandEntityAbility {
 		setDefaultPhaseLength(ActionPhase.PERFORM, 2);
 		setDefaultPhaseLength(ActionPhase.RECOVERY, 20);
 		noFinisherBarDecay = true;
+	}
+	
+	@Override
+	public Ability replaceWithSubAbility(Power<?> context) {
+		StandPower standPower = PowerClass.STAND.cast(context);
+		if (standPower != null) {
+			Moveset moveset = standPower.getMoveset();
+			
+			StandEntity standEntity = standPower.getSummonedStandEntity();
+			if (standEntity != null) {
+				if (LivingComponentGrab.getEntityGrabbedBy(standEntity) != null) {
+					return moveset.getAbility("grab_punch");
+				}
+			}
+			
+			Ability punch = getComboPunch(standEntity, moveset);
+			if (punch != null) return punch;
+		}
+		return super.replaceWithSubAbility(context);
 	}
 	
 	
@@ -109,7 +129,7 @@ public class StandEntityPunchAbility extends StandEntityAbility {
 		public void actionPerformStart() {
 			Level level = level();
 			if (performer instanceof StandEntity stand) {
-				ActionTarget target = HitResultUtil.clipEntityLook(stand, entity -> StandEntityPunchAbility.canStandHit(stand, entity), 0);
+				ActionTarget target = getPunchTarget(stand);
 				if (!level.isClientSide()) {
 					StandPower standPower = StandPower.get(getPowerUser());
 					
@@ -148,8 +168,16 @@ public class StandEntityPunchAbility extends StandEntityAbility {
 			}
 		}
 		
+		protected ActionTarget getPunchTarget(StandEntity stand) {
+			return StandEntityPunchAbility.aimAtPunchTarget(stand);
+		}
+		
 	}
 	
+	
+	public static ActionTarget aimAtPunchTarget(StandEntity stand) {
+		return HitResultUtil.clipEntityLook(stand, entity -> StandEntityPunchAbility.canStandHit(stand, entity), 0);
+	}
 	
 	public static boolean canStandHit(StandEntity stand, Entity target) {
 		return _EntitySelector.CAN_BE_PICKED.test(target) && stand.canAttackEntity(target);
@@ -181,40 +209,40 @@ public class StandEntityPunchAbility extends StandEntityAbility {
 		list.add("punch4");
 	});
 	
-	@Override
-	public Ability replaceWithSubAbility(Power<?> context) {
-		StandPower standPower = PowerClass.STAND.cast(context);
-		if (standPower != null) {
-			Moveset moveset = standPower.getMoveset();
-			int startFromPunch = 0;
-			
-			StandEntity standEntity = standPower.getSummonedStandEntity();
-			if (standEntity != null) {
-				AbilityId curAbility = LivingComponentAction.getComponent(standEntity).comboString.getLast();
-				
-				if (curAbility != null) {
-					String actionName = curAbility.nameInMoveset();
-					for (int i = 0; i < punchNames.size(); i++) {
-						if (punchNames.get(i).equals(actionName)) {
-							startFromPunch = i + 1;
-							break;
-						}
-					}
-				}
+	@Deprecated
+	protected Ability getComboPunch(StandEntity standEntity, Moveset moveset) {
+		int startFromPunch = 0;
+		
+		if (standEntity != null) {
+			if (LivingComponentGrab.getEntityGrabbedBy(standEntity) != null) {
+				return moveset.getAbility("grab_punch");
 			}
 			
-			int size = punchNames.size();
-			for (int i = 0; i < size; i++) {
-				int index = (startFromPunch + i) % size;
-				String nextPunchName = punchNames.get(index);
-				Ability nextPunch = moveset.getAbility(nextPunchName);
-				if (nextPunch != null) {
-					return nextPunch;
+			
+			AbilityId curAbility = LivingComponentAction.getComponent(standEntity).comboString.getLast();
+			
+			if (curAbility != null) {
+				String actionName = curAbility.nameInMoveset();
+				for (int i = 0; i < punchNames.size(); i++) {
+					if (punchNames.get(i).equals(actionName)) {
+						startFromPunch = i + 1;
+						break;
+					}
 				}
 			}
 		}
 		
-		return super.replaceWithSubAbility(context);
+		int size = punchNames.size();
+		for (int i = 0; i < size; i++) {
+			int index = (startFromPunch + i) % size;
+			String nextPunchName = punchNames.get(index);
+			Ability nextPunch = moveset.getAbility(nextPunchName);
+			if (nextPunch != null) {
+				return nextPunch;
+			}
+		}
+		
+		return null;
 	}
 
 }
