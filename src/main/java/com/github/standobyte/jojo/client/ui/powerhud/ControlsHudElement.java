@@ -195,6 +195,8 @@ public class ControlsHudElement extends HudElement {
 		public int y;
 		public int keybindWidth;
 		public int width;
+		
+		public boolean selectingAbility;
 	}
 	
 	public static class HotbarSlotUI {
@@ -220,6 +222,8 @@ public class ControlsHudElement extends HudElement {
 		if (modifier == KeyModifier.ALT) modifier = KeyModifier.NONE;
 		AvailableAbilities availableAbilities = ClientPowerCache.getAvailableMoves(power.getPowerClass(), power);
 		AbilityIconSprites abilityIconSprites = StandSkinsLoader.getInstance().abilityIcons;
+		
+		InputHandler modInput = InputHandler.getInstance();
 
 		// separate keybinds
 		Map<ClientKeyWrapper, KeyModifierMap> binds = curGroup.binds;
@@ -301,6 +305,7 @@ public class ControlsHudElement extends HudElement {
 				hotbarUI.keybindWidth = font.width(hotbarUI.keybind) + 4;
 				hotbarUI.width = hotbarUI.keybindWidth + hotbarUI.slots.size() * SLOT_WIDTH + 4;
 				hotbarUI.width = Math.max(font.width(hotbarUI.switchHint), hotbarUI.width);
+				hotbarUI.selectingAbility = modInput.isSelectingAbility(hotbar);
 
 				this.hotbars.add(hotbarUI);
 			}
@@ -481,6 +486,13 @@ public class ControlsHudElement extends HudElement {
 					}
 					if (slot == hotbar.selected) {
 						HOTBAR_SELECTION.render(guiGraphics.pose(), x - 15, y - 15);
+						
+						if (hotbar.selectingAbility) {
+							float time = modInput.getHotbarsSelectionTime();
+							int highlightAlpha = (int) (ClientUtil.getHighlightAlpha(time + 20F, 40F, 40F, 0.25F, 0.5F) * 255F);
+							guiGraphics.fill(x - 1, y - 1, x + 23, y + 23, ARGB.white(highlightAlpha));
+//							ClientUtil.fillSingleRect(x + hotbarFold.getSlotWithIndex(selected).pos - 4, y - 4, 24, 23, 255, 255, 255, highlightAlpha);
+						}
 					}
 					x += SLOT_WIDTH;
 				}

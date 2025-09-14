@@ -203,6 +203,19 @@ public class ClientModSettingsScreen extends Screen {
 //			};
 //			addRenderableWidget(showLockedSlots.createButton(calcButtonX(i), calcButtonY(i++), 150, 20, this, i));
 
+
+			BooleanSetting abilitySelectionWheel = new BooleanSetting(settings, 
+					Component.translatable("jojo_ripples.config.client.abilitySelectionWheel"), 
+					Component.translatable("jojo_ripples.config.client.abilitySelectionWheel.tooltip"),
+					null
+					) {
+				@Override public Boolean get() { return settingsValues.abilitySelectionWheel; }
+				@Override public void set(Boolean value) { 
+					settingsValues.abilitySelectionWheel = value;
+				}
+			};
+			addRenderableWidget(abilitySelectionWheel.createButton(calcButtonX(i), calcButtonY(i++), 150, 20, this, i));
+
 			addBackButton(CommonComponents.GUI_BACK, i);
 		}
 

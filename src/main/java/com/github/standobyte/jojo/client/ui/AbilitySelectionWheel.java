@@ -106,7 +106,7 @@ public class AbilitySelectionWheel extends Screen implements ScreenLetsUseWASD {
 
 	@Override
 	public void render(GuiGraphics guiGraphics, int mouseX, int mouseY, float partialTick) {
-		if (abilities == null || !InputHandler.getInstance().hotbarsSelection.contains(abilities)) {
+		if (abilities == null || !InputHandler.getInstance().isSelectingAbility(abilities)) {
 			onClose();
 			return;
 		}
@@ -243,7 +243,7 @@ public class AbilitySelectionWheel extends Screen implements ScreenLetsUseWASD {
 	
 	@Override
 	public void onClose() {
-		InputHandler.getInstance().hotbarsSelection.remove(this.abilities);
+		InputHandler.getInstance().setSelectingAbility(abilities, false);
 		super.onClose();
 	}
 

@@ -3,7 +3,6 @@ package com.github.standobyte.jojo.client.input;
 import java.util.ArrayDeque;
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.OptionalInt;
@@ -18,6 +17,9 @@ import org.lwjgl.glfw.GLFW;
 
 import com.github.standobyte.jojo.client.ClientGlobals;
 import com.github.standobyte.jojo.client.ClientPowerCache;
+import com.github.standobyte.jojo.client.ClientTickHandler;
+import com.github.standobyte.jojo.client.ClientUtil;
+import com.github.standobyte.jojo.client.config.ClientModSettings;
 import com.github.standobyte.jojo.client.event.PreKeyInputEvent;
 import com.github.standobyte.jojo.client.input.controlscheme.AllControlSchemes;
 import com.github.standobyte.jojo.client.input.controlscheme.ClientControlScheme;
@@ -41,6 +43,7 @@ import com.github.standobyte.jojo.powersystem.playerpower.PlayerPower;
 import com.github.standobyte.jojo.powersystem.standpower.StandPower;
 import com.github.standobyte.jojo.powersystem.standpower.entity.StandEntity;
 import com.github.standobyte.jojo.util.CommonEnums.Direction2D;
+import com.google.common.collect.Sets;
 import com.mojang.blaze3d.platform.InputConstants;
 import com.mojang.blaze3d.platform.InputConstants.Key;
 
@@ -443,7 +446,8 @@ public class InputHandler {
 	
 	// Hotbar stuff
 	
-	public Set<Hotbar> hotbarsSelection = new HashSet<>();
+	public Set<Hotbar> hotbarsSelection = Sets.newIdentityHashSet();
+	protected float hotbarsSelectionTimestamp;
 	
 	public void checkStartHotbarSelection(ClientKeyWrapper pressedKey) {
 		Power<?> power = getCurPower();
@@ -454,10 +458,10 @@ public class InputHandler {
 			for (Hotbar abilityHotbar : curControls.hotbars) {
 				if (abilityHotbar.switchAbilityKey == pressedKey) {
 					if (wheelHotbar == null) wheelHotbar = abilityHotbar;
-					hotbarsSelection.add(abilityHotbar);
+					setSelectingAbility(abilityHotbar, true);
 				}
 			}
-			if (wheelHotbar != null) {
+			if (ClientModSettings.getSettingsReadOnly().abilitySelectionWheel && wheelHotbar != null) {
 				mc.setScreen(new AbilitySelectionWheel(wheelHotbar));
 			}
 		}
@@ -515,6 +519,27 @@ public class InputHandler {
 			}
 		}
 		return true;
+	}
+	
+	public boolean isSelectingAbility(Hotbar hotbar) {
+		return hotbarsSelection.contains(hotbar);
+	}
+	
+	public void setSelectingAbility(Hotbar hotbar, boolean selecting) {
+		if (selecting) {
+			if (hotbarsSelection.isEmpty()) {
+				hotbarsSelectionTimestamp = ClientTickHandler.tickCount + ClientUtil.partialTick();
+			}
+			hotbarsSelection.add(hotbar);
+		}
+		else {
+			hotbarsSelection.remove(hotbar);
+		}
+	}
+	
+	public float getHotbarsSelectionTime() {
+		float time = ClientTickHandler.tickCount + ClientUtil.partialTick();
+		return time - hotbarsSelectionTimestamp;
 	}
 	
 	

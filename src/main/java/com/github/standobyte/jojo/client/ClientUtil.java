@@ -56,6 +56,14 @@ public class ClientUtil {
 				/ (double)mc.getWindow().getScreenHeight());
 	}
 
+	// it just works
+	public static float getHighlightAlpha(float ticks, float cycleTicks, float maxAlphaTicks, float minAlpha, float maxAlpha) {
+		ticks %= cycleTicks;
+		float coeff = maxAlpha / maxAlphaTicks;
+		float alpha = ticks <= cycleTicks / 2 ? coeff * ticks : coeff * (cycleTicks - ticks);
+		return Math.min(alpha, maxAlpha - minAlpha) + minAlpha;
+	}
+
 	public static void renderEntityFace(PoseStack poseStack, int x, int y, LivingEntity entity) {
 		if (entity instanceof AbstractClientPlayer player) {
 			renderPlayerFace(poseStack, x, y, player);
