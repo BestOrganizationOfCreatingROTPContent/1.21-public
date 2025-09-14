@@ -491,6 +491,7 @@ public class ControlsHudElement extends HudElement {
 							float time = modInput.getHotbarsSelectionTime();
 							int highlightAlpha = (int) (ClientUtil.getHighlightAlpha(time + 20F, 40F, 40F, 0.25F, 0.5F) * 255F);
 							guiGraphics.fill(x - 1, y - 1, x + 23, y + 23, ARGB.white(highlightAlpha));
+							RenderSystem.enableBlend();
 //							ClientUtil.fillSingleRect(x + hotbarFold.getSlotWithIndex(selected).pos - 4, y - 4, 24, 23, 255, 255, 255, highlightAlpha);
 						}
 					}
