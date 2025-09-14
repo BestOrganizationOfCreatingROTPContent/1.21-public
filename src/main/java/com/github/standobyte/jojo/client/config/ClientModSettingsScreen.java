@@ -1,6 +1,8 @@
 package com.github.standobyte.jojo.client.config;
 
+import java.util.ArrayList;
 import java.util.List;
+import java.util.function.Function;
 
 import javax.annotation.Nullable;
 
@@ -43,6 +45,9 @@ public class ClientModSettingsScreen extends Screen {
     protected final Screen lastScreen;
 	protected final ClientModSettings settings;
 	protected final ClientModSettings.Settings settingsValues;
+	
+	protected final List<Title> categories = new ArrayList<>();
+	protected static record Title(Component title, int y) {}
 
 	public ClientModSettingsScreen(Screen lastScreen, ClientModSettings settings) {
 		this(lastScreen, settings, Component.translatable("jojo_ripples.options.client.title"));
@@ -67,7 +72,11 @@ public class ClientModSettingsScreen extends Screen {
 	}
 
 	protected void addRenderableWidgets() {
+		categories.clear();
 		int i = 0;
+		int yOffset = 0;
+		
+		// TODO make client config screen scrollable for when there'll be more config options
 
 //		BooleanSetting characterVoiceLines = new BooleanSetting(settings, 
 //				Component.translatable("jojo_ripples.config.client.characterVoiceLines"), 
@@ -76,7 +85,7 @@ public class ClientModSettingsScreen extends Screen {
 //			@Override public Boolean get() { return settingsValues.characterVoiceLines; }
 //			@Override public void set(Boolean value) { settingsValues.characterVoiceLines = value; }
 //		};
-//		addRenderableWidget(characterVoiceLines.createButton(calcButtonX(i), calcButtonY(i++), 150, 20, this, i));
+//		addRenderableWidget(characterVoiceLines.createButton(calcButtonX(i), calcButtonY(i++) + yOffset, 150, 20, this, i));
 //
 //		BooleanSetting menacingParticles = new BooleanSetting(settings, 
 //				Component.translatable("jojo_ripples.config.client.menacingParticles"), 
@@ -85,32 +94,242 @@ public class ClientModSettingsScreen extends Screen {
 //			@Override public Boolean get() { return settingsValues.menacingParticles; }
 //			@Override public void set(Boolean value) { settingsValues.menacingParticles = value; }
 //		};
-//		addRenderableWidget(menacingParticles.createButton(calcButtonX(i), calcButtonY(i++), 150, 20, this, i));
-
-		i += (i % 2 == 1) ? 3 : 2;
+//		addRenderableWidget(menacingParticles.createButton(calcButtonX(i), calcButtonY(i++) + yOffset, 150, 20, this, i));
 		
 		// XXX icon symbols at the start of each button
 
-		addRenderableWidget(new Button.Builder(
-				Component.translatable("jojo_ripples.options.client.hud"), 
-				button -> minecraft.setScreen(new HudSettings(this, settings, button.getMessage())))
-				.bounds(calcButtonX(i), calcButtonY(i++) + 6, 150, 20).build(/*Button::new*/));
+		
+		// HUD settings
+		
+		yOffset += 10;
+		if (i % 2 == 1) ++i;
+		categories.add(new Title(Component.translatable("jojo_ripples.options.client.hud"), calcButtonY(i) + yOffset));
+		yOffset += 15;
 
-		addRenderableWidget(new Button.Builder(
-				Component.translatable("jojo_ripples.options.client.stand"), 
-				button -> minecraft.setScreen(new StandSettings(this, settings, button.getMessage())))
-				.bounds(calcButtonX(i), calcButtonY(i++) + 6, 150, 20).build(/*Button::new*/));
+//		EnumSetting<PositionConfig> barsPosition = new EnumSetting<PositionConfig>(settings, 
+//				Component.translatable("jojo_ripples.config.client.barsPosition"), 
+//				Component.translatable("jojo_ripples.config.client.barsPosition.tooltip"), 
+//				PositionConfig.class) {
+//			@Override public PositionConfig get() { return settingsValues.barsPosition; }
+//			@Override public void set(PositionConfig value) { settingsValues.barsPosition = value; }
+//		};
+//		addRenderableWidget(barsPosition.createButton(calcButtonX(i), calcButtonY(i++) + yOffset, 150, 20, this, i));
+//
+//		EnumSetting<PositionConfig> hotbarsPosition = new EnumSetting<PositionConfig>(settings, 
+//				Component.translatable("jojo_ripples.config.client.hotbarsPosition"), 
+//				Component.translatable("jojo_ripples.config.client.hotbarsPosition.tooltip"), 
+//				PositionConfig.class) {
+//			@Override public PositionConfig get() { return settingsValues.hotbarsPosition; }
+//			@Override public void set(PositionConfig value) { settingsValues.hotbarsPosition = value; }
+//		};
+//		addRenderableWidget(hotbarsPosition.createButton(calcButtonX(i), calcButtonY(i++) + yOffset, 150, 20, this, i));
+//
+//		EnumSetting<HudTextRender> hudNamesRender = new EnumSetting<HudTextRender>(settings, 
+//				Component.translatable("jojo_ripples.config.client.hudNamesRender"), 
+//				Component.translatable("jojo_ripples.config.client.hudNamesRender.tooltip"), 
+//				HudTextRender.class) {
+//			@Override public HudTextRender get() { return settingsValues.hudTextRender; }
+//			@Override public void set(HudTextRender value) { settingsValues.hudTextRender = value; }
+//		};
+//		addRenderableWidget(hudNamesRender.createButton(calcButtonX(i), calcButtonY(i++) + yOffset, 150, 20, this, i));
+//
+//		BooleanSetting hudHotbarsFold = new BooleanSetting(settings, 
+//				Component.translatable("jojo_ripples.config.client.hudHotbarsFold"), 
+//				Component.translatable("jojo_ripples.config.client.hudHotbarsFold.tooltip")
+//				) {
+//			@Override public Boolean get() { return settingsValues.hudHotbarFold; }
+//			@Override public void set(Boolean value) { 
+//				settingsValues.hudHotbarFold = value;
+//				if (minecraft.player != null) {
+//					for (PowerClass<?> power : PowerClass.values()) {
+//						power.getOptional(minecraft.player).ifPresent(Power::clUpdateHud);
+//					}
+//				}
+//			}
+//		};
+//		addRenderableWidget(hudHotbarsFold.createButton(calcButtonX(i), calcButtonY(i++) + yOffset, 150, 20, this, i));
+//
+//		BooleanSetting showLockedSlots = new BooleanSetting(settings, 
+//				Component.translatable("jojo_ripples.config.client.showLockedSlots"), 
+//				Component.translatable("jojo_ripples.config.client.showLockedSlots.tooltip")
+//				) {
+//			@Override public Boolean get() { return settingsValues.showLockedSlots; }
+//			@Override public void set(Boolean value) {
+//				settingsValues.showLockedSlots = value;
+//				if (minecraft.player != null) {
+//					for (PowerClass<?> power : PowerClass.values()) {
+//						power.getOptional(minecraft.player).ifPresent(Power::clUpdateHud);
+//					}
+//				}
+//			}
+//		};
+//		addRenderableWidget(showLockedSlots.createButton(calcButtonX(i), calcButtonY(i++) + yOffset, 150, 20, this, i));
 
-		addRenderableWidget(new Button.Builder(
-				Component.translatable("jojo_ripples.options.client.hamon"), 
-				button -> minecraft.setScreen(new HamonSettings(this, settings, button.getMessage())))
-				.bounds(calcButtonX(i), calcButtonY(i++) + 6, 150, 20).build(/*Button::new*/));
+		Setting<Boolean> abilitySelectionWheel = new BooleanSetting(settings, 
+				Component.translatable("jojo_ripples.config.client.abilitySelectionWheel"), 
+				Component.translatable("jojo_ripples.config.client.abilitySelectionWheel.tooltip")
+				) {
+			@Override public Boolean get() { return settingsValues.abilitySelectionWheel; }
+			@Override public void set(Boolean value) { 
+				settingsValues.abilitySelectionWheel = value;
+			}
+		}.withIcon(toIconPath("ability_selection_wheel"));
+		addRenderableWidget(abilitySelectionWheel.createButton(calcButtonX(i), calcButtonY(i++) + yOffset, 150, 20, this, i));
 
-		addRenderableWidget(new Button.Builder(
-				Component.translatable("jojo_ripples.options.client.vampirism"), 
-				button -> minecraft.setScreen(new VampirismSettings(this, settings, button.getMessage())))
-				.bounds(calcButtonX(i), calcButtonY(i++) + 6, 150, 20).build(/*Button::new*/));
+		
+		// Stand settings
 
+		yOffset += 10;
+		if (i % 2 == 1) ++i;
+		categories.add(new Title(Component.translatable("jojo_ripples.options.client.stand"), calcButtonY(i) + yOffset));
+		yOffset += 15;
+
+		Setting<Boolean> standAimMarker = new BooleanSetting(settings, 
+				Component.translatable("jojo_ripples.config.client.standAimMarker"), 
+				Component.translatable("jojo_ripples.config.client.standAimMarker.tooltip")
+				) {
+			@Override public Boolean get() { return settingsValues.standAimMarker; }
+			@Override public void set(Boolean value) { 
+				settingsValues.standAimMarker = value;
+			}
+		}.withIcon(toIconPath("stand_aim_marker"), iconPath -> new IconGlyphInfo(new GuiIcon(iconPath, 17, 17), 17, 17, 0, -5, 5));
+		addRenderableWidget(standAimMarker.createButton(calcButtonX(i), calcButtonY(i++) + yOffset, 150, 20, this, i));
+
+//		BooleanSetting resolveShaders = new BooleanSetting(settings, 
+//				Component.translatable("jojo_ripples.config.client.resolveShaders"), 
+//				Component.translatable("jojo_ripples.config.client.resolveShaders.tooltip")
+//				) {
+//			@Override public Boolean get() { return settingsValues.resolveShaders; }
+//			@Override public void set(Boolean value) { 
+//				settingsValues.resolveShaders = value;
+//				if (!value) {
+//					ShaderEffectApplier.getInstance().stopResolveShader();
+//				}
+//			}
+//		};
+//		addRenderableWidget(resolveShaders.createButton(calcButtonX(i), calcButtonY(i++) + yOffset, 150, 20, this, i));
+//
+//		BooleanSetting timeStopAnimation = new BooleanSetting(settings, 
+//				Component.translatable("jojo_ripples.config.client.timeStopAnimation"), 
+//				Component.translatable("jojo_ripples.config.client.timeStopAnimation.tooltip")
+//				) {
+//			@Override public Boolean get() { return settingsValues.timeStopAnimation; }
+//			@Override public void set(Boolean value) { settingsValues.timeStopAnimation = value; }
+//		};
+//		addRenderableWidget(timeStopAnimation.createButton(calcButtonX(i), calcButtonY(i++) + yOffset, 150, 20, this, i));
+//
+//		Setting<HumanoidArm> standSide = new EnumSetting<HumanoidArm>(settings, 
+//				Component.translatable("jojo_ripples.config.client.standSide"), 
+//				Component.translatable("jojo_ripples.config.client.standSide.tooltip"), 
+//				HumanoidArm.class) {
+//			@Override public HumanoidArm get() { return settingsValues.broadcasted.standSide; }
+//			@Override public void set(HumanoidArm value) { settingsValues.broadcasted.standSide = value; }
+//		}
+//		.prefix("stand_")
+//		.setBroadcasted();
+//		addRenderableWidget(standSide.createButton(calcButtonX(i), calcButtonY(i++) + yOffset, 150, 20, this, i));
+//
+//		BooleanSetting standMotionTilt = new BooleanSetting(settings, 
+//				Component.translatable("jojo_ripples.config.client.standMotionTilt"), 
+//				Component.translatable("jojo_ripples.config.client.standMotionTilt.tooltip")
+//				) {
+//			@Override public Boolean get() { return settingsValues.standMotionTilt; }
+//			@Override public void set(Boolean value) { settingsValues.standMotionTilt = value; }
+//		};
+//		addRenderableWidget(standMotionTilt.createButton(calcButtonX(i), calcButtonY(i++) + yOffset, 150, 20, this, i));
+//
+//		BooleanSetting standOutline = new BooleanSetting(settings, 
+//				Component.translatable("jojo_ripples.config.client.standOutline"), 
+//				Component.translatable("jojo_ripples.config.client.standOutline.tooltip")
+//				) {
+//			@Override public Boolean get() { return settingsValues.standOutline; }
+//			@Override public void set(Boolean value) { settingsValues.standOutline = value; }
+//		};
+//		addRenderableWidget(standOutline.createButton(calcButtonX(i), calcButtonY(i++) + yOffset, 150, 20, this, i));
+		
+		
+		// Hamon settings
+
+		yOffset += 10;
+		if (i % 2 == 1) ++i;
+		categories.add(new Title(Component.translatable("jojo_ripples.options.client.hamon"), calcButtonY(i) + yOffset));
+		yOffset += 15;
+
+//		BooleanSetting thirdPersonHamonAura = new BooleanSetting(settings, 
+//				Component.translatable("jojo_ripples.config.client.thirdPersonHamonAura"), 
+//				Component.translatable("jojo_ripples.config.client.thirdPersonHamonAura.tooltip"), 
+//				null) {
+//			@Override public Boolean get() { return settingsValues.thirdPersonHamonAura; }
+//			@Override public void set(Boolean value) { 
+//				settingsValues.thirdPersonHamonAura = value;
+//			}
+//		};
+//		addRenderableWidget(thirdPersonHamonAura.createButton(calcButtonX(i), calcButtonY(i++) + yOffset, 150, 20, this, i));
+//
+//		BooleanSetting firstPersonHamonAura = new BooleanSetting(settings, 
+//				Component.translatable("jojo_ripples.config.client.firstPersonHamonAura"), 
+//				Component.translatable("jojo_ripples.config.client.firstPersonHamonAura.tooltip"), 
+//				null) {
+//			@Override public Boolean get() { return settingsValues.firstPersonHamonAura; }
+//			@Override public void set(Boolean value) { 
+//				settingsValues.firstPersonHamonAura = value;
+//			}
+//		};
+//		addRenderableWidget(firstPersonHamonAura.createButton(calcButtonX(i), calcButtonY(i++) + yOffset, 150, 20, this, i));
+//
+//		BooleanSetting hamonAuraBlur = new BooleanSetting(settings, 
+//				Component.translatable("jojo_ripples.config.client.hamonAuraBlur"), 
+//				Component.translatable("jojo_ripples.config.client.hamonAuraBlur.tooltip"), 
+//				null) {
+//			@Override public Boolean get() { return settingsValues.hamonAuraBlur; }
+//			@Override public void set(Boolean value) { 
+//				settingsValues.hamonAuraBlur = value;
+//			}
+//		};
+//		addRenderableWidget(hamonAuraBlur.createButton(calcButtonX(i), calcButtonY(i++) + yOffset, 150, 20, this, i));
+		
+		
+		// Vampirism settings
+
+		yOffset += 10;
+		if (i % 2 == 1) ++i;
+		categories.add(new Title(Component.translatable("jojo_ripples.options.client.vampirism"), calcButtonY(i) + yOffset));
+		yOffset += 15;
+
+//		BooleanSetting glowingEyes = new BooleanSetting(settings, 
+//				Component.translatable("jojo_ripples.config.client.vampireGlowingEyes"), 
+//				Component.translatable("jojo_ripples.config.client.vampireGlowingEyes.tooltip")
+//				) {
+//			@Override public Boolean get() { return settingsValues.broadcasted.vampireGlowingEyes; }
+//			@Override public void set(Boolean value) { 
+//				settingsValues.broadcasted.vampireGlowingEyes = value;
+//			}
+//		};
+//		addRenderableWidget(glowingEyes.createButton(calcButtonX(i), calcButtonY(i++) + yOffset, 150, 20, this, i));
+		
+		
+
+
+//		addRenderableWidget(new Button.Builder(
+//				Component.translatable("jojo_ripples.options.client.hud"), 
+//				button -> minecraft.setScreen(new HudSettings(this, settings, button.getMessage())))
+//				.bounds(calcButtonX(i), calcButtonY(i++) + yOffset + 6, 150, 20).build(/*Button::new*/));
+//
+//		addRenderableWidget(new Button.Builder(
+//				Component.translatable("jojo_ripples.options.client.stand"), 
+//				button -> minecraft.setScreen(new StandSettings(this, settings, button.getMessage())))
+//				.bounds(calcButtonX(i), calcButtonY(i++) + yOffset + 6, 150, 20).build(/*Button::new*/));
+//
+//		addRenderableWidget(new Button.Builder(
+//				Component.translatable("jojo_ripples.options.client.hamon"), 
+//				button -> minecraft.setScreen(new HamonSettings(this, settings, button.getMessage())))
+//				.bounds(calcButtonX(i), calcButtonY(i++) + yOffset + 6, 150, 20).build(/*Button::new*/));
+//
+//		addRenderableWidget(new Button.Builder(
+//				Component.translatable("jojo_ripples.options.client.vampirism"), 
+//				button -> minecraft.setScreen(new VampirismSettings(this, settings, button.getMessage())))
+//				.bounds(calcButtonX(i), calcButtonY(i++) + yOffset + 6, 150, 20).build(/*Button::new*/));
+		
 		addBackButton(CommonComponents.GUI_DONE, i);
 	}
 
@@ -123,247 +342,250 @@ public class ClientModSettingsScreen extends Screen {
 		addRenderableWidget(new Button.Builder(
 				text, button -> minecraft.setScreen(lastScreen))
 				.bounds(this.width / 2 - 100, 
-						calcButtonY(buttonsAdded), 
+						this.height - 26, 
 						200, 20)
 				.build(/*Button::new*/));
 	}
 
 
 
-	public static class HudSettings extends ClientModSettingsScreen {
-
-		public HudSettings(Screen lastScreen, ClientModSettings settings, Component title) {
-			super(lastScreen, settings, title);
-		}
-
-		@Override
-		protected void addRenderableWidgets() {
-			int i = 0;
-
-//			EnumSetting<PositionConfig> barsPosition = new EnumSetting<PositionConfig>(settings, 
-//					Component.translatable("jojo_ripples.config.client.barsPosition"), 
-//					Component.translatable("jojo_ripples.config.client.barsPosition.tooltip"), 
-//					PositionConfig.class) {
-//				@Override public PositionConfig get() { return settingsValues.barsPosition; }
-//				@Override public void set(PositionConfig value) { settingsValues.barsPosition = value; }
-//			};
-//			addRenderableWidget(barsPosition.createButton(calcButtonX(i), calcButtonY(i++), 150, 20, this, i));
+//	@Deprecated
+//	public static class HudSettings extends ClientModSettingsScreen {
+//
+//		public HudSettings(Screen lastScreen, ClientModSettings settings, Component title) {
+//			super(lastScreen, settings, title);
+//		}
+//
+//		@Override
+//		protected void addRenderableWidgets() {
+//			int i = 0;
+//
+////			EnumSetting<PositionConfig> barsPosition = new EnumSetting<PositionConfig>(settings, 
+////					Component.translatable("jojo_ripples.config.client.barsPosition"), 
+////					Component.translatable("jojo_ripples.config.client.barsPosition.tooltip"), 
+////					PositionConfig.class) {
+////				@Override public PositionConfig get() { return settingsValues.barsPosition; }
+////				@Override public void set(PositionConfig value) { settingsValues.barsPosition = value; }
+////			};
+////			addRenderableWidget(barsPosition.createButton(calcButtonX(i), calcButtonY(i++), 150, 20, this, i));
+////
+////
+////			EnumSetting<PositionConfig> hotbarsPosition = new EnumSetting<PositionConfig>(settings, 
+////					Component.translatable("jojo_ripples.config.client.hotbarsPosition"), 
+////					Component.translatable("jojo_ripples.config.client.hotbarsPosition.tooltip"), 
+////					PositionConfig.class) {
+////				@Override public PositionConfig get() { return settingsValues.hotbarsPosition; }
+////				@Override public void set(PositionConfig value) { settingsValues.hotbarsPosition = value; }
+////			};
+////			addRenderableWidget(hotbarsPosition.createButton(calcButtonX(i), calcButtonY(i++), 150, 20, this, i));
+////
+////
+////			EnumSetting<HudTextRender> hudNamesRender = new EnumSetting<HudTextRender>(settings, 
+////					Component.translatable("jojo_ripples.config.client.hudNamesRender"), 
+////					Component.translatable("jojo_ripples.config.client.hudNamesRender.tooltip"), 
+////					HudTextRender.class) {
+////				@Override public HudTextRender get() { return settingsValues.hudTextRender; }
+////				@Override public void set(HudTextRender value) { settingsValues.hudTextRender = value; }
+////			};
+////			addRenderableWidget(hudNamesRender.createButton(calcButtonX(i), calcButtonY(i++), 150, 20, this, i));
+////
+////
+////			BooleanSetting hudHotbarsFold = new BooleanSetting(settings, 
+////					Component.translatable("jojo_ripples.config.client.hudHotbarsFold"), 
+////					Component.translatable("jojo_ripples.config.client.hudHotbarsFold.tooltip")
+////					) {
+////				@Override public Boolean get() { return settingsValues.hudHotbarFold; }
+////				@Override public void set(Boolean value) { 
+////					settingsValues.hudHotbarFold = value;
+////					if (minecraft.player != null) {
+////						for (PowerClass<?> power : PowerClass.values()) {
+////							power.getOptional(minecraft.player).ifPresent(Power::clUpdateHud);
+////						}
+////					}
+////				}
+////			};
+////			addRenderableWidget(hudHotbarsFold.createButton(calcButtonX(i), calcButtonY(i++), 150, 20, this, i));
+////
+////
+////			BooleanSetting showLockedSlots = new BooleanSetting(settings, 
+////					Component.translatable("jojo_ripples.config.client.showLockedSlots"), 
+////					Component.translatable("jojo_ripples.config.client.showLockedSlots.tooltip")
+////					) {
+////				@Override public Boolean get() { return settingsValues.showLockedSlots; }
+////				@Override public void set(Boolean value) {
+////					settingsValues.showLockedSlots = value;
+////					if (minecraft.player != null) {
+////						for (PowerClass<?> power : PowerClass.values()) {
+////							power.getOptional(minecraft.player).ifPresent(Power::clUpdateHud);
+////						}
+////					}
+////				}
+////			};
+////			addRenderableWidget(showLockedSlots.createButton(calcButtonX(i), calcButtonY(i++), 150, 20, this, i));
 //
 //
-//			EnumSetting<PositionConfig> hotbarsPosition = new EnumSetting<PositionConfig>(settings, 
-//					Component.translatable("jojo_ripples.config.client.hotbarsPosition"), 
-//					Component.translatable("jojo_ripples.config.client.hotbarsPosition.tooltip"), 
-//					PositionConfig.class) {
-//				@Override public PositionConfig get() { return settingsValues.hotbarsPosition; }
-//				@Override public void set(PositionConfig value) { settingsValues.hotbarsPosition = value; }
-//			};
-//			addRenderableWidget(hotbarsPosition.createButton(calcButtonX(i), calcButtonY(i++), 150, 20, this, i));
-//
-//
-//			EnumSetting<HudTextRender> hudNamesRender = new EnumSetting<HudTextRender>(settings, 
-//					Component.translatable("jojo_ripples.config.client.hudNamesRender"), 
-//					Component.translatable("jojo_ripples.config.client.hudNamesRender.tooltip"), 
-//					HudTextRender.class) {
-//				@Override public HudTextRender get() { return settingsValues.hudTextRender; }
-//				@Override public void set(HudTextRender value) { settingsValues.hudTextRender = value; }
-//			};
-//			addRenderableWidget(hudNamesRender.createButton(calcButtonX(i), calcButtonY(i++), 150, 20, this, i));
-//
-//
-//			BooleanSetting hudHotbarsFold = new BooleanSetting(settings, 
-//					Component.translatable("jojo_ripples.config.client.hudHotbarsFold"), 
-//					Component.translatable("jojo_ripples.config.client.hudHotbarsFold.tooltip")
+//			BooleanSetting abilitySelectionWheel = new BooleanSetting(settings, 
+//					Component.translatable("jojo_ripples.config.client.abilitySelectionWheel"), 
+//					Component.translatable("jojo_ripples.config.client.abilitySelectionWheel.tooltip")
 //					) {
-//				@Override public Boolean get() { return settingsValues.hudHotbarFold; }
+//				@Override public Boolean get() { return settingsValues.abilitySelectionWheel; }
 //				@Override public void set(Boolean value) { 
-//					settingsValues.hudHotbarFold = value;
-//					if (minecraft.player != null) {
-//						for (PowerClass<?> power : PowerClass.values()) {
-//							power.getOptional(minecraft.player).ifPresent(Power::clUpdateHud);
-//						}
-//					}
+//					settingsValues.abilitySelectionWheel = value;
 //				}
 //			};
-//			addRenderableWidget(hudHotbarsFold.createButton(calcButtonX(i), calcButtonY(i++), 150, 20, this, i));
+//			addRenderableWidget(abilitySelectionWheel.createButton(calcButtonX(i), calcButtonY(i++), 150, 20, this, i));
 //
+//			addBackButton(CommonComponents.GUI_BACK, i);
+//		}
 //
-//			BooleanSetting showLockedSlots = new BooleanSetting(settings, 
-//					Component.translatable("jojo_ripples.config.client.showLockedSlots"), 
-//					Component.translatable("jojo_ripples.config.client.showLockedSlots.tooltip")
+//	}
+//
+//	@Deprecated
+//	public static class StandSettings extends ClientModSettingsScreen {
+//
+//		public StandSettings(Screen lastScreen, ClientModSettings settings, Component title) {
+//			super(lastScreen, settings, title);
+//		}
+//
+//		@Override
+//		protected void addRenderableWidgets() {
+//			int i = 0;
+//
+////			BooleanSetting resolveShaders = new BooleanSetting(settings, 
+////					Component.translatable("jojo_ripples.config.client.resolveShaders"), 
+////					Component.translatable("jojo_ripples.config.client.resolveShaders.tooltip")
+////					) {
+////				@Override public Boolean get() { return settingsValues.resolveShaders; }
+////				@Override public void set(Boolean value) { 
+////					settingsValues.resolveShaders = value;
+////					if (!value) {
+////						ShaderEffectApplier.getInstance().stopResolveShader();
+////					}
+////				}
+////			};
+////			addRenderableWidget(resolveShaders.createButton(calcButtonX(i), calcButtonY(i++), 150, 20, this, i));
+////
+////
+////			BooleanSetting timeStopAnimation = new BooleanSetting(settings, 
+////					Component.translatable("jojo_ripples.config.client.timeStopAnimation"), 
+////					Component.translatable("jojo_ripples.config.client.timeStopAnimation.tooltip")
+////					) {
+////				@Override public Boolean get() { return settingsValues.timeStopAnimation; }
+////				@Override public void set(Boolean value) { settingsValues.timeStopAnimation = value; }
+////			};
+////			addRenderableWidget(timeStopAnimation.createButton(calcButtonX(i), calcButtonY(i++), 150, 20, this, i));
+////
+////
+////			Setting<HumanoidArm> standSide = new EnumSetting<HumanoidArm>(settings, 
+////					Component.translatable("jojo_ripples.config.client.standSide"), 
+////					Component.translatable("jojo_ripples.config.client.standSide.tooltip"), 
+////					HumanoidArm.class) {
+////				@Override public HumanoidArm get() { return settingsValues.broadcasted.standSide; }
+////				@Override public void set(HumanoidArm value) { settingsValues.broadcasted.standSide = value; }
+////			}
+////			.prefix("stand_")
+////			.setBroadcasted();
+////			addRenderableWidget(standSide.createButton(calcButtonX(i), calcButtonY(i++), 150, 20, this, i));
+////
+////
+////			BooleanSetting standMotionTilt = new BooleanSetting(settings, 
+////					Component.translatable("jojo_ripples.config.client.standMotionTilt"), 
+////					Component.translatable("jojo_ripples.config.client.standMotionTilt.tooltip")
+////					) {
+////				@Override public Boolean get() { return settingsValues.standMotionTilt; }
+////				@Override public void set(Boolean value) { settingsValues.standMotionTilt = value; }
+////			};
+////			addRenderableWidget(standMotionTilt.createButton(calcButtonX(i), calcButtonY(i++), 150, 20, this, i));
+////
+////			BooleanSetting standOutline = new BooleanSetting(settings, 
+////					Component.translatable("jojo_ripples.config.client.standOutline"), 
+////					Component.translatable("jojo_ripples.config.client.standOutline.tooltip")
+////					) {
+////				@Override public Boolean get() { return settingsValues.standOutline; }
+////				@Override public void set(Boolean value) { settingsValues.standOutline = value; }
+////			};
+////			addRenderableWidget(standOutline.createButton(calcButtonX(i), calcButtonY(i++), 150, 20, this, i));
+//
+//			addBackButton(CommonComponents.GUI_BACK, i);
+//		}
+//
+//	}
+//
+//	@Deprecated
+//	public static class HamonSettings extends ClientModSettingsScreen {
+//
+//		public HamonSettings(Screen lastScreen, ClientModSettings settings, Component title) {
+//			super(lastScreen, settings, title);
+//		}
+//
+//		@Override
+//		protected void addRenderableWidgets() {
+//			int i = 0;
+//
+//			BooleanSetting thirdPersonHamonAura = new BooleanSetting(settings, 
+//					Component.translatable("jojo_ripples.config.client.thirdPersonHamonAura"), 
+//					Component.translatable("jojo_ripples.config.client.thirdPersonHamonAura.tooltip")
 //					) {
-//				@Override public Boolean get() { return settingsValues.showLockedSlots; }
-//				@Override public void set(Boolean value) {
-//					settingsValues.showLockedSlots = value;
-//					if (minecraft.player != null) {
-//						for (PowerClass<?> power : PowerClass.values()) {
-//							power.getOptional(minecraft.player).ifPresent(Power::clUpdateHud);
-//						}
-//					}
-//				}
-//			};
-//			addRenderableWidget(showLockedSlots.createButton(calcButtonX(i), calcButtonY(i++), 150, 20, this, i));
-
-
-			BooleanSetting abilitySelectionWheel = new BooleanSetting(settings, 
-					Component.translatable("jojo_ripples.config.client.abilitySelectionWheel"), 
-					Component.translatable("jojo_ripples.config.client.abilitySelectionWheel.tooltip"),
-					null
-					) {
-				@Override public Boolean get() { return settingsValues.abilitySelectionWheel; }
-				@Override public void set(Boolean value) { 
-					settingsValues.abilitySelectionWheel = value;
-				}
-			};
-			addRenderableWidget(abilitySelectionWheel.createButton(calcButtonX(i), calcButtonY(i++), 150, 20, this, i));
-
-			addBackButton(CommonComponents.GUI_BACK, i);
-		}
-
-	}
-
-	public static class StandSettings extends ClientModSettingsScreen {
-
-		public StandSettings(Screen lastScreen, ClientModSettings settings, Component title) {
-			super(lastScreen, settings, title);
-		}
-
-		@Override
-		protected void addRenderableWidgets() {
-			int i = 0;
-
-//			BooleanSetting resolveShaders = new BooleanSetting(settings, 
-//					Component.translatable("jojo_ripples.config.client.resolveShaders"), 
-//					Component.translatable("jojo_ripples.config.client.resolveShaders.tooltip")
-//					) {
-//				@Override public Boolean get() { return settingsValues.resolveShaders; }
+//				@Override public Boolean get() { return settingsValues.thirdPersonHamonAura; }
 //				@Override public void set(Boolean value) { 
-//					settingsValues.resolveShaders = value;
-//					if (!value) {
-//						ShaderEffectApplier.getInstance().stopResolveShader();
-//					}
+//					settingsValues.thirdPersonHamonAura = value;
 //				}
 //			};
-//			addRenderableWidget(resolveShaders.createButton(calcButtonX(i), calcButtonY(i++), 150, 20, this, i));
+//			addRenderableWidget(thirdPersonHamonAura.createButton(calcButtonX(i), calcButtonY(i++), 150, 20, this, i));
 //
-//
-//			BooleanSetting timeStopAnimation = new BooleanSetting(settings, 
-//					Component.translatable("jojo_ripples.config.client.timeStopAnimation"), 
-//					Component.translatable("jojo_ripples.config.client.timeStopAnimation.tooltip")
+//			BooleanSetting firstPersonHamonAura = new BooleanSetting(settings, 
+//					Component.translatable("jojo_ripples.config.client.firstPersonHamonAura"), 
+//					Component.translatable("jojo_ripples.config.client.firstPersonHamonAura.tooltip")
 //					) {
-//				@Override public Boolean get() { return settingsValues.timeStopAnimation; }
-//				@Override public void set(Boolean value) { settingsValues.timeStopAnimation = value; }
-//			};
-//			addRenderableWidget(timeStopAnimation.createButton(calcButtonX(i), calcButtonY(i++), 150, 20, this, i));
-//
-//
-//			Setting<HumanoidArm> standSide = new EnumSetting<HumanoidArm>(settings, 
-//					Component.translatable("jojo_ripples.config.client.standSide"), 
-//					Component.translatable("jojo_ripples.config.client.standSide.tooltip"), 
-//					HumanoidArm.class) {
-//				@Override public HumanoidArm get() { return settingsValues.broadcasted.standSide; }
-//				@Override public void set(HumanoidArm value) { settingsValues.broadcasted.standSide = value; }
-//			}
-//			.prefix("stand_")
-//			.setBroadcasted();
-//			addRenderableWidget(standSide.createButton(calcButtonX(i), calcButtonY(i++), 150, 20, this, i));
-//
-//
-//			BooleanSetting standMotionTilt = new BooleanSetting(settings, 
-//					Component.translatable("jojo_ripples.config.client.standMotionTilt"), 
-//					Component.translatable("jojo_ripples.config.client.standMotionTilt.tooltip")
-//					) {
-//				@Override public Boolean get() { return settingsValues.standMotionTilt; }
-//				@Override public void set(Boolean value) { settingsValues.standMotionTilt = value; }
-//			};
-//			addRenderableWidget(standMotionTilt.createButton(calcButtonX(i), calcButtonY(i++), 150, 20, this, i));
-//
-//			BooleanSetting standOutline = new BooleanSetting(settings, 
-//					Component.translatable("jojo_ripples.config.client.standOutline"), 
-//					Component.translatable("jojo_ripples.config.client.standOutline.tooltip")
-//					) {
-//				@Override public Boolean get() { return settingsValues.standOutline; }
-//				@Override public void set(Boolean value) { settingsValues.standOutline = value; }
-//			};
-//			addRenderableWidget(standOutline.createButton(calcButtonX(i), calcButtonY(i++), 150, 20, this, i));
-
-			addBackButton(CommonComponents.GUI_BACK, i);
-		}
-
-	}
-
-	public static class HamonSettings extends ClientModSettingsScreen {
-
-		public HamonSettings(Screen lastScreen, ClientModSettings settings, Component title) {
-			super(lastScreen, settings, title);
-		}
-
-		@Override
-		protected void addRenderableWidgets() {
-			int i = 0;
-
-			BooleanSetting thirdPersonHamonAura = new BooleanSetting(settings, 
-					Component.translatable("jojo_ripples.config.client.thirdPersonHamonAura"), 
-					Component.translatable("jojo_ripples.config.client.thirdPersonHamonAura.tooltip"), 
-					null) {
-				@Override public Boolean get() { return settingsValues.thirdPersonHamonAura; }
-				@Override public void set(Boolean value) { 
-					settingsValues.thirdPersonHamonAura = value;
-				}
-			};
-			addRenderableWidget(thirdPersonHamonAura.createButton(calcButtonX(i), calcButtonY(i++), 150, 20, this, i));
-
-			BooleanSetting firstPersonHamonAura = new BooleanSetting(settings, 
-					Component.translatable("jojo_ripples.config.client.firstPersonHamonAura"), 
-					Component.translatable("jojo_ripples.config.client.firstPersonHamonAura.tooltip"), 
-					null) {
-				@Override public Boolean get() { return settingsValues.firstPersonHamonAura; }
-				@Override public void set(Boolean value) { 
-					settingsValues.firstPersonHamonAura = value;
-				}
-			};
-			addRenderableWidget(firstPersonHamonAura.createButton(calcButtonX(i), calcButtonY(i++), 150, 20, this, i));
-
-			BooleanSetting hamonAuraBlur = new BooleanSetting(settings, 
-					Component.translatable("jojo_ripples.config.client.hamonAuraBlur"), 
-					Component.translatable("jojo_ripples.config.client.hamonAuraBlur.tooltip"), 
-					null) {
-				@Override public Boolean get() { return settingsValues.hamonAuraBlur; }
-				@Override public void set(Boolean value) { 
-					settingsValues.hamonAuraBlur = value;
-				}
-			};
-			addRenderableWidget(hamonAuraBlur.createButton(calcButtonX(i), calcButtonY(i++), 150, 20, this, i));
-
-			addBackButton(CommonComponents.GUI_BACK, i);
-		}
-
-	}
-
-	public static class VampirismSettings extends ClientModSettingsScreen {
-
-		public VampirismSettings(Screen lastScreen, ClientModSettings settings, Component title) {
-			super(lastScreen, settings, title);
-		}
-
-		@Override
-		protected void addRenderableWidgets() {
-			int i = 0;
-
-//			BooleanSetting glowingEyes = new BooleanSetting(settings, 
-//					Component.translatable("jojo_ripples.config.client.vampireGlowingEyes"), 
-//					Component.translatable("jojo_ripples.config.client.vampireGlowingEyes.tooltip")
-//					) {
-//				@Override public Boolean get() { return settingsValues.broadcasted.vampireGlowingEyes; }
+//				@Override public Boolean get() { return settingsValues.firstPersonHamonAura; }
 //				@Override public void set(Boolean value) { 
-//					settingsValues.broadcasted.vampireGlowingEyes = value;
+//					settingsValues.firstPersonHamonAura = value;
 //				}
 //			};
-//			addRenderableWidget(glowingEyes.createButton(calcButtonX(i), calcButtonY(i++), 150, 20, this, i));
-
-			addBackButton(CommonComponents.GUI_BACK, i);
-		}
-
-	}
+//			addRenderableWidget(firstPersonHamonAura.createButton(calcButtonX(i), calcButtonY(i++), 150, 20, this, i));
+//
+//			BooleanSetting hamonAuraBlur = new BooleanSetting(settings, 
+//					Component.translatable("jojo_ripples.config.client.hamonAuraBlur"), 
+//					Component.translatable("jojo_ripples.config.client.hamonAuraBlur.tooltip")
+//					) {
+//				@Override public Boolean get() { return settingsValues.hamonAuraBlur; }
+//				@Override public void set(Boolean value) { 
+//					settingsValues.hamonAuraBlur = value;
+//				}
+//			};
+//			addRenderableWidget(hamonAuraBlur.createButton(calcButtonX(i), calcButtonY(i++), 150, 20, this, i));
+//
+//			addBackButton(CommonComponents.GUI_BACK, i);
+//		}
+//
+//	}
+//
+//	@Deprecated
+//	public static class VampirismSettings extends ClientModSettingsScreen {
+//
+//		public VampirismSettings(Screen lastScreen, ClientModSettings settings, Component title) {
+//			super(lastScreen, settings, title);
+//		}
+//
+//		@Override
+//		protected void addRenderableWidgets() {
+//			int i = 0;
+//
+////			BooleanSetting glowingEyes = new BooleanSetting(settings, 
+////					Component.translatable("jojo_ripples.config.client.vampireGlowingEyes"), 
+////					Component.translatable("jojo_ripples.config.client.vampireGlowingEyes.tooltip")
+////					) {
+////				@Override public Boolean get() { return settingsValues.broadcasted.vampireGlowingEyes; }
+////				@Override public void set(Boolean value) { 
+////					settingsValues.broadcasted.vampireGlowingEyes = value;
+////				}
+////			};
+////			addRenderableWidget(glowingEyes.createButton(calcButtonX(i), calcButtonY(i++), 150, 20, this, i));
+//
+//			addBackButton(CommonComponents.GUI_BACK, i);
+//		}
+//
+//	}
 
 
 
@@ -384,6 +606,9 @@ public class ClientModSettingsScreen extends Screen {
 	public void render(GuiGraphics guiGraphics, int mouseX, int mouseY, float partialTicks) {
 		renderBackground(guiGraphics, mouseX, mouseY, partialTicks);
 		guiGraphics.drawCenteredString(font, title, width / 2, 15, 0xFFFFFF);
+		for (var categoryTitle : categories) {
+			guiGraphics.drawCenteredString(font, categoryTitle.title, width / 2, categoryTitle.y, 0xC0C0C0);
+		}
 		super.render(guiGraphics, mouseX, mouseY, partialTicks);
 	}
 
@@ -408,20 +633,25 @@ public class ClientModSettingsScreen extends Screen {
 		public abstract T get();
 		public abstract void set(T value);
 		
-		public Setting(ClientModSettings settings, Component name, @Nullable Component tooltip, @Nullable ResourceLocation sprite) {
+		public Setting(ClientModSettings settings, Component name, @Nullable Component tooltip) {
 			this.settings = settings;
 			this.name = name;
 			this.tooltip = tooltip;
+			this.nameWithSprite = name;
+		}
+		
+		public Setting<T> withIcon(ResourceLocation sprite) {
+			return withIcon(sprite, iconPath -> new IconGlyphInfo(new GuiIcon(iconPath, 16, 16), 16, 16, 0, -4, 4));
+		}
+		
+		public Setting<T> withIcon(ResourceLocation sprite, Function<ResourceLocation, IconGlyphInfo> createGlyph) {
 			this.sprite = sprite;
 			if (sprite != null) {
 				spriteCode = iconSymbols.computeIfAbsent(sprite, (ResourceLocation iconPath) -> 
-						IconGlyphsCache.makeCharCodeFor(new IconGlyphInfo(new GuiIcon(iconPath, 16, 16), 16, 16, 0, -5, 4)));
+						IconGlyphsCache.makeCharCodeFor(createGlyph.apply(iconPath)));
 				this.nameWithSprite = Component.literal(String.valueOf(spriteCode)).append(name);
 			}
-			else {
-				this.nameWithSprite = name;
-			}
-			this.name = name;
+			return this;
 		}
 
 		public Setting<T> setBroadcasted() {
@@ -438,8 +668,8 @@ public class ClientModSettingsScreen extends Screen {
 
 	protected static abstract class BooleanSetting extends Setting<Boolean> {
 
-		public BooleanSetting(ClientModSettings settings, Component name, @Nullable Component tooltip, @Nullable ResourceLocation sprite) {
-			super(settings, name, tooltip, sprite);
+		public BooleanSetting(ClientModSettings settings, Component name, @Nullable Component tooltip) {
+			super(settings, name, tooltip);
 		}
 
 		@Override
@@ -462,8 +692,8 @@ public class ClientModSettingsScreen extends Screen {
 		protected Class<T> enumClass;
 		protected String prefix = "jojo_ripples.config.client.option.";
 
-		public EnumSetting(ClientModSettings settings, Component name, @Nullable Component tooltip, Class<T> enumClass, @Nullable ResourceLocation sprite) {
-			super(settings, name, tooltip, sprite);
+		public EnumSetting(ClientModSettings settings, Component name, @Nullable Component tooltip, Class<T> enumClass) {
+			super(settings, name, tooltip);
 			this.enumClass = enumClass;
 		}
 
