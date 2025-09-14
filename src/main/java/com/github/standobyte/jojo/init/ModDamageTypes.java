@@ -31,6 +31,8 @@ public class ModDamageTypes {
 	public static final ResourceKey<DamageType> STAND_HEALTH_LINK = ResourceKey.create(Registries.DAMAGE_TYPE, JojoMod.resLoc("stand_health_link"));
 	
 	
+	// FIXME TAGS FUCKING SUCK APPARENTLY
+	// (Couldn't load tag jojo:can_hurt_stands as it is missing following references: jojowor:stand (from mod/jojo_ripples))
 	public static final TagKey<DamageType> CAN_HURT_STANDS = TagKey.create(Registries.DAMAGE_TYPE, 
 			ResourceLocation.fromNamespaceAndPath("jojo", "can_hurt_stands"));
 	public static final TagKey<DamageType> ADDS_RESOLVE = TagKey.create(Registries.DAMAGE_TYPE, 
