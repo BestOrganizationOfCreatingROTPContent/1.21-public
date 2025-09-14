@@ -105,18 +105,18 @@ public class StandEntityHeavyPunchAbility extends StandEntityAbility {
 				if (!level.isClientSide()) {
 					StandPower standPower = StandPower.get(getPowerUser());
 					
+					if (StandEntityPunchAbility.playHitSound(target, level)) {
+						StandUtil.broadcastSound((ServerLevel) level, target.getCenterPos(), 
+								ModSoundEvents.STAND_PUNCH_HEAVY, true, standPower, 
+								stand.getSoundSource(), 1, 1);
+					}
+					
 					if (target.getType() == TargetType.ENTITY && target.getEntity() instanceof LivingEntity targetLiving) {
 						var damageType = DamageUtil.type(level, ModDamageTypes.STAND_ATTACK);
 						DamageSource dmgSource = new DamageSource(damageType, performer);
 						((RipplesModifiedDamageSource) dmgSource).jojo_ripples$modifyKnockback(1f, 1);
 						float dmgAmount = StandStatFormulas.getHeavyAttackDamage(stand.getAttackDamage());
 						standEntityAttack(stand, targetLiving, dmgSource, dmgAmount);
-					}
-					
-					if (StandEntityPunchAbility.playHitSound(target, level)) {
-						StandUtil.broadcastSound((ServerLevel) level, target.getCenterPos(), 
-								ModSoundEvents.STAND_PUNCH_HEAVY, true, standPower, 
-								stand.getSoundSource(), 1, 1);
 					}
 					
 					standPower.consumeStamina(10);

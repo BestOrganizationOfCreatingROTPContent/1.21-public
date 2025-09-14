@@ -1,5 +1,7 @@
 package com.github.standobyte.jojo.jojoimpl.stands._entitybase;
 
+import javax.annotation.Nullable;
+
 import com.github.standobyte.jojo.client.ClientGlobals;
 import com.github.standobyte.jojo.client.sound.ClientsideSoundsHelper;
 import com.github.standobyte.jojo.client.sound.sounds.EntityStoppableSoundInstance;
@@ -35,6 +37,7 @@ import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.SoundType;
 import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.phys.Vec3;
 
 public class StandEntityBarrageAbility extends StandEntityAbility {
 
@@ -78,6 +81,7 @@ public class StandEntityBarrageAbility extends StandEntityAbility {
 	
 	public static class StandEntityBarrage extends EntityActionInstance {
 		public int hitsThisTick;
+		@Nullable protected Vec3 hitSoundPos;
 
 		public StandEntityBarrage(EntityActionType ability) {
 			super(ability);
@@ -121,13 +125,27 @@ public class StandEntityBarrageAbility extends StandEntityAbility {
 					}
 				}
 				else {
+					StandPower standPower = StandPower.get(getPowerUser());
 					ActionTarget target = HitResultUtil.clipEntityLook(stand, entity -> StandEntityPunchAbility.canStandHit(stand, entity), 0);
+
+					if (StandEntityPunchAbility.playHitSound(target, level)) {
+						hitSoundPos = target.getCenterPos();
+					}
+					if (curTick % 3 == 0 && hitSoundPos != null) {
+						StandUtil.broadcastSound((ServerLevel) level, hitSoundPos, 
+								ModSoundEvents.STAND_PUNCH_BARRAGE, true, standPower, 
+								stand.getSoundSource(), 
+								0.75F, 
+								1.8F - (float) stand.getAttackDamage() * 0.05F + stand.getRandom().nextFloat() * 0.2F);
+						hitSoundPos = null;
+					}
+					
 					switch (target.getType()) {
 						case ENTITY -> dealDamage(target, level, stand);
 						case BLOCK -> mineBlock(target, level, stand);
 						default -> {}
 					}
-					StandPower standPower = StandPower.get(getPowerUser());
+					
 					standPower.consumeStamina(4);
 				}
 			}
