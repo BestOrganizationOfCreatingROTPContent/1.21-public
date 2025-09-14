@@ -86,7 +86,7 @@ public class Moveset {
 						ConfigAbilityFactory<?> abilityEntry = moveset.abilities.get(abilityName);
 						JsonObject configJson = abilityJson.getAsJsonObject("config");
 						if (configJson != null) {
-							abilityEntry.addConfig(ability -> ability.applyConfig(configJson));
+							abilityEntry.addInitBehavior(ability -> ability.applyConfig(configJson));
 						}
 					}
 					else {

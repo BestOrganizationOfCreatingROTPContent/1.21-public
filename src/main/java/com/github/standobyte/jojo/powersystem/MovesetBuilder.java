@@ -59,8 +59,8 @@ public class MovesetBuilder {
 	}
 
 	public final <A extends Ability> MovesetBuilder addAbility(String abilityName, AbilityType<A> abilityType, 
-			@Nullable Consumer<A> setParameters) {
-		abilities.put(abilityName, new ConfigAbilityFactory<>(abilityType, setParameters));
+			@Nullable Consumer<A> init) {
+		abilities.put(abilityName, new ConfigAbilityFactory<>(abilityType, init));
 		lastAbility = abilityName;
 		return this;
 	}
@@ -70,8 +70,8 @@ public class MovesetBuilder {
 	}
 	
 	public final <A extends Ability> MovesetBuilder addAbility(String abilityName, Supplier<? extends AbilityType<A>> abilityType, 
-			Consumer<A> setParameters) {
-		return addAbility(abilityName, abilityType.get(), setParameters);
+			Consumer<A> init) {
+		return addAbility(abilityName, abilityType.get(), init);
 	}
 	
 	

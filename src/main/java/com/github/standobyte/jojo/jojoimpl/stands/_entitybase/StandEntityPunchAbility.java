@@ -15,6 +15,7 @@ import com.github.standobyte.jojo.powersystem.ability.AbilityId;
 import com.github.standobyte.jojo.powersystem.ability.AbilityType;
 import com.github.standobyte.jojo.powersystem.entityaction.ActionPhase;
 import com.github.standobyte.jojo.powersystem.entityaction.EntityActionInstance;
+import com.github.standobyte.jojo.powersystem.entityaction.LivingComponentAction;
 import com.github.standobyte.jojo.powersystem.entityaction.type.EntityActionType;
 import com.github.standobyte.jojo.powersystem.standpower.StandPower;
 import com.github.standobyte.jojo.powersystem.standpower.entity.StandEntity;
@@ -29,6 +30,7 @@ import com.github.standobyte.jojo.util.target.AimingEntity;
 import com.github.standobyte.jojo.util.target.HitResultUtil;
 import com.github.standobyte.v1_21_4_stuff.missingmethods._EntitySelector;
 
+import net.minecraft.Util;
 import net.minecraft.core.BlockPos;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.damagesource.DamageSource;
@@ -39,52 +41,13 @@ import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.state.BlockState;
 
 public class StandEntityPunchAbility extends StandEntityAbility {
-	@Deprecated
-	public List<String> punchNames;
 
 	public StandEntityPunchAbility(AbilityType<?> abilityType, AbilityId abilityId) {
 		super(abilityType, abilityId);
 		setDefaultPhaseLength(ActionPhase.WINDUP, 4);
 		setDefaultPhaseLength(ActionPhase.PERFORM, 2);
 		setDefaultPhaseLength(ActionPhase.RECOVERY, 20);
-		punchNames = new ArrayList<>();
-		punchNames.add(this.abilityId.nameInMoveset());
 		noFinisherBarDecay = true;
-	}
-	
-	@Override
-	public Ability replaceWithSubAbility(Power<?> context) {
-		StandPower standPower = PowerClass.STAND.cast(context);
-		if (standPower != null) {
-			Moveset moveset = standPower.getMoveset();
-			int startFromPunch = 0;
-			
-			StandEntity standEntity = standPower.getSummonedStandEntity();
-			if (standEntity != null) {
-				EntityActionInstance standAction = standEntity.getCurStandAction();
-				if (standAction != null && standAction.ability instanceof Ability curAbility) {
-					String actionName = curAbility.abilityId.nameInMoveset();
-					for (int i = 0; i < punchNames.size(); i++) {
-						if (punchNames.get(i).equals(actionName)) {
-							startFromPunch = i + 1;
-							break;
-						}
-					}
-				}
-			}
-			
-			int size = punchNames.size();
-			for (int i = 0; i < size; i++) {
-				int index = (startFromPunch + i) % size;
-				String nextPunchName = punchNames.get(index);
-				Ability nextPunch = moveset.getAbility(nextPunchName);
-				if (nextPunch != null) {
-					return nextPunch;
-				}
-			}
-		}
-		
-		return super.replaceWithSubAbility(context);
 	}
 	
 	
@@ -205,6 +168,53 @@ public class StandEntityPunchAbility extends StandEntityAbility {
 			}
 			default -> false;
 		};
+	}
+	
+	
+	// 
+	
+	@Deprecated
+	protected List<String> punchNames = Util.make(new ArrayList<>(), list -> {
+		list.add("punch");
+		list.add("punch2");
+		list.add("punch3");
+		list.add("punch4");
+	});
+	
+	@Override
+	public Ability replaceWithSubAbility(Power<?> context) {
+		StandPower standPower = PowerClass.STAND.cast(context);
+		if (standPower != null) {
+			Moveset moveset = standPower.getMoveset();
+			int startFromPunch = 0;
+			
+			StandEntity standEntity = standPower.getSummonedStandEntity();
+			if (standEntity != null) {
+				AbilityId curAbility = LivingComponentAction.getComponent(standEntity).comboString.getLast();
+				
+				if (curAbility != null) {
+					String actionName = curAbility.nameInMoveset();
+					for (int i = 0; i < punchNames.size(); i++) {
+						if (punchNames.get(i).equals(actionName)) {
+							startFromPunch = i + 1;
+							break;
+						}
+					}
+				}
+			}
+			
+			int size = punchNames.size();
+			for (int i = 0; i < size; i++) {
+				int index = (startFromPunch + i) % size;
+				String nextPunchName = punchNames.get(index);
+				Ability nextPunch = moveset.getAbility(nextPunchName);
+				if (nextPunch != null) {
+					return nextPunch;
+				}
+			}
+		}
+		
+		return super.replaceWithSubAbility(context);
 	}
 
 }

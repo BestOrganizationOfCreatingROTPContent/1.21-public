@@ -1,7 +1,5 @@
 package com.github.standobyte.jojo.init.power;
 
-import java.util.Collections;
-
 import com.github.standobyte.jojo.core.JojoMod;
 import com.github.standobyte.jojo.core.JojoRegistries;
 import com.github.standobyte.jojo.powersystem.MovesetBuilder;
@@ -40,15 +38,14 @@ public class ModStands {
 					
 					.addHumanoidStandStuff()
 					
-					.addAbility("punch", ModStandAbilities.PUNCH, punch -> 
-						Collections.addAll(punch.punchNames, "punch2", "punch3", "punch4")
-					)
+					.addAbility("punch", ModStandAbilities.PUNCH)
 					.withBind(InputKey.LMB, InputMethod.CLICK)
+					
 					.addAbility("punch2", ModStandAbilities.PUNCH)
 					.addAbility("punch3", ModStandAbilities.PUNCH)
-					.addAbility("punch4", ModStandAbilities.PUNCH, 
-							punch -> punch.setDefaultPhaseLength(ActionPhase.WINDUP, 5)
-					)
+					.addAbility("punch4", ModStandAbilities.PUNCH, punch -> {
+						punch.setDefaultPhaseLength(ActionPhase.WINDUP, 5);
+					})
 
 					.addAbility("heavy_punch", ModStandAbilities.HEAVY_PUNCH)
 					.withBind(InputKey.RMB, InputMethod.CLICK)

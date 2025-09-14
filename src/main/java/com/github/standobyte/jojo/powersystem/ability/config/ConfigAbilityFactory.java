@@ -13,30 +13,30 @@ import com.github.standobyte.jojo.powersystem.ability.AbilityType;
 @ApiStatus.Internal
 public class ConfigAbilityFactory<A extends Ability> {
 	private final AbilityType<A> abilityType;
-	@Nullable private Consumer<A> abilityConfig;
+	@Nullable private Consumer<A> onInit;
 
-	public ConfigAbilityFactory(AbilityType<A> abilityType, @Nullable Consumer<A> abilityConfig) {
+	public ConfigAbilityFactory(AbilityType<A> abilityType, @Nullable Consumer<A> onInit) {
 		this.abilityType = abilityType;
-		this.abilityConfig = abilityConfig;
+		this.onInit = onInit;
 	}
 	
 	public ConfigAbilityFactory<A> copy() {
-		return new ConfigAbilityFactory<>(abilityType, abilityConfig);
+		return new ConfigAbilityFactory<>(abilityType, onInit);
 	}
 	
-	public void addConfig(Consumer<A> extraConfig) {
-		if (this.abilityConfig == null) {
-			this.abilityConfig = extraConfig;
+	public void addInitBehavior(Consumer<A> onInit) {
+		if (this.onInit == null) {
+			this.onInit = onInit;
 		}
 		else {
-			this.abilityConfig = this.abilityConfig.andThen(extraConfig);
+			this.onInit = this.onInit.andThen(onInit);
 		}
 	}
 
 	public A makeAbility(AbilityId abilityId) {
 		A ability = abilityType.createInstance(abilityId);
-		if (abilityConfig != null) {
-			abilityConfig.accept(ability);
+		if (onInit != null) {
+			onInit.accept(ability);
 		}
 		return ability;
 	}

@@ -15,6 +15,7 @@ import com.github.standobyte.jojo.powersystem.ability.condition.AvailableAbiliti
 import com.github.standobyte.jojo.powersystem.ability.condition.ConditionCheck;
 import com.github.standobyte.jojo.powersystem.ability.controls.InputMethod;
 import com.github.standobyte.jojo.powersystem.entityaction.HeldInput;
+import com.github.standobyte.jojo.util.StringUtil;
 import com.google.gson.JsonObject;
 
 import net.minecraft.client.Minecraft;
@@ -27,12 +28,18 @@ import net.minecraft.world.level.Level;
 public class Ability {
 	public final AbilityType<?> abilityType;
 	public final AbilityId abilityId;
+	protected String spriteName;
 	protected Component name;
 
 	public Ability(AbilityType<?> abilityType, AbilityId abilityId) {
 		this.abilityType = abilityType;
 		this.abilityId = abilityId;
+		this.spriteName = StringUtil.splitIntAtTheEnd(abilityId.nameInMoveset()).getFirst();
 		this.name = Component.translatable("jojo_ripples.ability." + abilityId.nameInMoveset());
+	}
+	
+	public AbilityId getAbilityId() {
+		return abilityId;
 	}
 	
 	public Component getName(Power<?> context) {
@@ -116,6 +123,10 @@ public class Ability {
 	@Nullable
 	public WindupIndicator cl_windupIndicator(LivingEntity clientPlayer, WindupIndicator indicator, float partialTick) {
 		return null;
+	}
+	
+	public String getSpriteName(Power<?> context) {
+		return spriteName;
 	}
 	
 	// 

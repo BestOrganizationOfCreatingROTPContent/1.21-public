@@ -6,6 +6,7 @@ import org.jetbrains.annotations.ApiStatus;
 
 import com.github.standobyte.jojo.core.JojoRegistries;
 import com.github.standobyte.jojo.powersystem.ability.Ability;
+import com.github.standobyte.jojo.powersystem.ability.AbilityId;
 import com.github.standobyte.jojo.powersystem.ability.AbilityId.AbilityInputNetwork;
 import com.github.standobyte.jojo.powersystem.entityaction.ActionAnimIdentifier;
 import com.github.standobyte.jojo.powersystem.entityaction.ActionPhase;
@@ -26,6 +27,8 @@ public interface EntityActionType {
 	default EntityActionInstance createActionObj() {
 		return new EntityActionInstance(this);
 	}
+	
+	AbilityId getAbilityId();
 
 
 	/**

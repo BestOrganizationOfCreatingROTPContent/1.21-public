@@ -16,6 +16,7 @@ import org.jetbrains.annotations.ApiStatus;
 
 import com.github.standobyte.jojo.client.standskin.StandSkin;
 import com.github.standobyte.jojo.core.JojoMod;
+import com.github.standobyte.jojo.powersystem.Power;
 import com.github.standobyte.jojo.powersystem.ability.Ability;
 
 import net.minecraft.Util;
@@ -54,29 +55,25 @@ public class AbilityIconSprites implements AutoCloseable {
 	}
 
 
-	public TextureAtlasSprite getAbilityIcon(String abilityName) {
-		return getAbilityIcon(abilityName, null);
+	public TextureAtlasSprite getAbilityIcon(Ability ability, Power<?> context, @Nullable StandSkin curStandSkin) {
+		return getAbilityIcon(ability.getSpriteName(context), curStandSkin);
 	}
 
-	public TextureAtlasSprite getAbilityIcon(Ability ability, @Nullable StandSkin curStandSkin) {
-		return getAbilityIcon(ability.abilityId.nameInMoveset(), curStandSkin);
-	}
-
-	public TextureAtlasSprite getAbilityIcon(String abilityName, @Nullable StandSkin curStandSkin) {
+	public TextureAtlasSprite getAbilityIcon(String abilitySpriteName, @Nullable StandSkin curStandSkin) {
 		Map<ResourceLocation, TextureAtlasSprite> texturesByName = textureAtlas.texturesByName;
 		ResourceLocation spritePath;
 
 		if (curStandSkin != null) {
-			spritePath = skinSpritePath(curStandSkin.skinId, abilityName);
+			spritePath = skinSpritePath(curStandSkin.skinId, abilitySpriteName);
 			if (texturesByName.containsKey(spritePath)) return texturesByName.get(spritePath);
 			
 			if (!curStandSkin.isDefault) {
-				spritePath = skinSpritePath(curStandSkin.standTypeId, abilityName);
+				spritePath = skinSpritePath(curStandSkin.standTypeId, abilitySpriteName);
 				if (texturesByName.containsKey(spritePath)) return texturesByName.get(spritePath);
 			}
 		}
 
-		spritePath = defaultSpritePath(abilityName);
+		spritePath = defaultSpritePath(abilitySpriteName);
 		if (texturesByName.containsKey(spritePath)) return texturesByName.get(spritePath);
 		
 		return textureAtlas.missingSprite;

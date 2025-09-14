@@ -30,6 +30,10 @@ public class LivingComponentAction implements SynchronizablePlayerData, TickingE
 	private final LivingReactToNewAction setActionCallback;
 	private final AtomicInteger actionIdCounter = new AtomicInteger();
 	@Nullable private EntityActionInstance action;
+	
+	public ActionComboStringTracker comboString = new ActionComboStringTracker();
+	
+	@Deprecated
 	public final ActionTargetAim entityAim;
 	
 	public LivingComponentAction(LivingEntity entity) {
@@ -131,6 +135,13 @@ public class LivingComponentAction implements SynchronizablePlayerData, TickingE
 						entity.getId(), action));
 				default -> {}
 			}
+		}
+		
+		if (action != null) {
+			comboString.onNewAction(action);
+		}
+		else {
+			comboString.clear();
 		}
 		
 		return action;

@@ -399,7 +399,7 @@ public class ControlsHudElement extends HudElement {
 				AbilityBindUI bindUI = new AbilityBindUI();
 
 				bindUI.ability = ability;
-				bindUI.sprite = abilitySprites.getAbilityIcon(ability.ability, standSkin);
+				bindUI.sprite = abilitySprites.getAbilityIcon(ability.ability, abilityCtx, standSkin);
 				bindUI.keybind = key;
 				bindUI.inputMethod = inputMethod;
 				bindUI.keybindName = bindName;

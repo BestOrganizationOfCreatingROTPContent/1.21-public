@@ -1,5 +1,7 @@
 package com.github.standobyte.jojo.powersystem.entityaction.type;
 
+import com.github.standobyte.jojo.core.JojoMod;
+import com.github.standobyte.jojo.powersystem.ability.AbilityId;
 import com.github.standobyte.jojo.powersystem.entityaction.ActionAnimIdentifier;
 import com.github.standobyte.jojo.powersystem.entityaction.EntityActionInstance;
 
@@ -16,11 +18,18 @@ public abstract class SpecialEntityActionType implements EntityActionType {
 	public final ResourceLocation id;
 	protected ResourceLocation animSet;
 	protected ActionAnimIdentifier anim;
+	protected AbilityId abilityId;
 	
 	public SpecialEntityActionType(String animFileName, ResourceLocation id) {
 		this.id = id;
 		this.animSet = id.withPath(animFileName);
 		this.anim = ActionAnimIdentifier.getOrCreate(id.getPath(), false);
+		this.abilityId = new AbilityId(null, JojoMod.resLoc("special"), id.toString());
+	}
+	
+	@Override
+	public AbilityId getAbilityId() {
+		return abilityId;
 	}
 
 
