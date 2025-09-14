@@ -6,6 +6,7 @@ import com.github.standobyte.jojo.client.ui.utils.FadeOut;
 import com.github.standobyte.jojo.core.JojoMod;
 import com.github.standobyte.jojo.init.ModDataAttachmentTypes;
 import com.github.standobyte.jojo.mechanics.grab.LivingComponentGrab;
+import com.github.standobyte.jojo.modcompat.ModInteractionUtil;
 
 import net.minecraft.client.Minecraft;
 import net.minecraft.world.entity.LivingEntity;
@@ -24,6 +25,7 @@ public class ClientTickHandler {
 	@SubscribeEvent
 	public static void onClientTick(ClientTickEvent.Pre event) {
 		Minecraft mc = Minecraft.getInstance();
+		ModInteractionUtil.clientTickPre();
 		ClientGlobals.tick(mc);
 		ClientEntityController.clientTickPre();
 		++tickCount;

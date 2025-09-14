@@ -40,6 +40,7 @@
 	"client.text.icon.FontStrintRenderOutputMixin",
 	"client.text.tooltip.GuiGraphicsMixin",
 	"client.text.tooltip.ClientTextTooltipMixin",
+	"client.modcompat.WoRStandRendering",
 	"client.CloseResources"
   ]
 }

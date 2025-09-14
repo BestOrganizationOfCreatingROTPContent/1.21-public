@@ -1,5 +1,6 @@
 package com.github.standobyte.jojo.client;
 
+import com.github.standobyte.jojo.modcompat.JojoModsInteraction;
 import com.github.standobyte.jojo.powersystem.PowerClass;
 import com.github.standobyte.jojo.powersystem.standpower.StandPower;
 import com.github.standobyte.jojo.powersystem.standpower.entity.StandEntity;
@@ -22,6 +23,7 @@ public class ClientGlobals {
 			}
 			else {
 				canSeeStands = stand != null && stand.hasPower();
+				canSeeStands |= JojoModsInteraction.clientHasStandFromAnotherMod();
 			}
 			canHearStands = canSeeStands;
 		}
