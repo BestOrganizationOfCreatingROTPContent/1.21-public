@@ -149,7 +149,7 @@ public class LivingComponentGrab implements TickingEntityData {
 			if (!grabbingEntity.isAlive()) {
 				grabbingEntity
 				.getData(ModDataAttachmentTypes.LIVING_GRAB.get())
-				.setGrabbedBy(null);
+				.setGrabTarget(null);
 			}
 			else {
 				thisEntity.fallDistance = 0;
@@ -160,7 +160,7 @@ public class LivingComponentGrab implements TickingEntityData {
 	private void tickGrabbedEntity() {
 		if (grabbedTarget != null) {
 			if (!grabbedTarget.isAlive()) {
-				setGrabTarget(null);
+				this.setGrabTarget(null);
 			}
 		}
 	}
