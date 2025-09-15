@@ -41,6 +41,7 @@ import net.neoforged.fml.common.EventBusSubscriber;
 import net.neoforged.neoforge.client.event.ContainerScreenEvent;
 import net.neoforged.neoforge.client.event.RegisterGuiLayersEvent;
 import net.neoforged.neoforge.client.event.ScreenEvent;
+import net.neoforged.neoforge.client.gui.VanillaGuiLayers;
 import net.neoforged.neoforge.common.util.TriState;
 
 @EventBusSubscriber(modid = JojoMod.MOD_ID, value = Dist.CLIENT)
@@ -49,7 +50,8 @@ public class PowerHud {
 
 	@SubscribeEvent
 	public static void addHud(RegisterGuiLayersEvent event) {
-		event.registerAboveAll(JojoMod.resLoc("ability_hud"), abilityHUDInstance = new PrototypeAbilityHud());
+		event.registerBelow(VanillaGuiLayers.BOSS_OVERLAY, 
+				JojoMod.resLoc("ability_hud"), abilityHUDInstance = new PrototypeAbilityHud());
 	}
 	
 	
