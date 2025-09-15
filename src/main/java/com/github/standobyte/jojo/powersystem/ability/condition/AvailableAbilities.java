@@ -75,18 +75,20 @@ public class AvailableAbilities {
 	private final Collection<AbilityConditionCheck> __visibleIter = new ArrayList<>();
 	
 	private AbilityConditionCheck getContainerFor(Ability ability) {
-		return __cache.compute(ability.abilityId, (id, existing) -> {
+		AbilityConditionCheck container = __cache.compute(ability.abilityId, (id, existing) -> {
 			if (existing == null) return new AbilityConditionCheck(ability);
 			else {
 				existing.clear();
 				return existing;
 			}
 		});
+		container.ability = ability;
+		return container;
 	}
 	
 	@ApiStatus.Internal
 	public static class AbilityConditionCheck {
-		public final Ability ability;
+		public Ability ability;
 		public ConditionCheck conditionCheck;
 		public int clientInputState;
 		
