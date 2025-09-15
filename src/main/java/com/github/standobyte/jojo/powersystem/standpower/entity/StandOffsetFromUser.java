@@ -19,7 +19,7 @@ public class StandOffsetFromUser {
 	public Vec3 idleOffset;
 	public Rotations idleRotations;
 	
-	@Nullable Vec3 grabIdleOffset;
+	@Nullable public Vec3 grabIdleOffset;
 	
 	private Vec3 relativeOffset;
 	private Rotations rotations;
@@ -32,7 +32,7 @@ public class StandOffsetFromUser {
 	
 	public static StandOffsetFromUser createDefault(StandEntity standEntity) {
 		StandOffsetFromUser offset = new StandOffsetFromUser(standEntity, new Vec3(0.75, standEntity.Y_OFFSET, -0.75), Rotations.BODY);
-		offset.grabOffset(new Vec3(-0.75, offset.idleOffset.y, 0.75));
+		offset.grabOffset(new Vec3(-1, standEntity.Y_OFFSET, 1.5));
 		return offset;
 	}
 	
@@ -89,7 +89,6 @@ public class StandOffsetFromUser {
 	}
 	
 	public Vec3 getAbsoluteOffset(LivingEntity userEntity, boolean lerp) {
-		this.grabOffset(new Vec3(-1, idleOffset.y, 1.5));
 		if (grabIdleOffset != null && LivingComponentGrab.getEntityGrabbedBy(standEntity) != null) {
 			// FIXME (grab & throw) lerp the grab idle offset
 			return relativeToAbsolute(grabIdleOffset, Rotations.HEAD, userEntity);

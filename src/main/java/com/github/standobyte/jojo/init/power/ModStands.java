@@ -69,6 +69,9 @@ public class ModStands {
 					
 					.addAbility("grab_punch", ModStandAbilities.GRAB_PUNCH)
 					.addAbility("grab_barrage", ModStandAbilities.GRAB_BARRAGE)
+					.addAbility("grab_uppercut", ModStandAbilities.GRAB_HEAVY_PUNCH, punch -> {
+						punch.verticalKnockback = true;
+					})
 					
 //					.addAbility("grab_ground_slam", ModStandAbilities.HEAVY_PUNCH)
 //					.addAbility("grab_terrain", ModStandAbilities.GRAB_TERRAIN)

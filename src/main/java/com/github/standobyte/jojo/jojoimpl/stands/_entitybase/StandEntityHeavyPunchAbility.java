@@ -4,6 +4,11 @@ import com.github.standobyte.jojo.client.ClientGlobals;
 import com.github.standobyte.jojo.client.sound.ClientsideSoundsHelper;
 import com.github.standobyte.jojo.init.ModDamageTypes;
 import com.github.standobyte.jojo.init.ModSoundEvents;
+import com.github.standobyte.jojo.mechanics.grab.LivingComponentGrab;
+import com.github.standobyte.jojo.powersystem.Moveset;
+import com.github.standobyte.jojo.powersystem.Power;
+import com.github.standobyte.jojo.powersystem.PowerClass;
+import com.github.standobyte.jojo.powersystem.ability.Ability;
 import com.github.standobyte.jojo.powersystem.ability.AbilityId;
 import com.github.standobyte.jojo.powersystem.ability.AbilityType;
 import com.github.standobyte.jojo.powersystem.entityaction.ActionPhase;
@@ -28,13 +33,31 @@ import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.level.Level;
 
 public class StandEntityHeavyPunchAbility extends StandEntityAbility {
+	public boolean verticalKnockback = false;
 
 	public StandEntityHeavyPunchAbility(AbilityType<?> abilityType, AbilityId abilityId) {
 		super(abilityType, abilityId);
 		setDefaultPhaseLength(ActionPhase.WINDUP, StandStatFormulas.getHeavyAttackWindup(8, 0));
-		setDefaultPhaseLength(ActionPhase.PERFORM, 5);
-		setDefaultPhaseLength(ActionPhase.RECOVERY, 16);
+		setDefaultPhaseLength(ActionPhase.PERFORM, 6);
+		setDefaultPhaseLength(ActionPhase.RECOVERY, 12);
 		noFinisherBarDecay = true;
+	}
+	
+	@Override
+	public Ability replaceWithSubAbility(Power<?> context) {
+		StandPower standPower = PowerClass.STAND.cast(context);
+		if (standPower != null) {
+			Moveset moveset = standPower.getMoveset();
+			
+			StandEntity standEntity = standPower.getSummonedStandEntity();
+			if (standEntity != null) {
+				if (LivingComponentGrab.getEntityGrabbedBy(standEntity) != null) {
+					return moveset.getAbility("grab_uppercut");
+				}
+			}
+		}
+		
+		return super.replaceWithSubAbility(context);
 	}
 	
 	
@@ -47,12 +70,14 @@ public class StandEntityHeavyPunchAbility extends StandEntityAbility {
 	public void initActionFromConfig(EntityActionInstance action, Level level, 
 			LivingEntity powerUser, LivingEntity performer) {
 		super.initActionFromConfig(action, level, powerUser, performer);
+		((StandEntityHeavyPunch) action).verticalKnockback = this.verticalKnockback;
 		if (!level.isClientSide() && performer instanceof StandEntity stand) {
 			action.phasesLength.put(ActionPhase.WINDUP, StandStatFormulas.getHeavyAttackWindup(stand.getAttackSpeed(), stand.getFinisherMeter()));
 		}
 	}
 	
 	public static class StandEntityHeavyPunch extends EntityActionInstance {
+		protected boolean verticalKnockback = false;
 		protected float finisherValue;
 		protected boolean playedSwingSound;
 		protected boolean playedStandCrySound;
@@ -113,7 +138,13 @@ public class StandEntityHeavyPunchAbility extends StandEntityAbility {
 					if (target.getType() == TargetType.ENTITY && target.getEntity() instanceof LivingEntity targetLiving) {
 						var damageType = DamageUtil.type(level, ModDamageTypes.STAND_ATTACK);
 						DamageSource dmgSource = new DamageSource(damageType, performer);
-						((RipplesModifiedDamageSource) dmgSource).jojo_ripples$modifyKnockback(1f, 1);
+						RipplesModifiedDamageSource knockback = (RipplesModifiedDamageSource) dmgSource;
+						if (verticalKnockback) {
+							knockback.jojo_ripples$verticalKnockback(1, 0.8f);
+						}
+						else {
+							knockback.jojo_ripples$modifyKnockback(1f, 1);
+						}
 						float dmgAmount = StandStatFormulas.getHeavyAttackDamage(stand.getAttackDamage());
 						standEntityAttack(stand, targetLiving, dmgSource, dmgAmount);
 					}

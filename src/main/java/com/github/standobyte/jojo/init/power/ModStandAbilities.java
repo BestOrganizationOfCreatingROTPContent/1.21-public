@@ -9,6 +9,7 @@ import com.github.standobyte.jojo.jojoimpl.stands._entitybase.StandEntityGrabBar
 import com.github.standobyte.jojo.jojoimpl.stands._entitybase.StandEntityGrabPunch;
 import com.github.standobyte.jojo.jojoimpl.stands._entitybase.StandEntityGrabReleaseAbility;
 import com.github.standobyte.jojo.jojoimpl.stands._entitybase.StandEntityGrabThrowAbility;
+import com.github.standobyte.jojo.jojoimpl.stands._entitybase.StandEntityGrabHeavyPunch;
 import com.github.standobyte.jojo.jojoimpl.stands._entitybase.StandEntityHeavyPunchAbility;
 import com.github.standobyte.jojo.jojoimpl.stands._entitybase.StandEntityHeavyPunchChargedAbility;
 import com.github.standobyte.jojo.jojoimpl.stands._entitybase.StandEntityManualControlToggle;
@@ -70,6 +71,9 @@ public final class ModStandAbilities {
 	
 	public static final DeferredHolder<AbilityType<?>, AbilityType<StandEntityGrabBarrage>> GRAB_BARRAGE = ABILITY_TYPES.register(
 			"stand_grab_barrage", key -> new AbilityType<>(key, StandEntityGrabBarrage::new));
+	
+	public static final DeferredHolder<AbilityType<?>, AbilityType<StandEntityGrabHeavyPunch>> GRAB_HEAVY_PUNCH = ABILITY_TYPES.register(
+			"stand_grab_heavy_punch", key -> new AbilityType<>(key, StandEntityGrabHeavyPunch::new));
 
 	
 	public static final DeferredHolder<AbilityType<?>, AbilityType<StarFingerAbility>> SP_STAR_FINGER = ABILITY_TYPES.register(

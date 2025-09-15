@@ -27,6 +27,7 @@ import com.github.standobyte.jojo.util.MathUtil.AABBDist;
 import com.github.standobyte.jojo.util.StandUtil;
 import com.github.standobyte.jojo.util.UtilFunctions;
 import com.github.standobyte.jojo.util.damage.DamageUtil;
+import com.github.standobyte.jojo.util.damage.RipplesModifiedDamageSource;
 import com.github.standobyte.jojo.util.damage.StandLinkDamageSource;
 import com.github.standobyte.jojo.util.mc.AttributeUtil;
 import com.github.standobyte.jojo.util.mc.PrevRotations;
@@ -762,6 +763,8 @@ public class StandEntity extends LivingEntity implements SummonedStand, IEntityW
 	public void knockback(double strength, double xRatio, double zRatio) {
 		LivingKnockBackEvent event = CommonHooks.onLivingKnockBack(this, (float) strength, xRatio, zRatio);
 		if (event.isCanceled()) return;
+		
+		DamageContainer curDamage = !damageContainers.isEmpty() ? damageContainers.peek() : null;
 		strength = event.getStrength();
 		xRatio = event.getRatioX();
 		zRatio = event.getRatioZ();
@@ -779,12 +782,14 @@ public class StandEntity extends LivingEntity implements SummonedStand, IEntityW
 					motionVec.x / 2 - knockbackVec.x, 
 					this.onGround() ? Math.min(0.4, motionVec.y / 2 + strength) : motionVec.y, 
 					motionVec.z / 2 - knockbackVec.z);
+			RipplesModifiedDamageSource.afterKnockbackApplied(this, curDamage);
 		}
 
 		if (healthLinkedWithUser()) {
 			LivingEntity user = getUser();
 			if (user != null && user.isAlive()) {
 				user.knockback(strength, xRatio, zRatio);
+				RipplesModifiedDamageSource.afterKnockbackApplied(user, curDamage);
 				user.hurtMarked = true;
 			}
 		}

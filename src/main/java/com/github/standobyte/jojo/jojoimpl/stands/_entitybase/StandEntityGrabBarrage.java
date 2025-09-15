@@ -8,11 +8,14 @@ import com.github.standobyte.jojo.powersystem.entityaction.type.EntityActionType
 import com.github.standobyte.jojo.powersystem.standpower.entity.StandEntity;
 import com.github.standobyte.jojo.util.target.ActionTarget;
 
+import net.minecraft.network.chat.Component;
+
 public class StandEntityGrabBarrage extends StandEntityBarrageAbility {
 
 	public StandEntityGrabBarrage(AbilityType<?> abilityType, AbilityId abilityId) {
 		super(abilityType, abilityId);
-		spriteName = abilityId.nameInMoveset().replace("grab_", "");
+		this.spriteName = abilityId.nameInMoveset().replace("grab_", "");
+		this.name = Component.translatable("jojo_ripples.ability." + spriteName);
 	}
 	
 	@Override

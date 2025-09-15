@@ -16740,7 +16740,11 @@
 					}
 				}
 			},
-			"timeline": {}
+			"timeline": {
+				"0.0": "phase = WINDUP;",
+				"0.4583": "phase = PERFORM;",
+				"0.75": "phase = RECOVERY;"
+			}
 		},
 		"break_free": {
 			"animation_length": 1.2,

@@ -1,5 +1,7 @@
 package com.github.standobyte.jojo.mixin.damage;
 
+import java.util.Stack;
+
 import javax.annotation.Nullable;
 
 import org.spongepowered.asm.mixin.Mixin;
@@ -10,6 +12,7 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
 import com.github.standobyte.jojo.powersystem.standpower.entity.StandEntity;
+import com.github.standobyte.jojo.util.damage.RipplesModifiedDamageSource;
 
 import net.minecraft.world.damagesource.DamageSource;
 import net.minecraft.world.entity.Entity;
@@ -17,6 +20,7 @@ import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.level.Level;
+import net.neoforged.neoforge.common.damagesource.DamageContainer;
 
 @Mixin(LivingEntity.class)
 public abstract class LivingEntityMixin extends Entity {
@@ -48,6 +52,20 @@ public abstract class LivingEntityMixin extends Entity {
 				this.lastHurtByPlayer = playerUser;
 			}
 //		}
+	}
+
+	
+	@Shadow(remap = false) Stack<DamageContainer> damageContainers;
+	
+	@Inject(method = "knockback", at = @At(
+			value = "INVOKE", 
+			target = "setDeltaMovement", 
+			shift = At.Shift.AFTER))
+	public void jojo_ripples$modifyKnockback(CallbackInfo ci) {
+		if (!damageContainers.isEmpty()) {
+			DamageContainer curDamage = damageContainers.peek();
+			RipplesModifiedDamageSource.afterKnockbackApplied((LivingEntity) (Entity) this, curDamage);
+		}
 	}
 	
 }
