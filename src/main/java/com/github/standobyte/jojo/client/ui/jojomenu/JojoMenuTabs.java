@@ -94,10 +94,6 @@ public class JojoMenuTabs {
 			.withName(Component.translatable(JojoMod.MOD_ID + ".menu.player.story_arcs"))
 			.withIcon(new GuiIcon(JojoMod.resLoc("textures/gui/arcs.png"), 16, 16));
 	
-	public static final Tab CLOTHES = new Tab(CATEGORY_PLAYER_MENU)
-			.withName(Component.translatable(JojoMod.MOD_ID + ".menu.player.clothes"))
-			.withIcon(new GuiIcon(JojoMod.resLoc("textures/gui/clothes.png"), 16, 16));
-	
 	// Stand
 	
 	public static final TabCategory CATEGORY_STAND = new TabCategory(PowerClass.STAND, null) {

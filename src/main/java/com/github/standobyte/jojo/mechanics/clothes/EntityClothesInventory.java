@@ -22,13 +22,15 @@ import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.ListTag;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.world.Container;
 import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 import net.neoforged.neoforge.common.util.INBTSerializable;
 import net.neoforged.neoforge.network.PacketDistributor;
 
 // TODO (clothes) drop clothes on entity death, or keep it on players if gamerule keepInventory is true
-public class EntityClothesInventory implements SynchronizableEntityData, TickingEntityData, INBTSerializable<ListTag> {
+public class EntityClothesInventory implements Container, SynchronizableEntityData, TickingEntityData, INBTSerializable<ListTag> {
 	private final LivingEntity entity;
 	private final Map<ClothesSlotType, ItemStack> items;
 	private final Map<ClothesSlotType, ItemStack> lastItems;
@@ -168,6 +170,81 @@ public class EntityClothesInventory implements SynchronizableEntityData, Ticking
 	public static EntityClothesInventory getExisting(LivingEntity entity) {
 		return entity != null && entity.hasData(ModDataAttachmentTypes.HUMANOID_CLOTHES.get()) ? 
 				entity.getData(ModDataAttachmentTypes.HUMANOID_CLOTHES.get()) : null;
+	}
+
+	// Container implementation methods
+
+	@Override
+	public void clearContent() {
+		for (var itemEntry : items.entrySet()) {
+			itemEntry.setValue(ItemStack.EMPTY);
+		}
+	}
+
+	@Override
+	public int getContainerSize() {
+		return items.size();
+	}
+
+	@Override
+	public boolean isEmpty() {
+		for (ItemStack item : items.values()) {
+			if (!item.isEmpty()) {
+				return false;
+			}
+		}
+		
+		return true;
+	}
+
+	@Override
+	public ItemStack getItem(int slot) {
+		if (slot >= 0 && slot < getContainerSize()) {
+			ClothesSlotType clothesSlot = ClothesSlotType.values()[slot];
+			return items.get(clothesSlot);
+		}
+		return ItemStack.EMPTY;
+	}
+
+	@Override
+	public ItemStack removeItem(int slot, int amount) {
+		if (slot >= 0 && slot < getContainerSize() && amount > 0) {
+			ClothesSlotType clothesSlot = ClothesSlotType.values()[slot];
+			ItemStack prevItem = items.get(clothesSlot);
+			if (!prevItem.isEmpty()) {
+				return prevItem.split(amount);
+			}
+		}
+		return ItemStack.EMPTY;
+	}
+
+	@Override
+	public ItemStack removeItemNoUpdate(int slot) {
+		if (slot >= 0 && slot < getContainerSize()) {
+			ClothesSlotType clothesSlot = ClothesSlotType.values()[slot];
+			ItemStack prevItem = items.get(clothesSlot);
+			if (!prevItem.isEmpty()) {
+				items.put(clothesSlot, ItemStack.EMPTY);
+				return prevItem;
+			}
+		}
+		return ItemStack.EMPTY;
+	}
+
+	@Override
+	public void setItem(int slot, ItemStack stack) {
+		if (slot >= 0 && slot < getContainerSize()) {
+			ClothesSlotType clothesSlot = ClothesSlotType.values()[slot];
+			items.put(clothesSlot, stack);
+		}
+	}
+
+	@Override
+	public void setChanged() {}
+
+	@Override
+	public boolean stillValid(Player player) {
+		return player.canInteractWithEntity(this.entity, 4.0);
 	}
 
 }

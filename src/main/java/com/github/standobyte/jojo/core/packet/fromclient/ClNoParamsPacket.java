@@ -4,6 +4,7 @@ import java.util.Map;
 
 import com.github.standobyte.jojo.core.PacketsRegister;
 import com.github.standobyte.jojo.core.utils.EnumUtil;
+import com.github.standobyte.jojo.mechanics.clothes.container.PlayerClothesMenu;
 import com.github.standobyte.jojo.powersystem.standpower.StandPower;
 import com.github.standobyte.jojo.powersystem.standpower.type.StandType;
 
@@ -12,6 +13,7 @@ import net.minecraft.network.RegistryFriendlyByteBuf;
 import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.network.protocol.common.custom.CustomPacketPayload;
 import net.minecraft.resources.ResourceLocation;
+import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.entity.player.Player;
 import net.neoforged.neoforge.network.codec.NeoForgeStreamCodecs;
 import net.neoforged.neoforge.network.handling.IPayloadContext;
@@ -56,13 +58,17 @@ public record ClNoParamsPacket(PacketType packetType) implements CustomPacketPay
 						standType.toggleSummon(player, standPower);
 					}
 				}
+				case OPEN_CLOTHES -> {
+					PlayerClothesMenu.openOnButtonClick((ServerPlayer) player);
+				}
 			}
 		}
 
 	}
 
 	public enum PacketType {
-		SUMMON_STAND
+		SUMMON_STAND,
+		OPEN_CLOTHES
 	}
 
 	@Override

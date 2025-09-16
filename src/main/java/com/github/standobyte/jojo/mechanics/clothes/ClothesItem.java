@@ -25,7 +25,6 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.TooltipFlag;
 
 // TODO (clothes) putting on clothes via right click
-// TODO (clothes) clothes inventory & UI
 // TODO (clothes) callbacks when the clothes items are put on and taken off (similarly to the armor attributes)
 public class ClothesItem extends Item {
 	

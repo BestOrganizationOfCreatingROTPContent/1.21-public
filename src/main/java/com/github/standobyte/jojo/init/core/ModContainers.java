@@ -1,0 +1,18 @@
+package com.github.standobyte.jojo.init.core;
+
+import com.github.standobyte.jojo.core.JojoMod;
+import com.github.standobyte.jojo.mechanics.clothes.container.PlayerClothesMenu;
+
+import net.minecraft.core.registries.Registries;
+import net.minecraft.world.flag.FeatureFlags;
+import net.minecraft.world.inventory.MenuType;
+import net.neoforged.neoforge.registries.DeferredHolder;
+import net.neoforged.neoforge.registries.DeferredRegister;
+
+public class ModContainers {
+	public static final DeferredRegister<MenuType<?>> CONTAINERS = DeferredRegister.create(Registries.MENU, JojoMod.MOD_ID);
+
+
+	public static final DeferredHolder<MenuType<?>, MenuType<PlayerClothesMenu>> PLAYER_CLOTHES = CONTAINERS.register("clothes", 
+			key -> new MenuType<>(PlayerClothesMenu::new, FeatureFlags.DEFAULT_FLAGS));
+}

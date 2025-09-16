@@ -1,10 +1,12 @@
 package com.github.standobyte.jojo.mechanics.clothes.itemdata;
 
+import com.github.standobyte.jojo.init.ModItemDataComponents;
 import com.mojang.serialization.Codec;
 
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.util.StringRepresentable;
+import net.minecraft.world.item.ItemStack;
 import net.neoforged.neoforge.network.codec.NeoForgeStreamCodecs;
 
 public enum ClothesSlotType implements StringRepresentable {
@@ -26,4 +28,10 @@ public enum ClothesSlotType implements StringRepresentable {
 	public String getSerializedName() {
 		return name;
 	}
+	
+	public static boolean canEquip(ItemStack item, ClothesSlotType slot) {
+		ClothesDataComponent component = item.get(ModItemDataComponents.CLOTHES_PIECE);
+		return component != null && component.getSlot() == slot;
+	}
+	
 }
