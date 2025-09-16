@@ -4,10 +4,12 @@ import java.util.List;
 
 import javax.annotation.Nullable;
 
+import com.github.standobyte.jojo.init.ModDataAttachmentTypes;
 import com.github.standobyte.jojo.init.ModItemDataComponents;
 import com.github.standobyte.jojo.mechanics.StoryPart;
 import com.github.standobyte.jojo.mechanics.clothes.itemdata.ClothesDataComponent;
 import com.github.standobyte.jojo.mechanics.clothes.itemdata.ClothesPiece.SubClothingPiece;
+import com.github.standobyte.jojo.mechanics.clothes.itemdata.ClothesSlotType;
 import com.github.standobyte.v1_21_4_stuff.CustomItemModel;
 import com.github.standobyte.v1_21_4_stuff.missingmethods._ItemStack;
 
@@ -15,6 +17,9 @@ import net.minecraft.ChatFormatting;
 import net.minecraft.core.component.DataComponents;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
+import net.minecraft.stats.Stats;
+import net.minecraft.world.InteractionHand;
+import net.minecraft.world.InteractionResultHolder;
 import net.minecraft.world.entity.SlotAccess;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.inventory.AbstractContainerMenu;
@@ -23,9 +28,10 @@ import net.minecraft.world.inventory.Slot;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.TooltipFlag;
+import net.minecraft.world.item.enchantment.EnchantmentEffectComponents;
+import net.minecraft.world.item.enchantment.EnchantmentHelper;
+import net.minecraft.world.level.Level;
 
-// TODO (clothes) putting on clothes via right click
-// TODO (clothes) callbacks when the clothes items are put on and taken off (similarly to the armor attributes)
 public class ClothesItem extends Item {
 	
 	public ClothesItem(Item.Properties properties) {
@@ -47,6 +53,33 @@ public class ClothesItem extends Item {
 		}
 		
 		return stack;
+	}
+
+	@Override
+	public InteractionResultHolder<ItemStack> use(Level level, Player player, InteractionHand hand) {
+		ItemStack itemStack = player.getItemInHand(hand);
+		ClothesDataComponent itemClothes = itemStack.get(ModItemDataComponents.CLOTHES_PIECE);
+		if (itemClothes == null) {
+			return InteractionResultHolder.pass(itemStack);
+		}
+		ClothesSlotType clothesSlot = itemClothes.getSlot();
+
+		EntityClothesInventory playerClothes = player.getData(ModDataAttachmentTypes.HUMANOID_CLOTHES.get());
+		ItemStack wornItem = playerClothes.getClothingPiece(clothesSlot);
+
+		if ((!EnchantmentHelper.has(wornItem, EnchantmentEffectComponents.PREVENT_ARMOR_CHANGE) || player.isCreative())
+				&& !ItemStack.matches(itemStack, wornItem)) {
+			if (!level.isClientSide()) {
+				player.awardStat(Stats.ITEM_USED.get(this));
+			}
+
+			ItemStack setItemInSlot = wornItem.isEmpty() ? itemStack : wornItem.copyAndClear();
+			ItemStack putOnItem = player.isCreative() ? itemStack.copy() : itemStack.copyAndClear();
+			playerClothes.setItemSlot(clothesSlot, putOnItem);
+			return InteractionResultHolder.sidedSuccess(setItemInSlot, level.isClientSide());
+		} else {
+			return InteractionResultHolder.fail(itemStack);
+		}
 	}
 
 	@Override
