@@ -16,7 +16,6 @@ import net.minecraft.core.Holder;
 import net.minecraft.network.RegistryFriendlyByteBuf;
 import net.minecraft.network.codec.ByteBufCodecs;
 import net.minecraft.network.codec.StreamCodec;
-import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.item.ItemStack;
 
 public class ClothesDataComponent {
@@ -70,27 +69,6 @@ public class ClothesDataComponent {
 	@Nullable
 	public SubClothingPiece getSubType() {
 		return subPieceType.orElse(null);
-	}
-
-
-	//TODO (clothes) equip sound
-	public static void onEquipItem(LivingEntity entity, ClothesSlotType slot, ItemStack oldItem, ItemStack newItem) {
-//		boolean flag = newItem.isEmpty() && oldItem.isEmpty();
-//		if (!flag && !ItemStack.isSameItemSameComponents(oldItem, newItem) && !entity.firstTick) {
-//			ClothesDataComponent clothes = newItem.get(ModItemDataComponents.CLOTHES_PIECE);
-//			if (!entity.level().isClientSide() && !entity.isSpectator()) {
-//				if (!entity.isSilent() && clothes != null && clothes.getSlot() == slot) {
-//					entity.level().playSeededSound(null, 
-//							entity.getX(), entity.getY(), entity.getZ(), 
-//							clothes.getEquipSound(), entity.getSoundSource(), 
-//							1.0F, 1.0F, entity.getRandom().nextLong());
-//				}
-//
-////				if (entity.doesEmitEquipEvent(slot)) {
-//					entity.gameEvent(clothes != null ? GameEvent.EQUIP : GameEvent.UNEQUIP);
-////				}
-//			}
-//		}
 	}
 
 

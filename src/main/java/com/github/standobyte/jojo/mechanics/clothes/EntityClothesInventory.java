@@ -11,6 +11,8 @@ import org.jetbrains.annotations.ApiStatus;
 
 import com.github.standobyte.jojo.core.utils.EnumUtil;
 import com.github.standobyte.jojo.init.ModDataAttachmentTypes;
+import com.github.standobyte.jojo.init.ModItemDataComponents;
+import com.github.standobyte.jojo.mechanics.clothes.itemdata.ClothesDataComponent;
 import com.github.standobyte.jojo.mechanics.clothes.itemdata.ClothesSlotType;
 import com.github.standobyte.jojo.util.JojoModUtil;
 import com.github.standobyte.jojo.util.entitycomponent.SynchronizablePlayerData;
@@ -33,6 +35,7 @@ import net.minecraft.world.item.enchantment.EnchantmentEffectComponents;
 import net.minecraft.world.item.enchantment.EnchantmentHelper;
 import net.minecraft.world.level.GameRules;
 import net.minecraft.world.level.Level;
+import net.minecraft.world.level.gameevent.GameEvent;
 import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.fml.common.EventBusSubscriber;
 import net.neoforged.neoforge.common.util.INBTSerializable;
@@ -53,8 +56,22 @@ public class EntityClothesInventory implements Container, SynchronizablePlayerDa
 		addSynchronization(entity);
 	}
 
-	public void setItemSlot(ClothesSlotType clothesSlot, ItemStack clothesCopy) {
-		items.put(clothesSlot, clothesCopy);
+	public void setItemSlot(ClothesSlotType clothesSlot, ItemStack newItem) {
+		ItemStack oldItem = items.put(clothesSlot, newItem);
+		
+		if (!(newItem.isEmpty() && oldItem.isEmpty()) && !ItemStack.isSameItemSameComponents(oldItem, newItem) && entity.tickCount > 0) {
+			ClothesDataComponent itemClothes = newItem.get(ModItemDataComponents.CLOTHES_PIECE);
+			if (!entity.level().isClientSide() && !entity.isSpectator()) {
+				if (!entity.isSilent() && itemClothes != null) {
+					entity.level().playSeededSound(null, 
+							entity.getX(), entity.getY(), entity.getZ(), 
+							itemClothes.getPiece().equipSound, entity.getSoundSource(), 
+							1.0F, 1.0F, entity.getRandom().nextLong());
+				}
+
+				entity.gameEvent(itemClothes != null ? GameEvent.EQUIP : GameEvent.UNEQUIP);
+			}
+		}
 	}
 
 	public ItemStack getClothingPiece(ClothesSlotType clothesSlot) {
@@ -250,7 +267,7 @@ public class EntityClothesInventory implements Container, SynchronizablePlayerDa
 	public void setItem(int slot, ItemStack stack) {
 		if (slot >= 0 && slot < getContainerSize()) {
 			ClothesSlotType clothesSlot = ClothesSlotType.values()[slot];
-			items.put(clothesSlot, stack);
+			setItemSlot(clothesSlot, stack);
 		}
 	}
 
