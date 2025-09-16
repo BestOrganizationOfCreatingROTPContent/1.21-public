@@ -1,6 +1,7 @@
 package com.github.standobyte.jojo.mechanics.clothes;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 
@@ -11,7 +12,8 @@ import org.jetbrains.annotations.ApiStatus;
 import com.github.standobyte.jojo.core.utils.EnumUtil;
 import com.github.standobyte.jojo.init.ModDataAttachmentTypes;
 import com.github.standobyte.jojo.mechanics.clothes.itemdata.ClothesSlotType;
-import com.github.standobyte.jojo.util.entitycomponent.SynchronizableEntityData;
+import com.github.standobyte.jojo.util.JojoModUtil;
+import com.github.standobyte.jojo.util.entitycomponent.SynchronizablePlayerData;
 import com.github.standobyte.jojo.util.entitycomponent.TickingEntityData;
 import com.github.standobyte.v1_21_4_stuff.missingmethods._ItemStack;
 import com.google.common.collect.Maps;
@@ -24,13 +26,21 @@ import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.Container;
 import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.entity.item.ItemEntity;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.enchantment.EnchantmentEffectComponents;
+import net.minecraft.world.item.enchantment.EnchantmentHelper;
+import net.minecraft.world.level.GameRules;
+import net.minecraft.world.level.Level;
+import net.neoforged.bus.api.SubscribeEvent;
+import net.neoforged.fml.common.EventBusSubscriber;
 import net.neoforged.neoforge.common.util.INBTSerializable;
+import net.neoforged.neoforge.event.entity.living.LivingDropsEvent;
 import net.neoforged.neoforge.network.PacketDistributor;
 
-// TODO (clothes) drop clothes on entity death, or keep it on players if gamerule keepInventory is true
-public class EntityClothesInventory implements Container, SynchronizableEntityData, TickingEntityData, INBTSerializable<ListTag> {
+@EventBusSubscriber
+public class EntityClothesInventory implements Container, SynchronizablePlayerData, TickingEntityData, INBTSerializable<ListTag> {
 	private final LivingEntity entity;
 	private final Map<ClothesSlotType, ItemStack> items;
 	private final Map<ClothesSlotType, ItemStack> lastItems;
@@ -143,6 +153,11 @@ public class EntityClothesInventory implements Container, SynchronizableEntityDa
 	}
 
 	@Override
+	public void syncToPlayer(ServerPlayer entityAsPlayer) {
+		// is already synced in serverTickUpdate(LivingEntity);
+	}
+
+	@Override
 	public void syncToTracking(ServerPlayer trackingPlayer) {
 		Map<ClothesSlotType, ItemStack> nonEmptyItems = null;
 
@@ -245,6 +260,42 @@ public class EntityClothesInventory implements Container, SynchronizableEntityDa
 	@Override
 	public boolean stillValid(Player player) {
 		return player.canInteractWithEntity(this.entity, 4.0);
+	}
+	
+	
+	@SubscribeEvent
+	public static void dropClothesItems(LivingDropsEvent event) {
+		LivingEntity entity = event.getEntity();
+		if (!isWornClothesSavedOnDeath(entity.level())) {
+			EntityClothesInventory clothes = getExisting(entity);
+			if (clothes != null) {
+				Collection<ItemEntity> drops = event.getDrops();
+				for (var itemEntry : clothes.items.entrySet()) {
+					ItemStack item = itemEntry.getValue();
+					if (!item.isEmpty()) {
+						if (!EnchantmentHelper.has(item, EnchantmentEffectComponents.PREVENT_EQUIPMENT_DROP)) {
+							ItemEntity itemEntity = JojoModUtil.dropItem(entity, item, true, true);
+							drops.add(itemEntity);
+						}
+						itemEntry.setValue(ItemStack.EMPTY);
+					}
+				}
+			}
+		}
+	}
+
+	@Override
+	public void onPlayerClone(Player newPlayer, boolean wasDeath) {
+		if (isWornClothesSavedOnDeath(newPlayer.level()) && !this.isEmpty()) {
+			EntityClothesInventory newInventory = newPlayer.getData(ModDataAttachmentTypes.HUMANOID_CLOTHES.get());
+			for (var itemEntry : newInventory.items.entrySet()) {
+				itemEntry.setValue(this.items.get(itemEntry.getKey()));
+			}
+		}
+	}
+	
+	public static boolean isWornClothesSavedOnDeath(Level level) {
+		return level.getGameRules().getBoolean(GameRules.RULE_KEEPINVENTORY);
 	}
 
 }
