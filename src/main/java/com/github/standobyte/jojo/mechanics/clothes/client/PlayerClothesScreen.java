@@ -24,8 +24,6 @@ import net.minecraft.world.entity.player.Inventory;
  *   clothes button
  * names
  *   clothes container
- * menu
- *   combine items on shift click
  * bug fixes
  *   if the player is carrying an item/has items in the crafting grid, clicking the clothes inventory button saves the item there, until the player reopens and then closes the inventory again
  */

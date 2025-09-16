@@ -8,6 +8,7 @@ import com.github.standobyte.jojo.core.JojoMod;
 import com.github.standobyte.jojo.init.ModDataAttachmentTypes;
 import com.github.standobyte.jojo.init.ModItemDataComponents;
 import com.github.standobyte.jojo.init.core.ModContainers;
+import com.github.standobyte.jojo.mechanics.clothes.ClothesItem;
 import com.github.standobyte.jojo.mechanics.clothes.EntityClothesInventory;
 import com.github.standobyte.jojo.mechanics.clothes.itemdata.ClothesDataComponent;
 import com.github.standobyte.jojo.mechanics.clothes.itemdata.ClothesSlotType;
@@ -136,10 +137,6 @@ public class PlayerClothesMenu extends AbstractContainerMenu {
 		return true;
 	}
 
-	/**
-	 * Handle when the stack in slot {@code index} is shift-clicked. Normally this moves the stack between the player inventory and the other inventory(s).
-	 */
-
 	public static final int ARMOR_START = 0;
 	public static final int ARMOR_END = 4;
 	public static final int CLOTHES_START = 4;
@@ -150,6 +147,9 @@ public class PlayerClothesMenu extends AbstractContainerMenu {
 	public static final int HOTBAR_START = 36;
 	public static final int HOTBAR_END = 45;
 	
+	/**
+	 * Handle when the stack in slot {@code index} is shift-clicked. Normally this moves the stack between the player inventory and the other inventory(s).
+	 */
 	@Override
 	public ItemStack quickMoveStack(Player player, int clickedSlot) {
 		ItemStack itemResult = ItemStack.EMPTY;
@@ -167,19 +167,22 @@ public class PlayerClothesMenu extends AbstractContainerMenu {
 					return ItemStack.EMPTY;
 				}
 			}
+			
 			// put on clothes
-			else if (clothesSlot != null && !this.slots.get(CLOTHES_START + clothesSlot.ordinal()).hasItem()) {
+			else if (clothesSlot != null && isClothesStackable(item, this.slots.get(CLOTHES_START + clothesSlot.ordinal()))) {
 				int clothesSlotIndex = CLOTHES_START + clothesSlot.ordinal();
-				if (!this.moveItemStackTo(item, clothesSlotIndex, false)) {
+				if (!this.stackClothes(item, clothesSlotIndex)) {
 					return ItemStack.EMPTY;
 				}
 			} 
+			
 			// unequip armor
-			if (clickedSlot >= ARMOR_START && clickedSlot < ARMOR_END) {
+			else if (clickedSlot >= ARMOR_START && clickedSlot < ARMOR_END) {
 				if (!this.moveItemStackTo(item, INV_START, HOTBAR_END, false)) {
 					return ItemStack.EMPTY;
 				}
 			}
+			
 			// equip armor
 			else if (equipSlot.getType() == EquipmentSlot.Type.HUMANOID_ARMOR && !this.slots.get(ARMOR_END - 1 - equipSlot.getIndex()).hasItem()) {
 				int armorSlotIndex = ARMOR_END - 1 - equipSlot.getIndex();
@@ -187,28 +190,33 @@ public class PlayerClothesMenu extends AbstractContainerMenu {
 					return ItemStack.EMPTY;
 				}
 			}
+			
 			// equip shield
 			else if (equipSlot == EquipmentSlot.OFFHAND && !this.slots.get(SHIELD_SLOT).hasItem()) {
 				if (!this.moveItemStackTo(item, SHIELD_SLOT, false)) {
 					return ItemStack.EMPTY;
 				}
 			}
+			
 			// move from inventory to hotbar
 			else if (clickedSlot >= INV_START && clickedSlot < INV_END) {
 				if (!this.moveItemStackTo(item, HOTBAR_START, HOTBAR_END, false)) {
 					return ItemStack.EMPTY;
 				}
 			}
+			
 			// move from hotbar to inventory
 			else if (clickedSlot >= HOTBAR_START && clickedSlot < HOTBAR_END) {
 				if (!this.moveItemStackTo(item, INV_START, INV_END, false)) {
 					return ItemStack.EMPTY;
 				}
 			}
+			
 			// move to inventory/hotbar
 			else if (!this.moveItemStackTo(item, INV_START, HOTBAR_END, false)) {
 				return ItemStack.EMPTY;
 			}
+			
 
 			if (item.isEmpty()) {
 				slot.setByPlayer(ItemStack.EMPTY, itemResult);
@@ -221,16 +229,39 @@ public class PlayerClothesMenu extends AbstractContainerMenu {
 			}
 
 			slot.onTake(player, item);
-			if (clickedSlot == 0) {
-				player.drop(item, false);
-			}
 		}
 
 		return itemResult;
 	}
 
-	protected boolean moveItemStackTo(ItemStack stack, int slotIndex, boolean reverseDirection) {
+	public boolean moveItemStackTo(ItemStack stack, int slotIndex, boolean reverseDirection) {
 		return moveItemStackTo(stack, slotIndex, slotIndex + 1, reverseDirection);
+	}
+	
+	protected static boolean isClothesStackable(ItemStack clickedItem, Slot clothesSlot) {
+		if (!clothesSlot.hasItem()) {
+			return true;
+		}
+		
+		ItemStack itemInSlot = clothesSlot.getItem();
+		return ClothesDataComponent.areDifferentSubpiecesOfTheSamePiece(clickedItem, itemInSlot);
+	}
+	
+	protected boolean stackClothes(ItemStack clickedItem, int clothesSlotIndex) {
+		Slot clothesSlot = this.slots.get(clothesSlotIndex);
+		if (!clothesSlot.hasItem()) {
+			return moveItemStackTo(clickedItem, clothesSlotIndex, false);
+		}
+		
+		ItemStack combinedItem = ClothesItem.combineIntoFullPiece(clickedItem, clothesSlot.getItem());
+		if (combinedItem != null) {
+			clothesSlot.setByPlayer(combinedItem);
+			clothesSlot.setChanged();
+			clickedItem.setCount(0);
+			return true;
+		}
+		
+		return false;
 	}
 	
 	

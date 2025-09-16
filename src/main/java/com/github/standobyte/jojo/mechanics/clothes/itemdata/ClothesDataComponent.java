@@ -6,6 +6,7 @@ import java.util.Optional;
 import javax.annotation.Nullable;
 
 import com.github.standobyte.jojo.core.JojoRegistries;
+import com.github.standobyte.jojo.init.ModItemDataComponents;
 import com.github.standobyte.jojo.init.ModItems;
 import com.github.standobyte.jojo.mechanics.clothes.itemdata.ClothesPiece.SubClothingPiece;
 import com.mojang.datafixers.util.Pair;
@@ -18,6 +19,7 @@ import net.minecraft.network.codec.ByteBufCodecs;
 import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.world.item.ItemStack;
 
+// if you delete a clothes data pack and reinstall it, it breaks the existing items with that clothes piece :skull:
 public class ClothesDataComponent {
 	private final Holder<ClothesSet> set;
 	private final ClothesSlotType slot;
@@ -109,6 +111,16 @@ public class ClothesDataComponent {
 		ItemStack fullItem = ModItems.CLOTHES_BASE_ITEM.get().makeClothesPieceStack(
 				new ClothesDataComponent(this.set, this.slot, SubClothingPiece.FULL));
 		return Pair.of(fullItem, other);
+	}
+	
+	public static boolean areDifferentSubpiecesOfTheSamePiece(ItemStack item1, ItemStack item2) {
+		ClothesDataComponent clothesData1 = item1.get(ModItemDataComponents.CLOTHES_PIECE.get());		if (clothesData1 == null) return false;
+		ClothesDataComponent clothesData2 = item2.get(ModItemDataComponents.CLOTHES_PIECE.get());		if (clothesData2 == null) return false;
+
+		return (clothesData1.getSubType() == SubClothingPiece.TOP && clothesData2.getSubType() == SubClothingPiece.BOTTOM
+				|| clothesData1.getSubType() == SubClothingPiece.BOTTOM && clothesData2.getSubType() == SubClothingPiece.TOP)
+				&& clothesData1.slot == clothesData2.slot
+				&& clothesData1.getClothesSet().is(clothesData2.getClothesSet());
 	}
 	
 	
