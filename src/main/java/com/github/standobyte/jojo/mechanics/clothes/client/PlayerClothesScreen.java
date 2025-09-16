@@ -30,7 +30,7 @@ import net.minecraft.world.entity.player.Inventory;
  *   if the player is carrying an item/has items in the crafting grid, clicking the clothes inventory button saves the item there, until the player reopens and then closes the inventory again
  */
 
-// TODO (clothes) interact with nearby mannequins
+// XXX (clothes) interact with nearby mannequins
 public class PlayerClothesScreen extends EffectRenderingInventoryScreen<PlayerClothesMenu> {
 	public static final ResourceLocation SCREEN_TEXTURE = JojoMod.resLoc("textures/gui/container/clothes/inventory_clothes.png");
 	private float xMouse;
