@@ -1,22 +1,31 @@
 package com.github.standobyte.jojo.mechanics.clothes.client.layer;
 
+import com.github.standobyte.jojo.core.JojoMod;
 import com.github.standobyte.jojo.init.ModItemDataComponents;
 import com.github.standobyte.jojo.mechanics.clothes.itemdata.ClothesSlotType;
+import com.github.standobyte.v1_21_4_stuff.renderstate.ExtractRSExtensionManually;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.VertexConsumer;
 
 import net.minecraft.client.model.HumanoidModel;
+import net.minecraft.client.model.PlayerModel;
 import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.RenderType;
 import net.minecraft.client.renderer.entity.RenderLayerParent;
 import net.minecraft.client.renderer.entity.layers.RenderLayer;
+import net.minecraft.client.renderer.entity.player.PlayerRenderer;
 import net.minecraft.client.renderer.texture.OverlayTexture;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.item.ItemStack;
+import net.neoforged.api.distmarker.Dist;
+import net.neoforged.bus.api.SubscribeEvent;
+import net.neoforged.fml.common.EventBusSubscriber;
+import net.neoforged.neoforge.client.event.RenderPlayerEvent;
 
-// TODO (clothes) disable the outer skin layer under worn clothes pieces
+// TODO (clothes) fix the model z-fighting
 //public class HumanoidClothesLayer<S extends HumanoidRenderState, M extends HumanoidModel<S>> extends RenderLayer<S, M> {
+@EventBusSubscriber(modid = JojoMod.MOD_ID, value = Dist.CLIENT)
 public class HumanoidClothesLayer<T extends LivingEntity, M extends HumanoidModel<T>> extends RenderLayer<T, M> {
 	private static final ClothesSlotType[] RENDER_ORDER = {
 			ClothesSlotType.CHEST,
@@ -37,7 +46,7 @@ public class HumanoidClothesLayer<T extends LivingEntity, M extends HumanoidMode
 //	public void render(PoseStack poseStack, MultiBufferSource bufferSource, 
 //			int packedLight, S renderState, float yRot, float xRot) {
 //		HumanoidClothesRSExtension clothesRS = renderState.getRenderData(ModEntityRenderers.CLOTHES_CONTEXT);
-		HumanoidClothesRSExtension clothesRS = HumanoidClothesRSExtension.reusedInstance.extract(livingEntity) ? HumanoidClothesRSExtension.reusedInstance : null;
+		HumanoidClothesRSExtension clothesRS = HumanoidClothesRSExtension.getCurRenderData();
 		if (clothesRS == null) return;
 		ClothesModelLoader clothesModels = ClothesModelLoader.getInstance();
 		if (clothesModels == null) return;
@@ -58,6 +67,35 @@ public class HumanoidClothesLayer<T extends LivingEntity, M extends HumanoidMode
 			VertexConsumer ivertexbuilder = bufferSource.getBuffer(RenderType.entityCutoutNoCull(clothesTexture));
 			clothesModel.renderToBuffer(poseStack, ivertexbuilder, packedLight, OverlayTexture.NO_OVERLAY);
 		}
+	}
+	
+	
+	@SubscribeEvent
+	public static void disablePlayerOuterLayer(RenderPlayerEvent.Pre event) {
+		ExtractRSExtensionManually.extractClothes(event.getEntity());
+		
+		HumanoidClothesRSExtension clothesRS = HumanoidClothesRSExtension.getCurRenderData();
+		if (clothesRS != null) {
+			PlayerRenderer renderer = event.getRenderer();
+			PlayerModel<?> model = renderer.getModel();
+			if (!clothesRS.items.get(ClothesSlotType.HEAD).isEmpty()) {
+				model.hat.visible = false;
+			}
+			if (!clothesRS.items.get(ClothesSlotType.CHEST).isEmpty()) {
+				model.jacket.visible = false;
+				model.leftSleeve.visible = false;
+				model.rightSleeve.visible = false;
+			}
+			if (!clothesRS.items.get(ClothesSlotType.LEGS).isEmpty()) {
+				model.leftPants.visible = false;
+				model.rightPants.visible = false;
+			}
+		}
+	}
+	
+	@SubscribeEvent
+	public static void clear(RenderPlayerEvent.Post event) {
+		ExtractRSExtensionManually.resetClothes();
 	}
 
 }
