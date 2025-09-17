@@ -23,6 +23,7 @@
 	"client.v1_21_1_modelanim.player.CapeLayerMixin",
 	"client.v1_21_1_modelanim.barrage.LivingEntityRendererMixin",
 	"client.v1_21_1_modelanim.barrage.HumanoidModelMixin",
+	"client.v1_21_1_itemmodel.ItemModelShaperMixin",
     "client.ModelAnimOptimization",
     "client.playeranim.ModelPartMixin",
 	"client.controls.KeyboardHandlerMixin",

@@ -5,7 +5,7 @@ import java.util.function.Supplier;
 import com.github.standobyte.jojo.core.JojoMod;
 import com.github.standobyte.jojo.mc.item.component.StandWrittenOnDisc;
 import com.github.standobyte.jojo.mechanics.clothes.itemdata.ClothesDataComponent;
-import com.github.standobyte.v1_21_4_stuff.missingmethods.__ItemModelComponent;
+import com.github.standobyte.v1_21_4_stuff.itemmodel.__ItemModelComponent;
 
 import net.minecraft.core.component.DataComponentType;
 import net.minecraft.core.registries.Registries;

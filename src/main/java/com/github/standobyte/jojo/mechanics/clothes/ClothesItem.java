@@ -10,7 +10,7 @@ import com.github.standobyte.jojo.mechanics.StoryPart;
 import com.github.standobyte.jojo.mechanics.clothes.itemdata.ClothesDataComponent;
 import com.github.standobyte.jojo.mechanics.clothes.itemdata.ClothesPiece.SubClothingPiece;
 import com.github.standobyte.jojo.mechanics.clothes.itemdata.ClothesSlotType;
-import com.github.standobyte.v1_21_4_stuff.CustomItemModel;
+import com.github.standobyte.v1_21_4_stuff.itemmodel.__ItemModelComponent;
 import com.github.standobyte.v1_21_4_stuff.missingmethods._ItemStack;
 
 import net.minecraft.ChatFormatting;
@@ -44,7 +44,7 @@ public class ClothesItem extends Item {
 		
 		ResourceLocation itemModel = clothesData.getPiece().itemModel;
 		if (itemModel != null) {
-			CustomItemModel.set(stack, itemModel);
+			__ItemModelComponent.set(stack, itemModel);
 		}
 		
 		Component itemName = clothesData.getPiece().itemName;

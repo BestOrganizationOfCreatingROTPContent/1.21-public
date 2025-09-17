@@ -1,6 +1,6 @@
 {
   "model": {
     "type": "minecraft:model",
-    "model": "minecraft:item/mannequin_slim"
+    "model": "jojo_ripples:item/mannequin_slim"
   }
 }

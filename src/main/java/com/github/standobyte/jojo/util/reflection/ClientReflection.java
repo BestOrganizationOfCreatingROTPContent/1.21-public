@@ -1,6 +1,7 @@
 package com.github.standobyte.jojo.util.reflection;
 
 import java.lang.reflect.Field;
+import java.util.List;
 import java.util.Map;
 
 import net.minecraft.client.gui.layouts.HeaderAndFooterLayout;
@@ -8,6 +9,8 @@ import net.minecraft.client.gui.screens.options.OptionsScreen;
 import net.minecraft.client.sounds.SoundEngine;
 import net.minecraft.client.sounds.SoundManager;
 import net.minecraft.resources.ResourceLocation;
+import net.minecraft.server.packs.resources.PreparableReloadListener;
+import net.minecraft.server.packs.resources.ReloadableResourceManager;
 import net.minecraft.server.packs.resources.Resource;
 import net.neoforged.fml.util.ObfuscationReflectionHelper;
 
@@ -28,6 +31,12 @@ public final class ClientReflection {
 //	public static CrossFrameResourcePool getResourcePool(GameRenderer gameRenderer) {
 //		return ReflectionUtil.getFieldValue(GAME_RENDERER_RESOURCE_POOL, gameRenderer);
 //	}
+	
+	
+	private static final Field RELOADABLE_RESOURCE_MANAGER_LISTENERS = ObfuscationReflectionHelper.findField(ReloadableResourceManager.class, "listeners");
+	public static List<PreparableReloadListener> getListeners(ReloadableResourceManager resourceManager) {
+		return ReflectionUtil.getFieldValue(RELOADABLE_RESOURCE_MANAGER_LISTENERS, resourceManager);
+	}
 	
 	
 	private static final Field OPTIONS_SCREEN_LAYOUT = ObfuscationReflectionHelper.findField(OptionsScreen.class, "layout");
