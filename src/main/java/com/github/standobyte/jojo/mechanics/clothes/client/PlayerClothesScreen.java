@@ -15,10 +15,12 @@ import net.minecraft.world.entity.player.Inventory;
 /*
  * when the ui is opened, seamlessly move the mouse screen to the same position
  * button
- *   texture
- *   icon
  *   in creative - only add the button to the inventory tab
- *   go to the previous screen
+ *   position the button correctly
+ *     in creative
+ *     when the recipe book gets opened/closed
+ *   replace it with "back" button in the clothes screen itself
+ *     go to the previous screen
  * tooltips
  *   clothes slots
  *   clothes button

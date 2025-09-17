@@ -55,6 +55,7 @@ public class ClothesItem extends Item {
 		return stack;
 	}
 
+	// TODO (clothes) when clicking RMB on combineable clothes, combine them
 	@Override
 	public InteractionResultHolder<ItemStack> use(Level level, Player player, InteractionHand hand) {
 		ItemStack itemStack = player.getItemInHand(hand);
