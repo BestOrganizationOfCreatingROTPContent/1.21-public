@@ -11,14 +11,7 @@ import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.player.Inventory;
 
-// TODO (clothes) UI polishing
-/*
- * tooltips on clothes slots?
- * if the player is carrying an item/has items in the crafting grid, clicking the clothes inventory button saves the item there, until the player reopens and then closes the inventory again
- * 
- * when the ui is opened, seamlessly move the mouse cursor to the same position
- */
-
+// XXX (clothes) when the ui is opened, seamlessly move the mouse cursor to the same position
 // XXX (clothes) interact with nearby mannequins
 public class PlayerClothesScreen extends EffectRenderingInventoryScreen<PlayerClothesMenu> {
 	public static final ResourceLocation SCREEN_TEXTURE = JojoMod.resLoc("textures/gui/container/clothes/inventory_clothes.png");

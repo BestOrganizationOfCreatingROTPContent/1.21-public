@@ -261,6 +261,7 @@ public class PlayerClothesMenu extends AbstractContainerMenu {
 	
 	
 	public static void openOnButtonClick(ServerPlayer player) {
+		player.doCloseContainer();
 		// MenuSupplier, MenuConstructor, MenuProvider, ёбаный ваш рот, какой долбоёб все эти интерфейсы писал, заебёшься в этом ООПшном говне копаться
 		player.openMenu(new SimpleMenuProvider(PlayerClothesMenu::new, Component.translatable("jojo_ripples.menu.player.clothes")));
 	}
