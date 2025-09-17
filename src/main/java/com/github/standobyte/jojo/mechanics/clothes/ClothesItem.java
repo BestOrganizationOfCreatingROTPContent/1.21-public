@@ -55,13 +55,12 @@ public class ClothesItem extends Item {
 		return stack;
 	}
 
-	// TODO (clothes) when clicking RMB on combineable clothes, combine them
 	@Override
 	public InteractionResultHolder<ItemStack> use(Level level, Player player, InteractionHand hand) {
-		ItemStack itemStack = player.getItemInHand(hand);
-		ClothesDataComponent itemClothes = itemStack.get(ModItemDataComponents.CLOTHES_PIECE);
+		ItemStack heldItem = player.getItemInHand(hand);
+		ClothesDataComponent itemClothes = heldItem.get(ModItemDataComponents.CLOTHES_PIECE);
 		if (itemClothes == null) {
-			return InteractionResultHolder.pass(itemStack);
+			return InteractionResultHolder.pass(heldItem);
 		}
 		ClothesSlotType clothesSlot = itemClothes.getSlot();
 
@@ -69,17 +68,28 @@ public class ClothesItem extends Item {
 		ItemStack wornItem = playerClothes.getClothingPiece(clothesSlot);
 
 		if ((!EnchantmentHelper.has(wornItem, EnchantmentEffectComponents.PREVENT_ARMOR_CHANGE) || player.isCreative())
-				&& !ItemStack.matches(itemStack, wornItem)) {
+				&& !ItemStack.matches(heldItem, wornItem)) {
 			if (!level.isClientSide()) {
 				player.awardStat(Stats.ITEM_USED.get(this));
 			}
+			
+			ItemStack setHeldItem;
+			ItemStack putOnItem;
+			ItemStack combined = combineIntoFullPiece(heldItem, wornItem);
+			if (combined != null) {
+				setHeldItem = player.isCreative() ? heldItem : ItemStack.EMPTY;
+				putOnItem = combined;
+			}
+			else {
+				setHeldItem = wornItem.isEmpty() ? heldItem : wornItem.copyAndClear();
+				putOnItem = player.isCreative() ? heldItem.copy() : heldItem.copyAndClear();
+			}
 
-			ItemStack setItemInSlot = wornItem.isEmpty() ? itemStack : wornItem.copyAndClear();
-			ItemStack putOnItem = player.isCreative() ? itemStack.copy() : itemStack.copyAndClear();
 			playerClothes.setItemSlot(clothesSlot, putOnItem);
-			return InteractionResultHolder.sidedSuccess(setItemInSlot, level.isClientSide());
+			
+			return InteractionResultHolder.sidedSuccess(setHeldItem, level.isClientSide());
 		} else {
-			return InteractionResultHolder.fail(itemStack);
+			return InteractionResultHolder.fail(heldItem);
 		}
 	}
 

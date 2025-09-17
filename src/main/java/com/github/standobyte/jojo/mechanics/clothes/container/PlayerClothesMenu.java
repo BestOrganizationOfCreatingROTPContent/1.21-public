@@ -169,7 +169,7 @@ public class PlayerClothesMenu extends AbstractContainerMenu {
 			}
 			
 			// put on clothes
-			else if (clothesSlot != null && isClothesStackable(item, this.slots.get(CLOTHES_START + clothesSlot.ordinal()))) {
+			else if (clothesSlot != null && isClothesStackable(item, this.slots.get(CLOTHES_START + clothesSlot.ordinal()).getItem())) {
 				int clothesSlotIndex = CLOTHES_START + clothesSlot.ordinal();
 				if (!this.stackClothes(item, clothesSlotIndex)) {
 					return ItemStack.EMPTY;
@@ -238,16 +238,11 @@ public class PlayerClothesMenu extends AbstractContainerMenu {
 		return moveItemStackTo(stack, slotIndex, slotIndex + 1, reverseDirection);
 	}
 	
-	protected static boolean isClothesStackable(ItemStack clickedItem, Slot clothesSlot) {
-		if (!clothesSlot.hasItem()) {
-			return true;
-		}
-		
-		ItemStack itemInSlot = clothesSlot.getItem();
-		return ClothesDataComponent.areDifferentSubpiecesOfTheSamePiece(clickedItem, itemInSlot);
+	public static boolean isClothesStackable(ItemStack clickedItem, ItemStack itemInClothesSlot) {
+		return itemInClothesSlot.isEmpty() || ClothesDataComponent.areDifferentSubpiecesOfTheSamePiece(clickedItem, itemInClothesSlot);
 	}
 	
-	protected boolean stackClothes(ItemStack clickedItem, int clothesSlotIndex) {
+	public boolean stackClothes(ItemStack clickedItem, int clothesSlotIndex) {
 		Slot clothesSlot = this.slots.get(clothesSlotIndex);
 		if (!clothesSlot.hasItem()) {
 			return moveItemStackTo(clickedItem, clothesSlotIndex, false);
