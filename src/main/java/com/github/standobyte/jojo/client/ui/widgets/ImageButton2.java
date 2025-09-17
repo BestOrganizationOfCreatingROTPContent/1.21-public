@@ -5,8 +5,8 @@ import com.github.standobyte.jojo.client.ui.utils.GuiIcon;
 
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.components.Button;
+import net.minecraft.client.gui.components.Tooltip;
 import net.minecraft.network.chat.CommonComponents;
-import net.minecraft.network.chat.Component;
 
 public class ImageButton2 extends Button {
 	public GuiIcon spriteEnabled;
@@ -19,25 +19,18 @@ public class ImageButton2 extends Button {
 			Button.OnPress onPress) {
 		this(x, y, width, height, 
 				enabled, disabled, enabledFocused, disabledFocused, 
-				onPress, CommonComponents.EMPTY);
+				onPress, null);
 	}
 
 	public ImageButton2(int x, int y, int width, int height, 
 			GuiIcon enabled, GuiIcon disabled, GuiIcon enabledFocused, GuiIcon disabledFocused, 
-			Button.OnPress onPress, Component message) {
-		super(x, y, width, height, message, onPress, DEFAULT_NARRATION);
+			Button.OnPress onPress, Tooltip tooltip) {
+		super(x, y, width, height, CommonComponents.EMPTY, onPress, DEFAULT_NARRATION);
+		setTooltip(tooltip);
 		this.spriteEnabled = enabled;
 		this.spriteDisabled = disabled;
 		this.spriteEnabledFocused = enabledFocused;
 		this.spriteDisabledFocused = disabledFocused;
-	}
-
-	public ImageButton2(int width, int height, 
-			GuiIcon enabled, GuiIcon disabled, GuiIcon enabledFocused, GuiIcon disabledFocused, 
-			Button.OnPress onPress, Component message) {
-		this(0, 0, width, height, 
-				enabled, disabled, enabledFocused, disabledFocused, 
-				onPress, message);
 	}
 
 	@Override

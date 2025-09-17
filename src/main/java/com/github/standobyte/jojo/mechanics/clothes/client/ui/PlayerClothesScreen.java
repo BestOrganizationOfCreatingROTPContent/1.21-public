@@ -13,21 +13,10 @@ import net.minecraft.world.entity.player.Inventory;
 
 // TODO (clothes) UI polishing
 /*
- * when the ui is opened, seamlessly move the mouse screen to the same position
- * button
- *   in creative - only add the button to the inventory tab
- *   position the button correctly
- *     in creative
- *     when the recipe book gets opened/closed
- *   replace it with "back" button in the clothes screen itself
- *     go to the previous screen
- * tooltips
- *   clothes slots
- *   clothes button
- * names
- *   clothes container
- * bug fixes
- *   if the player is carrying an item/has items in the crafting grid, clicking the clothes inventory button saves the item there, until the player reopens and then closes the inventory again
+ * tooltips on clothes slots?
+ * if the player is carrying an item/has items in the crafting grid, clicking the clothes inventory button saves the item there, until the player reopens and then closes the inventory again
+ * 
+ * when the ui is opened, seamlessly move the mouse cursor to the same position
  */
 
 // XXX (clothes) interact with nearby mannequins

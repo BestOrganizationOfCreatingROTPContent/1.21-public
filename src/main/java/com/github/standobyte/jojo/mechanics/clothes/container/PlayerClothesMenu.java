@@ -14,7 +14,7 @@ import com.github.standobyte.jojo.mechanics.clothes.itemdata.ClothesDataComponen
 import com.github.standobyte.jojo.mechanics.clothes.itemdata.ClothesSlotType;
 import com.mojang.datafixers.util.Pair;
 
-import net.minecraft.network.chat.CommonComponents;
+import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.SimpleMenuProvider;
@@ -262,7 +262,7 @@ public class PlayerClothesMenu extends AbstractContainerMenu {
 	
 	public static void openOnButtonClick(ServerPlayer player) {
 		// MenuSupplier, MenuConstructor, MenuProvider, ёбаный ваш рот, какой долбоёб все эти интерфейсы писал, заебёшься в этом ООПшном говне копаться
-		player.openMenu(new SimpleMenuProvider(PlayerClothesMenu::new, CommonComponents.EMPTY));
+		player.openMenu(new SimpleMenuProvider(PlayerClothesMenu::new, Component.translatable("jojo_ripples.menu.player.clothes")));
 	}
 
 }

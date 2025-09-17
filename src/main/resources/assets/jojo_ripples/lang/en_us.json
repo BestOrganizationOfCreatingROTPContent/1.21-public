@@ -84,7 +84,6 @@
   "jojo_ripples.menu.player.profile": "Character Profile (NYI)",
   "jojo_ripples.menu.player.group": "Group (NYI)",
   "jojo_ripples.menu.player.story_arcs": "Story Arcs (NYI)",
-  "jojo_ripples.menu.player.clothes": "Clothes (NYI)",
   
   "jojo_ripples.screen.edit_hud_layout": "Edit Controls (NYI)",
   "jojo_ripples.screen.ability_selection_wheel": "Choose an ability",
@@ -99,6 +98,7 @@
   "jojo_ripples.story_part.p8": "JoJolion",
   "jojo_ripples.story_part.p9": "The JOJOLands",
   
+  "jojo_ripples.menu.player.clothes": "Clothes (WIP)",
   "item.jojo_ripples.mannequin": "Mannequin",
   "item.jojo_ripples.mannequin_slim": "Mannequin (slim)",
   "ripples_clothes_split": "Right click to split into %s and %s",

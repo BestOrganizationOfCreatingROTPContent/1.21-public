@@ -72,7 +72,6 @@
   "jojo_ripples.menu.player.profile": "Профиль персонажа (NYI)",
   "jojo_ripples.menu.player.group": "Группа (NYI)",
   "jojo_ripples.menu.player.story_arcs": "Сюжетные арки (NYI)",
-  "jojo_ripples.menu.player.clothes": "Одежда (NYI)",
   
   "jojo_ripples.screen.edit_hud_layout": "Настройки управления (NYI)",
   "jojo_ripples.screen.ability_selection_wheel": "Выберите способность",
@@ -87,6 +86,7 @@
   "jojo_ripples.story_part.p8": "JoJolion",
   "jojo_ripples.story_part.p9": "The JOJOLands",
 
+  "jojo_ripples.menu.player.clothes": "Одежда (WIP)",
   "item.jojo_ripples.mannequin": "Манекен",
   "item.jojo_ripples.mannequin_slim": "Манекен (худой)",
   "ripples_clothes_split": "ПКМ: разделить на %s и %s",
