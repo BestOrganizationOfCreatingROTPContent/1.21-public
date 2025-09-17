@@ -1,4 +1,4 @@
-package com.github.standobyte.jojo.mechanics.clothes.client;
+package com.github.standobyte.jojo.mechanics.clothes.client.ui;
 
 import com.github.standobyte.jojo.client.ui.utils.GuiIcon;
 import com.github.standobyte.jojo.client.ui.widgets.ImageButton2;

@@ -2,7 +2,7 @@ package com.github.standobyte.jojo.client;
 
 import com.github.standobyte.jojo.core.JojoMod;
 import com.github.standobyte.jojo.init.core.ModContainers;
-import com.github.standobyte.jojo.mechanics.clothes.client.PlayerClothesScreen;
+import com.github.standobyte.jojo.mechanics.clothes.client.ui.PlayerClothesScreen;
 
 import net.neoforged.api.distmarker.Dist;
 import net.neoforged.bus.api.SubscribeEvent;

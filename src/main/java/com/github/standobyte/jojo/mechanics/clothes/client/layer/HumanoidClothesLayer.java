@@ -1,4 +1,4 @@
-package com.github.standobyte.jojo.client.entityrender.clothes;
+package com.github.standobyte.jojo.mechanics.clothes.client.layer;
 
 import com.github.standobyte.jojo.init.ModItemDataComponents;
 import com.github.standobyte.jojo.mechanics.clothes.itemdata.ClothesSlotType;

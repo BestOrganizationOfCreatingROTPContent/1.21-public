@@ -1,4 +1,4 @@
-package com.github.standobyte.jojo.client.entityrender.clothes;
+package com.github.standobyte.jojo.mechanics.clothes.client.layer;
 
 import java.io.IOException;
 import java.util.HashMap;

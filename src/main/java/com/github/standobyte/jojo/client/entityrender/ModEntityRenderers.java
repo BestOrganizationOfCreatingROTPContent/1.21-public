@@ -2,12 +2,12 @@ package com.github.standobyte.jojo.client.entityrender;
 
 import java.util.Optional;
 
-import com.github.standobyte.jojo.client.entityrender.clothes.HumanoidClothesLayer;
 import com.github.standobyte.jojo.client.entityrender.entities.MannequinRenderer;
 import com.github.standobyte.jojo.client.entityrender.entities.v1_21_2plus.MannequinModel_1_21_2plus;
 import com.github.standobyte.jojo.client.entityrender.stand.StandEntityRenderer;
 import com.github.standobyte.jojo.core.JojoMod;
 import com.github.standobyte.jojo.init.ModEntityTypes;
+import com.github.standobyte.jojo.mechanics.clothes.client.layer.HumanoidClothesLayer;
 import com.github.standobyte.v1_21_4_stuff.Reminder;
 
 import net.minecraft.client.Minecraft;
