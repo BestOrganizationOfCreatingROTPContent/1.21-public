@@ -4,6 +4,7 @@
   "package": "com.github.standobyte.jojo.mixin",
   "refmap": "mixins.jojo.refmap.json",
   "minVersion": "0.8.5",
+  "plugin": "com.github.standobyte.jojo.RipplesMixinConfigPlugin",
   "mixins": [
     "damage.DamageSourceMixin",
 	"damage.LivingEntityMixin",
@@ -12,7 +13,9 @@
 	"ProjectileHighSpeedSync",
 	"attributes.EntityMixin",
 	"MobEffectLivingEntityMixin",
-	"modcompat.MthInitBeforeLithium"
+	"modcompat.MthInitBeforeLithium",
+	
+	"debughelper.CodecErrorMessageMixin"
   ],
   "client": [
 	"client.v1_21_4_stuff.Model_1_21_2plus_Mixin",
