@@ -218,6 +218,7 @@ public class ControlsHudElement extends HudElement {
 
 	public void prepare(PrototypeAbilityHud hud, ClientControlScheme controlScheme, Font font, 
 			@Nonnull KeyModifier modifier, Power<?> power, @Nullable StandSkin standSkin) {
+		if (controlScheme == null) return;
 		ClientControlScheme.MoveGroup curGroup = controlScheme.getCurGroup().getValue();
 		if (modifier == KeyModifier.ALT) modifier = KeyModifier.NONE;
 		AvailableAbilities availableAbilities = ClientPowerCache.getAvailableMoves(power.getPowerClass(), power);
