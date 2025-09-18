@@ -11,7 +11,8 @@
     "standuseitems.ProjectileMixin",
 	"ProjectileHighSpeedSync",
 	"attributes.EntityMixin",
-	"MobEffectLivingEntityMixin"
+	"MobEffectLivingEntityMixin",
+	"modcompat.MthInitBeforeLithium"
   ],
   "client": [
 	"client.v1_21_4_stuff.Model_1_21_2plus_Mixin",

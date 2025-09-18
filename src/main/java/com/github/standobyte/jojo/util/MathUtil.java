@@ -1,18 +1,13 @@
 package com.github.standobyte.jojo.util;
 
-import java.lang.reflect.Field;
 import java.util.Random;
 
-import com.github.standobyte.jojo.util.reflection.ReflectionUtil;
-
-import net.minecraft.Util;
 import net.minecraft.commands.arguments.EntityAnchorArgument;
 import net.minecraft.util.Mth;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec2;
 import net.minecraft.world.phys.Vec3;
-import net.neoforged.fml.util.ObfuscationReflectionHelper;
 
 public final class MathUtil {
 	public static final float DEG_TO_RAD = (float) (Math.PI / 180D);
@@ -20,20 +15,21 @@ public final class MathUtil {
 	public static final float PI = (float) Math.PI;
 	public static final float DOUBLE_PI = PI * 2F;
 	
-	private static float[] SIN;
-	private static final float[] TAN = Util.make(new float[65536], arr -> {
-		Field SIN_FIELD = ObfuscationReflectionHelper.findField(Mth.class, "SIN");
-		SIN = ReflectionUtil.getFieldValue(SIN_FIELD, null);
-		for (int i = 0; i < arr.length; i++) {
+	private static final int[] TAN = new int[0x8000];
+	
+	public static void initTanLUT(float[] SIN) {
+		for (int i = 0; i < TAN.length; i++) {
 			float sin = SIN[i];
-			float cos = SIN[(i + 16384) & 65535];
-			arr[i] = sin / cos;
+			float cos = SIN[(i + 0x4000) & 0xFFFF];
+			TAN[i] = Float.floatToRawIntBits(sin / cos);
 		}
-	});
+	}
 	
 	public static float tan(float angle) {
-		return TAN[(int)(angle * 10430.378F) & 65535];
+		int index = (int)(angle * 10430.378F) & 0x7FFF /* tan(pi + a) = tan(a) */;
+		return Float.intBitsToFloat(TAN[index]);
 	}
+
 
 	public static float wrapRadians(float angle) {
 		angle %= DOUBLE_PI;
