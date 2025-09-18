@@ -7,6 +7,7 @@ import com.github.standobyte.v1_21_4_stuff.missingmethods._FriendlyByteBuf;
 
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.screens.inventory.AbstractContainerScreen;
+import net.minecraft.client.gui.screens.inventory.CreativeModeInventoryScreen;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.world.entity.player.Player;
@@ -23,7 +24,24 @@ public record ContainerSlotInput(
 		if (Minecraft.getInstance().screen instanceof AbstractContainerScreen invScreen) {
 			Slot slot = invScreen.getSlotUnderMouse();
 			if (slot != null) {
-				return new ContainerSlotInput(invScreen.getMenu().containerId, slot.index);
+				int index = switch (invScreen) {
+					case CreativeModeInventoryScreen killMe -> {
+						int anotherIndexWtfMojang = slot.getSlotIndex();
+						if (anotherIndexWtfMojang >= 0 && anotherIndexWtfMojang <= 8) { // hotbar
+							anotherIndexWtfMojang += 36;
+						}
+						else if (anotherIndexWtfMojang >= 45 && anotherIndexWtfMojang <= 53) { // hotbar when you have another creative tab open
+							anotherIndexWtfMojang -= 9;
+						}
+						else if (anotherIndexWtfMojang >= 36 && anotherIndexWtfMojang <= 39) { // armor slots
+							anotherIndexWtfMojang = 44 - anotherIndexWtfMojang;
+						}
+						yield anotherIndexWtfMojang;
+					}
+					
+					default -> slot.index;
+				};
+				return new ContainerSlotInput(invScreen.getMenu().containerId, index);
 			}
 		}
 		return null;
