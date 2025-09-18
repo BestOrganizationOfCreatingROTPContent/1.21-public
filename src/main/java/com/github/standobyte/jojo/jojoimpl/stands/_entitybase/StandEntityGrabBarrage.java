@@ -3,12 +3,14 @@ package com.github.standobyte.jojo.jojoimpl.stands._entitybase;
 import com.github.standobyte.jojo.mechanics.grab.LivingComponentGrab;
 import com.github.standobyte.jojo.powersystem.ability.AbilityId;
 import com.github.standobyte.jojo.powersystem.ability.AbilityType;
+import com.github.standobyte.jojo.powersystem.entityaction.ActionPhase;
 import com.github.standobyte.jojo.powersystem.entityaction.EntityActionInstance;
 import com.github.standobyte.jojo.powersystem.entityaction.type.EntityActionType;
 import com.github.standobyte.jojo.powersystem.standpower.entity.StandEntity;
 import com.github.standobyte.jojo.util.target.ActionTarget;
 
 import net.minecraft.network.chat.Component;
+import net.minecraft.world.entity.LivingEntity;
 
 public class StandEntityGrabBarrage extends StandEntityBarrageAbility {
 
@@ -27,6 +29,18 @@ public class StandEntityGrabBarrage extends StandEntityBarrageAbility {
 
 		public GrabBarrage(EntityActionType ability) {
 			super(ability);
+		}
+
+		@Override
+		public void actionTick() {
+			if (!level().isClientSide() && getPhase() == ActionPhase.PERFORM) {
+				LivingEntity grabbedEntity = LivingComponentGrab.getEntityGrabbedBy(performer);
+				if (grabbedEntity == null || !grabbedEntity.isAlive()) {
+					setPhaseStart(ActionPhase.RECOVERY);
+					syncPhaseChanges();
+				}
+			}
+			super.actionTick();
 		}
 		
 		@Override
