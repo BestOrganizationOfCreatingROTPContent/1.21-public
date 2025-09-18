@@ -6,6 +6,7 @@ import java.util.Map;
 import com.github.standobyte.jojo.client.ClientGlobals;
 import com.github.standobyte.jojo.client.ClientPowerCache;
 import com.github.standobyte.jojo.client.ClientUtil;
+import com.github.standobyte.jojo.client.standskin.StandSkin;
 import com.github.standobyte.jojo.client.standskin.StandSkinsLoader;
 import com.github.standobyte.jojo.client.ui.utils.BlitFloat;
 import com.github.standobyte.jojo.client.ui.utils.GuiIcon;
@@ -243,7 +244,8 @@ public class PowerHud {
 				float multiplier = standPower.resolveHandler.getTotalBoostVisible(standPower.getUser());
 				if (multiplier > 1) {
 					Component multiplierText = Component.literal("x" + String.format("%.2f", multiplier));
-					guiGraphics.drawCenteredString(mc.font, multiplierText, x + width / 2, y + 20, StandSkinsLoader.getCurSkin().getColor());
+					StandSkin skin = StandSkinsLoader.getCurSkin();
+					guiGraphics.drawCenteredString(mc.font, multiplierText, x + width / 2, y + 20, skin != null ? skin.getColor() : 0xFFFFFFFF);
 				}
 			}
 		}
