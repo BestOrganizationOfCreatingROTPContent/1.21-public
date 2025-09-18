@@ -560,7 +560,10 @@ public class StandStatsRenderer {
 			}
 
 			if (knownStand) {
-				override.standIcon(power).render(poseStack, x + statsWidth - 18 - width, standIconY);
+				GuiIcon standIcon = override.standIcon(power);
+				if (standIcon != null) {
+					standIcon.render(poseStack, x + statsWidth - 18 - width, standIconY);
+				}
 			}
 			int lineY = standNameY;
 			for (var line : standName) {
