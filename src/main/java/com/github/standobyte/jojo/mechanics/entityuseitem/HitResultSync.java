@@ -4,6 +4,8 @@ import javax.annotation.Nullable;
 
 import com.github.standobyte.jojo.util.network.NetworkUtil;
 
+import net.minecraft.core.BlockPos;
+import net.minecraft.core.Direction;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.world.entity.Entity;
@@ -56,6 +58,16 @@ public class HitResultSync {
 						buf.writeInt(value.entityId);
 						buf.writeVec3(value.position);
 					}
+					case MISS -> {
+						BlockHitResult miss = (BlockHitResult) value.hitResult;
+						BlockPos blockPos = miss.getBlockPos();
+						buffer.writeBlockPos(blockPos);
+						buffer.writeEnum(miss.getDirection());
+						Vec3 location = miss.getLocation();
+						buffer.writeFloat((float)(location.x - blockPos.getX()));
+						buffer.writeFloat((float)(location.y - blockPos.getY()));
+						buffer.writeFloat((float)(location.z - blockPos.getZ()));
+					}
 					default -> {
 						buf.writeBlockHitResult((BlockHitResult) value.hitResult);
 					}
@@ -72,6 +84,19 @@ public class HitResultSync {
 						int entityId = buf.readInt();
 						Vec3 pos = buf.readVec3();
 						yield new HitResultSync(entityId, pos);
+					}
+					case MISS -> {
+						BlockPos blockPos = buffer.readBlockPos();
+						Direction direction = buffer.readEnum(Direction.class);
+						float xOffset = buffer.readFloat();
+						float yOffset = buffer.readFloat();
+						float zOffset = buffer.readFloat();
+						Vec3 location = new Vec3(
+								blockPos.getX() + xOffset, 
+								blockPos.getY() + yOffset, 
+								blockPos.getZ() + zOffset);
+						BlockHitResult miss = BlockHitResult.miss(location, direction, blockPos);
+						yield new HitResultSync(miss);
 					}
 					default -> {
 						BlockHitResult target = buf.readBlockHitResult();
