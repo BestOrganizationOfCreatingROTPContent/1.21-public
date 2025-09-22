@@ -21,18 +21,9 @@ public class TrEntityActionInstancePacket implements CustomPacketPayload {
 	@Nullable private EntityActionInstance sendAction;
 	@Nullable private FriendlyByteBuf receiveActionData;
 	
-	private TrEntityActionInstancePacket(int performerId, EntityActionInstance action, FriendlyByteBuf actionData) {
+	public TrEntityActionInstancePacket(int performerId, @Nullable EntityActionInstance action) {
 		this.performerId = performerId;
 		this.sendAction = action;
-		this.receiveActionData = actionData;
-	}
-	
-	public TrEntityActionInstancePacket(int performerId, EntityActionInstance action) {
-		this(performerId, action, null);
-	}
-	
-	private static TrEntityActionInstancePacket clientRead(int performerId, FriendlyByteBuf actionData) {
-		return new TrEntityActionInstancePacket(performerId, null, actionData);
 	}
 	
 	
@@ -53,21 +44,22 @@ public class TrEntityActionInstancePacket implements CustomPacketPayload {
 		@Override
 		public void encode(TrEntityActionInstancePacket packet, RegistryFriendlyByteBuf buf) {
 			buf.writeInt(packet.performerId);
-			NetworkUtil.writeOptionally(packet.sendAction, buf, (b, a) -> EntityActionInstance.encode(buf, a));
+			EntityActionInstance.encode(buf, packet.sendAction);
 		}
 
 		@Override
 		public TrEntityActionInstancePacket decode(RegistryFriendlyByteBuf buf) {
 			int performerId = buf.readInt();
-			return clientRead(performerId, NetworkUtil.extraPacketData(buf));
+			TrEntityActionInstancePacket packet = new TrEntityActionInstancePacket(performerId, null);
+			packet.receiveActionData = NetworkUtil.extraPacketData(buf);
+			return packet;
 		}
 		
 		@Override
 		public void handle(TrEntityActionInstancePacket payload, IPayloadContext context) {
 			Entity entity = ClientProxy.getEntityById(payload.performerId);
 			if (entity instanceof LivingEntity living) {
-				EntityActionInstance action = NetworkUtil.readOptional(payload.receiveActionData, 
-						buf -> EntityActionInstance.decode(entity.level(), buf)).orElse(null);
+				EntityActionInstance action = EntityActionInstance.decode(entity.level(), payload.receiveActionData);
 				LivingComponentAction.getComponent(living).setAction(action, SyncType.NO_SYNC);
 			}
 		}

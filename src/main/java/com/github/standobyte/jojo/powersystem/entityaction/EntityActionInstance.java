@@ -444,8 +444,10 @@ public class EntityActionInstance implements HeldInput {
 	
 	
 	public static void encode(RegistryFriendlyByteBuf buffer, EntityActionInstance action) {
-		buffer.writeBoolean(action.phase != null);
-		if (action.phase != null) {
+		ActionPhase actionPhase = action != null ? action.phase : null;
+		boolean valid = action != null && !action.isOver();
+		buffer.writeBoolean(valid);
+		if (valid) {
 			action.ability.encodeAbility(action.getPowerUser(), buffer);
 
 			buffer.writeVarInt(action.id);
@@ -459,7 +461,7 @@ public class EntityActionInstance implements HeldInput {
 					buf.writeFloat(entry.getFloatValue());
 				}
 			});
-			buffer.writeVarInt(action.phase.ordinal());
+			buffer.writeVarInt(actionPhase.ordinal());
 			buffer.writeVarInt(action.curPhaseTick);
 			buffer.writeFloat(action.phasePartialTick);
 			buffer.writeFloat(action.curPhaseLength);
