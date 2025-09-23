@@ -27,13 +27,28 @@ import net.neoforged.api.distmarker.Dist;
 import net.neoforged.fml.loading.FMLEnvironment;
 
 public class StoryPart {
-	protected final TextColor nameColor;
+	@Nullable protected final TextColor nameColor;
+	public static final float WIDTH_DEFAULT = 16;
+	public static final float HEIGHT_DEFAULT = 16;
+	protected final float iconWidth;
+	protected final float iconHeight;
+	
 	protected Component name;
 	protected ResourceLocation icon;
 	protected char clientGlyphIndex = 0;
 
-	public StoryPart(TextColor nameColor) {
+	public StoryPart() {
+		this(null);
+	}
+
+	public StoryPart(@Nullable TextColor nameColor) {
+		this(nameColor, WIDTH_DEFAULT, HEIGHT_DEFAULT);
+	}
+
+	public StoryPart(@Nullable TextColor nameColor, float iconWidth, float iconHeight) {
 		this.nameColor = nameColor;
+		this.iconWidth = iconWidth;
+		this.iconHeight = iconHeight;
 	}
 	
 
@@ -57,7 +72,9 @@ public class StoryPart {
 			ResourceLocation id = key.location();
 			String tlKey = id.getNamespace() + ".story_part." + id.getPath();
 			MutableComponent name = Component.translatable(tlKey);
-			name.withStyle(style -> style.withColor(value.nameColor));
+			if (value.nameColor != null) {
+				name.withStyle(style -> style.withColor(value.nameColor));
+			}
 			iconAndName.append(name);
 
 			value.name = iconAndName;
@@ -75,7 +92,7 @@ public class StoryPart {
 			value.icon = id.withPath(path -> "textures/story_part/" + path + ".png");
 			if (FMLEnvironment.dist == Dist.CLIENT) {
 				value.clientGlyphIndex = IconGlyphsCache.makeCharCodeFor(
-						new IconGlyphInfo(new GuiIcon(value.icon, 16, 16), 8, 8));
+						new IconGlyphInfo(new GuiIcon(value.icon, value.iconWidth, value.iconHeight), value.iconWidth / 2, value.iconHeight / 2));
 			}
 		}
 		return value.icon;
@@ -84,7 +101,9 @@ public class StoryPart {
 
 	public static final Codec<StoryPart> DIRECT_CODEC = RecordCodecBuilder.create(
 			builder -> builder.group(
-					TextColor.CODEC.optionalFieldOf("name_color", TextColor.fromRgb(0xFFFFFF)).forGetter(set -> set.nameColor))
+					TextColor.CODEC.optionalFieldOf("name_color", TextColor.fromRgb(0xFFFFFF)).forGetter(part -> part.nameColor),
+					Codec.FLOAT.optionalFieldOf("icon_width", WIDTH_DEFAULT).forGetter(part -> part.iconWidth),
+					Codec.FLOAT.optionalFieldOf("icon_height", HEIGHT_DEFAULT).forGetter(part -> part.iconHeight))
 			.apply(builder, StoryPart::new));
 
 
