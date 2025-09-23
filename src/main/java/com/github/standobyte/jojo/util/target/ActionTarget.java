@@ -144,19 +144,6 @@ public class ActionTarget {
 	}
 
 
-	public static ActionTarget readResolveEntity(FriendlyByteBuf buf, Level level) {
-		ActionTarget target = STREAM_CODEC_UNRESOLVED_ENTITY_ID.decode(buf);
-		return target.resolveEntityId(level);
-	}
-
-	public ActionTarget resolveEntityId(Level level) {
-		if (getType() == TargetType.ENTITY && this.entity == null) {
-			this.entity = level.getEntity(entityId);
-			return this.entity != null ? this : ActionTarget.EMPTY;
-		}
-		return this;
-	}
-
 	public ActionTarget copy() {
 		switch (type) {
 		case EMPTY:
@@ -198,6 +185,23 @@ public class ActionTarget {
 			}
 		}
 	};
+
+	public static ActionTarget decode(FriendlyByteBuf buf, Level level) {
+		ActionTarget target = STREAM_CODEC_UNRESOLVED_ENTITY_ID.decode(buf);
+		return target.resolveEntityId(level);
+	}
+
+	/**
+	 * Caches a reference to the target entity if it's found in the level.
+	 * @return Empty target if the entity was not found in the level, otherwise returns this.
+	 */
+	public ActionTarget resolveEntityId(Level level) {
+		if (this.getType() == TargetType.ENTITY && this.entity == null) {
+			this.entity = level.getEntity(this.entityId);
+			return this.entity != null ? this : ActionTarget.EMPTY;
+		}
+		return this;
+	}
 
 	private ActionTarget(int entityIdOnly) {
 		type = TargetType.ENTITY;
