@@ -19,6 +19,21 @@ import net.neoforged.neoforge.registries.DeferredRegister;
 public class ModStands {
 	public static final DeferredRegister<StandType> DEFAULT_STANDS = DeferredRegister.create(JojoRegistries.DEFAULT_STANDS_REG, JojoMod.MOD_ID);
 	
+	public static final DeferredHolder<StandType, StandType> TEST = DEFAULT_STANDS.register(
+			"test", id -> 
+			new StandType(
+					new StandStats.Builder()
+					.power(18.5)
+					.speed(19)
+					.range(2, 10)
+					.durability(20)
+					.precision(20)
+					.build(),
+
+					new MovesetBuilder(),
+					
+					id));
+	
 	public static final DeferredHolder<StandType, EntityStandType> STAR_PLATINUM = DEFAULT_STANDS.register(
 			"star_platinum", id -> 
 			new EntityStandType(

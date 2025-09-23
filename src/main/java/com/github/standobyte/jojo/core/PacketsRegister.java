@@ -12,6 +12,7 @@ import com.github.standobyte.jojo.core.packet.fromserver.StandEntitySoundPacket;
 import com.github.standobyte.jojo.core.packet.fromserver.StandSkinSoundPacket;
 import com.github.standobyte.jojo.core.packet.fromserver.TrAbilityUsePacket;
 import com.github.standobyte.jojo.core.packet.fromserver.TrAimTargetPacket;
+import com.github.standobyte.jojo.core.packet.fromserver.TrNonEntityStandSummonPacket;
 import com.github.standobyte.jojo.core.packet.fromserver.TrPowerStandInstancePacket;
 import com.github.standobyte.jojo.core.packet.fromserver.TrPowerTypePacket;
 import com.github.standobyte.jojo.core.packet.fromserver.TrSetStandEntityPacket;
@@ -55,6 +56,7 @@ public class PacketsRegister {
 		registerPacket(registrar, PayloadRegistrar::playToClient, new TrStandDataPacket.Handler(JojoMod.resLoc("standdata")));
 		registerPacket(registrar, PayloadRegistrar::playToClient, new TrPowerTypePacket.Handler(JojoMod.resLoc("plpowertype")));
 		registerPacket(registrar, PayloadRegistrar::playToClient, new TrSetStandEntityPacket.Handler(JojoMod.resLoc("standentity")));
+		registerPacket(registrar, PayloadRegistrar::playToClient, new TrNonEntityStandSummonPacket.Handler(JojoMod.resLoc("nestandsummon")));
 		registerPacket(registrar, PayloadRegistrar::playToClient, new TrStaminaPacket.Handler(JojoMod.resLoc("stamina")));
 		registerPacket(registrar, PayloadRegistrar::playToClient, new TrResolvePacket.Handler(JojoMod.resLoc("resolve")));
 		registerPacket(registrar, PayloadRegistrar::playToClient, new ResolveBoostsPacket.Handler(JojoMod.resLoc("resolveboost")));

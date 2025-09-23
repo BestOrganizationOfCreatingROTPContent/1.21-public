@@ -8,6 +8,7 @@ import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 
 import com.github.standobyte.jojo.core.JojoRegistries;
+import com.github.standobyte.jojo.core.packet.fromserver.TrNonEntityStandSummonPacket;
 import com.github.standobyte.jojo.init.core.ModEntityAttributes;
 import com.github.standobyte.jojo.powersystem.MovesetBuilder;
 import com.github.standobyte.jojo.powersystem.Power;
@@ -30,6 +31,7 @@ import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.LivingEntity;
 import net.neoforged.neoforge.common.util.Lazy;
+import net.neoforged.neoforge.network.PacketDistributor;
 
 public class StandType extends PowerType {
 	protected final ResourceLocation standTypeId;
@@ -101,12 +103,19 @@ public class StandType extends PowerType {
 		if (!standPower.isSummoned()) {
 			SummonedStand summonedStand = makeSummonedStand();
 			if (summonedStand == null) return false;
+			
 			standPower.setSummonedStand(summonedStand);
+			if (user != null && !user.level().isClientSide()) {
+				PacketDistributor.sendToPlayersTrackingEntityAndSelf(user, new TrNonEntityStandSummonPacket(user.getId(), true));
+			}
 			return true;
 		}
 		return false;
 	}
 	
+	/**
+	 * If this is overriden to return null, the Stand type will have no summon/unsummon mechanic.
+	 */
 	protected SummonedStand makeSummonedStand() {
 		return new BlankSummonedStand();
 	}
@@ -118,6 +127,9 @@ public class StandType extends PowerType {
 	public void forceUnsummon(LivingEntity user, StandPower standPower) {
 		if (standPower.isSummoned()) {
 			standPower.setSummonedStand(null);
+			if (user != null && !user.level().isClientSide()) {
+				PacketDistributor.sendToPlayersTrackingEntityAndSelf(user, new TrNonEntityStandSummonPacket(user.getId(), false));
+			}
 		}
 	}
 	
