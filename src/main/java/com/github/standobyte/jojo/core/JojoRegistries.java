@@ -8,7 +8,7 @@ import com.github.standobyte.jojo.mechanics.clothes.itemdata.StoryCharacter;
 import com.github.standobyte.jojo.powersystem.ability.AbilityType;
 import com.github.standobyte.jojo.powersystem.entityaction.type.SpecialEntityActionType;
 import com.github.standobyte.jojo.powersystem.playerpower.PlayerPowerType;
-import com.github.standobyte.jojo.powersystem.standpower.StandEffectType;
+import com.github.standobyte.jojo.powersystem.standpower.effect.StandEffectType;
 import com.github.standobyte.jojo.powersystem.standpower.type.StandType;
 
 import net.minecraft.core.Registry;

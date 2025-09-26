@@ -24,6 +24,7 @@ import com.github.standobyte.jojo.mechanics.entityuseitem.ClStandClickPacket;
 import com.github.standobyte.jojo.mechanics.grab.TrSetGrabbedEntityPacket;
 import com.github.standobyte.jojo.powersystem.entityaction.netcode.TrEntityActionInstancePacket;
 import com.github.standobyte.jojo.powersystem.entityaction.netcode.TrEntityActionPhaseTimePacket;
+import com.github.standobyte.jojo.powersystem.standpower.effect.TrStandEffectPacket;
 import com.github.standobyte.jojo.powersystem.standpower.packet.ResolveBoostsPacket;
 import com.github.standobyte.jojo.powersystem.standpower.packet.TrResolvePacket;
 import com.github.standobyte.jojo.powersystem.standpower.packet.TrStaminaPacket;
@@ -57,6 +58,7 @@ public class PacketsRegister {
 		registerPacket(registrar, PayloadRegistrar::playToClient, new TrPowerTypePacket.Handler(JojoMod.resLoc("plpowertype")));
 		registerPacket(registrar, PayloadRegistrar::playToClient, new TrSetStandEntityPacket.Handler(JojoMod.resLoc("standentity")));
 		registerPacket(registrar, PayloadRegistrar::playToClient, new TrNonEntityStandSummonPacket.Handler(JojoMod.resLoc("nestandsummon")));
+		registerPacket(registrar, PayloadRegistrar::playToClient, new TrStandEffectPacket.Handler(JojoMod.resLoc("standeffect")));
 		registerPacket(registrar, PayloadRegistrar::playToClient, new TrStaminaPacket.Handler(JojoMod.resLoc("stamina")));
 		registerPacket(registrar, PayloadRegistrar::playToClient, new TrResolvePacket.Handler(JojoMod.resLoc("resolve")));
 		registerPacket(registrar, PayloadRegistrar::playToClient, new ResolveBoostsPacket.Handler(JojoMod.resLoc("resolveboost")));

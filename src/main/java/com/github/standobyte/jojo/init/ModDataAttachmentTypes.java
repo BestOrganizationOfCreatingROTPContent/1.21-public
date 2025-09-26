@@ -13,6 +13,7 @@ import com.github.standobyte.jojo.powersystem.entityaction.EntityActionInputStat
 import com.github.standobyte.jojo.powersystem.entityaction.LivingComponentAction;
 import com.github.standobyte.jojo.powersystem.playerpower.PlayerPower;
 import com.github.standobyte.jojo.powersystem.standpower.StandPower;
+import com.github.standobyte.jojo.powersystem.standpower.effect.StandEffectsTarget;
 import com.github.standobyte.jojo.util.entitycomponent.DataEventListeners;
 
 import net.minecraft.server.level.ServerLevel;
@@ -49,6 +50,9 @@ public final class ModDataAttachmentTypes {
 	
 	public static final Supplier<AttachmentType<LivingComponentGrab>> LIVING_GRAB = ATTACHMENT_TYPES.register("living_grab", 
 			() -> AttachmentType.builder(entity -> entity instanceof LivingEntity living ? new LivingComponentGrab(living) : null).build());
+	
+	public static final Supplier<AttachmentType<StandEffectsTarget>> STAND_EFFECTS_TARGET = ATTACHMENT_TYPES.register("stand_effects_target", 
+			() -> AttachmentType.builder(entity -> entity instanceof LivingEntity living ? new StandEffectsTarget(living) : null).build());
 	
 	
 	// Level

@@ -13,6 +13,7 @@ import com.github.standobyte.jojo.core.packet.fromserver.TrStandSkinPacket;
 import com.github.standobyte.jojo.init.core.ModEntityAttributes;
 import com.github.standobyte.jojo.powersystem.Power;
 import com.github.standobyte.jojo.powersystem.PowerClass;
+import com.github.standobyte.jojo.powersystem.standpower.effect.UserStandEffects;
 import com.github.standobyte.jojo.powersystem.standpower.entity.StandEntity;
 import com.github.standobyte.jojo.powersystem.standpower.packet.TrStaminaPacket;
 import com.github.standobyte.jojo.powersystem.standpower.type.StandType;
@@ -43,6 +44,7 @@ public class StandPower extends Power<StandPower> implements PostNbtReadEntityDa
 	
 	protected LerpValue.Float staminaLerp = new LerpValue.Float();
 	public ResolveHandler resolveHandler = new ResolveHandler();
+	public UserStandEffects userStandEffects = new UserStandEffects(this);
 	
 	public StandPower(LivingEntity user) {
 		super(user);
@@ -55,6 +57,9 @@ public class StandPower extends Power<StandPower> implements PostNbtReadEntityDa
 		super.tick();
 		tickStamina();
 		tickResolve();
+		if (hasPower()) {
+			userStandEffects.tick();
+		}
 		if (summonedStand != null) {
 			summonedStand.tickStand(getUser(), this);
 		}
@@ -83,7 +88,9 @@ public class StandPower extends Power<StandPower> implements PostNbtReadEntityDa
 			setStamina(0);
 		}
 		
-		if (!user.level().isClientSide()) {
+		if (user != null && !user.level().isClientSide()) {
+			userStandEffects.onStandChanged(user);
+
 			PacketDistributor.sendToPlayersTrackingEntity(user, new TrPowerStandInstancePacket(user.getId(), standInstance, getCurTypeData(), true));
 			if (user instanceof ServerPlayer player) {
 				PacketDistributor.sendToPlayer(player, new TrPowerStandInstancePacket(user.getId(), standInstance, getCurTypeData(), false));
@@ -270,6 +277,7 @@ public class StandPower extends Power<StandPower> implements PostNbtReadEntityDa
 		syncStaminaFixed(user, user);
 		resolveHandler.syncToUser(user);
 		PacketDistributor.sendToPlayer(user, new TrStandSkinPacket(user.getId(), getSelectedSkin()));
+		userStandEffects.syncWithUserOnly(user);
 	}
 
 	@Override
@@ -279,6 +287,7 @@ public class StandPower extends Power<StandPower> implements PostNbtReadEntityDa
 		syncStaminaFixed(player, user);
 		resolveHandler.syncToTracking(user, player);
 		PacketDistributor.sendToPlayer(player, new TrStandSkinPacket(user.getId(), getSelectedSkin()));
+		userStandEffects.syncWithTrackingOrUser(player);
 	}
 	
 	protected void syncStaminaFixed(ServerPlayer player, LivingEntity user) {
@@ -296,6 +305,8 @@ public class StandPower extends Power<StandPower> implements PostNbtReadEntityDa
 		newEntityData.standData = this.standData;
 		newEntityData.staminaLerp = this.staminaLerp;
 		newEntityData.resolveHandler.copyValues(this.resolveHandler, wasDeath);
+		newEntityData.userStandEffects = this.userStandEffects;
+		newEntityData.userStandEffects.setPowerData(this);
 	}
 	
 	
@@ -319,6 +330,7 @@ public class StandPower extends Power<StandPower> implements PostNbtReadEntityDa
 		
 		nbt.putFloat("Stamina", staminaLerp.get());
 		nbt.put("ResolveHandler", resolveHandler.writeNBT());
+		nbt.put("Effects", userStandEffects.writeNBT());
 		return nbt;
 	}
 
@@ -339,6 +351,7 @@ public class StandPower extends Power<StandPower> implements PostNbtReadEntityDa
 		
 		staminaLerp.set(nbt.getFloat("Stamina"), false);
 		NBTUtil.getCompoundOptional(nbt, "ResolveHandler").ifPresent(resolveHandler::readNBT);
+		NBTUtil.getCompoundOptional(nbt, "Effects").ifPresent(userStandEffects::readNBT);
 	}
 	
 	/* unlike deserializeNBT, this is called after the entity attributes are read, 

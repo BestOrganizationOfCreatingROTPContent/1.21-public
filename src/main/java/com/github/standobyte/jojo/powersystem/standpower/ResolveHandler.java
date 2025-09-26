@@ -415,7 +415,7 @@ public class ResolveHandler {
 
 		else if (dmgSource.getEntity() instanceof LivingEntity) {
 			LivingEntity attacker = (LivingEntity) dmgSource.getEntity();
-//			StandEffectsTracker.getEffectsTargetedBy(attacker, ModStandEffects.GE_CREATED_LIFEFORM.get()).findAny().ifPresent(geLifeform -> {
+//			UserStandEffects.getEffectsTargetedBy(attacker, ModStandEffects.GE_CREATED_LIFEFORM.get()).findAny().ifPresent(geLifeform -> {
 //				StandPower geUserPower = geLifeform.getUserPower();
 //				addResolve(geUserPower, target, points * 1.25F);
 //			});

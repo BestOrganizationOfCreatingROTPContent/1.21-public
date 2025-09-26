@@ -4,10 +4,21 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
+import javax.annotation.Nullable;
+
+import com.github.standobyte.jojo.client.ClientPowerCache;
+import com.github.standobyte.jojo.client.standskin.StandSkin;
+import com.github.standobyte.jojo.client.standskin.StandSkinsLoader;
+import com.github.standobyte.jojo.client.ui.utils.BlitFloat;
 import com.github.standobyte.jojo.client.ui.utils.GuiIcon;
 import com.github.standobyte.jojo.core.JojoMod;
-import com.github.standobyte.jojo.powersystem.standpower.StandEffectInstance;
+import com.github.standobyte.jojo.powersystem.PowerClass;
+import com.github.standobyte.jojo.powersystem.standpower.StandPower;
+import com.github.standobyte.jojo.powersystem.standpower.effect.StandEffectInstance;
+import com.github.standobyte.jojo.powersystem.standpower.effect.StandEffectType;
+import com.github.standobyte.jojo.powersystem.standpower.effect.UserStandEffects;
 import com.github.standobyte.jojo.util.MathUtil;
 import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.blaze3d.vertex.PoseStack;
@@ -15,6 +26,9 @@ import com.mojang.math.Axis;
 
 import net.minecraft.client.Camera;
 import net.minecraft.client.Minecraft;
+import net.minecraft.client.renderer.texture.TextureAtlasSprite;
+import net.minecraft.resources.ResourceLocation;
+import net.minecraft.world.entity.Entity;
 import net.minecraft.world.phys.Vec3;
 import net.neoforged.api.distmarker.Dist;
 import net.neoforged.bus.api.EventPriority;
@@ -23,37 +37,38 @@ import net.neoforged.fml.common.EventBusSubscriber;
 import net.neoforged.neoforge.client.event.RenderLevelStageEvent;
 
 public abstract class MarkerRenderer {
-//	protected ResourceLocation iconTexture;
-//	protected Ability iconAbility;
+	@Nullable protected GuiIcon icon;
+	@Nullable protected String iconAbilityName;
+	protected TextureAtlasSprite _abilityIconSprite;
 	private final List<MarkerInstance> positions = new ArrayList<>();
 	// somewhere between 1.21.2 and 1.21.4, the markers stop rendering through blocks except in fabulous mode
 	protected boolean renderThroughBlocks = true;
-	protected final Minecraft mc = Minecraft.getInstance();
+	protected final Minecraft mc;
 	
 	public static void registerMarkerRenderer(MarkerRenderer markerRenderer) {
 		MarkerRenderer.Handler.RENDERERS.add(markerRenderer);
 	}
 	
 
-//	@Deprecated
-//	/**
-//	 * @deprecated use {@link MarkerRenderer#MarkerRenderer(ResourceLocation, Action, Minecraft)}
-//	 */
-//	public MarkerRenderer(int color, ResourceLocation iconTexture, Minecraft mc) {
-//		this(iconTexture, mc);
-//	}
-//
-//	public MarkerRenderer(ResourceLocation iconTexture, Minecraft mc) {
-//		this(iconTexture, null, mc);
-//	}
-//
-//	public MarkerRenderer(ResourceLocation defaultIconTexture, Ability iconAbility, Minecraft mc) {
-//		this.iconTexture = defaultIconTexture;
-//		this.iconAbility = iconAbility;
-//		this.mc = mc;
-//	}
+	public MarkerRenderer(int color, ResourceLocation iconTexture, Minecraft mc) {
+		this(iconTexture, mc);
+	}
 
-	protected void render(PoseStack poseStack, Camera camera, float partialTick) {
+	public MarkerRenderer(ResourceLocation iconTexture, Minecraft mc) {
+		this(new GuiIcon(iconTexture, 16, 16), null, mc);
+	}
+
+	public MarkerRenderer(String iconAbilityName, Minecraft mc) {
+		this(null, iconAbilityName, mc);
+	}
+
+	public MarkerRenderer(GuiIcon icon, String iconAbilityName, Minecraft mc) {
+		this.icon = icon;
+		this.iconAbilityName = iconAbilityName;
+		this.mc = mc;
+	}
+
+	protected void render(PoseStack poseStack, Camera camera, float partialTick, StandSkin standSkin) {
 		if (shouldRender()) {
 			positions.clear();
 			updatePositions(positions, partialTick);
@@ -63,6 +78,12 @@ public abstract class MarkerRenderer {
 				poseStack.mulPose(Axis.ZP.rotationDegrees(camera.getRoll()));
 				poseStack.mulPose(Axis.XP.rotationDegrees(camera.getXRot()));
 				poseStack.mulPose(Axis.YP.rotationDegrees(camera.getYRot()));
+				
+				int color = getColor();
+				_abilityIconSprite = null;
+				if (iconAbilityName != null) {
+					_abilityIconSprite = StandSkinsLoader.getInstance().abilityIcons.getAbilityIcon(iconAbilityName, standSkin);
+				}
 
 				positions.forEach(marker -> {
 					if (renderThroughBlocks) {
@@ -74,7 +95,7 @@ public abstract class MarkerRenderer {
 							.yRot(camera.getYRot() * MathUtil.DEG_TO_RAD)
 							.xRot(camera.getXRot() * MathUtil.DEG_TO_RAD)
 							.zRot(camera.getRoll() * MathUtil.DEG_TO_RAD);
-					renderAt(poseStack, marker, camera, diff, partialTick, getColor());
+					renderAt(poseStack, marker, camera, diff, partialTick, standSkin, color);
 				});
 				RenderSystem.enableDepthTest();
 
@@ -83,7 +104,8 @@ public abstract class MarkerRenderer {
 		}
 	}
 
-	protected void renderAt(PoseStack poseStack, MarkerInstance marker, Camera camera, Vec3 diff, float partialTick, int color) {
+	protected void renderAt(PoseStack poseStack, MarkerInstance marker, Camera camera, 
+			Vec3 diff, float partialTick, StandSkin standSkin, int color) {
 		poseStack.pushPose();
 
 		double distance = diff.length();
@@ -97,7 +119,7 @@ public abstract class MarkerRenderer {
 
 		poseStack.pushPose();
 		poseStack.translate(-8, -28, 0);
-		renderIcon(poseStack, marker, partialTick);
+		renderIcon(poseStack, marker, partialTick, standSkin);
 		poseStack.popPose();
 		renderBorder(poseStack, marker, partialTick, color);
 
@@ -111,13 +133,13 @@ public abstract class MarkerRenderer {
 		poseStack.popPose();
 	}
 
-	// XXX (marker) icons
-	protected void renderIcon(PoseStack poseStack, MarkerInstance marker, float partialTick) {
-//		ResourceLocation icon = getIcon();
-//		if (icon != null) {
-//			mc.getTextureManager().bind(icon);
-//			AbstractGui.blit(poseStack, 0, 0, 0, 0, 16, 16, 16, 16);
-//		}
+	protected void renderIcon(PoseStack poseStack, MarkerInstance marker, float partialTick, StandSkin standSkin) {
+		if (this._abilityIconSprite != null) {
+			BlitFloat.blit(poseStack, mc, _abilityIconSprite, 0, 0, 16, 16, 0, BlitFloat.NO_TINT);
+		}
+		else if (this.icon != null) {
+			this.icon.render(poseStack, 0, 0);
+		}
 	}
 	
 	public static final GuiIcon MARKER_BORDER = new GuiIcon(JojoMod.resLoc("textures/hud/marker.png"), 32, 32);
@@ -135,6 +157,24 @@ public abstract class MarkerRenderer {
 	protected abstract boolean shouldRender();
 	protected abstract void updatePositions(List<MarkerInstance> list, float partialTick);
 
+	protected static void fillWithStandEffectTargets(List<MarkerInstance> list, float partialTick, 
+			StandEffectType<?> standEffect, double range, Minecraft mc, boolean highlightLookedAt) {
+		StandPower stand = ClientPowerCache.getPower(PowerClass.STAND);
+		if (stand != null) {
+			List<StandEffectInstance> targets = UserStandEffects.getEffectsInRange(stand, standEffect, range, mc.player).collect(Collectors.toList());
+			Optional<StandEffectInstance> outlined = highlightLookedAt ? UserStandEffects.getTargetLookedAt(targets.stream(), mc.player) : Optional.empty();
+			targets.forEach(effect -> {
+				Entity target = effect.getTarget();
+				if (target != null) {
+					list.add(new MarkerInstance(
+							target.getPosition(partialTick).add(0, target.getBbHeight() * 1.1, 0), 
+							highlightLookedAt && outlined.map(outlinedEffect -> effect == outlinedEffect).orElse(false),
+							Optional.of(effect)));
+				}
+			});
+		}
+	}
+	
 	// XXX (marker) UI color (current stand color)
 	protected int getColor() {
 		return 0xFFFFFFFF;
@@ -156,7 +196,8 @@ public abstract class MarkerRenderer {
 //					}
 
 					float partialTick = event.getPartialTick().getGameTimeDeltaPartialTick(true);
-					RENDERERS.forEach(marker -> marker.render(event.getPoseStack(), event.getCamera(), partialTick));
+					StandSkin standSkin = StandSkinsLoader.getCurSkin();
+					RENDERERS.forEach(marker -> marker.render(event.getPoseStack(), event.getCamera(), partialTick, standSkin));
 
 					mc.renderBuffers().bufferSource().endBatch();
 					RenderSystem.enableDepthTest();
