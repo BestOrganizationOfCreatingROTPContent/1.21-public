@@ -70,6 +70,7 @@ public class ClientUtil {
 		}
 	}
 
+	public static final float OUTER_LAYER_SCALE = 9f/8f;
 	public static void renderPlayerFace(PoseStack poseStack, int x, int y, AbstractClientPlayer player) {
 		Minecraft mc = Minecraft.getInstance();
 		PlayerSkin playerSkin = player.getSkin();
@@ -80,9 +81,9 @@ public class ClientUtil {
 				BlitFloat.NO_TINT);
 		if (player.isModelPartShown(PlayerModelPart.HAT)) {
 			poseStack.pushPose();
-			poseStack.translate(x, y, 0);
-			poseStack.scale(9F/8F, 9F/8F, 0);
-			poseStack.translate(-x - 1, -y - 1, 0);
+			poseStack.translate(x + 8, y + 8, 0);
+			poseStack.scale(OUTER_LAYER_SCALE, OUTER_LAYER_SCALE, 0);
+			poseStack.translate(-x - 8, -y - 8, 0);
 			BlitFloat.blit(poseStack, mc, playerFace, 
 					x, y, 16, 16, 0, 
 					40, 8, 8, 8, 64, 64, 
