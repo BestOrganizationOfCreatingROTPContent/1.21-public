@@ -76,16 +76,16 @@ public class ClientUtil {
 		ResourceLocation playerFace = playerSkin.texture();
 		BlitFloat.blit(poseStack, mc, playerFace, 
 				x, y, 16, 16, 0, 
-				16, 16, 16, 16, 128, 128, 
+				8, 8, 8, 8, 64, 64, 
 				BlitFloat.NO_TINT);
 		if (player.isModelPartShown(PlayerModelPart.HAT)) {
 			poseStack.pushPose();
 			poseStack.translate(x, y, 0);
 			poseStack.scale(9F/8F, 9F/8F, 0);
-			poseStack.translate(-1, -1, 0);
+			poseStack.translate(-x - 1, -y - 1, 0);
 			BlitFloat.blit(poseStack, mc, playerFace, 
 					x, y, 16, 16, 0, 
-					80, 16, 16, 16, 128, 128, 
+					40, 8, 8, 8, 64, 64, 
 					BlitFloat.NO_TINT);
 			poseStack.popPose();
 		}
