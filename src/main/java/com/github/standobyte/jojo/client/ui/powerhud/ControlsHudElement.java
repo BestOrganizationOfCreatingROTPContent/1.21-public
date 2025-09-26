@@ -32,10 +32,10 @@ import com.github.standobyte.jojo.client.ui.utils.TextUtil;
 import com.github.standobyte.jojo.client.ui.utils.tooltip.TooltipParams;
 import com.github.standobyte.jojo.core.JojoMod;
 import com.github.standobyte.jojo.powersystem.Power;
+import com.github.standobyte.jojo.powersystem.PowerClass;
 import com.github.standobyte.jojo.powersystem.ability.condition.AvailableAbilities;
 import com.github.standobyte.jojo.powersystem.ability.condition.AvailableAbilities.AbilityConditionCheck;
 import com.github.standobyte.jojo.powersystem.ability.controls.InputMethod;
-import com.github.standobyte.jojo.powersystem.standpower.StandPower;
 import com.github.standobyte.v1_21_4_stuff.missingmethods.ARGB;
 import com.mojang.blaze3d.platform.InputConstants;
 import com.mojang.blaze3d.systems.RenderSystem;
@@ -116,12 +116,9 @@ public class ControlsHudElement extends HudElement {
 		float partialTick = ClientUtil.partialTick(deltaTracker, false);
 
 		int color = 0xFFFFFFFF;
-		@Nullable StandSkin standSkin = null;
-		if (power instanceof StandPower standPower) {
-			standSkin = StandSkinsLoader.getInstance().getSkin(standPower);
-			if (standSkin != null) {
-				color = standSkin.getColor();
-			}
+		StandSkin standSkin = StandSkinsLoader.getCurSkin();
+		if (standSkin != null && power.getPowerClass() == PowerClass.STAND) {
+			color = standSkin.getColor();
 		}
 
 		this.prepare(hud, controlScheme, font, input.getCurModifier(), power, standSkin);

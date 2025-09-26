@@ -45,7 +45,6 @@ public class AbilitySelectionWheel extends Screen implements ScreenLetsUseWASD {
 	protected static final ResourceLocation DEFAULT_TEXTURE = JojoMod.resLoc("textures/ability_wheel.png");
 	protected ResourceLocation texture;
 	public ClientControlScheme.Hotbar abilities;
-	protected StandPower standPower;
 	protected StandSkin standSkin;
 
 	public AbilitySelectionWheel(ClientControlScheme.Hotbar abilities) {
@@ -54,7 +53,7 @@ public class AbilitySelectionWheel extends Screen implements ScreenLetsUseWASD {
 	}
 	
 	public void init() {
-		standPower = ClientPowerCache.getPower(PowerClass.STAND);
+		StandPower standPower = ClientPowerCache.getPower(PowerClass.STAND);
 		if (standPower != null) {
 			StandSkinsLoader skinLoader = StandSkinsLoader.getInstance();
 			standSkin = skinLoader.getSkin(standPower);
