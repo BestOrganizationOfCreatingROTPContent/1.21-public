@@ -115,10 +115,12 @@ public class StandEntityBarrageAbility extends StandEntityAbility {
 			Level level = performer.level();
 			if (performer instanceof StandEntity stand) {
 				if (level.isClientSide()) {
-					EntityStoppableSoundInstance sound = new EntityStoppableSoundInstance(ClientsideSoundsHelper.withStandSkin(
-							ModSoundEvents.STAND_BARRAGE_CRY.get(), stand.getStandId(), stand.getStandSkin()), 
-							stand.getSoundSource(), 1, 1, stand, level.random.nextLong(), () -> this.phase != ActionPhase.PERFORM);
-					ClientsideSoundsHelper.playNonVanillaClassSound(sound);
+					if (!stand.isArmsOnlyMode()) {
+						EntityStoppableSoundInstance sound = new EntityStoppableSoundInstance(ClientsideSoundsHelper.withStandSkin(
+								ModSoundEvents.STAND_BARRAGE_CRY.get(), stand.getStandId(), stand.getStandSkin()), 
+								stand.getSoundSource(), 1, 1, stand, level.random.nextLong(), () -> this.phase != ActionPhase.PERFORM);
+						ClientsideSoundsHelper.playNonVanillaClassSound(sound);
+					}
 				}
 				tossStandHeldItems(EquipmentSlot.OFFHAND, EquipmentSlot.MAINHAND);
 			}

@@ -113,9 +113,11 @@ public class StandEntityHeavyPunchAbility extends StandEntityAbility {
 				}
 				
 				if (!playedStandCrySound) {
-					ClientsideSoundsHelper.playEntityLingeringSound(stand, ClientsideSoundsHelper.withStandSkin(
-							ModSoundEvents.STAND_PUNCH_HEAVY_CRY.get(), stand.getStandId(), stand.getStandSkin()), 
-							stand.getSoundSource(), 1, 1, level);
+					if (!stand.isArmsOnlyMode()) {
+						ClientsideSoundsHelper.playEntityLingeringSound(stand, ClientsideSoundsHelper.withStandSkin(
+								ModSoundEvents.STAND_PUNCH_HEAVY_CRY.get(), stand.getStandId(), stand.getStandSkin()), 
+								stand.getSoundSource(), 1, 1, level);
+					}
 					playedStandCrySound = true;
 				}
 			}

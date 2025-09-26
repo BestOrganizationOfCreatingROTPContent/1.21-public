@@ -623,6 +623,11 @@ public class StandEntity extends LivingEntity implements SummonedStand, IEntityW
 			staminaCondition = StandUtil.staminaCondition(userPower);
 		}
 	}
+	
+	
+	public boolean isArmsOnlyMode() {
+		return false;
+	}
 
 
 	protected Optional<ResourceLocation> standSkin = Optional.empty();
