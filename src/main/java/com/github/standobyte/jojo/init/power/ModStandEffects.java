@@ -2,7 +2,7 @@ package com.github.standobyte.jojo.init.power;
 
 import com.github.standobyte.jojo.core.JojoMod;
 import com.github.standobyte.jojo.core.JojoRegistries;
-import com.github.standobyte.jojo.powersystem.standpower.StandEffectType;
+import com.github.standobyte.jojo.powersystem.standpower.effect.StandEffectType;
 
 import net.neoforged.neoforge.registries.DeferredRegister;
 
