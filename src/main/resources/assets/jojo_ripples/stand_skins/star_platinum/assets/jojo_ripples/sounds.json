@@ -2,28 +2,28 @@
   "stand_summon": {
     "replace": true,
     "sounds": [ 
-      "jojo_ripples:star_platinum/star_platinum_summon", 
-      "jojo_ripples:star_platinum/star_platinum_summon_2", 
-      "jojo_ripples:star_platinum/star_platinum_summon_3" 
+      "jojo_ripples:stand/star_platinum/star_platinum_summon", 
+      "jojo_ripples:stand/star_platinum/star_platinum_summon_2", 
+      "jojo_ripples:stand/star_platinum/star_platinum_summon_3" 
     ]
   },
   "stand_unsummon": {
     "replace": true,
-    "sounds": [ "jojo_ripples:star_platinum/star_platinum_unsummon" ]
+    "sounds": [ "jojo_ripples:stand/star_platinum/star_platinum_unsummon" ]
   },
   "stand_punch_light": {
     "replace": true,
-    "sounds": [ "jojo_ripples:star_platinum/star_platinum_punch_light" ]
+    "sounds": [ "jojo_ripples:stand/star_platinum/star_platinum_punch_light" ]
   },
   "stand_punch_barrage": {
     "replace": true,
     "sounds": [ 
       {
-        "name": "jojo_ripples:star_platinum/star_platinum_punch_light",
+        "name": "jojo_ripples:stand/star_platinum/star_platinum_punch_light",
         "weight" : 3
       },
       {
-        "name": "jojo_ripples:star_platinum/star_platinum_punch_barrage",
+        "name": "jojo_ripples:stand/star_platinum/star_platinum_punch_barrage",
         "weight" : 1
       }
     ]
@@ -31,15 +31,15 @@
   "stand_punch_heavy": {
     "replace": true,
     "sounds": [ 
-      "jojo_ripples:star_platinum/star_platinum_punch_heavy", 
-      "jojo_ripples:star_platinum/star_platinum_punch_heavy_2" 
+      "jojo_ripples:stand/star_platinum/star_platinum_punch_heavy", 
+      "jojo_ripples:stand/star_platinum/star_platinum_punch_heavy_2" 
     ]
   },
   "stand_punch_heavy_charged": {
     "replace": true,
     "sounds": [ 
-      "jojo_ripples:star_platinum/star_platinum_punch_heavy", 
-      "jojo_ripples:star_platinum/star_platinum_punch_heavy_2" 
+      "jojo_ripples:stand/star_platinum/star_platinum_punch_heavy", 
+      "jojo_ripples:stand/star_platinum/star_platinum_punch_heavy_2" 
     ]
   },
   
@@ -47,42 +47,42 @@
     "replace": true,
     "subtitle": "jojo_ripples.subtitle.ora",
     "sounds": [ 
-      "jojo_ripples:star_platinum/star_platinum_ora", 
-      "jojo_ripples:star_platinum/star_platinum_ora_2", 
-      "jojo_ripples:star_platinum/star_platinum_ora_3", 
-      "jojo_ripples:star_platinum/star_platinum_ora_4" 
+      "jojo_ripples:stand/star_platinum/star_platinum_ora", 
+      "jojo_ripples:stand/star_platinum/star_platinum_ora_2", 
+      "jojo_ripples:stand/star_platinum/star_platinum_ora_3", 
+      "jojo_ripples:stand/star_platinum/star_platinum_ora_4" 
     ]
   },
   "stand_punch_heavy_cry": {
     "replace": true,
     "subtitle": "jojo_ripples.subtitle.ora",
     "sounds": [ 
-      "jojo_ripples:star_platinum/star_platinum_ora_long", 
-      "jojo_ripples:star_platinum/star_platinum_ora_long_2" 
+      "jojo_ripples:stand/star_platinum/star_platinum_ora_long", 
+      "jojo_ripples:stand/star_platinum/star_platinum_ora_long_2" 
     ]
   },
   "stand_barrage_cry": {
     "replace": true,
     "subtitle": "jojo_ripples.subtitle.ora_rush",
     "sounds": [ 
-      "jojo_ripples:star_platinum/star_platinum_ora_rush", 
-      "jojo_ripples:star_platinum/star_platinum_ora_rush_2", 
-      "jojo_ripples:star_platinum/star_platinum_ora_rush_3", 
-      "jojo_ripples:star_platinum/star_platinum_ora_rush_4" 
+      "jojo_ripples:stand/star_platinum/star_platinum_ora_rush", 
+      "jojo_ripples:stand/star_platinum/star_platinum_ora_rush_2", 
+      "jojo_ripples:stand/star_platinum/star_platinum_ora_rush_3", 
+      "jojo_ripples:stand/star_platinum/star_platinum_ora_rush_4" 
     ]
   },
   
   "star_platinum_star_finger": {
     "replace": true,
-    "sounds": [ "jojo_ripples:star_platinum/star_platinum_star_finger" ]
+    "sounds": [ "jojo_ripples:stand/star_platinum/star_platinum_star_finger" ]
   },
   "star_platinum_zoom": {
     "replace": true,
-    "sounds": [ "jojo_ripples:star_platinum/star_platinum_zoom" ]
+    "sounds": [ "jojo_ripples:stand/star_platinum/star_platinum_zoom" ]
   },
   "star_platinum_zoom_click": {
     "replace": true,
-    "sounds": [ "jojo_ripples:star_platinum/star_platinum_zoom_click" ]
+    "sounds": [ "jojo_ripples:stand/star_platinum/star_platinum_zoom_click" ]
   },
   "star_platinum_inhale": {
     "replace": true,
@@ -96,14 +96,14 @@
   },
   "time_stop": {
     "replace": true,
-    "sounds": [ "jojo_ripples:star_platinum/star_platinum_time_stop" ]
+    "sounds": [ "jojo_ripples:stand/star_platinum/star_platinum_time_stop" ]
   },
   "time_resume": {
     "replace": true,
-    "sounds": [ "jojo_ripples:star_platinum/star_platinum_time_resume" ]
+    "sounds": [ "jojo_ripples:stand/star_platinum/star_platinum_time_resume" ]
   },
   "time_stop_blink": {
     "replace": true,
-    "sounds": [ "jojo_ripples:star_platinum/star_platinum_time_stop_blink" ]
+    "sounds": [ "jojo_ripples:stand/star_platinum/star_platinum_time_stop_blink" ]
   }
 }

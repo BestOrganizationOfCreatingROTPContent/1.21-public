@@ -36,13 +36,13 @@ public class ClientSetup {
 
 	@SubscribeEvent
 	public static void onClientSetup(FMLClientSetupEvent event) {
-//		Minecraft mc = Minecraft.getInstance();
-		registerMarkers();
+		Minecraft mc = Minecraft.getInstance();
+		registerMarkers(mc);
 		StandHudElements.init();
 	}
 	
-	private static void registerMarkers() {
-		MarkerRenderer.registerMarkerRenderer(new StandAimMarker());
+	private static void registerMarkers(Minecraft mc) {
+		MarkerRenderer.registerMarkerRenderer(new StandAimMarker(mc));
 	}
 	
 	@SubscribeEvent
