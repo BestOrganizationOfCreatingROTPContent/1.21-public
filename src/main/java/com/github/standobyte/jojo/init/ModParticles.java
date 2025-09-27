@@ -40,8 +40,6 @@ public class ModParticles {
 
 	public static final DeferredHolder<ParticleType<?>, SimpleParticleType> AIR_STREAM = PARTICLES.register("air_stream", () -> new SimpleParticleType(false));
 
-	public static final DeferredHolder<ParticleType<?>, SimpleParticleType> FLAME_ONE_TICK = PARTICLES.register("flame", () -> new SimpleParticleType(false));
-
 	public static final DeferredHolder<ParticleType<?>, SimpleParticleType> CD_RESTORATION = PARTICLES.register("cd_restoration", () -> new SimpleParticleType(false));
 
 	public static final DeferredHolder<ParticleType<?>, SimpleParticleType> RPS_ROCK = PARTICLES.register("rps_rock", () -> new SimpleParticleType(false));

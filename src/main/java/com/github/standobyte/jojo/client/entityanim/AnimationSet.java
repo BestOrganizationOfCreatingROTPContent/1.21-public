@@ -150,7 +150,7 @@ public class AnimationSet {
 //
 //	@Override
 //	public <T extends StandEntity> void renderBarrageSwings(T entity, StandEntityModel<T> model, float yRotOffsetDeg, float xRotDeg,
-//			MatrixStack matrixStack, IVertexBuilder buffer, int packedLight, int packedOverlay, float red, float green,
+//			MatrixStack matrixStack, VertexConsumer buffer, int packedLight, int packedOverlay, float red, float green,
 //			float blue, float alpha) {
 //		BarrageSwings swings = entity.getBarrageSwings();
 //		if (swings != null) {
