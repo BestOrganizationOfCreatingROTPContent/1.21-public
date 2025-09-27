@@ -8,6 +8,7 @@ import com.github.standobyte.jojo.init.ModDataAttachmentTypes;
 import com.github.standobyte.jojo.init.ModEntityTypes;
 import com.github.standobyte.jojo.init.ModItemDataComponents;
 import com.github.standobyte.jojo.init.ModItems;
+import com.github.standobyte.jojo.init.ModParticles;
 import com.github.standobyte.jojo.init.ModSoundEvents;
 import com.github.standobyte.jojo.init.ModSpecialActions;
 import com.github.standobyte.jojo.init.ModStatusEffects;
@@ -49,6 +50,7 @@ public class JojoMod {
 		ModDataAttachmentTypes.ATTACHMENT_TYPES.register(modEventBus);
 		ModCommandArguments.ARGUMENT_TYPES.register(modEventBus);
 		ModSoundEvents.SOUNDS.register(modEventBus);
+		ModParticles.PARTICLES.register(modEventBus);
 		ModItemDataComponents.DATA_COMPONENT_TYPES.register(modEventBus);
 		ModEntityAttributes.ATTRIBUTES.register(modEventBus);
 		ModEntityDataSerializers.SERIALIZERS.register(modEventBus);
