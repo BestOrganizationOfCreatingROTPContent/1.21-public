@@ -1,7 +1,7 @@
 {
 	"credit": "Made with Blockbench",
 	"textures": {
-		"particle": "jojo:item/stand_arrow"
+		"particle": "jojo_ripples:item/stand_arrow"
 	},
 	"display": {
 		"thirdperson_righthand": {
