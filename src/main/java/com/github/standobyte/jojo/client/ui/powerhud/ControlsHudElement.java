@@ -101,7 +101,7 @@ public class ControlsHudElement extends HudElement {
 		Power<?> power = input.getCurPower();
 		if (power == null || !power.hasPower()) return false;
 
-		return !hud.inContainerMenu.isFalse();
+		return !hud.forContainerMenu.isFalse();
 	}
 
 	@Override
@@ -235,7 +235,7 @@ public class ControlsHudElement extends HudElement {
 				AbilityBindUI abilityBindUI = makeBindUI(inputMethod, bindsForInputMethod, power, 
 						modifier, availableAbilities, key, false, 
 						abilityIconSprites, standSkin, 
-						font, hud.inContainerMenu);
+						font, hud.forContainerMenu);
 
 				if (abilityBindUI != null && modifier == KeyModifier.NONE) {
 					// if you aren't pressing Ctrl or Shift, but there is no ability keybind to render, render the Ctrl and Shift ones instead
@@ -244,7 +244,7 @@ public class ControlsHudElement extends HudElement {
 							abilityBindUI = makeBindUI(inputMethod, bindsForInputMethod, power, 
 									otherModifier, availableAbilities, key, true, 
 									abilityIconSprites, standSkin, 
-									font, hud.inContainerMenu);
+									font, hud.forContainerMenu);
 						}
 					}
 				}
@@ -280,7 +280,7 @@ public class ControlsHudElement extends HudElement {
 							AbilityBindUI bind = makeAbilityBindUI(key, null, 
 									inputMethod, availableAbilities._inMoveset.get(ability.abilityName()), power, 
 									abilityIconSprites, standSkin, 
-									font, hud.inContainerMenu);
+									font, hud.forContainerMenu);
 							if (bind != null) {
 								if (slotUI.sprite == null || inputMethod == InputMethod.HOLD && InputHandler.getInstance().isHeld(key, modifier)) {
 									slotUI.sprite = bind;
@@ -354,30 +354,31 @@ public class ControlsHudElement extends HudElement {
 	private static AbilityBindUI makeBindUI(InputMethod inputMethod, KeyModifierMap binds, Power<?> abilityCtx, 
 			@Nonnull KeyModifier modifier, AvailableAbilities available, ClientKeyWrapper key, boolean withModifierName, 
 			AbilityIconSprites abilitySprites, @Nullable StandSkin standSkin, 
-			Font font, TriState inContainerMenu) {
+			Font font, TriState forContainerMenu) {
 		List<PowerClassAbility> boundAbilities = binds.getAll(modifier, inputMethod);
 		if (boundAbilities.isEmpty()) {
 			return null;
 		}
-		AbilityConditionCheck ability = ClientControlScheme.prioritizedAbility(boundAbilities, available, abilityCtx, false);
+		AbilityConditionCheck ability = ClientControlScheme.prioritizedAbility(boundAbilities, available, abilityCtx, 
+				state -> AbilityInputState.showAbilityInHUD(state, forContainerMenu));
 		return makeAbilityBindUI(key, withModifierName ? modifier : null, 
 				inputMethod, ability, abilityCtx, 
 				abilitySprites, standSkin, 
-				font, inContainerMenu);
+				font, forContainerMenu);
 	}
 
 	@Nullable
 	private static AbilityBindUI makeAbilityBindUI(ClientKeyWrapper key, @Nullable KeyModifier modifier, 
 			InputMethod inputMethod, AbilityConditionCheck ability, Power<?> abilityCtx, 
 			AbilityIconSprites abilitySprites, @Nullable StandSkin standSkin, 
-			Font font, TriState inContainerMenu) {
+			Font font, TriState forContainerMenu) {
 		if (ability != null && ability.ability != null) {
 			AbilityInputState state = AbilityInputState.withValue(ability.clientInputState);
 
 			boolean showAbility = state.getFlag(AbilityInputState.IS_ACTIVE)
 					|| state.getFlag(AbilityInputState.VISIBLE_EVEN_INACTIVE)
 					|| state.getFlag(AbilityInputState.VISIBLE_TRANSLUCENT);
-			showAbility &= state.getFlag(AbilityInputState.ONLY_IN_CONTAINER) == inContainerMenu.isTrue();
+			showAbility &= state.getFlag(AbilityInputState.ONLY_IN_CONTAINER) == forContainerMenu.isTrue();
 
 			if (showAbility) {
 				Component keyName = getKeyName(key);

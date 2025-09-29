@@ -11,6 +11,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.TreeMap;
+import java.util.function.Predicate;
 import java.util.stream.Stream;
 
 import javax.annotation.Nonnull;
@@ -139,12 +140,13 @@ public class ClientControlScheme {
 	}
 	
 	@Nullable
-	public static AbilityConditionCheck prioritizedAbility(List<PowerClassAbility> abilityNames, AvailableAbilities available, Power<?> abilityCtx, boolean onlyWithInputActive) {
+	public static AbilityConditionCheck prioritizedAbility(List<PowerClassAbility> abilityNames, AvailableAbilities available, 
+			Power<?> abilityCtx, @Nullable Predicate<AbilityInputState> filter) {
 		Stream<AbilityConditionCheck> stream = abilityNames.stream()
 				.map(abilityName -> available._inMoveset.get(abilityName.abilityName()))
 				.filter(Objects::nonNull);
-		if (onlyWithInputActive) {
-			stream = stream.filter(a -> AbilityInputState.withValue(a.clientInputState).getFlag(AbilityInputState.IS_ACTIVE));
+		if (filter != null) {
+			stream = stream.filter(a -> filter.test(AbilityInputState.withValue(a.clientInputState)));
 		}
 		
 		StandEntity standEntity = StandUtil.getSummonedStand(abilityCtx);

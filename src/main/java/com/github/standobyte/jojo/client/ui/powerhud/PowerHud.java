@@ -102,16 +102,16 @@ public class PowerHud {
 		}
 		
 		
-		public TriState inContainerMenu;
+		public TriState forContainerMenu;
 		private int mouseX;
 		private int mouseY;
 		
-		public void setupRender(TriState inContainerMenu) {
-			setupRender(inContainerMenu, -1, -1);
+		public void setupRender(TriState forContainerMenu) {
+			setupRender(forContainerMenu, -1, -1);
 		}
 		
-		public void setupRender(TriState inContainerMenu, int mouseX, int mouseY) {
-			this.inContainerMenu = inContainerMenu;
+		public void setupRender(TriState forContainerMenu, int mouseX, int mouseY) {
+			this.forContainerMenu = forContainerMenu;
 			this.mouseX = mouseX;
 			this.mouseY = mouseY;
 		}
@@ -204,7 +204,7 @@ public class PowerHud {
 
 		@Override
 		public boolean shouldRender() {
-			if (hud.inContainerMenu.isTrue()) return false;
+			if (hud.forContainerMenu.isTrue()) return false;
 			StandPower standPower = ClientPowerCache.getPower(PowerClass.STAND);
 			return standPower != null && standPower.usesResolve();
 		}
@@ -314,7 +314,7 @@ public class PowerHud {
 
 		@Override
 		public boolean shouldRender() {
-			if (hud.inContainerMenu.isTrue()) return false;
+			if (hud.forContainerMenu.isTrue()) return false;
 			StandPower standPower = ClientPowerCache.getPower(PowerClass.STAND);
 			return standPower != null && !standPower.isUserCreative() && standPower.usesStamina();
 		}
@@ -374,7 +374,7 @@ public class PowerHud {
 
 		@Override
 		public boolean shouldRender() {
-			if (hud.inContainerMenu.isTrue()) return false;
+			if (hud.forContainerMenu.isTrue()) return false;
 			StandEntity stand = ClientGlobals.playerStandEntity;
 			return stand != null;
 		}
@@ -427,7 +427,7 @@ public class PowerHud {
 
 		@Override
 		public boolean shouldRender() {
-			if (hud.inContainerMenu.isTrue()) return false;
+			if (hud.forContainerMenu.isTrue()) return false;
 			StandEntity stand = ClientGlobals.playerStandEntity;
 			return stand != null && stand.isManuallyControlled();
 		}

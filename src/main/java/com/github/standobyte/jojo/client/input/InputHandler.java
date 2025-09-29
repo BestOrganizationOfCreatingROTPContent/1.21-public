@@ -8,6 +8,7 @@ import java.util.Map;
 import java.util.OptionalInt;
 import java.util.Queue;
 import java.util.Set;
+import java.util.function.Predicate;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
@@ -27,6 +28,7 @@ import com.github.standobyte.jojo.client.input.controlscheme.ClientControlScheme
 import com.github.standobyte.jojo.client.input.controlscheme.ClientControlScheme.PowerClassAbility;
 import com.github.standobyte.jojo.client.input.controlscheme.ClientKeyWrapper;
 import com.github.standobyte.jojo.client.ui.AbilitySelectionWheel;
+import com.github.standobyte.jojo.client.ui.powerhud.PowerHud;
 import com.github.standobyte.jojo.core.packet.fromclient.ClAbilityInputPacket;
 import com.github.standobyte.jojo.powersystem.Power;
 import com.github.standobyte.jojo.powersystem.PowerClass;
@@ -420,8 +422,9 @@ public class InputHandler {
 			if (!(heldBound.isEmpty() && clickBound.isEmpty())) {
 				AvailableAbilities available = ClientPowerCache.getAvailableMoves(power.getPowerClass(), power);
 
-				input.heldAbility = ClientControlScheme.prioritizedAbility(heldBound, available, power, true);
-				input.clickAbility = ClientControlScheme.prioritizedAbility(clickBound, available, power, true);
+				Predicate<AbilityInputState> filter = inputState -> AbilityInputState.isInputActive(inputState, PowerHud.isInContainerScreen());
+				input.heldAbility = ClientControlScheme.prioritizedAbility(heldBound, available, power, filter);
+				input.clickAbility = ClientControlScheme.prioritizedAbility(clickBound, available, power, filter);
 			}
 		}
 		

@@ -2,6 +2,8 @@ package com.github.standobyte.jojo.client.input;
 
 import org.jetbrains.annotations.ApiStatus;
 
+import net.neoforged.neoforge.common.util.TriState;
+
 public class AbilityInputState {
 
 	public static AbilityInputState init() {
@@ -25,6 +27,19 @@ public class AbilityInputState {
 	public static final int ONLY_IN_CONTAINER = 3;
 	public static final int WITH_ITEM_HELD = 4;
 	public static final int HIGH_PRIORITY = 5;
+
+	
+	public static boolean isInputActive(AbilityInputState state, boolean inContainerMenu) {
+		return state.getFlag(IS_ACTIVE) && !(state.getFlag(AbilityInputState.ONLY_IN_CONTAINER) && !inContainerMenu);
+	}
+	
+	public static boolean showAbilityInHUD(AbilityInputState state, TriState forContainerMenu) {
+		boolean showAbility = state.getFlag(AbilityInputState.IS_ACTIVE)
+				|| state.getFlag(AbilityInputState.VISIBLE_EVEN_INACTIVE)
+				|| state.getFlag(AbilityInputState.VISIBLE_TRANSLUCENT);
+		showAbility &= state.getFlag(AbilityInputState.ONLY_IN_CONTAINER) == forContainerMenu.isTrue();
+		return showAbility;
+	}
 
 
 	@ApiStatus.Internal protected static AbilityInputState instance = new AbilityInputState();
