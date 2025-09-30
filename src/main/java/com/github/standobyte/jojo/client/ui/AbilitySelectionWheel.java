@@ -87,6 +87,9 @@ public class AbilitySelectionWheel extends Screen implements ScreenLetsUseWASD {
 	protected int[] posAtSector(int index, int count, double distFromCenter) {
 		Window window = minecraft.getWindow();
 		double angle = (index + 0.5) * 2 * Math.PI / count;
+		if (COUNTER_CLOCKWISE) {
+			angle = 2 * Math.PI - angle;
+		}
 		double width = (double)window.getGuiScaledWidth();
 		double height = (double)window.getGuiScaledHeight();
 		double xpos = width / 2 + Math.sin(angle) * distFromCenter;
@@ -102,6 +105,8 @@ public class AbilitySelectionWheel extends Screen implements ScreenLetsUseWASD {
 		}
 		return mouseIgnorePos != null;
 	}
+	
+	protected static final boolean COUNTER_CLOCKWISE = true;
 
 	@Override
 	public void render(GuiGraphics guiGraphics, int mouseX, int mouseY, float partialTick) {
@@ -127,9 +132,13 @@ public class AbilitySelectionWheel extends Screen implements ScreenLetsUseWASD {
 		float angle0 = 0;
 		float fill = 1f / n;
 		float angleStep = 2 * (float) Math.PI * fill;
+		if (COUNTER_CLOCKWISE) {
+			angleStep = -angleStep;
+			fill = -fill;
+		}
 		for (int i = 0; i < n; i++) {
 			boolean highlight = i == hoveredSlotIndex;
-			float alpha = highlight ? 0.5f : 0.25f;;
+			float alpha = highlight ? 0.5f : 0.25f;
 			if (highlight) {
 				pose.pushPose();
 				pose.translate(this.width / 2, this.height / 2, 0);
@@ -211,6 +220,9 @@ public class AbilitySelectionWheel extends Screen implements ScreenLetsUseWASD {
 		int xOffs = mouseX - xCenter;
 		int yOffs = mouseY - yCenter;
 		double angle = Mth.atan2(xOffs, -yOffs); // [0; 2*PI)
+		if (COUNTER_CLOCKWISE) {
+			angle = 2 * Math.PI - angle;
+		}
 		if (angle < 0) angle += 2 * Math.PI;
 		if (angle >= 2 * Math.PI) angle -= 2 * Math.PI;
 		int index = Mth.floor(abilities.slots.size() * angle / (2 * Math.PI));
