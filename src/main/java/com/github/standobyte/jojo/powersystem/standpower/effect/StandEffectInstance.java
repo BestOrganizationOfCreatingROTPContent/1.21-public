@@ -157,7 +157,7 @@ public abstract class StandEffectInstance {
 	public void setTargetEntity(Entity target) {
 		if (this.target != target) {
 			if (this.targetLiving != null) {
-				StandEffectsTarget oldTargetEffects = StandEffectsTarget.getList(targetLiving);
+				StandEffectsTarget oldTargetEffects = StandEffectsTarget.getList(this.targetLiving);
 				if (oldTargetEffects != null) {
 					oldTargetEffects.removeEffectTargetedBy(this);
 				}
@@ -166,12 +166,12 @@ public abstract class StandEffectInstance {
 			if (target != null) {
 				this.targetUUID = target.getUUID();
 			}
-			if (target instanceof LivingEntity) {
-				StandEffectsTarget targetEffects = StandEffectsTarget.getList(targetLiving);
+			if (target instanceof LivingEntity newTargetLiving) {
+				StandEffectsTarget targetEffects = StandEffectsTarget.getList(newTargetLiving);
 				if (targetEffects != null) {
 					targetEffects.addEffectTargetedBy(this);
 				}
-				this.targetLiving = (LivingEntity) target;
+				this.targetLiving = newTargetLiving;
 			}
 			else {
 				this.targetLiving = null;
