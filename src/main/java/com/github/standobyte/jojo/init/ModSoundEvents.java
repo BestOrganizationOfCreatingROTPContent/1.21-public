@@ -10,6 +10,7 @@ import net.minecraft.sounds.SoundEvents;
 import net.neoforged.neoforge.registries.DeferredHolder;
 import net.neoforged.neoforge.registries.DeferredRegister;
 
+// XXX sound subtitles
 public class ModSoundEvents {
 	public static final DeferredRegister<SoundEvent> SOUNDS = DeferredRegister.create(Registries.SOUND_EVENT, JojoMod.MOD_ID);
 

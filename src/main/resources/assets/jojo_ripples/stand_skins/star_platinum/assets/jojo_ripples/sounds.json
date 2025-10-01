@@ -72,28 +72,6 @@
     ]
   },
   
-  "star_platinum_star_finger": {
-    "replace": true,
-    "sounds": [ "jojo_ripples:stand/star_platinum/star_platinum_star_finger" ]
-  },
-  "star_platinum_zoom": {
-    "replace": true,
-    "sounds": [ "jojo_ripples:stand/star_platinum/star_platinum_zoom" ]
-  },
-  "star_platinum_zoom_click": {
-    "replace": true,
-    "sounds": [ "jojo_ripples:stand/star_platinum/star_platinum_zoom_click" ]
-  },
-  "star_platinum_inhale": {
-    "replace": true,
-    "subtitle": "jojo.subtitle.inhale",
-    "sounds": [ 
-      {
-        "name": "item/elytra/elytra_loop",
-        "pitch" : 2.0
-      }
-    ]
-  },
   "time_stop": {
     "replace": true,
     "sounds": [ "jojo_ripples:stand/star_platinum/star_platinum_time_stop" ]

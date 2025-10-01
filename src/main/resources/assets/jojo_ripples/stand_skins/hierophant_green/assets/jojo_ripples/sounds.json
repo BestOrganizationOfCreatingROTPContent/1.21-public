@@ -1,0 +1,9 @@
+{
+  "stand_summon": {
+    "replace": true,
+    "sounds": [ 
+      "jojo_ripples:stand/hierophant_green/hierophant_green_summon", 
+      "jojo_ripples:stand/hierophant_green/hierophant_green_summon_2"
+    ]
+  }
+}

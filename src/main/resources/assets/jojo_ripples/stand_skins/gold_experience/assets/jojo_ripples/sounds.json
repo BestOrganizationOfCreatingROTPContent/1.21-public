@@ -1,0 +1,74 @@
+{
+  "stand_summon": {
+    "replace": true,
+    "sounds": [ 
+      "jojo_ripples:stand/gold_experience/gold_experience_summon"
+    ]
+  },
+  "stand_unsummon": {
+    "replace": true,
+    "sounds": [ "jojo_ripples:stand/gold_experience/gold_experience_unsummon" ]
+  },
+  "stand_punch_light": {
+    "replace": true,
+    "sounds": [ 
+      "jojo_ripples:stand/gold_experience/gold_experience_punch_light", 
+      "jojo_ripples:stand/gold_experience/gold_experience_punch_light_2",
+      "jojo_ripples:stand/gold_experience/gold_experience_punch_light_3",
+      "jojo_ripples:stand/gold_experience/gold_experience_punch_light_4" 
+    ]
+  },
+  "stand_punch_barrage": {
+    "replace": true,
+    "sounds": [ 
+      "jojo_ripples:stand/gold_experience/gold_experience_punch_barrage", 
+      "jojo_ripples:stand/gold_experience/gold_experience_punch_barrage_2",
+      "jojo_ripples:stand/gold_experience/gold_experience_punch_barrage_3",
+      "jojo_ripples:stand/gold_experience/gold_experience_punch_barrage_4",
+      "jojo_ripples:stand/gold_experience/gold_experience_punch_light", 
+      "jojo_ripples:stand/gold_experience/gold_experience_punch_light_2",
+      "jojo_ripples:stand/gold_experience/gold_experience_punch_light_3",
+      "jojo_ripples:stand/gold_experience/gold_experience_punch_light_4" 
+    ]
+  },
+  "stand_punch_heavy": {
+    "replace": true,
+    "sounds": [ 
+      "jojo_ripples:stand/gold_experience/gold_experience_punch_heavy"
+    ]
+  },
+  "gold_experience_punch_heavy_extra": {
+    "sounds": [ "jojo_ripples:stand/gold_experience_punch_heavy_extra" ]
+  },
+  "stand_punch_heavy_charged": {
+    "replace": true,
+    "sounds": [ 
+      "jojo_ripples:stand/gold_experience/gold_experience_punch_heavy"
+    ]
+  },
+  
+  "stand_punch_cry": {
+    "replace": true,
+    "subtitle": "jojo_ripples.subtitle.muda",
+    "sounds": [ ]
+  },
+  "stand_punch_heavy_cry": {
+    "replace": true,
+    "subtitle": "jojo_ripples.subtitle.muda",
+    "sounds": [ 
+      "jojo_ripples:stand/gold_experience/gold_experience_muda_long", 
+      "jojo_ripples:stand/gold_experience/gold_experience_muda_long_2" 
+    ]
+  },
+  "stand_barrage_cry": {
+    "replace": true,
+    "subtitle": "jojo_ripples.subtitle.ora_rush",
+    "sounds": [ 
+      "jojo_ripples:stand/gold_experience/gold_experience_muda_rush", 
+      "jojo_ripples:stand/gold_experience/gold_experience_muda_rush_2", 
+      "jojo_ripples:stand/gold_experience/gold_experience_muda_rush_3", 
+      "jojo_ripples:stand/gold_experience/gold_experience_muda_rush_4",
+      "jojo_ripples:stand/gold_experience/gold_experience_muda_rush_5"  
+    ]
+  }
+}
