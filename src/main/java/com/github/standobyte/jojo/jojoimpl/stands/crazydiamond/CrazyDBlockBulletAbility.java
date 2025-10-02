@@ -81,7 +81,6 @@ public class CrazyDBlockBulletAbility extends StandEntityAbility {
 
 		public BlockBulletShot(EntityActionType ability) {
 			super(ability);
-			phasesLength.put(ActionPhase.WINDUP, 100);
 		}
 
 		@Override
