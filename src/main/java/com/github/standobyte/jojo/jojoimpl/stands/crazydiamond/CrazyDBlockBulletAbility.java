@@ -124,7 +124,7 @@ public class CrazyDBlockBulletAbility extends StandEntityAbility {
 				
 				// FIXME projectile inaccuracy
 //				standEntity.shootProjectile(bullet, 2.0F, 0.25F);
-				bullet.shootFromRotation(performer, 2.0f * 0.01f, 0);
+				bullet.shootFromRotation(performer, 2.0f, 0);
 				addProjectileWithStandStats(bullet);
 				
 				if (!(user instanceof Player player && player.getAbilities().instabuild)) {
