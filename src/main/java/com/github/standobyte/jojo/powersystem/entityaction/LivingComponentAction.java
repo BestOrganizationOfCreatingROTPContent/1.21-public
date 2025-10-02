@@ -66,7 +66,9 @@ public class LivingComponentAction implements SynchronizablePlayerData, TickingE
 			return heldInputObj;
 		}
 		
-		skipWindupTime(action, skipWindupTime);
+		if (skipWindupTime > 0) {
+			skipWindupTime(action, skipWindupTime);
+		}
 		return setAction(action, user, sync);
 	}
 	

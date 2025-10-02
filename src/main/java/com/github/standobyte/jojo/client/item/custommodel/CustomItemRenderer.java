@@ -2,7 +2,8 @@ package com.github.standobyte.jojo.client.item.custommodel;
 
 import javax.annotation.Nullable;
 
-import com.github.standobyte.jojo.client.RotpGeckoModelLoader;
+import com.github.standobyte.jojo.client.entityrender.parsemodel.loader.ResourceModelEntry;
+import com.github.standobyte.jojo.client.entityrender.parsemodel.loader.RotpGeckoModelLoader;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.VertexConsumer;
 import com.mojang.math.MatrixUtil;
@@ -17,7 +18,6 @@ import net.minecraft.client.renderer.blockentity.BlockEntityRenderDispatcher;
 import net.minecraft.client.renderer.entity.ItemRenderer;
 import net.minecraft.client.resources.model.BakedModel;
 import net.minecraft.resources.ResourceLocation;
-import net.minecraft.server.packs.resources.ResourceManager;
 import net.minecraft.tags.ItemTags;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.item.BlockItem;
@@ -30,9 +30,8 @@ import net.minecraft.world.level.block.StainedGlassPaneBlock;
 import net.neoforged.neoforge.client.RenderTypeHelper;
 
 public class CustomItemRenderer extends BlockEntityWithoutLevelRenderer implements ISTERWithEntity {
-	protected ResourceLocation modelPath;
+	protected ResourceModelEntry model;
 	protected ResourceLocation texture;
-	protected ModelPart modelRoot;
 	@Nullable protected LivingEntity entity;
 
 	public CustomItemRenderer(Minecraft mc, 
@@ -44,7 +43,7 @@ public class CustomItemRenderer extends BlockEntityWithoutLevelRenderer implemen
 	public CustomItemRenderer(BlockEntityRenderDispatcher blockEntityRenderDispatcher, EntityModelSet entityModelSet, 
 			ResourceLocation rotpGeckoModelPath, ResourceLocation modelTexture) {
 		super(blockEntityRenderDispatcher, entityModelSet);
-		this.modelPath = rotpGeckoModelPath;
+		this.model = RotpGeckoModelLoader.getInstance().getModelContainer(rotpGeckoModelPath);
 		this.texture = modelTexture;
 	}
 
@@ -54,13 +53,9 @@ public class CustomItemRenderer extends BlockEntityWithoutLevelRenderer implemen
 	}
 
 	@Override
-	public void onResourceManagerReload(ResourceManager resourceManager) {
-		this.modelRoot = RotpGeckoModelLoader.getInstance().bakeModel(modelPath);
-	}
-
-	@Override
 	public void renderByItem(ItemStack itemStack, ItemDisplayContext displayContext, PoseStack poseStack, 
 			MultiBufferSource renderTypeBuffer, int light, int overlay) {
+		ModelPart modelRoot = model.modelRoot;
 		if (modelRoot != null) {
 			poseStack.pushPose();
 			poseStack.scale(-1.0F, -1.0F, 1.0F);
@@ -82,7 +77,7 @@ public class CustomItemRenderer extends BlockEntityWithoutLevelRenderer implemen
 			MultiBufferSource renderTypeBuffer, int light, int overlay) {
 		VertexConsumer vertexBuilder = ItemRenderer.getFoilBufferDirect(
 				renderTypeBuffer, renderType(texture), false, itemStack.hasFoil());
-		modelRoot.render(poseStack, vertexBuilder, light, overlay, 0xFFFFFFFF);
+		model.modelRoot.render(poseStack, vertexBuilder, light, overlay, 0xFFFFFFFF);
 	}
 
 	protected RenderType renderType(ResourceLocation texture) {

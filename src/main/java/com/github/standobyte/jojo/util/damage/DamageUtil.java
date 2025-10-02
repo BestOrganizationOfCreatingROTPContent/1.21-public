@@ -1,8 +1,11 @@
 package com.github.standobyte.jojo.util.damage;
 
+import java.util.function.Predicate;
+
 import javax.annotation.Nullable;
 
 import com.github.standobyte.jojo.init.ModDamageTypes;
+import com.github.standobyte.jojo.powersystem.standpower.entity.StandEntity;
 
 import net.minecraft.core.Holder;
 import net.minecraft.resources.ResourceKey;
@@ -32,24 +35,25 @@ public class DamageUtil {
 		return level.damageSources().damageTypes.getHolderOrThrow(resourceKey); // i ain't typin' allat
 	}
 
-//	public static boolean dealDamageAndSetOnFire(Entity entity, Predicate<Entity> hurtEntity, int fireSeconds, boolean stand) {
-//		int fireTicks = entity.getRemainingFireTicks();
-//		setOnFire(entity, fireSeconds, stand);
-//		boolean dealtDamage = hurtEntity.test(entity);
-//		if (!dealtDamage) {
-//			entity.setRemainingFireTicks(fireTicks);
-//		}
-//		return dealtDamage;
-//	}
-//
-//	public static void setOnFire(Entity entity, int fireSeconds, boolean stand) {
-//		if (stand && entity instanceof StandEntity) {
-//			((StandEntity) entity).setFireFromStand(fireSeconds);
+	public static boolean dealDamageAndSetOnFire(Entity entity, Predicate<Entity> hurtEntity, float fireSeconds, boolean canSetStandOnFire) {
+		int fireTicks = entity.getRemainingFireTicks();
+		setOnFire(entity, fireSeconds, canSetStandOnFire);
+		boolean dealtDamage = hurtEntity.test(entity);
+		if (!dealtDamage) {
+			entity.setRemainingFireTicks(fireTicks);
+		}
+		return dealtDamage;
+	}
+
+	// TODO canSetStandOnFire parameter
+	public static void setOnFire(Entity entity, float fireSeconds, boolean canSetStandOnFire) {
+//		if (canSetStandOnFire && entity instanceof StandEntity standEntity) {
+//			standEntity.setFireFromStand(fireSeconds);
 //		}
 //		else {
-//			entity.setSecondsOnFire(fireSeconds);
+			entity.igniteForSeconds(fireSeconds);
 //		}
-//	}
+	}
 
 	/**
 	 * @deprecated Turns out, there is now a vanilla damage type tag for it now (minecraft:bypasses_cooldown). 
@@ -64,6 +68,7 @@ public class DamageUtil {
 		LivingEntity targetLiving = target instanceof LivingEntity ? (LivingEntity) target : null;
 		float lastHurt = targetLiving != null ? targetLiving.lastHurt : 0;
 
+		// TODO make this kind of damage not melt armor
 //		if (!dmgSource.isBypassArmor() && dmgSource instanceof IModdedDamageSource && targetLiving != null) {
 //			targetLiving.getCapability(LivingUtilCapProvider.CAPABILITY).ifPresent(
 //					cap -> cap.onHurtThroughInvul((IModdedDamageSource) dmgSource));
@@ -77,7 +82,7 @@ public class DamageUtil {
 		}
 		return dealtDamage;
 	}
-	
+
 	public static boolean canHurtStands(DamageSource dmgSource) {
 		return dmgSource.is(ModDamageTypes.CAN_HURT_STANDS);
 	}
@@ -248,8 +253,8 @@ public class DamageUtil {
 //
 //	public static void knockback(LivingEntity target, float strength, float yRotDeg) {
 //		target.knockback(strength, 
-//				(double) MathHelper.sin(yRotDeg * MathUtil.DEG_TO_RAD), 
-//				(double) (-MathHelper.cos(yRotDeg * MathUtil.DEG_TO_RAD)));
+//				(double) Mth.sin(yRotDeg * MathUtil.DEG_TO_RAD), 
+//				(double) (-Mth.cos(yRotDeg * MathUtil.DEG_TO_RAD)));
 //	}
 //
 //	public static void upwardsKnockback(LivingEntity target, float strength) {
@@ -267,7 +272,7 @@ public class DamageUtil {
 //	}
 //
 //	public static void knockback3d(LivingEntity target, float strength, float xRot, float yRot) {
-//		Vector3d knockbackVec = Vector3d.directionFromRotation(xRot, yRot);
+//		Vec3 knockbackVec = Vec3.directionFromRotation(xRot, yRot);
 //		LivingKnockBackEvent event = ForgeHooks.onLivingKnockBack(target, strength, knockbackVec.x, knockbackVec.z);
 //		boolean addVertical = true;
 //		if (event.isCanceled()) {
@@ -278,7 +283,7 @@ public class DamageUtil {
 //		}
 //
 //		strength = event.getStrength();
-//		knockbackVec = new Vector3d(event.getRatioX(), knockbackVec.y, event.getRatioZ()).normalize();
+//		knockbackVec = new Vec3(event.getRatioX(), knockbackVec.y, event.getRatioZ()).normalize();
 //		strength *= (1.0F - (float) target.getAttributeValue(Attributes.KNOCKBACK_RESISTANCE));
 //
 //		if (strength != 0) {
@@ -297,8 +302,8 @@ public class DamageUtil {
 //		pStrength *= 1 - target.getAttributeValue(Attributes.KNOCKBACK_RESISTANCE);
 //		if (pStrength > 0) {
 //			target.hasImpulse = true;
-//			Vector3d speedCur = target.getDeltaMovement();
-//			Vector3d knockback = (new Vector3d(pRatioX, 0.0D, pRatioZ)).normalize().scale(pStrength);
+//			Vec3 speedCur = target.getDeltaMovement();
+//			Vec3 knockback = (new Vec3(pRatioX, 0.0D, pRatioZ)).normalize().scale(pStrength);
 //			target.setDeltaMovement(
 //					speedCur.x - knockback.x, 
 //					Math.min(0.4D, speedCur.y + (double)pStrength), 
@@ -311,12 +316,12 @@ public class DamageUtil {
 //	}
 //
 //	public static boolean isShieldBlockAngle(LivingEntity target, DamageSource damageSource) {
-//		Vector3d damagePos = damageSource.getSourcePosition();
+//		Vec3 damagePos = damageSource.getSourcePosition();
 //		if (damagePos != null) {
-//			Vector3d targetViewVec = target.getViewVector(1.0F);
-//			Vector3d vecToTarget = damagePos.vectorTo(target.position());
+//			Vec3 targetViewVec = target.getViewVector(1.0F);
+//			Vec3 vecToTarget = damagePos.vectorTo(target.position());
 //			vecToTarget = vecToTarget.normalize();
-//			vecToTarget = new Vector3d(vecToTarget.x, 0, vecToTarget.z); // it's not normalized anymore though?
+//			vecToTarget = new Vec3(vecToTarget.x, 0, vecToTarget.z); // it's not normalized anymore though?
 //			if (vecToTarget.dot(targetViewVec) < 0.0D) {
 //				return true;
 //			}
@@ -337,7 +342,7 @@ public class DamageUtil {
 //				hamon.suffocateTick(speed);
 //			}
 //
-//			int airReduction = MathUtil.fractionRandomInc((double) entity.getMaxAirSupply() * MathHelper.clamp(speed, 0.0, 1.0)) + 4;
+//			int airReduction = MathUtil.fractionRandomInc((double) entity.getMaxAirSupply() * Mth.clamp(speed, 0.0, 1.0)) + 4;
 //			entity.setAirSupply(Math.max(entity.getAirSupply() - airReduction, -18));
 //		}
 //		else {

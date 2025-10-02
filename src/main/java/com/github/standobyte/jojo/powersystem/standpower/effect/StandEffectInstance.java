@@ -218,7 +218,6 @@ public abstract class StandEffectInstance {
 	}
 
 	public void syncWithTrackingOrUser(ServerPlayer player) {
-		updateTarget(player.level());
 		PacketDistributor.sendToPlayer(player, TrStandEffectPacket.add(this, player == user));
 	}
 

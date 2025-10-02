@@ -28,6 +28,7 @@ import net.minecraft.client.Camera;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.texture.TextureAtlasSprite;
 import net.minecraft.resources.ResourceLocation;
+import net.minecraft.util.FastColor;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.phys.Vec3;
 import net.neoforged.api.distmarker.Dist;
@@ -44,6 +45,10 @@ public abstract class MarkerRenderer {
 	// somewhere between 1.21.2 and 1.21.4, the markers stop rendering through blocks except in fabulous mode
 	protected boolean renderThroughBlocks = true;
 	protected final Minecraft mc;
+	
+	protected int color = FastColor.ARGB32.colorFromFloat(1.0f, 1.0f, 1.0f, 1.0f);
+	protected boolean useStandSkinColor = false;
+	protected static int _curStandSkinColor = -1;
 	
 	public static void registerMarkerRenderer(MarkerRenderer markerRenderer) {
 		MarkerRenderer.Handler.RENDERERS.add(markerRenderer);
@@ -67,6 +72,7 @@ public abstract class MarkerRenderer {
 		this.iconAbilityName = iconAbilityName;
 		this.mc = mc;
 	}
+	
 
 	protected void render(PoseStack poseStack, Camera camera, float partialTick, StandSkin standSkin) {
 		if (shouldRender()) {
@@ -177,7 +183,10 @@ public abstract class MarkerRenderer {
 	
 	// XXX (marker) UI color (current stand color)
 	protected int getColor() {
-		return 0xFFFFFFFF;
+		if (useStandSkinColor && _curStandSkinColor != -1) {
+			return _curStandSkinColor;
+		}
+		return color;
 	}
 
 	@EventBusSubscriber(modid = JojoMod.MOD_ID, value = Dist.CLIENT)
@@ -197,6 +206,7 @@ public abstract class MarkerRenderer {
 
 					float partialTick = event.getPartialTick().getGameTimeDeltaPartialTick(true);
 					StandSkin standSkin = StandSkinsLoader.getCurSkin();
+					_curStandSkinColor = standSkin != null ? standSkin.getColor() : -1;
 					RENDERERS.forEach(marker -> marker.render(event.getPoseStack(), event.getCamera(), partialTick, standSkin));
 
 					mc.renderBuffers().bufferSource().endBatch();

@@ -2,7 +2,6 @@ package com.github.standobyte.jojo.core.packet.fromserver;
 
 import java.util.Optional;
 
-import com.github.standobyte.jojo.client.ClientGlobals;
 import com.github.standobyte.jojo.client.ClientProxy;
 import com.github.standobyte.jojo.client.sound.ClientsideSoundsHelper;
 import com.github.standobyte.jojo.core.PacketsRegister;
@@ -22,18 +21,17 @@ import net.minecraft.world.phys.Vec3;
 import net.neoforged.neoforge.network.handling.IPayloadContext;
 
 public record StandSkinSoundPacket(Vec3 position, Holder<SoundEvent> sound, 
-		boolean onlyForStandUsers, ResourceLocation standType, Optional<ResourceLocation> standSkin, 
+		ResourceLocation standType, Optional<ResourceLocation> standSkin, 
 		SoundSource soundCategory, float volume, float pitch) implements CustomPacketPayload {
 	
 	public static StandSkinSoundPacket play(Vec3 position, Holder<SoundEvent> sound, 
-			boolean onlyForStandUsers, StandPower userPower, 
-			SoundSource soundCategory, float volume, float pitch) {
+			StandPower userPower, SoundSource soundCategory, float volume, float pitch) {
 		StandInstance stand = userPower.getStandInstance().orElse(null);
 		if (stand == null) {
 			throw new IllegalArgumentException();
 		}
 		return new StandSkinSoundPacket(position, sound, 
-				onlyForStandUsers, stand.getStandType().getId(), stand.getSelectedSkin(), 
+				stand.getStandType().getId(), stand.getSelectedSkin(), 
 				soundCategory, volume, pitch);
 	}
 	
@@ -54,7 +52,6 @@ public record StandSkinSoundPacket(Vec3 position, Holder<SoundEvent> sound,
 		public void encode(StandSkinSoundPacket packet, RegistryFriendlyByteBuf buf) {
 			StreamCodecs.VEC_3D_APPROX.encode(buf, packet.position);
 			SoundEvent.STREAM_CODEC.encode(buf, packet.sound);
-			buf.writeBoolean(packet.onlyForStandUsers);
 			ResourceLocation.STREAM_CODEC.encode(buf, packet.standType);
 			NetworkUtil.writeOptional(packet.standSkin, buf, ResourceLocation.STREAM_CODEC);
 			buf.writeEnum(packet.soundCategory);
@@ -67,7 +64,6 @@ public record StandSkinSoundPacket(Vec3 position, Holder<SoundEvent> sound,
 			return new StandSkinSoundPacket(
 					StreamCodecs.VEC_3D_APPROX.decode(buf),
 					SoundEvent.STREAM_CODEC.decode(buf),
-					buf.readBoolean(),
 					ResourceLocation.STREAM_CODEC.decode(buf),
 					NetworkUtil.readOptional(buf, ResourceLocation.STREAM_CODEC),
 					buf.readEnum(SoundSource.class),
@@ -77,15 +73,14 @@ public record StandSkinSoundPacket(Vec3 position, Holder<SoundEvent> sound,
 
 		@Override
 		public void handle(StandSkinSoundPacket payload, IPayloadContext context) {
-			if (!payload.onlyForStandUsers || ClientGlobals.canHearStands) {
-				SoundEvent sound = payload.sound.value();
-				if (sound != null) {
-					Level level = ClientProxy.getClientWorld();
-					Vec3 pos = payload.position;
-					level.playLocalSound(pos.x, pos.y, pos.z, ClientsideSoundsHelper.withStandSkin(
-							sound, payload.standType, payload.standSkin), 
-							payload.soundCategory, payload.volume, payload.pitch, false);
-				}
+			// the server checks if the player can hear stands
+			SoundEvent sound = payload.sound.value();
+			if (sound != null) {
+				Level level = ClientProxy.getClientWorld();
+				Vec3 pos = payload.position;
+				level.playLocalSound(pos.x, pos.y, pos.z, ClientsideSoundsHelper.withStandSkin(
+						sound, payload.standType, payload.standSkin), 
+						payload.soundCategory, payload.volume, payload.pitch, false);
 			}
 		}
 		

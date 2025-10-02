@@ -6,6 +6,7 @@ import com.github.standobyte.jojo.core.packet.fromserver.StandSkinSoundPacket;
 import com.github.standobyte.jojo.init.ModStatusEffects;
 import com.github.standobyte.jojo.init.core.ModEntityAttributes;
 import com.github.standobyte.jojo.mechanics.grab.LivingComponentGrab;
+import com.github.standobyte.jojo.modcompat.JojoModsInteraction;
 import com.github.standobyte.jojo.powersystem.Power;
 import com.github.standobyte.jojo.powersystem.PowerClass;
 import com.github.standobyte.jojo.powersystem.standpower.StandPower;
@@ -13,15 +14,21 @@ import com.github.standobyte.jojo.powersystem.standpower.entity.StandEntity;
 import com.github.standobyte.jojo.util.mc.AttributeUtil;
 
 import net.minecraft.core.Holder;
+import net.minecraft.network.protocol.Packet;
+import net.minecraft.network.protocol.common.ClientboundCustomPayloadPacket;
+import net.minecraft.resources.ResourceKey;
 import net.minecraft.server.level.ServerLevel;
+import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.server.players.PlayerList;
 import net.minecraft.sounds.SoundEvent;
 import net.minecraft.sounds.SoundSource;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.ai.attributes.Attribute;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.level.Level;
 import net.minecraft.world.phys.Vec3;
 import net.neoforged.neoforge.event.EventHooks;
 import net.neoforged.neoforge.event.PlayLevelSoundEvent;
-import net.neoforged.neoforge.network.PacketDistributor;
 
 public class StandUtil {
 
@@ -46,10 +53,20 @@ public class StandUtil {
     
     public static boolean isEntityStandUser(LivingEntity entity) {
     	StandPower standData = StandPower.get(entity);
-    	return standData != null ? standData.hasPower() : false;
+    	return standData != null && standData.hasPower() || JojoModsInteraction.entityHasStandFromAnotherMod(entity);
     }
-	
-	@Nullable
+
+    public static boolean playerCanSeeStands(Player player) {
+    	return JojoModUtil.isPlayerSpectator(player)
+    			|| isEntityStandUser(player) /*|| player.hasEffect(ModStatusEffects.SPIRIT_VISION.get())*/;
+    	// TODO spirit vision effect
+    }
+
+    public static boolean playerCanHearStands(Player player) {
+    	return playerCanSeeStands(player);
+    }
+
+    @Nullable
 	public static LivingEntity getStandGrabTarget(Power<?> power) {
 		StandPower standPower = PowerClass.STAND.cast(power);
 		if (standPower != null) {
@@ -115,9 +132,21 @@ public class StandUtil {
 		volume = event.getNewVolume();
 		pitch = event.getNewPitch();
 		
-		StandSkinSoundPacket packet = StandSkinSoundPacket.play(pos, sound, onlyForStandUsers, userPower, category, volume, pitch);
-		double range = sound.value().getRange(volume);
-		PacketDistributor.sendToPlayersNear(level, null, pos.x, pos.y, pos.z, range, packet);
+		StandSkinSoundPacket packet = StandSkinSoundPacket.play(pos, sound, userPower, category, volume, pitch);
+		double radius = sound.value().getRange(volume);
+        Packet<?> vanillaPacket = new ClientboundCustomPayloadPacket(packet);
+        PlayerList playerList = level.getServer().getPlayerList();
+        ResourceKey<Level> dimension = level.dimension();
+        for (ServerPlayer player : playerList.getPlayers()) {
+        	if (player.level().dimension() == dimension && (!onlyForStandUsers || StandUtil.playerCanHearStands(player))) {
+        		double diffX = pos.x - player.getX();
+        		double diffY = pos.y - player.getY();
+        		double diffZ = pos.z - player.getZ();
+        		if (diffX * diffX + diffY * diffY + diffZ * diffZ < radius * radius) {
+        			player.connection.send(vanillaPacket);
+        		}
+        	}
+        }
 	}
 
 }

@@ -29,6 +29,9 @@
   
   "itemGroup.jojo_ripples_main": "JoJo: Ripples of the Past",
   
+  "jojo_ripples.subtitle.blood_drain": "Blood drained",
+  "jojo_ripples.subtitle.liquid_splash": "Liquid splashes",
+  
   "jojo_ripples.options.client.title": "Ripples of the Past client settings",
   "jojo_ripples.options.client.hud": "HUD",
   "jojo_ripples.options.client.stand": "Stand",
@@ -260,6 +263,13 @@
   
   "jojo_ripples.skill.time_stop": "Time Stop",
   "jojo_ripples.skill.time_stop.desc": "#################################",
-  "jojo_ripples.ability.time_stop": "Time Stop (%ss) (soon)"
+  "jojo_ripples.ability.time_stop": "Time Stop (%ss) (soon)",
+  
+  
+  "jojo_ripples.skill.block_bullet": "Block Bullet",
+  "jojo_ripples.skill.block_bullet.desc": "#################################",
+  "jojo_ripples.ability.block_bullet": "Block Bullet",
+  "jojo_ripples.ability.block_bullet_homing": "Homing Bullet",
+  "jojo_ripples.ability.blood_cutter": "Blood Cutter"
   
 }

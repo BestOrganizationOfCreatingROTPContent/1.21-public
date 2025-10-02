@@ -2,6 +2,7 @@ package com.github.standobyte.jojo.jojoimpl.stands._entitybase;
 
 import com.github.standobyte.jojo.client.ClientGlobals;
 import com.github.standobyte.jojo.client.sound.ClientsideSoundsHelper;
+import com.github.standobyte.jojo.client.sound.sounds.EntityLingeringSoundInstance;
 import com.github.standobyte.jojo.init.ModDataAttachmentTypes;
 import com.github.standobyte.jojo.init.ModSoundEvents;
 import com.github.standobyte.jojo.mechanics.grab.LivingComponentGrab;
@@ -66,17 +67,17 @@ public class StandEntityGrabThrowAbility extends StandEntityAbility {
 		
 		@Override
 		public void actionPerformStart() {
-			if (performer instanceof StandEntity standEntity) {
+			if (performer instanceof StandEntity stand) {
 				// FIXME (grab & throw) apply the offset even if the stand has a grabbed target
-				setStandOffset(0, Math.max(standEntity.offsetFromUser.getRelativeOffset().z, 0) + 2,
+				setStandOffset(0, Math.max(stand.offsetFromUser.getRelativeOffset().z, 0) + 2,
 						StandOffsetFromUser.Rotations.HEAD_XY,
 						false);
 				
 				Level level = performer.level();
 				if (level.isClientSide() && ClientGlobals.canHearStands) {
-					ClientsideSoundsHelper.playEntityLingeringSound(standEntity, ClientsideSoundsHelper.withStandSkin(
-							ModSoundEvents.STAND_PUNCH_HEAVY_CRY.get(), standEntity.getStandId(), standEntity.getStandSkin()), 
-							standEntity.getSoundSource(), 1, 1, level);
+					ClientsideSoundsHelper.playNonVanillaClassSound(new EntityLingeringSoundInstance(ClientsideSoundsHelper.withStandSkin(
+							ModSoundEvents.STAND_PUNCH_HEAVY_CRY.get(), stand), 
+							stand.getSoundSource(), 1, 1, stand, level));
 				}
 			}
 			aimAs = AimingEntity.STAND;

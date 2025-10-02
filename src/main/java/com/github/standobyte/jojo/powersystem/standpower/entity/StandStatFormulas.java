@@ -154,6 +154,10 @@ public class StandStatFormulas {
 		return inaccuracy * inaccuracyMultiplier;
 	}
 
+//	public float getProjectileInaccuracy(double precision, float inaccuracyBase) {
+//		return Math.max((inaccuracyBase + 1) * 8 / Math.max((float) precision, 4) - 1, 0);
+//	}
+//
 //	public static double projectileFireRateScaling(StandEntity standEntity, StandPower standPower) {
 //		return standEntity.getAttackSpeed() / standPower.getPowerType().getStandStats().speed();
 //	}

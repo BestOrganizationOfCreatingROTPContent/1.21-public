@@ -3,7 +3,9 @@ package com.github.standobyte.jojo.util.network;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 import java.util.function.BiConsumer;
 import java.util.function.Supplier;
@@ -15,11 +17,14 @@ import com.github.standobyte.jojo.util.JSONUtil;
 import com.google.gson.JsonObject;
 
 import io.netty.buffer.ByteBuf;
+import net.minecraft.core.Registry;
 import net.minecraft.network.FriendlyByteBuf;
+import net.minecraft.network.RegistryFriendlyByteBuf;
 import net.minecraft.network.codec.ByteBufCodecs;
 import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.network.codec.StreamDecoder;
 import net.minecraft.network.codec.StreamEncoder;
+import net.minecraft.resources.ResourceKey;
 import net.minecraft.server.level.ChunkMap;
 import net.minecraft.server.level.ServerChunkCache;
 import net.minecraft.server.network.ServerPlayerConnection;
@@ -129,9 +134,15 @@ public class NetworkUtil {
 		};
 	}
 	
+	private static final Map<ResourceKey<? extends Registry<?>>, StreamCodec<RegistryFriendlyByteBuf, ?>> CODECS_CACHE = new HashMap<>();
+	@SuppressWarnings("unchecked")
+	public static <T> StreamCodec<RegistryFriendlyByteBuf, T> registryCodec(ResourceKey<? extends Registry<T>> registryKey) {
+		return (StreamCodec<RegistryFriendlyByteBuf, T>) CODECS_CACHE.computeIfAbsent(registryKey, ByteBufCodecs::registry);
+	}
+	
 	// FriendlyByteBuf stuff
 	
-	public static <T> void writeOptionally(@Nullable T value, FriendlyByteBuf buf, StreamEncoder<? super FriendlyByteBuf, T> writer) {
+	public static <T, B extends FriendlyByteBuf> void writeOptionally(@Nullable T value, B buf, StreamEncoder<? super B, T> writer) {
 		if (value != null) {
 			buf.writeBoolean(true);
 			writer.encode(buf, value);
@@ -140,7 +151,7 @@ public class NetworkUtil {
 		}
 	}
 	
-	public static <T> void writeOptional(@Nullable Optional<T> value, FriendlyByteBuf buf, StreamEncoder<? super FriendlyByteBuf, T> writer) {
+	public static <T, B extends FriendlyByteBuf> void writeOptional(@Nullable Optional<T> value, B buf, StreamEncoder<? super B, T> writer) {
 		if (value.isPresent()) {
 			buf.writeBoolean(true);
 			writer.encode(buf, value.get());
@@ -149,7 +160,7 @@ public class NetworkUtil {
 		}
 	}
 	
-	public static <T> Optional<T> readOptional(FriendlyByteBuf buf, StreamDecoder<? super FriendlyByteBuf, T> reader) {
+	public static <T, B extends FriendlyByteBuf> Optional<T> readOptional(B buf, StreamDecoder<? super B, T> reader) {
 		return buf.readBoolean() ? Optional.of(reader.decode(buf)) : Optional.empty();
 	}
 

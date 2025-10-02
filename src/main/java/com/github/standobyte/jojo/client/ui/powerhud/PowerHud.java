@@ -322,7 +322,7 @@ public class PowerHud {
 		@Override
 		public void renderElement(GuiGraphics guiGraphics, DeltaTracker deltaTracker) {
 			StandPower standPower = ClientPowerCache.getPower(PowerClass.STAND);
-			float staminaRatio = standPower.getStaminaRatio();
+			float staminaRatio = standPower.getStaminaRatio(ClientUtil.partialTick(deltaTracker, false));
 			int x = getX() + 8;
 			int y = getY();
 			float alpha = StandUtil.standIgnoresStaminaDebuff(Minecraft.getInstance().player) ? 0.5f : 1;

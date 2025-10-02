@@ -18,10 +18,10 @@ public class LerpValue {
 		}
 		
 		public boolean set(float value, boolean lerp) {
+			if (lerp) {
+				this.prevValue = this.value;
+			}
 			if (this.value != value) {
-				if (lerp) {
-					this.prevValue = this.value;
-				}
 				this.value = value;
 				if (this.firstUpdate) {
 					this.firstUpdate = false;

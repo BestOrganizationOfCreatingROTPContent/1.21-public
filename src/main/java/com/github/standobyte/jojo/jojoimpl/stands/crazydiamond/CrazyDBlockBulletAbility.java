@@ -1,0 +1,209 @@
+package com.github.standobyte.jojo.jojoimpl.stands.crazydiamond;
+
+import com.github.standobyte.jojo.client.ClientGlobals;
+import com.github.standobyte.jojo.client.particle.CustomParticlesHelper;
+import com.github.standobyte.jojo.client.sound.ClientsideSoundsHelper;
+import com.github.standobyte.jojo.client.sound.sounds.EntityStoppableSoundInstance;
+import com.github.standobyte.jojo.init.ModSoundEvents;
+import com.github.standobyte.jojo.init.power.ModStandEffects;
+import com.github.standobyte.jojo.powersystem.Power;
+import com.github.standobyte.jojo.powersystem.PowerClass;
+import com.github.standobyte.jojo.powersystem.ability.AbilityId;
+import com.github.standobyte.jojo.powersystem.ability.AbilityType;
+import com.github.standobyte.jojo.powersystem.ability.condition.ConditionCheck;
+import com.github.standobyte.jojo.powersystem.entityaction.ActionPhase;
+import com.github.standobyte.jojo.powersystem.entityaction.EntityActionInstance;
+import com.github.standobyte.jojo.powersystem.entityaction.type.EntityActionType;
+import com.github.standobyte.jojo.powersystem.standpower.StandPower;
+import com.github.standobyte.jojo.powersystem.standpower.effect.UserStandEffects;
+import com.github.standobyte.jojo.powersystem.standpower.entity.StandEntity;
+import com.github.standobyte.jojo.powersystem.standpower.entity.StandEntityAbility;
+import com.github.standobyte.jojo.powersystem.standpower.entity.StandOffsetFromUser;
+
+import net.minecraft.network.chat.Component;
+import net.minecraft.world.InteractionHand;
+import net.minecraft.world.entity.HumanoidArm;
+import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.item.BlockItem;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.level.Level;
+import net.minecraft.world.level.block.Block;
+import net.minecraft.world.level.block.state.BlockState;
+
+public class CrazyDBlockBulletAbility extends StandEntityAbility {
+
+	public CrazyDBlockBulletAbility(AbilityType<?> abilityType, AbilityId abilityId) {
+		super(abilityType, abilityId);
+		setDefaultPhaseLength(ActionPhase.WINDUP, 15);
+		this.homingSpriteName = this.spriteName + "_homing";
+		this.homingName = Component.translatable("jojo_ripples.ability." + abilityId.nameInMoveset() + ".homing");
+	}
+
+	@Override
+	public ConditionCheck checkSpecificConditions(Power<?> power) {
+		LivingEntity user = power.getUser();
+		ItemStack itemToShoot = user.getOffhandItem();
+		if (itemToShoot == null || itemToShoot.isEmpty() || !(itemToShoot.getItem() instanceof BlockItem)) {
+			return ConditionCheck.createNegative("block_offhand");
+		}
+		Block block = ((BlockItem) itemToShoot.getItem()).getBlock();
+		BlockState blockState = block.defaultBlockState();
+		// TODO check block hardness
+//		if (!StandStatFormulas.isBlockBreakable(
+//				power.isActive() ? ((StandEntity) power.getStandManifestation()).getAttackDamage()
+//						: power.getType().getStats().getBasePower() + power.getType().getStats().getDevPower(power.getStatsDevelopment()), 
+//						blockState.getDestroySpeed(user.level, user.blockPosition()), blockState.getHarvestLevel())) {
+//			return ConditionCheck.createNegative("stand_cant_break_block");
+//		}
+		if (!hardMaterial(blockState)) {
+			return ConditionCheck.createNegative("item_hard_material");
+		}
+		return super.checkSpecificConditions(power);
+	}
+
+	@Override
+	public void initActionFromConfig(EntityActionInstance action, Level level, 
+			LivingEntity powerUser, LivingEntity performer) {
+		super.initActionFromConfig(action, level, powerUser, performer);
+		if (!level.isClientSide() && disableHoming(powerUser)) {
+			((BlockBulletShot) action).isHomingDisabled = true;
+		}
+	}
+
+	@Override
+	public EntityActionInstance createActionObj() {
+		return new BlockBulletShot(this);
+	}
+
+	public static class BlockBulletShot extends EntityActionInstance {
+		protected boolean isHomingDisabled = false;
+
+		public BlockBulletShot(EntityActionType ability) {
+			super(ability);
+			phasesLength.put(ActionPhase.WINDUP, 100);
+		}
+
+		@Override
+		public void onActionSet(EntityActionInstance prevAction) {
+			boolean offHandIsRight = getPowerUser().getMainArm() == HumanoidArm.LEFT;
+			setStandOffset(offHandIsRight ? 0.1 : -0.1, -0.5, StandOffsetFromUser.Rotations.HEAD_XY, false);
+		}
+
+		@Override
+		public void actionTick() {
+			if (level().isClientSide() && phase == ActionPhase.WINDUP && ClientGlobals.canSeeStands) {
+				LivingEntity user = getPowerUser();
+				if (user != null) {
+					CustomParticlesHelper.createCDRestorationParticle(user, InteractionHand.OFF_HAND);
+				}
+			}
+		}
+
+		@Override
+		public void actionPerformStart() {
+			Level level = level();
+			if (!level.isClientSide()) {
+				LivingEntity user = getPowerUser();
+				if (user == null) return;
+				ItemStack item = user.getOffhandItem();
+				Block block = !item.isEmpty() && item.getItem() instanceof BlockItem blockItem ? blockItem.getBlock() : null;
+				if (block == null) return;
+				
+				CrazyDBlockBulletEntity bullet = new CrazyDBlockBulletEntity(performer, level);
+				bullet.setShootingPosOf(user);
+				bullet.setBlock(block);
+				
+				StandPower standPower = StandPower.get(user);
+				if (standPower != null && !isHomingDisabled) {
+					UserStandEffects.getEffectLookedAt(standPower, ModStandEffects.CRAZY_D_BLOOD_DROPS.get(), PLAYER_TRACKING_RANGE, user).ifPresent(effect -> {
+						bullet.setTarget(effect.getTarget());
+					});
+					
+				}
+				
+				// FIXME projectile inaccuracy
+//				standEntity.shootProjectile(bullet, 2.0F, 0.25F);
+				bullet.shootFromRotation(performer, 2.0f * 0.01f, 0);
+				addProjectileWithStandStats(bullet);
+				
+				if (!(user instanceof Player player && player.getAbilities().instabuild)) {
+					item.shrink(1);
+				}
+				standPower.consumeStamina(40);
+				bullet.homingStaminaCost = 2;
+			}
+		}
+		
+		@Override
+		public void onSetPhase(ActionPhase newPhase) {
+			Level level = level();
+			if (level.isClientSide() && ClientGlobals.canHearStands && performer instanceof StandEntity stand) {
+				switch (newPhase) {
+					case WINDUP -> {
+						ClientsideSoundsHelper.playNonVanillaClassSound(new EntityStoppableSoundInstance(ClientsideSoundsHelper.withStandSkin(
+								ModSoundEvents.CRAZY_DIAMOND_FIX_STARTED.get(), stand), 
+								stand.getSoundSource(), 1, 1, stand, level.random.nextLong(), 
+								() -> this.isOver() || this.phase != ActionPhase.WINDUP));
+					}
+					case PERFORM -> {
+						level.playLocalSound(stand, ClientsideSoundsHelper.withStandSkin(
+								ModSoundEvents.CRAZY_DIAMOND_BULLET_SHOT.get(), stand), 
+								stand.getSoundSource(), 1, 1);
+					}
+					default -> {}
+				}
+			}
+		}
+	}
+
+	public static final double PLAYER_TRACKING_RANGE = 64;
+
+	public static boolean hardMaterial(BlockState blockState) {
+		// FIXME check if the block is made of solid material
+		return true;
+//		Material material = blockState.getMaterial();
+//		return 
+//				material == Material.BUILDABLE_GLASS || 
+//				material == Material.ICE_SOLID || 
+//				material == Material.WOOD || 
+//				material == Material.NETHER_WOOD || 
+//				material == Material.GLASS || 
+//				material == Material.ICE || 
+//				material == Material.STONE || 
+//				material == Material.METAL || 
+//				material == Material.HEAVY_METAL || 
+//				material == Material.CLAY && blockState.getBlock().getRegistryName().getPath().contains("infested");
+	}
+
+	
+	public static boolean disableHoming(LivingEntity user) {
+		return user.isShiftKeyDown();
+	}
+
+	public static boolean isHoming(LivingEntity user, StandPower userPower) {
+		return user != null && !disableHoming(user)
+				&& UserStandEffects.getEffectLookedAt(userPower, ModStandEffects.CRAZY_D_BLOOD_DROPS.get(), PLAYER_TRACKING_RANGE, userPower.getUser()).isPresent();
+	}
+
+	protected String homingSpriteName;
+	protected Component homingName;
+	
+	@Override
+	public String getSpriteName(Power<?> context) {
+		if (isHoming(context.getUser(), PowerClass.STAND.cast(context))) {
+			return homingSpriteName;
+		}
+		return super.getSpriteName(context);
+	}
+
+	// TODO ability names in stand skins
+	@Override
+	public Component getName(Power<?> context) {
+		if (isHoming(context.getUser(), PowerClass.STAND.cast(context))) {
+			return homingName;
+		}
+		return name;
+	}
+
+}

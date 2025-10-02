@@ -6,10 +6,10 @@ import com.github.standobyte.jojo.jojoimpl.stands._entitybase.StandBearingShotAb
 import com.github.standobyte.jojo.jojoimpl.stands._entitybase.StandEntityBarrageAbility;
 import com.github.standobyte.jojo.jojoimpl.stands._entitybase.StandEntityGrabAbility;
 import com.github.standobyte.jojo.jojoimpl.stands._entitybase.StandEntityGrabBarrage;
+import com.github.standobyte.jojo.jojoimpl.stands._entitybase.StandEntityGrabHeavyPunch;
 import com.github.standobyte.jojo.jojoimpl.stands._entitybase.StandEntityGrabPunch;
 import com.github.standobyte.jojo.jojoimpl.stands._entitybase.StandEntityGrabReleaseAbility;
 import com.github.standobyte.jojo.jojoimpl.stands._entitybase.StandEntityGrabThrowAbility;
-import com.github.standobyte.jojo.jojoimpl.stands._entitybase.StandEntityGrabHeavyPunch;
 import com.github.standobyte.jojo.jojoimpl.stands._entitybase.StandEntityHeavyPunchAbility;
 import com.github.standobyte.jojo.jojoimpl.stands._entitybase.StandEntityHeavyPunchChargedAbility;
 import com.github.standobyte.jojo.jojoimpl.stands._entitybase.StandEntityManualControlToggle;
@@ -17,6 +17,8 @@ import com.github.standobyte.jojo.jojoimpl.stands._entitybase.StandEntityPunchAb
 import com.github.standobyte.jojo.jojoimpl.stands._entitybase.item.SwapStandHandItemsAbility;
 import com.github.standobyte.jojo.jojoimpl.stands._entitybase.item.SwapUserStandItemsAbility;
 import com.github.standobyte.jojo.jojoimpl.stands._entitybase.item.TossStandItemAbility;
+import com.github.standobyte.jojo.jojoimpl.stands.crazydiamond.CrazyDBlockBulletAbility;
+import com.github.standobyte.jojo.jojoimpl.stands.crazydiamond.CrazyDBloodCutterAbility;
 import com.github.standobyte.jojo.jojoimpl.stands.crazydiamond.CrazyDRepairItemAbility;
 import com.github.standobyte.jojo.jojoimpl.stands.starplatinum.InhaleAbility;
 import com.github.standobyte.jojo.jojoimpl.stands.starplatinum.StarFingerAbility;
@@ -92,11 +94,11 @@ public final class ModStandAbilities {
 			"time_stop", key -> new AbilityType<>(key, TimeStopAbility::new));
 
 	
-	public static final DeferredHolder<AbilityType<?>, AbilityType<Ability>> CD_BLOOD_CUTTER = ABILITY_TYPES.register(
-			"blood_cutter", key -> new AbilityType<>(key, Ability::new));
+	public static final DeferredHolder<AbilityType<?>, AbilityType<CrazyDBloodCutterAbility>> CD_BLOOD_CUTTER = ABILITY_TYPES.register(
+			"blood_cutter", key -> new AbilityType<>(key, CrazyDBloodCutterAbility::new));
 	
-	public static final DeferredHolder<AbilityType<?>, AbilityType<Ability>> CD_BLOCK_BULLET = ABILITY_TYPES.register(
-			"block_bullet", key -> new AbilityType<>(key, Ability::new));
+	public static final DeferredHolder<AbilityType<?>, AbilityType<CrazyDBlockBulletAbility>> CD_BLOCK_BULLET = ABILITY_TYPES.register(
+			"block_bullet", key -> new AbilityType<>(key, CrazyDBlockBulletAbility::new));
 	
 	public static final DeferredHolder<AbilityType<?>, AbilityType<Ability>> CD_REVERT_STATE = ABILITY_TYPES.register(
 			"revert_state", key -> new AbilityType<>(key, Ability::new));

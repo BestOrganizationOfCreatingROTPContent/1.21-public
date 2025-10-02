@@ -2,6 +2,7 @@ package com.github.standobyte.jojo.jojoimpl.stands._entitybase;
 
 import com.github.standobyte.jojo.client.ClientGlobals;
 import com.github.standobyte.jojo.client.sound.ClientsideSoundsHelper;
+import com.github.standobyte.jojo.client.sound.sounds.EntityLingeringSoundInstance;
 import com.github.standobyte.jojo.init.ModDamageTypes;
 import com.github.standobyte.jojo.init.ModSoundEvents;
 import com.github.standobyte.jojo.powersystem.Power;
@@ -85,20 +86,20 @@ public class StandEntityHeavyPunchChargedAbility extends StandEntityAbility {
 		
 		@Override
 		public void actionPerformStart() {
-			if (performer instanceof StandEntity standEntity) {
-				setStandOffset(0, Math.max(standEntity.offsetFromUser.getRelativeOffset().z, 0) + 2,
+			if (performer instanceof StandEntity stand) {
+				setStandOffset(0, Math.max(stand.offsetFromUser.getRelativeOffset().z, 0) + 2,
 						StandOffsetFromUser.Rotations.HEAD_XY,
 						false);
 				
 				Level level = performer.level();
 				if (level.isClientSide() && ClientGlobals.canHearStands) {
-					ClientsideSoundsHelper.playEntityLingeringSound(standEntity, ClientsideSoundsHelper.withStandSkin(
-							ModSoundEvents.STAND_PUNCH_HEAVY_SWING.get(), standEntity.getStandId(), standEntity.getStandSkin()), 
-							standEntity.getSoundSource(), 1, 1, level);
+					ClientsideSoundsHelper.playNonVanillaClassSound(new EntityLingeringSoundInstance(ClientsideSoundsHelper.withStandSkin(
+							ModSoundEvents.STAND_PUNCH_HEAVY_SWING.get(), stand), 
+							stand.getSoundSource(), 1, 1, stand, stand.level()));
 
-					ClientsideSoundsHelper.playEntityLingeringSound(standEntity, ClientsideSoundsHelper.withStandSkin(
-							ModSoundEvents.STAND_PUNCH_HEAVY_CRY.get(), standEntity.getStandId(), standEntity.getStandSkin()), 
-							standEntity.getSoundSource(), 1, 1, level);
+					ClientsideSoundsHelper.playNonVanillaClassSound(new EntityLingeringSoundInstance(ClientsideSoundsHelper.withStandSkin(
+							ModSoundEvents.STAND_PUNCH_HEAVY_CRY.get(), stand), 
+							stand.getSoundSource(), 1, 1, stand, stand.level()));
 				}
 			}
 			aimAs = AimingEntity.STAND;

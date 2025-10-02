@@ -3,10 +3,13 @@ package com.github.standobyte.jojo.client.entityrender;
 import java.util.Optional;
 
 import com.github.standobyte.jojo.client.entityrender.entities.MannequinRenderer;
+import com.github.standobyte.jojo.client.entityrender.entities.SimpleEntityModel;
+import com.github.standobyte.jojo.client.entityrender.entities.SimpleEntityRenderer;
 import com.github.standobyte.jojo.client.entityrender.entities.v1_21_2plus.MannequinModel_1_21_2plus;
 import com.github.standobyte.jojo.client.entityrender.stand.StandEntityRenderer;
 import com.github.standobyte.jojo.core.JojoMod;
 import com.github.standobyte.jojo.init.ModEntityTypes;
+import com.github.standobyte.jojo.jojoimpl.stands.crazydiamond.client.CrazyDBlockBulletRenderer;
 import com.github.standobyte.jojo.mechanics.clothes.client.layer.HumanoidClothesLayer;
 import com.github.standobyte.v1_21_4_stuff.Reminder;
 
@@ -35,25 +38,19 @@ public class ModEntityRenderers {
 		event.registerEntityRenderer(ModEntityTypes.HUMANOID_STAND.get(), StandEntityRenderer::new);
 		event.registerEntityRenderer(ModEntityTypes.MANNEQUIN.get(), MannequinRenderer::new);
 		event.registerEntityRenderer(ModEntityTypes.NUGGET_BEARING.get(), ctx -> new ThrownItemRenderer<>(ctx, 0.5f, false));
+		event.registerEntityRenderer(ModEntityTypes.CD_BLOOD_CUTTER.get(), ctx -> new SimpleEntityRenderer<>(ctx)
+				.initTexture(JojoMod.resLoc("textures/entity/blood_cutter.png"), true)
+				.initResourceModel(JojoMod.resLoc("blood_cutter"), SimpleEntityModel::new, true));
+		event.registerEntityRenderer(ModEntityTypes.CD_BLOCK_BULLET.get(), ctx -> new CrazyDBlockBulletRenderer(ctx)
+				.initResourceModel(JojoMod.resLoc("block_bullet"), SimpleEntityModel::new, true));
 	}
 	
 	// Hardcoded models
 	
-	public static final ModelLayerLocation MANNEQUIN = new ModelLayerLocation(
-			ResourceLocation.fromNamespaceAndPath(JojoMod.MOD_ID, "mannequin"), 
-			"main");
-	
-	public static final ModelLayerLocation MANNEQUIN_SLIM = new ModelLayerLocation(
-			ResourceLocation.fromNamespaceAndPath(JojoMod.MOD_ID, "mannequin_slim"), 
-			"main");
-	
-//	public static final ModelLayerLocation MANNEQUIN_SMALL = new ModelLayerLocation(
-//			ResourceLocation.fromNamespaceAndPath(JojoMod.MOD_ID, "mannequin_small"), 
-//			"main");
-//	
-//	public static final ModelLayerLocation MANNEQUIN_SLIM_SMALL = new ModelLayerLocation(
-//			ResourceLocation.fromNamespaceAndPath(JojoMod.MOD_ID, "mannequin_slim_small"), 
-//			"main");
+	public static final ModelLayerLocation MANNEQUIN = mainLayer(ResourceLocation.fromNamespaceAndPath(JojoMod.MOD_ID, "mannequin"));
+	public static final ModelLayerLocation MANNEQUIN_SLIM = mainLayer(ResourceLocation.fromNamespaceAndPath(JojoMod.MOD_ID, "mannequin_slim"));
+//	public static final ModelLayerLocation MANNEQUIN_SMALL = mainLayer(ResourceLocation.fromNamespaceAndPath(JojoMod.MOD_ID, "mannequin_small"));
+//	public static final ModelLayerLocation MANNEQUIN_SLIM_SMALL = mainLayer(ResourceLocation.fromNamespaceAndPath(JojoMod.MOD_ID, "mannequin_slim_small"));
 	
 	@SubscribeEvent
 	public static void registerLayerDefinitions(EntityRenderersEvent.RegisterLayerDefinitions event) {
@@ -64,6 +61,10 @@ public class ModEntityRenderers {
 		Reminder.toRegisterBabyModels();
 //		event.registerLayerDefinition(ModEntityRenderers.MANNEQUIN_SMALL, () -> mannequin.apply(HumanoidModel.BABY_TRANSFORMER));
 //		event.registerLayerDefinition(ModEntityRenderers.MANNEQUIN_SLIM_SMALL, () -> mannequinSlim.apply(HumanoidModel.BABY_TRANSFORMER));
+	}
+	
+	public static ModelLayerLocation mainLayer(ResourceLocation modelPath) {
+		return new ModelLayerLocation(modelPath, "main");
 	}
 	
 	// Entity render state extensions

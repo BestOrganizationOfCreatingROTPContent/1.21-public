@@ -41,7 +41,8 @@ public class CustomItemRenderers {
 	@SubscribeEvent(priority = EventPriority.LOW)
 	public static void addListener(RegisterClientReloadListenersEvent event) {
 		Minecraft mc = Minecraft.getInstance();
-		event.registerReloadListener(modLogoRenderer = new CustomItemRenderer(mc, 
+		
+		modLogoRenderer = new CustomItemRenderer(mc, 
 				ResourceLocation.fromNamespaceAndPath(JojoMod.MOD_ID, "mod_logo"),
 				ResourceLocation.fromNamespaceAndPath(JojoMod.MOD_ID, "textures/mod_logo_model.png")) {
 			@Override
@@ -56,7 +57,7 @@ public class CustomItemRenderers {
 				super.renderByItem(stack, displayContext, poseStack, buffer, packedLight, packedOverlay);
 				poseStack.popPose();
 			}
-		});
+		};
 	}
 
 

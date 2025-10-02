@@ -7,6 +7,7 @@ import javax.annotation.Nullable;
 
 import org.jetbrains.annotations.ApiStatus;
 
+import com.github.standobyte.jojo.mc.entity.projectile.DamagingEntity;
 import com.github.standobyte.jojo.powersystem.entityaction.netcode.TrEntityActionPhaseTimePacket;
 import com.github.standobyte.jojo.powersystem.entityaction.type.EntityActionType;
 import com.github.standobyte.jojo.powersystem.standpower.entity.StandEntity;
@@ -230,6 +231,15 @@ public class EntityActionInstance implements HeldInput {
 			for (EquipmentSlot slot : slots) {
 				stand.tossItem(slot, tossVec);
 			}
+		}
+	}
+	
+	public void addProjectileWithStandStats(DamagingEntity projectile) {
+		Level level = level();
+		if (!level.isClientSide() && !projectile.isAddedToLevel() && performer instanceof StandEntity stand) {
+			projectile.setDamageFactor(projectile.getDamageFactor() * (float) stand.getAttackDamage() / 8);
+			projectile.setSpeedFactor(projectile.getSpeedFactor() * stand.getAttackSpeed() / 8);
+			level.addFreshEntity(projectile);
 		}
 	}
 	

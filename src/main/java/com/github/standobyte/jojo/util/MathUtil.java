@@ -59,6 +59,48 @@ public final class MathUtil {
 		return new Vec2(xRot, yRot);
 	}
 
+	public static float yRotDegFromVec(Vec3 vec) {
+		return (float) -Mth.atan2(vec.x, vec.z) * RAD_TO_DEG;
+	}
+
+	public static float xRotDegFromVec(Vec3 vec) {
+		return (float) -Mth.atan2(vec.y, Math.sqrt(vec.x * vec.x + vec.z * vec.z)) * RAD_TO_DEG;
+	}
+
+	public static float inverseLerp(float x, float a, float b) {
+		return (x - a) / (b - a);
+	}
+
+	public static Vec3 lerpVector(float partial, Vec3 vec1, Vec3 vec2) {
+		return lerpVector(partial, vec1.x, vec1.y, vec1.z, vec2.x, vec2.y, vec2.z);
+	}
+
+	public static Vec3 lerpVector(float partial, double x1, double y1, double z1, double x2, double y2, double z2) {
+		double x = Mth.lerp(partial, x1, x2);
+		double y = Mth.lerp(partial, y1, y2);
+		double z = Mth.lerp(partial, z1, z2);
+		return new Vec3(x, y, z);
+	}
+
+	public static Vec3 vecFromAngles(float xRotRad, float yRotRad) {
+		yRotRad = -yRotRad;
+		float f2 = Mth.cos(yRotRad);
+		float f3 = Mth.sin(yRotRad);
+		float f4 = Mth.cos(xRotRad);
+		float f5 = Mth.sin(xRotRad);
+		return new Vec3((double)(f3 * f4), (double)(-f5), (double)(f2 * f4));
+	}
+
+
+	public static float inverseArmorProtectionDamage(float damageAfterAbsorb, float armor, float toughness) {
+		float f = armor / 25 - 1;
+		float f2 = 25 * (1 + toughness / 8);
+		return Mth.clamp(
+				f2 * (f + (float) Math.sqrt(f * f + 2 * damageAfterAbsorb / f2)), 
+				damageAfterAbsorb / (1 - armor / 125), 
+				5 * damageAfterAbsorb);
+	}
+
 	
 	public static double getAABBDistance(AABB aabb1, AABB aabb2) {
 		double x1 = Math.min(aabb1.maxX, aabb2.maxX);

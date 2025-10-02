@@ -37,7 +37,7 @@ public class EntityResolver {
 		return entityLiving;
 	}
 
-	protected void updateEntity(Level level) {
+	public void updateEntity(Level level) {
 		if (entity != null && entity.isRemoved()) {
 			_setNewEntity(null);
 		}

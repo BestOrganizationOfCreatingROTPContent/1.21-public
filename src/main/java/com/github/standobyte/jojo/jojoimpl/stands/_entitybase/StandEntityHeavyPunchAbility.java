@@ -2,6 +2,7 @@ package com.github.standobyte.jojo.jojoimpl.stands._entitybase;
 
 import com.github.standobyte.jojo.client.ClientGlobals;
 import com.github.standobyte.jojo.client.sound.ClientsideSoundsHelper;
+import com.github.standobyte.jojo.client.sound.sounds.EntityLingeringSoundInstance;
 import com.github.standobyte.jojo.init.ModDamageTypes;
 import com.github.standobyte.jojo.init.ModSoundEvents;
 import com.github.standobyte.jojo.mechanics.grab.LivingComponentGrab;
@@ -106,7 +107,7 @@ public class StandEntityHeavyPunchAbility extends StandEntityAbility {
 					int ticksDiff = (int) (calcFullTicks(ActionPhase.PERFORM, 0) - getFullTicksPassed());
 					if (ticksDiff <= 4) {
 						level.playLocalSound(stand.getX(), stand.getEyeY(), stand.getZ(), ClientsideSoundsHelper.withStandSkin(
-								ModSoundEvents.STAND_PUNCH_HEAVY_SWING.get(), stand.getStandId(), stand.getStandSkin()), 
+								ModSoundEvents.STAND_PUNCH_HEAVY_SWING.get(), stand), 
 								stand.getSoundSource(), 1, 1, false);
 						playedSwingSound = true;
 					}
@@ -114,9 +115,9 @@ public class StandEntityHeavyPunchAbility extends StandEntityAbility {
 				
 				if (!playedStandCrySound) {
 					if (!stand.isArmsOnlyMode()) {
-						ClientsideSoundsHelper.playEntityLingeringSound(stand, ClientsideSoundsHelper.withStandSkin(
-								ModSoundEvents.STAND_PUNCH_HEAVY_CRY.get(), stand.getStandId(), stand.getStandSkin()), 
-								stand.getSoundSource(), 1, 1, level);
+						ClientsideSoundsHelper.playNonVanillaClassSound(new EntityLingeringSoundInstance(ClientsideSoundsHelper.withStandSkin(
+								ModSoundEvents.STAND_PUNCH_HEAVY_CRY.get(), stand), 
+								stand.getSoundSource(), 1, 1, stand, stand.level()));
 					}
 					playedStandCrySound = true;
 				}

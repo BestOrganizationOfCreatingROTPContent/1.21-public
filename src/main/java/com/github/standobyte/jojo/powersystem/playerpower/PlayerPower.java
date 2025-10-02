@@ -50,14 +50,20 @@ public class PlayerPower extends Power<PlayerPower> {
 	}
 	
 	@SuppressWarnings("unchecked")
-	public <T extends PlayerPowerType<D>, D extends PowerData> Optional<D> getData(@Nullable T specificType) {
-		return (Optional<D>) powerData.filter(data -> specificType == null || specificType == data.getType());
+	public <T extends PlayerPowerType<D>, D extends PowerData> Optional<D> getData(@Nullable T matchCurrentType) {
+		return (Optional<D>) powerData.filter(data -> matchCurrentType == null || matchCurrentType == data.getType());
 	}
 	
 	@Override
 	public PowerClass<PlayerPower> getPowerClass() {
 		return PowerClass.PLAYER_POWER;
 	}
+	
+	/**
+	 * @deprecated Placeholder. Energy will be kept in PowerData subclasses (Hamon energy in HamonData, vampire energy in VampirismData)
+	 */
+	@Deprecated
+	public void addEnergy(float energy) {}
 
 
 	@Override

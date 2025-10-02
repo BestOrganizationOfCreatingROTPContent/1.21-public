@@ -1,4 +1,4 @@
-package com.github.standobyte.jojo.client;
+package com.github.standobyte.jojo.client.entityrender.parsemodel.loader;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -19,7 +19,6 @@ import com.github.standobyte.v1_21_4_stuff.missingmethods.Zone;
 import com.github.standobyte.v1_21_4_stuff.missingmethods._ProfilerFiller;
 import com.google.gson.JsonElement;
 
-import net.minecraft.client.model.geom.ModelPart;
 import net.minecraft.client.model.geom.builders.LayerDefinition;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.packs.resources.Resource;
@@ -50,17 +49,15 @@ public class RotpGeckoModelLoader extends SimplePreparableReloadListener<Map<Res
 	}
 	
 	
-	public Map<ResourceLocation, LayerDefinition> models = new HashMap<>();
-
-	@Nullable
-	public LayerDefinition getModelDefinition(ResourceLocation path) {
-		return models.get(path);
+	public Map<ResourceLocation, ResourceModelEntry> models = new HashMap<>();
+	
+	public ResourceModelEntry getModelContainer(ResourceLocation path) {
+		return models.computeIfAbsent(path, ResourceModelEntry::new);
 	}
 	
 	@Nullable
-	public ModelPart bakeModel(ResourceLocation path) {
-		LayerDefinition parsed = models.get(path);
-		return parsed != null ? parsed.bakeRoot() : null;
+	public LayerDefinition getModelDefinition(ResourceLocation path) {
+		return getModelContainer(path).modelDefinition;
 	}
 	
 
@@ -95,10 +92,16 @@ public class RotpGeckoModelLoader extends SimplePreparableReloadListener<Map<Res
 	}
 	
 	@Override
-	protected void apply(Map<ResourceLocation, LayerDefinition> skinsRead, ResourceManager resourceManager, ProfilerFiller profiler) {
-		this.models.clear();
-		this.models.putAll(skinsRead);
-		JojoMod.getLogger().info("Loaded {} models", this.models.size());
+	protected void apply(Map<ResourceLocation, LayerDefinition> modelsRead, ResourceManager resourceManager, ProfilerFiller profiler) {
+		for (var oldModel : this.models.values()) {
+			oldModel.reset();
+		}
+		for (var readEntry : modelsRead.entrySet()) {
+			ResourceLocation key = readEntry.getKey();
+			ResourceModelEntry modelEntry = this.models.computeIfAbsent(key, ResourceModelEntry::new);
+			modelEntry.onModelLoad(readEntry.getValue());
+		}
+		JojoMod.getLogger().info("Loaded {} models", modelsRead.size());
 		listeners.forEach(listener -> listener.accept(this));
 	}
 

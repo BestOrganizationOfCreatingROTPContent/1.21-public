@@ -9,6 +9,7 @@ import com.github.standobyte.jojo.client.ui.hud.marker.MarkerRenderer;
 import com.github.standobyte.jojo.client.ui.hud.marker.StandAimMarker;
 import com.github.standobyte.jojo.client.ui.jojomenu.JojoMenuTabs;
 import com.github.standobyte.jojo.core.JojoMod;
+import com.github.standobyte.jojo.jojoimpl.stands.crazydiamond.client.CrazyDBloodHomingMarker;
 
 import net.minecraft.client.Minecraft;
 import net.neoforged.api.distmarker.Dist;
@@ -43,6 +44,7 @@ public class ClientSetup {
 	
 	private static void registerMarkers(Minecraft mc) {
 		MarkerRenderer.registerMarkerRenderer(new StandAimMarker(mc));
+		MarkerRenderer.registerMarkerRenderer(new CrazyDBloodHomingMarker(mc));
 	}
 	
 	@SubscribeEvent

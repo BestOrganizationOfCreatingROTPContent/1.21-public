@@ -25,10 +25,10 @@ public class WoRStandRendering {
 	public void jojo_ripples$beforeWorStandRenderCheck(Entity entity, Frustum frustum, 
 			double camX, double camY, double camZ, CallbackInfoReturnable<Boolean> ci) {
 		if (ClientGlobals.canSeeStands && "jojowor".equals(EntityType.getKey(entity.getType()).getNamespace())) {
-			String WoRStandName = JojoModsInteraction.WingsOfRequiem.getStandType();
+			String WoRStandName = JojoModsInteraction.WingsOfRequiem.getClientStandType();
 			if (WoRStandName != null && "None".equals(WoRStandName)) {
 				jojo_ripples$WoRStandName = WoRStandName;
-				JojoModsInteraction.WingsOfRequiem.setStandType("OtherMod");
+				JojoModsInteraction.WingsOfRequiem.setClientStandType("OtherMod");
 			}
 		}
 	}
@@ -41,7 +41,7 @@ public class WoRStandRendering {
 	public void jojo_ripples$afterWorStandRenderCheck(Entity entity, Frustum frustum, 
 			double camX, double camY, double camZ, CallbackInfoReturnable<Boolean> ci) {
 		if (jojo_ripples$WoRStandName != null) {
-			JojoModsInteraction.WingsOfRequiem.setStandType(jojo_ripples$WoRStandName);
+			JojoModsInteraction.WingsOfRequiem.setClientStandType(jojo_ripples$WoRStandName);
 			jojo_ripples$WoRStandName = null;
 		}
 	}

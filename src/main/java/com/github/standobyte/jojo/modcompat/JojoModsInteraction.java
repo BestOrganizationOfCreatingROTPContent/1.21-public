@@ -8,17 +8,23 @@ import com.github.standobyte.jojo.core.JojoMod;
 
 import net.minecraft.client.Minecraft;
 import net.minecraft.resources.ResourceLocation;
+import net.minecraft.world.entity.LivingEntity;
 import net.neoforged.neoforge.attachment.AttachmentType;
 import net.neoforged.neoforge.registries.NeoForgeRegistries;
 
 public class JojoModsInteraction {
 
 	public static boolean clientHasStandFromAnotherMod() {
-		String worStandType = WingsOfRequiem.getStandType();
+		String worStandType = WingsOfRequiem.getClientStandType();
 		if (worStandType != null && !"None".equals(worStandType)) {
 			return true;
 		}
 
+		return false;
+	}
+	
+	// TODO masochism
+	public static boolean entityHasStandFromAnotherMod(LivingEntity entity) {
 		return false;
 	}
 
@@ -33,7 +39,7 @@ public class JojoModsInteraction {
 		private static boolean worReflectionFailed = false;
 		
 		@Nullable
-		static void _cacheWoRPlayerData() {
+		static void _cacheWoRClientPlayerData() {
 			WoRPlayerData = null;
 			if (!ModInteractionUtil.isModLoaded("jojowor") || worReflectionFailed) return;
 
@@ -63,7 +69,7 @@ public class JojoModsInteraction {
 		}
 		
 		@Nullable
-		public static String getStandType() {
+		public static String getClientStandType() {
 			if (WoRPlayerData != null) {
 				try {
 					return (String) WOR_PLAYER_VARIABLES_PLAYER_STAND.get(WoRPlayerData);
@@ -76,7 +82,7 @@ public class JojoModsInteraction {
 		}
 		
 		@Nullable
-		public static void setStandType(String type) {
+		public static void setClientStandType(String type) {
 			if (WoRPlayerData != null) {
 				try {
 					WOR_PLAYER_VARIABLES_PLAYER_STAND.set(WoRPlayerData, type);

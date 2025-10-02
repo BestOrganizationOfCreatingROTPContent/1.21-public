@@ -15,6 +15,8 @@ import com.github.standobyte.jojo.client.entitycontrol.ClientEntityController;
 import com.github.standobyte.jojo.core.packet.fromserver.TrSetStandEntityPacket;
 import com.github.standobyte.jojo.init.ModStatusEffects;
 import com.github.standobyte.jojo.init.core.ModEntityAttributes;
+import com.github.standobyte.jojo.mc.entity.EntityWithStandSkin;
+import com.github.standobyte.jojo.mc.entity.projectile.DamagingEntity;
 import com.github.standobyte.jojo.mechanics.grab.LivingComponentGrab;
 import com.github.standobyte.jojo.powersystem.entityaction.EntityActionInstance;
 import com.github.standobyte.jojo.powersystem.entityaction.LivingComponentAction;
@@ -84,7 +86,7 @@ import net.neoforged.neoforge.entity.IEntityWithComplexSpawn;
 import net.neoforged.neoforge.event.entity.living.LivingKnockBackEvent;
 import net.neoforged.neoforge.network.PacketDistributor;
 
-public class StandEntity extends LivingEntity implements SummonedStand, IEntityWithComplexSpawn, LivingReactToNewAction {
+public class StandEntity extends LivingEntity implements SummonedStand, IEntityWithComplexSpawn, LivingReactToNewAction, EntityStandVisibility, EntityWithStandSkin {
 	protected ResourceLocation standId;
 	protected static final EntityDataAccessor<Byte> STAND_FLAGS = SynchedEntityData.defineId(StandEntity.class, EntityDataSerializers.BYTE);
 	protected static final EntityDataAccessor<Integer> USER_ID = SynchedEntityData.defineId(StandEntity.class, EntityDataSerializers.INT);
@@ -200,10 +202,6 @@ public class StandEntity extends LivingEntity implements SummonedStand, IEntityW
 		super.remove(reason);
 	}
 
-	
-	public ResourceLocation getStandId() {
-		return standId;
-	}
 	
 	@Override
 	public void setUserAndPower(LivingEntity user, StandPower power) {
@@ -629,6 +627,11 @@ public class StandEntity extends LivingEntity implements SummonedStand, IEntityW
 		return false;
 	}
 
+	
+	@Override
+	public ResourceLocation getStandType() {
+		return standId;
+	}
 
 	protected Optional<ResourceLocation> standSkin = Optional.empty();
 	@Override
@@ -636,6 +639,7 @@ public class StandEntity extends LivingEntity implements SummonedStand, IEntityW
 		this.standSkin = standSkin;
 	}
 	
+	@Override
 	public Optional<ResourceLocation> getStandSkin() {
 		return standSkin;
 	}
@@ -656,12 +660,13 @@ public class StandEntity extends LivingEntity implements SummonedStand, IEntityW
 		return !clientCantSeeThisStand() && super.displayFireAnimation();
 	}
 	
+	@Override
 	public boolean onlyVisibleToStandUsers() {
 		return true;
 	}
 	
-	public boolean clientCantSeeThisStand() {
-		return onlyVisibleToStandUsers() && level().isClientSide() && !ClientGlobals.canSeeStands;
+	public final boolean isVisibleForAll() {
+		return !onlyVisibleToStandUsers();
 	}
 	
 	
@@ -836,8 +841,8 @@ public class StandEntity extends LivingEntity implements SummonedStand, IEntityW
 			boolean canHarm = DamageUtil.isNotFriendlyFire(user, entity);
 			if (canHarm && entity instanceof Animal) {
 				canHarm &= !entity.isPassengerOfSameVehicle(user);
-				if (canHarm && entity instanceof TamableAnimal) {
-					LivingEntity tameableOwner = ((TamableAnimal) entity).getOwner();
+				if (canHarm && entity instanceof TamableAnimal tameable) {
+					LivingEntity tameableOwner = tameable.getOwner();
 					canHarm &= !(tameableOwner != null && tameableOwner == user);
 				}
 			}
@@ -848,16 +853,14 @@ public class StandEntity extends LivingEntity implements SummonedStand, IEntityW
 	}
 
 	public boolean canAttackEntity(Entity target) {
-		if (target instanceof LivingEntity) {
-			return canAttack((LivingEntity) target);
+		if (target instanceof LivingEntity living) {
+			return canAttack(living);
 		}
 		LivingEntity user = getUser();
-		if (target instanceof Projectile) {
-			Entity owner = ((Projectile) target).getOwner();
+		if (target instanceof Projectile projectile) {
+			Entity owner = projectile.getOwner();
 			if (owner != null && (owner.is(this) || owner.is(user))) {
-				// TODO mod projectiles that can hit the owner
-//				return target instanceof DamagingEntity && ((DamagingEntity) target).canHitOwner();
-				return false;
+				return target instanceof DamagingEntity modProjectile && modProjectile.canHitOwner();
 			}
 		}
 		if (user != null && target.getControllingPassenger() == user) {

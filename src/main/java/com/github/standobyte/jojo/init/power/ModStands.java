@@ -144,6 +144,15 @@ public class ModStands {
 					.withBind(InputKey.C, InputMethod.HOLD)
 					
 					
+					.makeHotbar(0, InputKey.X, InputKey.C)
+					
+					.addAbility("block_bullet", ModStandAbilities.CD_BLOCK_BULLET)
+					.inHotbar(0, InputMethod.CLICK)
+					
+					.addAbility("blood_cutter", ModStandAbilities.CD_BLOOD_CUTTER)
+					.inHotbar(0, InputMethod.CLICK)
+					
+					
 					.addSkill(StandUnlockableSkill.startingAbility("punch"))
 					.addSkill(StandUnlockableSkill.startingAbility("heavy_punch"))
 					.addSkill(StandUnlockableSkill.startingAbility("heavy_charged").prerequisiteSkill("heavy_punch"))

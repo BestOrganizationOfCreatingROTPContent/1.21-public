@@ -16,9 +16,31 @@ public class ModDamageTypes {
 	 * minecraft:bypasses_cooldown, 
 	 * minecraft:bypasses_enchantments, 
 	 * minecraft:always_hurts_ender_dragon, 
+	 * minecraft:panic_causes, 
 	 * neoforge:is_physical
 	 */
 	public static final ResourceKey<DamageType> STAND_ATTACK = ResourceKey.create(Registries.DAMAGE_TYPE, JojoMod.resLoc("stand_attack"));
+	
+	/** Tags: 
+	 * jojo:can_hurt_stands, 
+	 * jojo_ripples:adds_resolve, 
+	 * minecraft:is_projectile, 
+	 * minecraft:bypasses_cooldown, 
+	 * minecraft:bypasses_enchantments, 
+	 * minecraft:always_hurts_ender_dragon, 
+	 * minecraft:panic_causes, 
+	 * neoforge:is_physical
+	 */
+	public static final ResourceKey<DamageType> STAND_PROJECTILE = ResourceKey.create(Registries.DAMAGE_TYPE, JojoMod.resLoc("stand_projectile"));
+	
+	/** Tags: 
+	 * minecraft:is_projectile, 
+	 * minecraft:bypasses_cooldown, 
+	 * minecraft:always_hurts_ender_dragon, 
+	 * minecraft:panic_causes, 
+	 * neoforge:is_physical
+	 */
+	public static final ResourceKey<DamageType> MOD_PROJECTILE = ResourceKey.create(Registries.DAMAGE_TYPE, JojoMod.resLoc("projectile"));
 
 	/** Tags: 
 	 * minecraft:bypasses_armor, 
@@ -31,8 +53,6 @@ public class ModDamageTypes {
 	public static final ResourceKey<DamageType> STAND_HEALTH_LINK = ResourceKey.create(Registries.DAMAGE_TYPE, JojoMod.resLoc("stand_health_link"));
 	
 	
-	// FIXME TAGS FUCKING SUCK APPARENTLY
-	// (Couldn't load tag jojo:can_hurt_stands as it is missing following references: jojowor:stand (from mod/jojo_ripples))
 	public static final TagKey<DamageType> CAN_HURT_STANDS = TagKey.create(Registries.DAMAGE_TYPE, 
 			ResourceLocation.fromNamespaceAndPath("jojo", "can_hurt_stands"));
 	public static final TagKey<DamageType> ADDS_RESOLVE = TagKey.create(Registries.DAMAGE_TYPE, 

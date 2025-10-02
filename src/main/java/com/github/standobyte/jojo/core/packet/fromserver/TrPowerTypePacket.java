@@ -40,7 +40,7 @@ public record TrPowerTypePacket(int entityId, @Nullable PlayerPowerType<?> power
 		
 		public static final StreamCodec<RegistryFriendlyByteBuf, TrPowerTypePacket> STREAM_CODEC = StreamCodec.composite(
 				ByteBufCodecs.INT, TrPowerTypePacket::entityId,
-				NetworkUtil.nullableCodec(ByteBufCodecs.registry(JojoRegistries.PLAYER_POWER_TYPES_REG_KEY)), TrPowerTypePacket::powerType,
+				NetworkUtil.nullableCodec(NetworkUtil.registryCodec(JojoRegistries.PLAYER_POWER_TYPES_REG_KEY)), TrPowerTypePacket::powerType,
 				TrPowerTypePacket::new);
 
 		@Override

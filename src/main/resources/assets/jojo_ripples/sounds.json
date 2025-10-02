@@ -439,31 +439,26 @@
   },
   
   "crazy_diamond_fix_started": {
-    "replace": true,
     "subtitle": "jojo_ripples.subtitle.fixed",
     "sounds": [ "jojo_ripples:stand/crazy_diamond/crazy_diamond_restoration_start" ]
   },
   "crazy_diamond_fix_loop": {
-    "replace": true,
     "subtitle": "jojo_ripples.subtitle.fixed",
     "sounds": [ "jojo_ripples:stand/crazy_diamond/crazy_diamond_restoration_loop" ]
   },
   "crazy_diamond_fix_ended": {
-    "replace": true,
     "subtitle": "jojo_ripples.subtitle.fixed",
     "sounds": [ "jojo_ripples:stand/crazy_diamond/crazy_diamond_restoration_over" ]
   },
   "crazy_diamond_bullet_shot": {
-    "replace": true,
     "subtitle": "jojo_ripples.subtitle.shot",
     "sounds": [ "jojo_ripples:stand/crazy_diamond/crazy_diamond_bullet_shot" ]
   },
   "crazy_diamond_blood_cutter_shot": {
-    "replace": true,
     "subtitle": "jojo_ripples.subtitle.shot",
     "sounds": [
       {
-        "name": "jojo:water_splash",
+        "name": "jojo_ripples:water_splash",
         "type": "event"
       }
     ]

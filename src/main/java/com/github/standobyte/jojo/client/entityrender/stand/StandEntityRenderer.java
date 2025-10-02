@@ -2,9 +2,9 @@ package com.github.standobyte.jojo.client.entityrender.stand;
 
 import java.util.Optional;
 
-import com.github.standobyte.jojo.client.RotpGeckoModelLoader;
 import com.github.standobyte.jojo.client.entityanim.RotpAnimDefinition;
 import com.github.standobyte.jojo.client.entityrender.EntityActionRenderState;
+import com.github.standobyte.jojo.client.entityrender.parsemodel.loader.RotpGeckoModelLoader;
 import com.github.standobyte.jojo.client.shader.EntityShaders;
 import com.github.standobyte.jojo.client.standskin.StandSkin;
 import com.github.standobyte.jojo.client.standskin.StandSkinsLoader;
@@ -21,7 +21,6 @@ import com.mojang.blaze3d.vertex.PoseStack;
 
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.model.HumanoidModel;
-import net.minecraft.client.model.Model;
 import net.minecraft.client.model.geom.builders.LayerDefinition;
 import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.entity.EntityRendererProvider.Context;
@@ -45,8 +44,10 @@ public class StandEntityRenderer<
 
 	public StandEntityRenderer(Context context, float shadowRadius) {
 		super(context, null, shadowRadius);
-		this.missingSkinModel = LazyNullable.of(() -> createStandModel(
-				RotpGeckoModelLoader.getInstance().getModelDefinition(JojoMod.resLoc("stand_default"))));
+		this.missingSkinModel = LazyNullable.of(() -> {
+			LayerDefinition defaultModel = RotpGeckoModelLoader.getInstance().getModelDefinition(JojoMod.resLoc("stand_default"));
+			return defaultModel != null ? createStandModel(defaultModel) : null;
+		});
 		this.addLayer(new ItemInHandLayer<>(this, context.getItemInHandRenderer()));
 	}
 	
@@ -70,11 +71,6 @@ public class StandEntityRenderer<
 		return (M) new StandEntityModel<>(definition.bakeRoot());
 	}
 	
-	public Model createModel(ResourceLocation modelPath, LayerDefinition definition) {
-		return null;
-//		return new Model(definition.bakeRoot(), RenderType::entityTranslucent);
-	}
-	
 	public static final ActionAnimIdentifier IDLE_ANIM = ActionAnimIdentifier.getOrCreate("idle", true);
 	public static final ActionAnimIdentifier GRAB_IDLE_ANIM = ActionAnimIdentifier.getOrCreate("grab_idle", true);
 //	@Override // 1.21.2+
@@ -85,7 +81,7 @@ public class StandEntityRenderer<
 		renderState.leftArmPose = HumanoidModel.ArmPose.EMPTY;
 		renderState.rightArmPose = HumanoidModel.ArmPose.EMPTY;
 		
-		renderState.standId = entity.getStandId();
+		renderState.standId = entity.getStandType();
 		Optional<ResourceLocation> selectedSkin = entity.getStandSkin();
 		StandSkinsLoader standSkins = StandSkinsLoader.getInstance();
 		renderState.skin = standSkins.getSkinFromId(renderState.standId, selectedSkin);
@@ -153,9 +149,9 @@ public class StandEntityRenderer<
 	}
 
 //	@Override
-//    protected int getModelTint(S renderState) {
+//	protected int getModelTint(S renderState) {
 //		return renderState.tint;
-//    }
+//	}
 
 	protected void setModelFrom(S renderState) {
 		this.model = getEntityModel(renderState);

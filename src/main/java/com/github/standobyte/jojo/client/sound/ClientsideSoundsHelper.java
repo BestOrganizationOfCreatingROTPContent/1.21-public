@@ -2,17 +2,16 @@ package com.github.standobyte.jojo.client.sound;
 
 import java.util.Optional;
 
-import com.github.standobyte.jojo.client.sound.sounds.EntityLingeringSoundInstance;
 import com.github.standobyte.jojo.client.standskin.sound.SoundInstanceWithStandSkin;
 import com.github.standobyte.jojo.core.JojoMod;
+import com.github.standobyte.jojo.powersystem.standpower.StandPower;
+import com.github.standobyte.jojo.powersystem.standpower.entity.StandEntity;
+import com.github.standobyte.jojo.powersystem.standpower.type.StandType;
 
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.resources.sounds.SoundInstance;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.sounds.SoundEvent;
-import net.minecraft.sounds.SoundSource;
-import net.minecraft.world.entity.Entity;
-import net.minecraft.world.level.Level;
 import net.neoforged.api.distmarker.Dist;
 import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.fml.common.EventBusSubscriber;
@@ -32,12 +31,21 @@ public class ClientsideSoundsHelper {
 		ClientsideSoundsHelper.standSkin_standSkin = standSkin;
 		return soundEvent;
 	}
-
-
-	public static void playEntityLingeringSound(Entity entity, SoundEvent sound, SoundSource channel, float volume, float pitch, Level clientLevel) {
-		Minecraft.getInstance().getSoundManager().play(new EntityLingeringSoundInstance(
-				sound, channel, volume, pitch, entity, clientLevel.random.nextLong()));
+	
+	public static SoundEvent withStandSkin(SoundEvent soundEvent, StandEntity standEntity) {
+		return withStandSkin(soundEvent, standEntity.getStandType(), standEntity.getStandSkin());
 	}
+	
+	public static SoundEvent withStandSkin(SoundEvent soundEvent, StandPower standPower) {
+		if (standPower != null) {
+			StandType standType = standPower.getPowerType();
+			return withStandSkin(soundEvent, standType != null ? standType.getId() : null, standPower.getSelectedSkin());
+		}
+		else {
+			return soundEvent;
+		}
+	}
+
 	
 	/*
 	 * We can actually reference our implementations of SoundInstance (for example, EntityStoppableSoundInstance) anywhere,
@@ -49,7 +57,6 @@ public class ClientsideSoundsHelper {
 		Minecraft.getInstance().getSoundManager().play((SoundInstance) soundInstance);
 	}
 
-	
 
 
 	// Internal Stand skin handler section

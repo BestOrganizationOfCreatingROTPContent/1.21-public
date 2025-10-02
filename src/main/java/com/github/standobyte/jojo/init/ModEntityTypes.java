@@ -1,6 +1,8 @@
 package com.github.standobyte.jojo.init;
 
 import com.github.standobyte.jojo.core.JojoMod;
+import com.github.standobyte.jojo.jojoimpl.stands.crazydiamond.CrazyDBlockBulletEntity;
+import com.github.standobyte.jojo.jojoimpl.stands.crazydiamond.CrazyDBloodCutterEntity;
 import com.github.standobyte.jojo.mc.entity.projectile.ThrownNuggetBearingEntity;
 import com.github.standobyte.jojo.mechanics.clothes.mannequin.MannequinEntity;
 import com.github.standobyte.jojo.powersystem.standpower.entity.StandEntity;
@@ -53,9 +55,23 @@ public final class ModEntityTypes {
 			.clientTrackingRange(4)
 			.updateInterval(10)
 			.build(createIDFor(key)));
-	
-	
-	
+
+	public static final DeferredHolder<EntityType<?>, EntityType<CrazyDBlockBulletEntity>> CD_BLOCK_BULLET = ENTITY_TYPES.register("cd_block_bullet", key -> 
+			EntityType.Builder.<CrazyDBlockBulletEntity>of(CrazyDBlockBulletEntity::new, MobCategory.MISC)
+			.sized(0.5F, 0.5F)
+//			.noSummon()
+			.setUpdateInterval(10)
+			.build(createIDFor(key)));
+
+	public static final DeferredHolder<EntityType<?>, EntityType<CrazyDBloodCutterEntity>> CD_BLOOD_CUTTER = ENTITY_TYPES.register("cd_blood_cutter", key -> 
+			EntityType.Builder.<CrazyDBloodCutterEntity>of(CrazyDBloodCutterEntity::new, MobCategory.MISC)
+			.sized(0.5F, 0.5F)
+//			.noSummon()
+			.setUpdateInterval(10)
+			.build(createIDFor(key)));
+
+
+
 //	public static ResourceKey<EntityType<?>> createIDFor(ResourceLocation key) {
 //		return ResourceKey.create(Registries.ENTITY_TYPE, key);
 //	}

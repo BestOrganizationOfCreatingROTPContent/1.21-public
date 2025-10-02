@@ -126,7 +126,7 @@ public class StandSkinsLoader implements PreparableReloadListener {
 	}
 	
 	public StandSkin getSkin(StandEntity standEntity) {
-		return getSkinFromId(standEntity.getStandId(), standEntity.getStandSkin());
+		return getSkinFromId(standEntity.getStandType(), standEntity.getStandSkin());
 	}
 	
 	public StandSkin getSkinFromId(ResourceLocation standId, Optional<ResourceLocation> selectedSkin) {

@@ -42,11 +42,6 @@ public class Ability {
 		return abilityId;
 	}
 	
-	public Component getName(Power<?> context) {
-		// TODO ability names in stand skins
-		return name;
-	}
-	
 	
 	// Most of the methods below are called in AvailableAbilities#update(Power, Moveset)
 	
@@ -123,6 +118,11 @@ public class Ability {
 	@Nullable
 	public WindupIndicator cl_windupIndicator(LivingEntity clientPlayer, WindupIndicator indicator, float partialTick) {
 		return null;
+	}
+	
+	public Component getName(Power<?> context) {
+		// TODO ability names in stand skins
+		return name;
 	}
 	
 	public String getSpriteName(Power<?> context) {

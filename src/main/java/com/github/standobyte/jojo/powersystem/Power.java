@@ -94,6 +94,11 @@ public abstract class Power<P extends Power<P>> implements SynchronizablePlayerD
 	public LivingEntity getUser() {
 		return user;
 	}
+
+	public boolean isAbilityUnlocked(String abilityName) {
+		Moveset moveset = getMoveset();
+		return moveset != null && moveset.abilities.containsKey(abilityName);
+	}
 	
 	
 	public Component getName() {

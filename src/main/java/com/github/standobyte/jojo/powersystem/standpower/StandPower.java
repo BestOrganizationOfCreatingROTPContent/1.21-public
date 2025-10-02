@@ -43,6 +43,7 @@ public class StandPower extends Power<StandPower> implements PostNbtReadEntityDa
 	protected Map<ResourceLocation, Either<StandTypePersistentData, CompoundTag>> standData = new HashMap<>();
 	
 	protected LerpValue.Float staminaLerp = new LerpValue.Float();
+	protected float staminaAddNextTick = 0;
 	public ResolveHandler resolveHandler = new ResolveHandler();
 	public UserStandEffects userStandEffects = new UserStandEffects(this);
 	
@@ -180,7 +181,17 @@ public class StandPower extends Power<StandPower> implements PostNbtReadEntityDa
 	
 	public float getStaminaRatio() {
 		float maxStamina = getMaxStamina();
-		return maxStamina > 0 ? getStamina() / maxStamina : 0;
+		float stamina = getStamina();
+		return stamina == maxStamina ? 1 : maxStamina > 0 ? stamina / maxStamina : 0;
+	}
+	
+	public float getStaminaRatio(float partialTick) {
+		if (isUserCreative()) {
+			return 1;
+		}
+		float maxStamina = getMaxStamina();
+		float stamina = staminaLerp.lerp(partialTick);
+		return stamina == maxStamina ? 1 : maxStamina > 0 ? stamina / maxStamina : 0;
 	}
 	
 	public void setStamina(float stamina) {
@@ -196,12 +207,21 @@ public class StandPower extends Power<StandPower> implements PostNbtReadEntityDa
 	}
 	
 	public boolean consumeStamina(float amount) {
+		return consumeStamina(amount, false);
+	}
+	
+	public boolean consumeStamina(float amount, boolean ticking) {
 		if (isUserCreative()) {
 			return true;
 		}
 		float curAmount = getStamina();
 		if (curAmount >= amount) {
-			setStamina(curAmount - amount);
+			if (ticking) {
+				staminaAddNextTick -= amount;
+			}
+			else {
+				setStamina(curAmount - amount);
+			}
 			return true;
 		}
 		else {
@@ -212,7 +232,8 @@ public class StandPower extends Power<StandPower> implements PostNbtReadEntityDa
 	
 	protected void tickStamina() {
 		if (this.usesStamina()) {
-			float staminaRegen = getPowerType().getStaminaRegen(this);
+			float staminaRegen = getPowerType().getStaminaRegen(this) + staminaAddNextTick;
+			staminaAddNextTick = 0;
 			staminaLerp.set(Mth.clamp(staminaLerp.get() + staminaRegen, 0, getMaxStamina()), true);
 		}
 	}
@@ -277,6 +298,7 @@ public class StandPower extends Power<StandPower> implements PostNbtReadEntityDa
 		syncStaminaFixed(user, user);
 		resolveHandler.syncToUser(user);
 		PacketDistributor.sendToPlayer(user, new TrStandSkinPacket(user.getId(), getSelectedSkin()));
+		userStandEffects.syncWithTrackingOrUser(user);
 		userStandEffects.syncWithUserOnly(user);
 	}
 

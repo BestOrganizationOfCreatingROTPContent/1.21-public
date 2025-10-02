@@ -9,8 +9,8 @@ import java.util.function.Function;
 
 import javax.annotation.Nullable;
 
-import com.github.standobyte.jojo.client.entityanim.RotpAnimDefinition;
 import com.github.standobyte.jojo.client.entityanim.AnimationSet;
+import com.github.standobyte.jojo.client.entityanim.RotpAnimDefinition;
 import com.github.standobyte.jojo.client.entityrender.stand.StandEntityModel;
 import com.github.standobyte.jojo.client.entityrender.stand.StandEntityRenderState;
 import com.github.standobyte.jojo.client.entityrender.stand.StandEntityRenderer;
@@ -153,20 +153,20 @@ public class StandSkin {
 		}
 	}
 	
-	public Model getModel(ResourceLocation modelPath, StandEntityRenderer<?, ?, ?> entityRenderer) {
+	public <M extends Model> M getModel(ResourceLocation modelPath, Function<LayerDefinition, M> newModelFactory) {
 		Optional<Model> cached = createdModelsCache.get(modelPath);
 		if (cached != null) {
-			return cached.orElse(null);
+			return (M) cached.orElse(null);
 		}
 		LayerDefinition modelDefinition = models.get(modelPath);
 		if (modelDefinition != null) {
-			cached = Optional.ofNullable(entityRenderer.createModel(modelPath, modelDefinition));
+			cached = Optional.ofNullable(newModelFactory.apply(modelDefinition));
 			createdModelsCache.put(modelPath, cached);
-			return cached.orElse(null);
+			return (M) cached.orElse(null);
 		}
 		
 		if (this != defaultSkin) {
-			return defaultSkin.getModel(modelPath, entityRenderer);
+			return defaultSkin.getModel(modelPath, newModelFactory);
 		}
 		
 		return null;
@@ -176,18 +176,17 @@ public class StandSkin {
 		<T extends StandEntity, 
 		S extends StandEntityRenderState, 
 		M extends StandEntityModel<T, S>> 
-	M getStandModel(
-			StandEntityRenderer<T, S, M> entityRenderer) {
+	M getStandModel(StandEntityRenderer<T, S, M> newModelFactory) {
 		if (this.createdStandModelCache != null) {
 			return (M) createdStandModelCache.orElse(null);
 		}
 		if (this.standModel != null) {
-			this.createdStandModelCache = Optional.ofNullable(entityRenderer.createStandModel(standModel));
+			this.createdStandModelCache = Optional.ofNullable(newModelFactory.createStandModel(standModel));
 			return (M) this.createdStandModelCache.orElse(null);
 		}
 		
 		if (this != defaultSkin) {
-			return defaultSkin.getStandModel(entityRenderer);
+			return defaultSkin.getStandModel(newModelFactory);
 		}
 		
 		return null;

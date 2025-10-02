@@ -17,6 +17,9 @@
   
   "itemGroup.jojo_ripples_main": "ДжоДжо: Ripples of the Past",
   
+  "jojo_ripples.subtitle.blood_drain": "Кровь поглощена",
+  "jojo_ripples.subtitle.liquid_splash": "Брызг жидкости",
+  
   "jojo_ripples.options.client.title": "Клиентские настройки Ripples of the Past",
   "jojo_ripples.options.client.hud": "Интерфейс",
   "jojo_ripples.options.client.stand": "Стенд",
@@ -245,5 +248,12 @@
   
   "jojo_ripples.skill.time_stop": "Остановка времени",
   "jojo_ripples.skill.time_stop.desc": "#################################",
-  "jojo_ripples.ability.time_stop": "Остановка времени (%ss) (скоро)"
+  "jojo_ripples.ability.time_stop": "Остановка времени (%ss) (скоро)",
+  
+  
+  "jojo_ripples.skill.block_bullet": "Снаряд из блока",
+  "jojo_ripples.skill.block_bullet.desc": "#################################",
+  "jojo_ripples.ability.block_bullet": "Снаряд из блока",
+  "jojo_ripples.ability.block_bullet_homing": "Самонаводящийся снаряд",
+  "jojo_ripples.ability.blood_cutter": "Резак из крови"
 }

@@ -116,10 +116,9 @@ public class StandEntityBarrageAbility extends StandEntityAbility {
 			if (performer instanceof StandEntity stand) {
 				if (level.isClientSide()) {
 					if (!stand.isArmsOnlyMode()) {
-						EntityStoppableSoundInstance sound = new EntityStoppableSoundInstance(ClientsideSoundsHelper.withStandSkin(
-								ModSoundEvents.STAND_BARRAGE_CRY.get(), stand.getStandId(), stand.getStandSkin()), 
-								stand.getSoundSource(), 1, 1, stand, level.random.nextLong(), () -> this.phase != ActionPhase.PERFORM);
-						ClientsideSoundsHelper.playNonVanillaClassSound(sound);
+						ClientsideSoundsHelper.playNonVanillaClassSound(new EntityStoppableSoundInstance(ClientsideSoundsHelper.withStandSkin(
+								ModSoundEvents.STAND_BARRAGE_CRY.get(), stand), 
+								stand.getSoundSource(), 1, 1, stand, level.random.nextLong(), () -> this.phase != ActionPhase.PERFORM));
 					}
 				}
 				tossStandHeldItems(EquipmentSlot.OFFHAND, EquipmentSlot.MAINHAND);
@@ -140,7 +139,7 @@ public class StandEntityBarrageAbility extends StandEntityAbility {
 				if (level.isClientSide()) {
 					if (ClientGlobals.canHearStands) {
 						level.playLocalSound(stand.getX(), stand.getEyeY(), stand.getZ(), ClientsideSoundsHelper.withStandSkin(
-								ModSoundEvents.STAND_PUNCH_BARRAGE_SWING.get(), stand.getStandId(), stand.getStandSkin()), 
+								ModSoundEvents.STAND_PUNCH_BARRAGE_SWING.get(), stand), 
 								stand.getSoundSource(), 1, 1, false);
 					}
 				}
@@ -166,7 +165,7 @@ public class StandEntityBarrageAbility extends StandEntityAbility {
 						default -> {}
 					}
 					
-					standPower.consumeStamina(4);
+					standPower.consumeStamina(4, true);
 				}
 			}
 		}

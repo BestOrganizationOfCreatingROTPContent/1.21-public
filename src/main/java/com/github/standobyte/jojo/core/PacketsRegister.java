@@ -6,7 +6,9 @@ import com.github.standobyte.jojo.core.packet.fromclient.ClAimTargetPacket;
 import com.github.standobyte.jojo.core.packet.fromclient.ClDebugCommandPacket;
 import com.github.standobyte.jojo.core.packet.fromclient.ClNoParamsPacket;
 import com.github.standobyte.jojo.core.packet.fromclient.ClSetStandSkinPacket;
+import com.github.standobyte.jojo.core.packet.fromserver.BloodParticlesPacket;
 import com.github.standobyte.jojo.core.packet.fromserver.DatapackStandsPacket;
+import com.github.standobyte.jojo.core.packet.fromserver.DeflectedBulletPacket;
 import com.github.standobyte.jojo.core.packet.fromserver.ProjectileHighSpeedPacket;
 import com.github.standobyte.jojo.core.packet.fromserver.StandEntitySoundPacket;
 import com.github.standobyte.jojo.core.packet.fromserver.StandSkinSoundPacket;
@@ -70,6 +72,8 @@ public class PacketsRegister {
 		registerPacket(registrar, PayloadRegistrar::playToClient, new TrClothesItemsPacket.Handler(JojoMod.resLoc("clothes")));
 		registerPacket(registrar, PayloadRegistrar::playToClient, new TrSetGrabbedEntityPacket.Handler(JojoMod.resLoc("grab")));
 		registerPacket(registrar, PayloadRegistrar::playToClient, new ProjectileHighSpeedPacket.Handler(JojoMod.resLoc("projfix")));
+		registerPacket(registrar, PayloadRegistrar::playToClient, new DeflectedBulletPacket.Handler(JojoMod.resLoc("projdefl")));
+		registerPacket(registrar, PayloadRegistrar::playToClient, new BloodParticlesPacket.Handler(JojoMod.resLoc("blood")));
 	}
 
 	

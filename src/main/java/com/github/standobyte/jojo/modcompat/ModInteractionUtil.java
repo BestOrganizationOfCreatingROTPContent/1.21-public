@@ -13,6 +13,6 @@ public class ModInteractionUtil {
 	}
 	
 	public static void clientTickPre() {
-		JojoModsInteraction.WingsOfRequiem._cacheWoRPlayerData();
+		JojoModsInteraction.WingsOfRequiem._cacheWoRClientPlayerData();
 	}
 }

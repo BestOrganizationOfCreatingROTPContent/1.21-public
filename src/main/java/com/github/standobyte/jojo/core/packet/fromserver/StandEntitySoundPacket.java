@@ -3,6 +3,7 @@ package com.github.standobyte.jojo.core.packet.fromserver;
 import com.github.standobyte.jojo.client.ClientGlobals;
 import com.github.standobyte.jojo.client.ClientProxy;
 import com.github.standobyte.jojo.client.sound.ClientsideSoundsHelper;
+import com.github.standobyte.jojo.client.sound.sounds.EntityLingeringSoundInstance;
 import com.github.standobyte.jojo.core.PacketsRegister;
 import com.github.standobyte.jojo.powersystem.standpower.entity.StandEntity;
 
@@ -53,13 +54,14 @@ public record StandEntitySoundPacket(int entityId, Holder<SoundEvent> sound, boo
 		@Override
 		public void handle(StandEntitySoundPacket payload, IPayloadContext context) {
 			if (!payload.onlyForStandUsers || ClientGlobals.canHearStands) {
-				SoundEvent sound = payload.sound.value();
-				if (sound != null) {
+				SoundEvent soundEvent = payload.sound.value();
+				if (soundEvent != null) {
 					Entity entity = ClientProxy.getEntityById(payload.entityId);
 					if (entity instanceof StandEntity stand) {
-						ClientsideSoundsHelper.playEntityLingeringSound(stand, ClientsideSoundsHelper.withStandSkin(
-								sound, stand.getStandId(), stand.getStandSkin()), 
-								stand.getSoundSource(), payload.volume, payload.pitch, stand.level());
+						EntityLingeringSoundInstance sound = new EntityLingeringSoundInstance(ClientsideSoundsHelper.withStandSkin(
+								soundEvent, stand), 
+								stand.getSoundSource(), payload.volume, payload.pitch, stand, stand.level());
+						ClientsideSoundsHelper.playNonVanillaClassSound(sound);
 					}
 				}
 			}
