@@ -6,10 +6,10 @@ import com.github.standobyte.jojo.client.ClientProxy;
 import com.github.standobyte.jojo.core.JojoRegistries;
 import com.github.standobyte.jojo.core.PacketsRegister;
 import com.github.standobyte.jojo.powersystem.standpower.StandPower;
+import com.github.standobyte.jojo.util.network.NetworkUtil;
 
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.network.RegistryFriendlyByteBuf;
-import net.minecraft.network.codec.ByteBufCodecs;
 import net.minecraft.network.protocol.common.custom.CustomPacketPayload;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.Entity;
@@ -80,7 +80,7 @@ public class TrStandEffectPacket implements CustomPacketPayload {
 					buf.writeInt(packet.userId);
 					buf.writeInt(packet.effectId);
 					buf.writeInt(packet.targetId);
-					ByteBufCodecs.registry(JojoRegistries.STAND_EFFECTS_REG_KEY).encode(buf, packet.effectFactory);
+					NetworkUtil.registryCodec(JojoRegistries.STAND_EFFECTS_REG_KEY).encode(buf, packet.effectFactory);
 					buf.writeBoolean(packet.isUser);
 	
 					buf.writeVarInt(packet.effect.tickCount);
@@ -100,19 +100,31 @@ public class TrStandEffectPacket implements CustomPacketPayload {
 
 		@Override
 		public TrStandEffectPacket decode(RegistryFriendlyByteBuf buf) {
-			PacketType type = buf.readEnum(PacketType.class);
-			switch (type) {
-				case ADD:
-					return new TrStandEffectPacket(type, buf.readInt(), buf.readInt(), 
-							buf.readInt(), ByteBufCodecs.registry(JojoRegistries.STAND_EFFECTS_REG_KEY).decode(buf), null, buf.readBoolean(), buf);
-				case REMOVE:
-					return new TrStandEffectPacket(type, buf.readInt(), buf.readInt(), 
-							-1, null, null, false, null);
-				case UPDATE_TARGET:
-					return new TrStandEffectPacket(type, buf.readInt(), buf.readInt(), 
-							buf.readInt(), null, null, false, null);
+			PacketType packetType = buf.readEnum(PacketType.class);
+			return switch (packetType) {
+				case ADD -> {
+					int userId = buf.readInt();
+					int effectId = buf.readInt();
+					int targetId = buf.readInt();
+					StandEffectType<?> effectFactory = NetworkUtil.registryCodec(JojoRegistries.STAND_EFFECTS_REG_KEY).decode(buf);
+					boolean isUser = buf.readBoolean();
+					yield new TrStandEffectPacket(packetType, userId, effectId, targetId, 
+							effectFactory, null, isUser, NetworkUtil.extraPacketData(buf));
 				}
-			return null;
+				case REMOVE -> {
+					int userId = buf.readInt();
+					int effectId = buf.readInt();
+					yield new TrStandEffectPacket(packetType, userId, effectId, -1, 
+							null, null, false, null);
+				}
+				case UPDATE_TARGET -> {
+					int userId = buf.readInt();
+					int effectId = buf.readInt();
+					int targetId = buf.readInt();
+					yield new TrStandEffectPacket(packetType, userId, effectId, targetId, 
+							null, null, false, null);
+				}
+			};
 		}
 
 		@Override
