@@ -137,7 +137,16 @@ public class NetworkUtil {
 	private static final Map<ResourceKey<? extends Registry<?>>, StreamCodec<RegistryFriendlyByteBuf, ?>> CODECS_CACHE = new HashMap<>();
 	@SuppressWarnings("unchecked")
 	public static <T> StreamCodec<RegistryFriendlyByteBuf, T> registryCodec(ResourceKey<? extends Registry<T>> registryKey) {
-		return (StreamCodec<RegistryFriendlyByteBuf, T>) CODECS_CACHE.computeIfAbsent(registryKey, ByteBufCodecs::registry);
+		// this shit doesn't compile because of generics bs
+//		return (StreamCodec<RegistryFriendlyByteBuf, T>) CODECS_CACHE.computeIfAbsent(registryKey, ByteBufCodecs::registry);
+		if (CODECS_CACHE.containsKey(registryKey)) {
+			return (StreamCodec<RegistryFriendlyByteBuf, T>) CODECS_CACHE.get(registryKey);
+		}
+		else {
+			StreamCodec<RegistryFriendlyByteBuf, T> codec = ByteBufCodecs.registry(registryKey);
+			CODECS_CACHE.put(registryKey, codec);
+			return codec;
+		}
 	}
 	
 	// FriendlyByteBuf stuff
