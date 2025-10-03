@@ -8,7 +8,9 @@ import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 
 import com.github.standobyte.jojo.core.JojoRegistries;
+import com.github.standobyte.jojo.core.packet.fromserver.StandSkinSoundPacket;
 import com.github.standobyte.jojo.core.packet.fromserver.TrNonEntityStandSummonPacket;
+import com.github.standobyte.jojo.init.ModSoundEvents;
 import com.github.standobyte.jojo.init.core.ModEntityAttributes;
 import com.github.standobyte.jojo.powersystem.MovesetBuilder;
 import com.github.standobyte.jojo.powersystem.Power;
@@ -37,6 +39,8 @@ public class StandType extends PowerType {
 	protected final ResourceLocation standTypeId;
 	protected StandStats stats;
 	protected boolean isEnabled;
+	protected boolean playSummonSound = true;
+	protected boolean playUnsummonSound = true;
 	
 	public StandType(StandStats stats, MovesetBuilder moveset, 
 			ResourceLocation id) {
@@ -107,6 +111,11 @@ public class StandType extends PowerType {
 			standPower.setSummonedStand(summonedStand);
 			if (user != null && !user.level().isClientSide()) {
 				PacketDistributor.sendToPlayersTrackingEntityAndSelf(user, new TrNonEntityStandSummonPacket(user.getId(), true));
+				if (playSummonSound) {
+					PacketDistributor.sendToPlayersTrackingEntityAndSelf(user, StandSkinSoundPacket.play(
+							user.position(), ModSoundEvents.STAND_SUMMON, 
+							standPower, user.getSoundSource(), 1, 1));
+				}
 			}
 			return true;
 		}
@@ -129,6 +138,11 @@ public class StandType extends PowerType {
 			standPower.setSummonedStand(null);
 			if (user != null && !user.level().isClientSide()) {
 				PacketDistributor.sendToPlayersTrackingEntityAndSelf(user, new TrNonEntityStandSummonPacket(user.getId(), false));
+				if (playUnsummonSound) {
+					PacketDistributor.sendToPlayersTrackingEntityAndSelf(user, StandSkinSoundPacket.play(
+							user.position(), ModSoundEvents.STAND_UNSUMMON, 
+							standPower, user.getSoundSource(), 1, 1));
+				}
 			}
 		}
 	}
