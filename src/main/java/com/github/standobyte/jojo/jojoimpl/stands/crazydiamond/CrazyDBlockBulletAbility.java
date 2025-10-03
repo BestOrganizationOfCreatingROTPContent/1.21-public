@@ -30,6 +30,7 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.phys.Vec3;
 
 public class CrazyDBlockBulletAbility extends StandEntityAbility {
 
@@ -83,10 +84,11 @@ public class CrazyDBlockBulletAbility extends StandEntityAbility {
 			super(ability);
 		}
 
+		// TODO mirror the animation for right-handed player
 		@Override
 		public void onActionSet(EntityActionInstance prevAction) {
 			boolean offHandIsRight = getPowerUser().getMainArm() == HumanoidArm.LEFT;
-			setStandOffset(offHandIsRight ? 0.1 : -0.1, -0.5, StandOffsetFromUser.Rotations.HEAD_XY, false);
+			setStandOffset(new Vec3(offHandIsRight ? -0.1 : 0.1, -0.25, -0.4), StandOffsetFromUser.Rotations.BODY, false);
 		}
 
 		@Override
