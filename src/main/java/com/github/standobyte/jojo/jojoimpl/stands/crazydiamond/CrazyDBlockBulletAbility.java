@@ -5,6 +5,7 @@ import com.github.standobyte.jojo.client.particle.CustomParticlesHelper;
 import com.github.standobyte.jojo.client.sound.ClientsideSoundsHelper;
 import com.github.standobyte.jojo.client.sound.sounds.EntityStoppableSoundInstance;
 import com.github.standobyte.jojo.init.ModSoundEvents;
+import com.github.standobyte.jojo.init.ModUtilTags;
 import com.github.standobyte.jojo.init.power.ModStandEffects;
 import com.github.standobyte.jojo.powersystem.Power;
 import com.github.standobyte.jojo.powersystem.PowerClass;
@@ -21,6 +22,7 @@ import com.github.standobyte.jojo.powersystem.standpower.entity.StandEntityAbili
 import com.github.standobyte.jojo.powersystem.standpower.entity.StandOffsetFromUser;
 
 import net.minecraft.network.chat.Component;
+import net.minecraft.tags.BlockTags;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.entity.HumanoidArm;
 import net.minecraft.world.entity.LivingEntity;
@@ -29,6 +31,7 @@ import net.minecraft.world.item.BlockItem;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Block;
+import net.minecraft.world.level.block.InfestedBlock;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.Vec3;
 
@@ -160,21 +163,9 @@ public class CrazyDBlockBulletAbility extends StandEntityAbility {
 
 	public static final double PLAYER_TRACKING_RANGE = 64;
 
+	// FIXME add wood and glass blocks to the tag
 	public static boolean hardMaterial(BlockState blockState) {
-		// FIXME check if the block is made of solid material
-		return true;
-//		Material material = blockState.getMaterial();
-//		return 
-//				material == Material.BUILDABLE_GLASS || 
-//				material == Material.ICE_SOLID || 
-//				material == Material.WOOD || 
-//				material == Material.NETHER_WOOD || 
-//				material == Material.GLASS || 
-//				material == Material.ICE || 
-//				material == Material.STONE || 
-//				material == Material.METAL || 
-//				material == Material.HEAVY_METAL || 
-//				material == Material.CLAY && blockState.getBlock().getRegistryName().getPath().contains("infested");
+		return blockState.is(ModUtilTags.Blocks.CRAZY_D_CAN_MAKE_BULLET);
 	}
 
 	

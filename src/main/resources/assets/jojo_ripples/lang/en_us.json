@@ -270,6 +270,8 @@
   "jojo_ripples.skill.block_bullet.desc": "#################################",
   "jojo_ripples.ability.block_bullet": "Block Bullet",
   "jojo_ripples.ability.block_bullet_homing": "Homing Bullet",
-  "jojo_ripples.ability.blood_cutter": "Blood Cutter"
+  "jojo_ripples.ability.blood_cutter": "Blood Cutter",
   
+  "jojo.message.action_condition.block_offhand": "You need to hold a block in your hand",
+  "jojo.message.action_condition.item_hard_material": "You need a block made of a hard material"
 }
