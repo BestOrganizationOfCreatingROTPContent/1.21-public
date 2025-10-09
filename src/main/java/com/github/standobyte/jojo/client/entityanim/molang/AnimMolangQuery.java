@@ -1,5 +1,6 @@
 package com.github.standobyte.jojo.client.entityanim.molang;
 
+import com.github.standobyte.jojo.client.entityrender.stand.StandEntityRenderState;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -16,10 +17,14 @@ public class AnimMolangQuery implements ObjectValue {
 	
 	ObjectProperty head_x_rotation;
 	ObjectProperty head_y_rotation;
+    ObjectProperty extendablePartLength;
 	
 	public void fillContext(LivingEntityRenderState renderState) {
 		head_x_rotation = ObjectProperty.property(Value.of(renderState.xRot), false);
 		head_y_rotation = ObjectProperty.property(Value.of(renderState.yRot), false);
+        if (renderState instanceof StandEntityRenderState standState){
+            extendablePartLength = ObjectProperty.property(Value.of(standState.extendablePartLength), false);
+        }
 	}
 	
 	@Override
@@ -27,6 +32,7 @@ public class AnimMolangQuery implements ObjectValue {
 		switch (name) {
 			case "head_x_rotation": return head_x_rotation;
 			case "head_y_rotation": return head_y_rotation;
+            case "extendablePartLength": return extendablePartLength;
 		}
 		return null;
 	}

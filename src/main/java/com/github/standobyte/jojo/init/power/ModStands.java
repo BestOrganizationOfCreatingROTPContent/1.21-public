@@ -89,7 +89,11 @@ public class ModStands {
 //					.addAbility("enhanced_eyesight", ModStandAbilities.SP_EYESIGHT)
 //					.inHotbar(0, InputMethod.CLICK)
 					
-					.addAbility("star_finger", ModStandAbilities.SP_STAR_FINGER)
+					.addAbility("star_finger", ModStandAbilities.SP_STAR_FINGER, starFingerAbility -> {
+                        starFingerAbility.setDefaultPhaseLength(ActionPhase.WINDUP, 5);
+                        starFingerAbility.setDefaultPhaseLength(ActionPhase.PERFORM, 20);
+                        starFingerAbility.setDefaultPhaseLength(ActionPhase.RECOVERY, 20);
+                    })
 					.inHotbar(0, InputMethod.CLICK)
 					
 //					.addAbility("star_finger_swipe", ModStandAbilities.SP_STAR_FINGER_SWIPE)

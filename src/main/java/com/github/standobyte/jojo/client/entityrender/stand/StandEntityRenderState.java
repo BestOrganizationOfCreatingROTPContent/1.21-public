@@ -2,6 +2,8 @@ package com.github.standobyte.jojo.client.entityrender.stand;
 
 import com.github.standobyte.jojo.client.entityrender.EntityActionRenderState;
 import com.github.standobyte.jojo.client.standskin.StandSkin;
+import com.github.standobyte.jojo.powersystem.entityaction.HasOBBToRender;
+import com.github.standobyte.jojo.powersystem.standpower.entity.StandEntity;
 import com.github.standobyte.v1_21_4_stuff.renderstate.HumanoidRenderState;
 
 import net.minecraft.resources.ResourceLocation;
@@ -14,4 +16,11 @@ public class StandEntityRenderState extends HumanoidRenderState {
 	public float alpha = 1;
 	public HumanoidPart[] visibleParts = HumanoidPart.ALL;
 	public boolean mayObstructView;
+    public double extendablePartLength = 0;
+
+    public static void extractStandRenderState(StandEntity entity, StandEntityRenderState reusedState) {
+        if (entity.getCurStandAction() instanceof HasOBBToRender obbToRender && obbToRender.extendableOBB() != null){
+            reusedState.extendablePartLength = obbToRender.extendableOBB().getLength();
+        }
+    }
 }

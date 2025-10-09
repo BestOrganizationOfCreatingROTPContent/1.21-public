@@ -78,6 +78,7 @@ public class StandEntityRenderer<
 //		super.extractRenderState(entity, renderState, partialTick); // 1.21.2+
 		LivingEntityRenderState.extract(entity, renderState, this, entityRenderDispatcher, partialTick);
 		ArmedEntityRenderState.extractArmedEntityRenderState(entity, renderState/*, this.itemModelResolver*/);
+        StandEntityRenderState.extractStandRenderState(entity, renderState);
 		renderState.leftArmPose = HumanoidModel.ArmPose.EMPTY;
 		renderState.rightArmPose = HumanoidModel.ArmPose.EMPTY;
 		
