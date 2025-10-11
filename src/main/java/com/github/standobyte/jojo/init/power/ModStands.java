@@ -94,8 +94,12 @@ public class ModStands {
 					
 //					.addAbility("star_finger_swipe", ModStandAbilities.SP_STAR_FINGER_SWIPE)
 //					.inHotbarSlotVariation("star_finger", InputKey.Modifier.CONTROL, InputMethod.CLICK)
-					
-					.addAbility("inhale", ModStandAbilities.SP_INHALE)
+
+                    .addAbility("inhale", ModStandAbilities.SP_INHALE, inhaleAbility -> {
+                        inhaleAbility.setDefaultPhaseLength(ActionPhase.WINDUP, 2);
+                        inhaleAbility.setDefaultPhaseLength(ActionPhase.PERFORM, 120);
+                        inhaleAbility.setDefaultPhaseLength(ActionPhase.RECOVERY, 20);
+                    })
 					.inHotbar(0, InputMethod.HOLD)
 					
 					.addAbility("time_stop", ModStandAbilities.TIME_STOP)
