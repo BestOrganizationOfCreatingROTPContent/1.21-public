@@ -1,7 +1,12 @@
 package com.github.standobyte.jojo.util.hitboxes;
 
+import com.github.standobyte.jojo.powersystem.entityaction.netcode.TrEntityActionWithOBBSyncPacket;
+import com.github.standobyte.jojo.util.java.LerpValue;
+import net.minecraft.util.Mth;
+import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.phys.Vec3;
+import net.neoforged.neoforge.network.PacketDistributor;
 
 public class ExtendableOBB {
 
@@ -20,11 +25,10 @@ public class ExtendableOBB {
     protected boolean isRetracting;
     protected int lifeSpan;
     protected int maxLifeSpan;
-    private float length;
+    private float lengthChange;
+    protected LerpValue.Float lengthLerp = new LerpValue.Float();
     private float movementSpeed;
     private final int timeAtFullLength;
-    private int tickCount;
-    private double maxDistance;
     private Vec3 offset;
 
 
@@ -49,8 +53,13 @@ public class ExtendableOBB {
     }
 
     public float getLength(){
-        return length;
+        return lengthLerp.get();
     }
+
+    public float getLength(float partialTick){
+        return isMovingForward() || isRetracting() ? lengthLerp.lerp(partialTick) : getLength();
+    }
+
 
     protected float retractSpeed() {
         return getMovementSpeed();
@@ -97,20 +106,29 @@ public class ExtendableOBB {
         updateMotionFlags();
         if (isMovingForward()){
             obb.extent = obb.extent.add(0, 0, getMovementSpeed());
-            length += getMovementSpeed()*5.5F;
+            lengthChange = getMovementSpeed() * 5.5F;
         }
         else if (isRetracting()){
             obb.extent = obb.extent.add(0, 0, -retractSpeed());
-            length -= retractSpeed()*5.5F;
+            lengthChange = -retractSpeed() * 5.5F;
         }
     }
 
     public void tick() {
         if (isRetracted() || lifeSpan <= 0) return;
-        tickCount ++;
         updateHitboxExtension();
         updateOBB();
+        lengthChange = ((int)(lengthChange * 1000)) / 1000F;
+        if (isMovingForward() || isRetracting()) lengthLerp.set(Mth.clamp(lengthLerp.get() + lengthChange, 0, Integer.MAX_VALUE), true);
         lifeSpan --;
+    }
+
+    public void forceRetract(Level level, LivingEntity performer, int actionId){
+        if (!level.isClientSide()){
+            this.setIsMovingForward(false);
+            this.setIsRetracting(true);
+            PacketDistributor.sendToPlayersTrackingEntityAndSelf(performer, new TrEntityActionWithOBBSyncPacket(performer.getId(), actionId));
+        }
     }
 
     public void updatePosition(Level level, Vec3 pos, Vec3 offset, float xRot, float yRot){

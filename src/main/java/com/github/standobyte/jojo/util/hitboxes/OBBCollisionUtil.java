@@ -1,16 +1,20 @@
 package com.github.standobyte.jojo.util.hitboxes;
 
 import net.minecraft.client.multiplayer.ClientLevel;
+import net.minecraft.core.BlockPos;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.level.Level;
+import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.AABB;
+import net.minecraft.world.phys.Vec3;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.function.Predicate;
 
-public class EntityOBBCollisionUtil {
+public class OBBCollisionUtil {
 
     public static List<? extends Entity> getEntitiesInOBB(Level level, OrientedBoundingBox obb, Predicate<? super Entity> predicate){
         List<Entity> output = new ArrayList<>();
@@ -25,6 +29,13 @@ public class EntityOBBCollisionUtil {
         return output;
     }
 
+    @Nullable
+    public static BlockState getCollidingBlock(Level level, BlockPos blockPos){
+        List<AABB> blockCollisions = level.getBlockState(blockPos).getShape(level, blockPos).toAabbs();
+        if (!blockCollisions.isEmpty()) return level.getBlockState(blockPos);
+        return null;
+    }
+
     public static Iterable<Entity> getEntities(Level level){
         if (level.isClientSide()){
             return ((ClientLevel) level).entitiesForRendering();
@@ -34,3 +45,4 @@ public class EntityOBBCollisionUtil {
         }
     }
 }
+// 457 -58 261

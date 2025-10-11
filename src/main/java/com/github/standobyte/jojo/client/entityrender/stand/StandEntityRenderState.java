@@ -18,9 +18,9 @@ public class StandEntityRenderState extends HumanoidRenderState {
 	public boolean mayObstructView;
     public double extendablePartLength = 0;
 
-    public static void extractStandRenderState(StandEntity entity, StandEntityRenderState reusedState) {
+    public static void extractStandRenderState(StandEntity entity, StandEntityRenderState reusedState, float partialTick) {
         if (entity.getCurStandAction() instanceof HasOBBToRender obbToRender && obbToRender.extendableOBB() != null){
-            reusedState.extendablePartLength = obbToRender.extendableOBB().getLength();
+            reusedState.extendablePartLength = obbToRender.extendableOBB().getLength(partialTick);
         }
     }
 }
