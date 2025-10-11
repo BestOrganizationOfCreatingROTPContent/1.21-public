@@ -54,7 +54,7 @@ public class StandInstance {
 		return standType.left().filter(StandType::isEnabled).isPresent();
 	}
 	
-	protected ResourceLocation getStandId() {
+	public ResourceLocation getStandId() {
 		return standType.map(StandType::getId, Function.identity());
 	}
 	

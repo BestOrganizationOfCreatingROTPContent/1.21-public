@@ -26,7 +26,9 @@ import com.github.standobyte.jojo.client.ModClientResources;
 import com.github.standobyte.jojo.client.entityanim.AnimationLoader;
 import com.github.standobyte.jojo.client.entityanim.AnimationSet;
 import com.github.standobyte.jojo.client.entityrender.parsemodel.ParseModEntityModel;
-import com.github.standobyte.jojo.client.entityrender.parsemodel.ParseModEntityModel.Format;
+import com.github.standobyte.jojo.client.entityrender.parsemodel.ParseModEntityModel.ModelFormat;
+import com.github.standobyte.jojo.client.entityrender.parsemodel.loader.RotpGeckoModelLoader;
+import com.github.standobyte.jojo.client.entityrender.parsemodel.loader.RotpGeckoModelLoader.ModelFileFormatPath;
 import com.github.standobyte.jojo.client.sound.util.SoundEventDelegate;
 import com.github.standobyte.jojo.client.standskin.sprites.AbilityIconSprites;
 import com.github.standobyte.jojo.core.JojoMod;
@@ -120,8 +122,9 @@ public class StandSkinsLoader implements PreparableReloadListener {
 	}
 	
 	public StandSkin getSkin(StandInstance standInstance) {
+		if (standInstance == null) return null;
 		Optional<ResourceLocation> selectedSkin = standInstance.getSelectedSkin();
-		ResourceLocation standId = standInstance.getStandType().getId();
+		ResourceLocation standId = standInstance.getStandId();
 		return getSkinFromId(standId, selectedSkin);
 	}
 	
@@ -204,8 +207,7 @@ public class StandSkinsLoader implements PreparableReloadListener {
 				   assets/my_skins/stand_skins/cool_star_platinum_skin/skin.json
 				 */
 				ResourceLocation filePath = resourceEntry.getKey();
-				String[] pathSplit = filePath.getPath().split("/");
-				SkinResPath resPath = SkinResPath.fill(filePath, pathSplit);
+				SkinResPath resPath = SkinResPath.fill(filePath);
 				
 				if (resPath.isMainSkinFile || resPath.isResource) {
 					ResourceLocation skinId = ResourceLocation.fromNamespaceAndPath(filePath.getNamespace(), resPath.skinIdPath);
@@ -239,10 +241,12 @@ public class StandSkinsLoader implements PreparableReloadListener {
 		public String resourceType;
 		public String assetNamespace;
 		public String assetType;
+		public String assetPathWDirAndExtension;
 		public String assetPathWExtension;
 		static final SkinResPath instance = new SkinResPath();
 		
-		static SkinResPath fill(ResourceLocation filePath, String[] split) {
+		static SkinResPath fill(ResourceLocation filePath) {
+			String[] split = filePath.getPath().split("/");
 			instance.filePath = filePath;
 			instance.pathByParts = split;
 			instance.isMainSkinFile = split.length == 3 && "skin.json".equals(split[2]);
@@ -253,12 +257,18 @@ public class StandSkinsLoader implements PreparableReloadListener {
 			if (instance.isResource) {
 				instance.assetNamespace = split[3];
 				instance.assetType = split[4];
-				
+
 				StringBuilder pathStr = new StringBuilder();
+				StringBuilder pathDirStr = new StringBuilder(split[4] + "/");
 				for (int i = 5; i < split.length; i++) {
-					if (i > 5) pathStr.append("/");
+					if (i > 5) {
+						pathStr.append("/");
+						pathDirStr.append("/");
+					}
 					pathStr.append(split[i]);
+					pathDirStr.append(split[i]);
 				}
+				instance.assetPathWDirAndExtension = pathDirStr.toString();
 				instance.assetPathWExtension = pathStr.toString();
 			}
 			else {
@@ -334,16 +344,21 @@ public class StandSkinsLoader implements PreparableReloadListener {
 	private void loadResource(List<Resource> resource, SkinResPath resPath, 
 			StandSkinResourceBuilder builder, Logger logger, ResourceLocation fullFilePath, 
 			Preps resourcePreps) {
-		switch (resPath.assetType) {
+		for (ModelFileFormatPath format : RotpGeckoModelLoader.PATHS) {
 			// XXX (stand skin) merge gecko and bb models (+ test the ParseModEntityModel.merge function)
+			
 			// It is possible to create two models: "geo" model with the regular cubes, and a "bb" one with just the meshes.
 			// This is implemented to reduce overhead when we need a model with meshes, since models in the Generic Blockbench format generally take longer to load.
-			case "geo" -> {
-				readModel(resource, builder, resPath.assetNamespace, resPath.assetPathWExtension, Format.GECKO, ".geo.json");
+			
+			if (resPath.assetPathWDirAndExtension.startsWith(format.directory()) /* is in the correct directory */
+					&& resPath.assetPathWDirAndExtension.endsWith(format.extension()) /* has the correct extension */ ) {
+				readModel(resource, builder, resPath.assetNamespace, 
+						resPath.assetPathWDirAndExtension.substring(format.directory().length() + 1) /* model path without the directory name */, 
+						format.format(), format.extension());
+				return;
 			}
-			case "bb" -> {
-				readModel(resource, builder, resPath.assetNamespace, resPath.assetPathWExtension, Format.GENERIC, ".bbmodel");
-			}
+		}
+		switch (resPath.assetType) {
 			case "animations" -> {
 				var json = readLastResource(resource, null, JSONUtil::parse, builder.skinId, resPath.assetNamespace, resPath.assetPathWExtension, ".animation.json");
 				if (json != null) {
@@ -445,7 +460,7 @@ public class StandSkinsLoader implements PreparableReloadListener {
 	
 	
 	private void readModel(List<Resource> resource, StandSkinResourceBuilder builder, 
-			String resNamespace, String resPathWithExt, Format modelFormat, String... fileExtensions) {
+			String resNamespace, String resPathWithExt, ModelFormat modelFormat, String... fileExtensions) {
 		var json = readLastResource(resource, null, JSONUtil::parse, builder.skinId, resNamespace, resPathWithExt, fileExtensions);
 		if (json != null) {
 			var modelDefinition = ParseModEntityModel.parse(json.getSecond(), modelFormat);

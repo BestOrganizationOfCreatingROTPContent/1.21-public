@@ -17,7 +17,6 @@ import com.mojang.blaze3d.vertex.VertexConsumer;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.model.EntityModel;
 import net.minecraft.client.model.geom.ModelPart;
-import net.minecraft.client.model.geom.builders.LayerDefinition;
 import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.entity.EntityRenderer;
 import net.minecraft.client.renderer.entity.EntityRendererProvider;
@@ -30,8 +29,6 @@ public class SimpleEntityRenderer<T extends Entity> extends EntityRenderer<T> {
 	protected EntityModel<T> hardcodedModel;
 	
 	protected ResourceModelEntry resourceModel;
-	protected Function<LayerDefinition, EntityModel<T>> modelConstructor;
-	protected boolean modelFromStandSkin;
 	
 	protected ResourceLocation texPath;
 	protected boolean texFromStandSkin;
@@ -54,25 +51,14 @@ public class SimpleEntityRenderer<T extends Entity> extends EntityRenderer<T> {
 	public SimpleEntityRenderer<T> initResourceModel(ResourceLocation modelPath, 
 			Function<ModelPart, EntityModel<T>> modelClass, boolean loadFromStandSkin) {
 		this.resourceModel = RotpGeckoModelLoader.getInstance().getModelContainer(modelPath);
-		this.modelConstructor = (LayerDefinition modelDefinition) -> modelClass.apply(modelDefinition.bakeRoot());
-		this.modelFromStandSkin = loadFromStandSkin;
+		this.resourceModel.rendererInit(modelClass, loadFromStandSkin);
 		return this;
 	}
 	
 
 	protected EntityModel<T> getEntityModel(T entity) {
-		if (resourceModel != null && modelConstructor != null) {
-			if (modelFromStandSkin) {
-				StandSkin standSkin = getStandSkin(entity);
-				if (standSkin != null) {
-					EntityModel<T> modelFromSkin = standSkin.getModel(resourceModel.modelPath, modelConstructor);
-					if (modelFromSkin != null) {
-						return modelFromSkin;
-					}
-				}
-			}
-			
-			EntityModel<T> modelFromResource = resourceModel.getModel(modelConstructor);
+		if (resourceModel != null) {
+			EntityModel<T> modelFromResource = resourceModel.getModel(entity);
 			if (modelFromResource != null) {
 				return modelFromResource;
 			}
@@ -94,11 +80,13 @@ public class SimpleEntityRenderer<T extends Entity> extends EntityRenderer<T> {
 	}
 	
 	@Nullable
-	protected StandSkin getStandSkin(T entity) {
-		EntityWithStandSkin entityWithSkin = (EntityWithStandSkin) entity;
-		ResourceLocation standType = entityWithSkin.getStandType();
-		Optional<ResourceLocation> standSkinName = entityWithSkin.getStandSkin();
-		return StandSkinsLoader.getInstance().getSkinFromId(standType, standSkinName);
+	public static StandSkin getStandSkin(Entity entity) {
+		if (entity instanceof EntityWithStandSkin entityWithSkin) {
+			ResourceLocation standType = entityWithSkin.getStandType();
+			Optional<ResourceLocation> standSkinName = entityWithSkin.getStandSkin();
+			return StandSkinsLoader.getInstance().getSkinFromId(standType, standSkinName);
+		}
+		return null;
 	}
 
 	@Override

@@ -7,11 +7,13 @@ import java.util.List;
 import java.util.Map;
 import java.util.function.Consumer;
 
+import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 
 import org.jetbrains.annotations.ApiStatus;
 
-import com.github.standobyte.jojo.client.entityrender.parsemodel.gecko.GeckoModelFormat;
+import com.github.standobyte.jojo.client.entityrender.parsemodel.ParseModEntityModel;
+import com.github.standobyte.jojo.client.entityrender.parsemodel.ParseModEntityModel.ModelFormat;
 import com.github.standobyte.jojo.core.JojoMod;
 import com.github.standobyte.jojo.util.JSONUtil;
 import com.github.standobyte.jojo.util.StringUtil;
@@ -51,6 +53,11 @@ public class RotpGeckoModelLoader extends SimplePreparableReloadListener<Map<Res
 	
 	public Map<ResourceLocation, ResourceModelEntry> models = new HashMap<>();
 	
+	/**
+	 * Use this to reference a model loaded from resource packs (in either Gecko or Blockbench generic format).
+	 * The model will get updated on resource reload (F3+T) inside the ResourceModelEntry object, without the need of updating the reference manually.
+	 */
+	@Nonnull
 	public ResourceModelEntry getModelContainer(ResourceLocation path) {
 		return models.computeIfAbsent(path, ResourceModelEntry::new);
 	}
@@ -61,29 +68,36 @@ public class RotpGeckoModelLoader extends SimplePreparableReloadListener<Map<Res
 	}
 	
 
-	private static final String DIR = "geo/rotp";
-	private static final String EXTENSION = ".geo.json";
+	public static record ModelFileFormatPath(ModelFormat format, String directory, String extension) {}
+	public static ModelFileFormatPath[] PATHS = new ModelFileFormatPath[] {
+		new ModelFileFormatPath(ModelFormat.GECKO, "geo", ".geo.json"), 
+		new ModelFileFormatPath(ModelFormat.GENERIC, "bb", ".bbmodel"), 
+	};
 	
 	@Override
 	protected Map<ResourceLocation, LayerDefinition> prepare(ResourceManager resourceManager, ProfilerFiller profiler) {
 		Map<ResourceLocation, LayerDefinition> models = new HashMap<>();
 
 		try (Zone zone = _ProfilerFiller.zone(profiler, JojoMod.MOD_ID)) {
-			Map<ResourceLocation, Resource> resources = resourceManager.listResources(DIR, path -> path.getPath().endsWith(EXTENSION));
-			for (var resourceEntry : resources.entrySet()) {
-				ResourceLocation resourcePathFull = resourceEntry.getKey();
-				ResourceLocation modelPath = resourcePathFull.withPath(
-						StringUtil.trimEnding(resourceEntry.getKey().getPath(), EXTENSION).substring(DIR.length() + 1));
-				JsonElement json = null;
-				try (var reader = resourceEntry.getValue().openAsReader()) {
-					json = JSONUtil.parse(reader);
-				}
-				catch (IOException e) {
-					JojoMod.getLogger().error("Failed to parse model {}", modelPath, e);
-				}
-				if (json != null) {
-					LayerDefinition model = GeckoModelFormat.parseGeckoModel(json);
-					models.put(modelPath, model);
+			for (ModelFileFormatPath format : PATHS) {
+				String DIR = format.directory() + "/rotp";
+				String EXTENSION = format.extension();
+				Map<ResourceLocation, Resource> resources = resourceManager.listResources(DIR, path -> path.getPath().endsWith(EXTENSION));
+				for (var resourceEntry : resources.entrySet()) {
+					ResourceLocation resourcePathFull = resourceEntry.getKey();
+					ResourceLocation modelPath = resourcePathFull.withPath(
+							StringUtil.trimEnding(resourceEntry.getKey().getPath(), EXTENSION).substring(DIR.length() + 1));
+					JsonElement json = null;
+					try (var reader = resourceEntry.getValue().openAsReader()) {
+						json = JSONUtil.parse(reader);
+					}
+					catch (IOException e) {
+						JojoMod.getLogger().error("Failed to parse model {}", modelPath, e);
+					}
+					if (json != null) {
+						LayerDefinition model = ParseModEntityModel.parse(json, format.format());
+						models.put(modelPath, model);
+					}
 				}
 			}
 		}

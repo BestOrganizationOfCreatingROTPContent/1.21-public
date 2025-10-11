@@ -28,13 +28,13 @@ import net.minecraft.client.model.geom.builders.PartDefinition;
 
 public class ParseModEntityModel {
 	
-	public static enum Format {
+	public static enum ModelFormat {
 		GECKO,
 		GENERIC
 	}
 	
-	// TODO make specific JSON parsing functions instead of using Gson
-	public static LayerDefinition parse(JsonElement json, Format format) {
+	// TODO make specific JSON parsing functions instead of using reflection in Gson
+	public static LayerDefinition parse(JsonElement json, ModelFormat format) {
 		return switch (format) {
 			case GECKO -> GeckoModelFormat.parseGeckoModel(json);
 			case GENERIC -> GenericModelFormat.parseGenericModel(json);
