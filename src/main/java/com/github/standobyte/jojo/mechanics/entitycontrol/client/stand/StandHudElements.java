@@ -1,4 +1,4 @@
-package com.github.standobyte.jojo.client.entitycontrol.stand;
+package com.github.standobyte.jojo.mechanics.entitycontrol.client.stand;
 
 import java.util.Collection;
 import java.util.List;
@@ -9,7 +9,7 @@ import com.github.standobyte.jojo.client.standskin.StandSkin;
 import com.github.standobyte.jojo.client.standskin.StandSkinsLoader;
 import com.github.standobyte.jojo.client.ui.hud.VanillaHudSprites;
 import com.github.standobyte.jojo.client.ui.utils.BlitFloat;
-import com.github.standobyte.jojo.mixin.client.entitycontrol.GuiAccessor;
+import com.github.standobyte.jojo.mixin.entitycontrol.client.GuiAccessor;
 import com.github.standobyte.jojo.powersystem.PowerClass;
 import com.github.standobyte.jojo.powersystem.standpower.StandPower;
 import com.github.standobyte.jojo.powersystem.standpower.entity.StandEntity;

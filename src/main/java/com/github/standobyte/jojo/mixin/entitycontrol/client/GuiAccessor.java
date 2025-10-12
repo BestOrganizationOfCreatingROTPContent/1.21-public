@@ -1,4 +1,4 @@
-package com.github.standobyte.jojo.mixin.client.entitycontrol;
+package com.github.standobyte.jojo.mixin.entitycontrol.client;
 
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.gen.Accessor;

@@ -1,4 +1,4 @@
-package com.github.standobyte.jojo.client.entitycontrol;
+package com.github.standobyte.jojo.mechanics.entitycontrol.client;
 
 import javax.annotation.Nullable;
 
@@ -10,6 +10,7 @@ import com.mojang.blaze3d.vertex.PoseStack;
 import net.minecraft.client.DeltaTracker;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.client.player.Input;
 import net.minecraft.client.player.LocalPlayer;
 import net.minecraft.client.renderer.MultiBufferSource.BufferSource;
 import net.minecraft.network.protocol.game.ServerboundMovePlayerPacket;
@@ -98,6 +99,21 @@ public abstract class ClientEntityController {
 					player.getYRot(), player.getXRot(), player.onGround()/*, player.horizontalCollision*/));
 		}
 	}
+	
+	/**
+	 * Prevents the player from sneaking on shift, and flying in creative on double space.
+	 */
+	public static void clearInput(Input input) {
+//		input.keyPresses = Input.EMPTY;
+		input.up = false;
+		input.down = false;
+		input.left = false;
+		input.right = false;
+		input.jumping = false;
+		input.shiftKeyDown = false;
+		input.forwardImpulse = 0;
+		input.leftImpulse = 0;
+	}
 
 //	public static void sendLocalPlayerPosition(LocalPlayer player) {
 //		if (player != null) {
@@ -148,17 +164,17 @@ public abstract class ClientEntityController {
 //		}
 //	}
 
-	public boolean shouldRenderBlockOutline() {
-		return false;
-	}
-
-	public void renderExtraHud(GuiGraphics guiGraphics, DeltaTracker deltaTracker) {}
-
 	/**
 	 * @return true if the vanilla hand render should be canceled entirely
 	 */
 	public boolean renderFirstPerson(float partialTicks, PoseStack poseStack, BufferSource buffer, int combinedLight) {
 		return true;
 	}
+
+	public boolean shouldRenderBlockOutline() {
+		return false;
+	}
+
+	public void renderExtraHud(GuiGraphics guiGraphics, DeltaTracker deltaTracker) {}
 
 }

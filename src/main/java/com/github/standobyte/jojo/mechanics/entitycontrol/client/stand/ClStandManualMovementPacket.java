@@ -1,4 +1,4 @@
-package com.github.standobyte.jojo.client.entitycontrol.stand;
+package com.github.standobyte.jojo.mechanics.entitycontrol.client.stand;
 
 import com.github.standobyte.jojo.core.PacketsRegister;
 import com.github.standobyte.jojo.powersystem.standpower.StandPower;

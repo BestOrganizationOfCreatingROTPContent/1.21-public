@@ -1,12 +1,12 @@
-package com.github.standobyte.jojo.client.entitycontrol.stand;
+package com.github.standobyte.jojo.mechanics.entitycontrol.client.stand;
 
-import com.github.standobyte.jojo.client.entitycontrol.ClientEntityController;
 import com.github.standobyte.jojo.client.entityrender.stand.HumanoidPart;
 import com.github.standobyte.jojo.client.entityrender.stand.StandEntityRenderState;
 import com.github.standobyte.jojo.client.entityrender.stand.StandEntityRenderer;
 import com.github.standobyte.jojo.client.ui.utils.BlitFloat;
 import com.github.standobyte.jojo.client.ui.utils.ElementTransparency;
 import com.github.standobyte.jojo.core.JojoMod;
+import com.github.standobyte.jojo.mechanics.entitycontrol.client.ClientEntityController;
 import com.github.standobyte.jojo.powersystem.entityaction.EntityActionInstance;
 import com.github.standobyte.jojo.powersystem.entityaction.LivingComponentAction;
 import com.github.standobyte.jojo.powersystem.standpower.entity.StandEntity;
@@ -19,7 +19,6 @@ import net.minecraft.client.DeltaTracker;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.player.Input;
-import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.MultiBufferSource.BufferSource;
 import net.minecraft.client.renderer.entity.EntityRenderer;
 import net.minecraft.core.BlockPos;
@@ -71,18 +70,11 @@ public class ClientStandController extends ClientEntityController {
 	}
 
 	@SubscribeEvent(priority = EventPriority.LOWEST)
-	public void clearInput(MovementInputUpdateEvent event) { // prevents the player from sneaking on shift, and flying in creative on double space
+	public void clearInput(MovementInputUpdateEvent event) {
 		Input input = event.getInput();
-//		input.keyPresses = Input.EMPTY;
-		input.up = false;
-		input.down = false;
-		input.left = false;
-		input.right = false;
-		input.jumping = false;
-		input.shiftKeyDown = false;
-		input.forwardImpulse = 0;
-		input.leftImpulse = 0;
+		clearInput(input);
 	}
+
 
 	@SubscribeEvent(priority = EventPriority.HIGHEST)
 	public void onMouseScroll(InputEvent.MouseScrollingEvent event) {
@@ -90,52 +82,6 @@ public class ClientStandController extends ClientEntityController {
 		movementSpeedBarTranslucency.reset();
 		event.setCanceled(true);
 	}
-
-	@Override
-	public boolean renderFirstPerson(float partialTicks, PoseStack poseStack, BufferSource buffer, int combinedLight) {
-		EntityRenderer<?> renderer = Minecraft.getInstance().getEntityRenderDispatcher().getRenderer(entityAsLiving);
-		render_fuckMyLife(entityAsLiving, partialTicks, poseStack, buffer, combinedLight, renderer);
-		buffer.endBatch();
-		return true;
-	}
-
-	private <E extends StandEntity, S extends StandEntityRenderState> void render_fuckMyLife(LivingEntity entity, float partialTick,
-			PoseStack poseStack, MultiBufferSource bufferSource, int packedLight, EntityRenderer<?> renderer) {
-		StandEntityRenderer<E, S, ?> entityRenderer = (StandEntityRenderer<E, S, ?>) renderer;
-		E _entity = (E) entity;
-		S renderState = entityRenderer.createRenderState(_entity, partialTick);
-		renderState.visibleParts = HumanoidPart.reduce(renderState.visibleParts, HumanoidPart.ARMS_ONLY);
-		
-		poseStack.pushPose();
-		poseStack.mulPose(Axis.XP.rotationDegrees(renderState.xRot));
-		poseStack.mulPose(Axis.YP.rotationDegrees(180 + renderState.bodyRot));
-		poseStack.translate(0, -entity.getEyeHeight(), 0);
-//		entityRenderer.render(renderState, poseStack, bufferSource, packedLight);
-		entityRenderer.render(_entity, renderState, 0, partialTick, poseStack, bufferSource, packedLight);
-		poseStack.popPose();
-	}
-
-	@Override
-	public boolean shouldRenderBlockOutline() {
-		Minecraft mc = Minecraft.getInstance();
-		if (!mc.player.mayBuild()) { // either adventure mode or spectator
-			ItemStack heldItem = ((LivingEntity) entity).getMainHandItem();
-			HitResult vanillaAim = mc.hitResult;
-			if (vanillaAim != null && vanillaAim.getType() == HitResult.Type.BLOCK) {
-				BlockPos blockPos = ((BlockHitResult) vanillaAim).getBlockPos();
-				BlockState blockState = mc.level.getBlockState(blockPos);
-				if (mc.gameMode.getPlayerMode() == GameType.SPECTATOR) {
-					return blockState.getMenuProvider(mc.level, blockPos) != null;
-				} else {
-					BlockInWorld blockInWorld = new BlockInWorld(mc.level, blockPos, false);
-					return !heldItem.isEmpty() && (heldItem.canBreakBlockInAdventureMode(blockInWorld) || heldItem.canPlaceOnBlockInAdventureMode(blockInWorld));
-				}
-			}
-		}
-
-		return true;
-	}
-
 
 	static float manualMovementSpeed = 1;
 	private boolean prevTickInput = false;
@@ -185,6 +131,49 @@ public class ClientStandController extends ClientEntityController {
 			float yRotCos = Mth.cos(facingYRot * ((float)Math.PI / 180F));
 			return new Vec3(vec3d.x * (double)yRotCos - vec3d.z * (double)yRotSin, vec3d.y, vec3d.z * (double)yRotCos + vec3d.x * (double)yRotSin);
 		}
+	}
+
+
+	@Override
+	public boolean renderFirstPerson(float partialTick, PoseStack poseStack, BufferSource bufferSource, int packedLight) {
+		EntityRenderer<?> renderer = Minecraft.getInstance().getEntityRenderDispatcher().getRenderer(entityAsLiving);
+		
+		StandEntityRenderer entityRenderer = (StandEntityRenderer) renderer;
+		StandEntity _entity = (StandEntity) entityAsLiving;
+		StandEntityRenderState renderState = entityRenderer.createRenderState(_entity, partialTick);
+		renderState.visibleParts = HumanoidPart.reduce(renderState.visibleParts, HumanoidPart.ARMS_ONLY);
+		
+		poseStack.pushPose();
+		poseStack.mulPose(Axis.XP.rotationDegrees(renderState.xRot));
+		poseStack.mulPose(Axis.YP.rotationDegrees(180 + renderState.bodyRot));
+		poseStack.translate(0, -entityAsLiving.getEyeHeight(), 0);
+//		entityRenderer.render(renderState, poseStack, bufferSource, packedLight);
+		entityRenderer.render(_entity, renderState, 0, partialTick, poseStack, bufferSource, packedLight);
+		poseStack.popPose();
+		
+		bufferSource.endBatch();
+		return true;
+	}
+
+	@Override
+	public boolean shouldRenderBlockOutline() {
+		Minecraft mc = Minecraft.getInstance();
+		if (!mc.player.mayBuild()) { // either adventure mode or spectator
+			ItemStack heldItem = ((LivingEntity) entity).getMainHandItem();
+			HitResult vanillaAim = mc.hitResult;
+			if (vanillaAim != null && vanillaAim.getType() == HitResult.Type.BLOCK) {
+				BlockPos blockPos = ((BlockHitResult) vanillaAim).getBlockPos();
+				BlockState blockState = mc.level.getBlockState(blockPos);
+				if (mc.gameMode.getPlayerMode() == GameType.SPECTATOR) {
+					return blockState.getMenuProvider(mc.level, blockPos) != null;
+				} else {
+					BlockInWorld blockInWorld = new BlockInWorld(mc.level, blockPos, false);
+					return !heldItem.isEmpty() && (heldItem.canBreakBlockInAdventureMode(blockInWorld) || heldItem.canPlaceOnBlockInAdventureMode(blockInWorld));
+				}
+			}
+		}
+
+		return true;
 	}
 
 	public static ElementTransparency movementSpeedBarTranslucency = new ElementTransparency();

@@ -1,6 +1,5 @@
 package com.github.standobyte.jojo.core;
 
-import com.github.standobyte.jojo.client.entitycontrol.stand.ClStandManualMovementPacket;
 import com.github.standobyte.jojo.core.packet.fromclient.ClAbilityInputPacket;
 import com.github.standobyte.jojo.core.packet.fromclient.ClAimTargetPacket;
 import com.github.standobyte.jojo.core.packet.fromclient.ClDebugCommandPacket;
@@ -22,6 +21,7 @@ import com.github.standobyte.jojo.core.packet.fromserver.TrStandDataPacket;
 import com.github.standobyte.jojo.core.packet.fromserver.TrStandSkinPacket;
 import com.github.standobyte.jojo.core.packet.fromserver.TrSyncStandOffsetPacket;
 import com.github.standobyte.jojo.mechanics.clothes.TrClothesItemsPacket;
+import com.github.standobyte.jojo.mechanics.entitycontrol.client.stand.ClStandManualMovementPacket;
 import com.github.standobyte.jojo.mechanics.entityuseitem.ClStandClickPacket;
 import com.github.standobyte.jojo.mechanics.grab.TrSetGrabbedEntityPacket;
 import com.github.standobyte.jojo.powersystem.entityaction.netcode.TrEntityActionInstancePacket;
