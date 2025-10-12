@@ -91,7 +91,7 @@ public class StandInstance {
 	
 	@Nullable
 	public Component getStandName(boolean clientSide) {
-		StandType stand = getStandType();
+		StandType stand = getStandType(); // FIXME this may return null
 		Component name = stand.name.get();
 		if (clientSide) {
 			StandSkin skin = StandSkinsLoader.getInstance().getSkin(this);
