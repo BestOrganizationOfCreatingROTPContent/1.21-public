@@ -46,13 +46,15 @@ public class ClientMobController extends ClientEntityController {
 		NeoForge.EVENT_BUS.unregister(this);
 	}
 
+	protected boolean prevShift = true;
 	@SubscribeEvent(priority = EventPriority.HIGHEST)
 	public void onInputUpdate(MovementInputUpdateEvent event) {
 		Input clientInput = event.getInput();
-		if (clientInput.shiftKeyDown) {
+		if (!prevShift && clientInput.shiftKeyDown) {
 			setInstance(null);
 			return;
 		}
+		prevShift = clientInput.shiftKeyDown;
 		
 		Mob controlledMob = (Mob) entityAsLiving;
 		// LookControl tick is being cancelled in com.github.standobyte.jojo.mixin.entitycontrol.mob.MobAILookMixin
