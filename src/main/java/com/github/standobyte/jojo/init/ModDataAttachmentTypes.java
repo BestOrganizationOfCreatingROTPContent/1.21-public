@@ -7,6 +7,7 @@ import org.jetbrains.annotations.ApiStatus;
 import com.github.standobyte.jojo.core.JojoMod;
 import com.github.standobyte.jojo.mechanics.ServerBlockDestroyTracker;
 import com.github.standobyte.jojo.mechanics.clothes.EntityClothesInventory;
+import com.github.standobyte.jojo.mechanics.entitycontrol.ServerEntityController;
 import com.github.standobyte.jojo.mechanics.grab.LivingComponentGrab;
 import com.github.standobyte.jojo.powersystem.PowerClass;
 import com.github.standobyte.jojo.powersystem.entityaction.EntityActionInputState;
@@ -17,6 +18,7 @@ import com.github.standobyte.jojo.powersystem.standpower.effect.StandEffectsTarg
 import com.github.standobyte.jojo.util.entitycomponent.DataEventListeners;
 
 import net.minecraft.server.level.ServerLevel;
+import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.LivingEntity;
 import net.neoforged.neoforge.attachment.AttachmentType;
 import net.neoforged.neoforge.registries.DeferredRegister;
@@ -44,6 +46,10 @@ public final class ModDataAttachmentTypes {
 	@ApiStatus.Internal
 	public static final Supplier<AttachmentType<EntityActionInputState>> ENTITY_ABILITY_INPUT = ATTACHMENT_TYPES.register("player_ability_input", 
 			() -> AttachmentType.builder(obj -> obj instanceof LivingEntity living ? new EntityActionInputState(living) : null).build());
+
+	@ApiStatus.Internal
+	public static final Supplier<AttachmentType<ServerEntityController>> CONTROLLER = ATTACHMENT_TYPES.register("controller_player", 
+			() -> AttachmentType.builder(obj -> obj instanceof Entity entity ? new ServerEntityController(entity) : null).build());
 	
 	public static final Supplier<AttachmentType<EntityClothesInventory>> HUMANOID_CLOTHES = ATTACHMENT_TYPES.register("humanoid_clothes", 
 			() -> AttachmentType.serializable(obj -> obj instanceof LivingEntity living ? new EntityClothesInventory(living) : null).build());
