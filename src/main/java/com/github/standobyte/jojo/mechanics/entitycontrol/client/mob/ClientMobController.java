@@ -18,6 +18,7 @@ import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.Mob;
+import net.minecraft.world.entity.ai.control.JumpControl;
 import net.minecraft.world.entity.ai.control.MoveControl;
 import net.neoforged.bus.api.EventPriority;
 import net.neoforged.bus.api.SubscribeEvent;
@@ -54,12 +55,15 @@ public class ClientMobController extends ClientEntityController {
 		}
 		
 		Mob controlledMob = (Mob) entityAsLiving;
-//		controlledMob.setYRot(clientInput.yRot);
-//		controlledMob.setXRot(clientInput.xRot);
-//		controlledMob.yHeadRot = clientInput.yHeadRot;
+		// LookControl tick is being cancelled in com.github.standobyte.jojo.mixin.entitycontrol.mob.MobAILookMixin
+		
 		MoveControl moveControl = controlledMob.getMoveControl();
 		moveControl.strafe(clientInput.forwardImpulse, clientInput.leftImpulse);
-		controlledMob.setJumping(clientInput.jumping);
+		
+		if (clientInput.jumping) {
+			JumpControl jumpControl = controlledMob.getJumpControl();
+			jumpControl.jump();
+		}
         
 		UtilFunctions.wrapYRotationAngles(entityAsLiving);
 	}

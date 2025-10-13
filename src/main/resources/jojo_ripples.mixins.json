@@ -10,6 +10,7 @@
 	"damage.LivingEntityMixin",
     "grab.LivingEntityMixin",
 	"entitycontrol.mob.MobControlMixin",
+	"entitycontrol.syncfix.ServerBypassSyncMotionMixin",
     "standuseitems.ProjectileMixin",
 	"ProjectileHighSpeedSync",
 	"attributes.EntityMixin",
@@ -36,6 +37,7 @@
 	
 	"entitycontrol.mob.EntityEffectiveAIMixin",
 	"entitycontrol.mob.MobAILookMixin",
+	"entitycontrol.syncfix.ClientPacketListenerMixin",
 	"entitycontrol.client.EntityMixinMouseTurn",
 	"entitycontrol.client.GameRendererMixin",
 	"entitycontrol.client.GuiAccessor",

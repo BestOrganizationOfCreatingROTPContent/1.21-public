@@ -9,7 +9,7 @@ import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
-import com.github.standobyte.jojo.core.packet.fromserver.ProjectileHighSpeedPacket;
+import com.github.standobyte.jojo.core.packet.fromserver.EntitySyncMotionBypassingPacket;
 
 import net.minecraft.network.protocol.common.custom.CustomPacketPayload;
 import net.minecraft.network.protocol.game.ClientGamePacketListener;
@@ -57,7 +57,7 @@ public class ProjectileHighSpeedSync {
 	public void syncSpeed(Consumer<CustomPacketPayload> send) {
 		Vec3 deltaMovement = entity.getDeltaMovement();
 		if (Math.abs(deltaMovement.x) > 3.9 || Math.abs(deltaMovement.y) > 3.9 || Math.abs(deltaMovement.z) > 3.9) {
-			CustomPacketPayload packet = new ProjectileHighSpeedPacket(entity.getId(), deltaMovement);
+			CustomPacketPayload packet = new EntitySyncMotionBypassingPacket(entity.getId(), deltaMovement);
 			send.accept(packet);
 		}
 	}
