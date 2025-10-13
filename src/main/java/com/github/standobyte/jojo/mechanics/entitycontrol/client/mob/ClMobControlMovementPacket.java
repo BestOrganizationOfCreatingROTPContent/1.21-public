@@ -54,10 +54,11 @@ public record ClMobControlMovementPacket(int entityId, double x, double y, doubl
 			
 			Entity curControlTarget = ServerEntityController.getControlTarget(player);
 			if (curControlTarget != null && curControlTarget.getId() == packet.entityId) {
-				manualControlPacket(curControlTarget, packet);
+				manualControlPacket(MobControlUtil.getMobOrMobVehicle(curControlTarget), packet);
 			}
 		}
 		
+		// XXX also send a packet for the rider mob (rotation angles)
 		public void manualControlPacket(Entity target, ClMobControlMovementPacket msg) {
 			double posX1 = target.getX(); // d0
 			double posY1 = target.getY(); // d1

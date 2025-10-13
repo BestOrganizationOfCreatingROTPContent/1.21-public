@@ -24,7 +24,7 @@ public class ClientPacketListenerMixin {
 		ClientEntityController controller = ClientEntityController.getInstance();
 		if (controller != null) {
 			Entity entity = packet.getEntity(this.level);
-			if (entity == controller.entity) {
+			if (controller.isBeingControlled(entity)) {
 				ci.cancel();
 			}
 		}
@@ -35,7 +35,7 @@ public class ClientPacketListenerMixin {
 		ClientEntityController controller = ClientEntityController.getInstance();
 		if (controller != null) {
 			Entity entity = packet.getEntity(this.level);
-			if (entity == controller.entity) {
+			if (controller.isBeingControlled(entity)) {
 				ci.cancel();
 			}
 		}
@@ -46,7 +46,7 @@ public class ClientPacketListenerMixin {
 		ClientEntityController controller = ClientEntityController.getInstance();
 		if (controller != null) {
 			Entity entity = this.level.getEntity(packet.getId());
-			if (entity == controller.entity) {
+			if (controller.isBeingControlled(entity)) {
 				ci.cancel();
 			}
 		}
