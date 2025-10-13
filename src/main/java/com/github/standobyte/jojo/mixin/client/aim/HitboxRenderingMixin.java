@@ -2,9 +2,9 @@ package com.github.standobyte.jojo.mixin.client.aim;
 
 import java.util.Optional;
 
+import com.github.standobyte.jojo.powersystem.entityaction.ActionOBB;
 import com.github.standobyte.jojo.util.hitboxes.OrientedBoundingBox;
 import com.github.standobyte.jojo.powersystem.entityaction.EntityActionInstance;
-import com.github.standobyte.jojo.powersystem.entityaction.HasOBBToRender;
 import com.github.standobyte.jojo.powersystem.standpower.entity.StandEntity;
 import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.blaze3d.vertex.*;
@@ -72,8 +72,8 @@ public class HitboxRenderingMixin {
             if (p_entity instanceof StandEntity){
                 StandEntity standEntity = (StandEntity) p_entity;
                 EntityActionInstance action = standEntity.getCurStandAction();
-                if (action instanceof HasOBBToRender && ((HasOBBToRender)action).extendableOBB() != null){
-                    drawOutline(poseStack, ((HasOBBToRender)action).extendableOBB().rotatableHitbox(), false);
+                if (action instanceof ActionOBB && ((ActionOBB)action).extendableOBB() != null){
+                    drawOutline(poseStack, ((ActionOBB)action).extendableOBB().rotatableHitbox(), false);
                 }
             }
         }

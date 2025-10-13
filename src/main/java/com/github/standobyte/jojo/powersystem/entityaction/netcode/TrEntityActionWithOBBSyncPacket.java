@@ -3,7 +3,7 @@ package com.github.standobyte.jojo.powersystem.entityaction.netcode;
 import com.github.standobyte.jojo.client.ClientProxy;
 import com.github.standobyte.jojo.core.PacketsRegister;
 import com.github.standobyte.jojo.powersystem.entityaction.EntityActionInstance;
-import com.github.standobyte.jojo.powersystem.entityaction.HasOBBToRender;
+import com.github.standobyte.jojo.powersystem.entityaction.ActionOBB;
 import com.github.standobyte.jojo.powersystem.entityaction.LivingComponentAction;
 import net.minecraft.network.RegistryFriendlyByteBuf;
 import net.minecraft.network.codec.ByteBufCodecs;
@@ -46,7 +46,7 @@ public record TrEntityActionWithOBBSyncPacket(int performerId,
             Entity entity = ClientProxy.getEntityById(payload.performerId);
             if (entity instanceof LivingEntity living) {
                 EntityActionInstance action = LivingComponentAction.getCurEntityAction(living);
-                if (action != null && action.id == payload.actionId && action instanceof HasOBBToRender obbAction && obbAction.extendableOBB() != null) {
+                if (action != null && action.id == payload.actionId && action instanceof ActionOBB obbAction && obbAction.extendableOBB() != null) {
                     obbAction.extendableOBB().setIsMovingForward(false);
                     obbAction.extendableOBB().setIsRetracting(true);
                 }
