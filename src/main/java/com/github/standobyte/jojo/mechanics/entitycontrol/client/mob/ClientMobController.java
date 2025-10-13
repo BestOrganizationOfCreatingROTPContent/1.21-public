@@ -117,7 +117,6 @@ public class ClientMobController extends ClientEntityController {
 //		DeltaTracker deltaTracker = event.getPartialTick();
 		GuiAccessor gui = (GuiAccessor) mc.gui;
 		VanillaHudSprites.cacheSpritePaths(gui);
-		VanillaHudSprites.cacheSpritePaths(gui);
 		if (layerName.equals(VanillaGuiLayers.PLAYER_HEALTH)) {
 			StandHudElements.renderHealth(entityAsLiving, guiGraphics, gui, mc, healthHudTracker);
 		}
