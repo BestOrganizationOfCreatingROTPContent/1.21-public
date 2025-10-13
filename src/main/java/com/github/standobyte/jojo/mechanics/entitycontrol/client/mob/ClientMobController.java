@@ -56,7 +56,8 @@ public class ClientMobController extends ClientEntityController {
 		}
 		prevShift = clientInput.shiftKeyDown;
 		
-		Mob controlledMob = (Mob) entityAsLiving;
+		Mob controlledMob = MobControlUtil.getMobOrMobVehicle(entityAsLiving);
+		
 		// LookControl tick is being cancelled in com.github.standobyte.jojo.mixin.entitycontrol.mob.MobAILookMixin
 		
 		MoveControl moveControl = controlledMob.getMoveControl();
@@ -74,6 +75,21 @@ public class ClientMobController extends ClientEntityController {
 	public void tick() {
 		PacketDistributor.sendToServer(new ClMobControlMovementPacket(entity.getId(), 
 				entity.getX(), entity.getY(), entity.getZ(), entity.getXRot(), entity.getYRot()));
+	}
+	
+	@Override
+	public boolean turn(double yRot, double xRot) {
+		super.turn(yRot, xRot);
+		Mob vehicle = MobControlUtil.getMobOrMobVehicle(entityAsLiving);
+		if (vehicle != this.entity) {
+			vehicle.setYRot(this.entity.getYRot());
+		}
+		return true;
+	}
+
+	@Override
+	public boolean isBeingControlled(Entity entity) {
+		return super.isBeingControlled(entity) || MobControlUtil.getMobOrMobVehicle(this.entity) == entity;
 	}
 
 	@SubscribeEvent(priority = EventPriority.LOWEST)

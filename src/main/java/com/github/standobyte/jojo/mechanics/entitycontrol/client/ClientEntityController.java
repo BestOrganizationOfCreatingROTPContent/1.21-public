@@ -65,9 +65,6 @@ public abstract class ClientEntityController {
 		return instance;
 	}
 	
-	public static boolean isBeingControlledByClient(Entity entity) {
-		return instance != null && instance.entity == entity;
-	}
 
 	public static void clientTickPre() {
 		if (instance != null) {
@@ -105,9 +102,16 @@ public abstract class ClientEntityController {
 	public void onSet() {}
 
 	public void onUnset() {}
+	
+	public static boolean isBeingControlledByClient(Entity entity) {
+		return instance != null && instance.isBeingControlled(entity);
+	}
+	
+	public boolean isBeingControlled(Entity entity) {
+		return this.entity == entity;
+	}
 
 	public void tick() {}
-	
 	public static void sendLocalPlayerPosition(LocalPlayer player) {
 		if (player != null) {
 			player.connection
