@@ -24,6 +24,9 @@ public interface GuiAccessor {
 	@Accessor("EFFECT_BACKGROUND_SPRITE") public static ResourceLocation getEFFECT_BACKGROUND_SPRITE() { throw new AssertionError(); }
 	@Accessor("AIR_SPRITE") public static ResourceLocation getAIR_SPRITE() { throw new AssertionError(); }
 	@Accessor("AIR_BURSTING_SPRITE") public static ResourceLocation getAIR_BURSTING_SPRITE() { throw new AssertionError(); }
+	@Accessor("HEART_VEHICLE_CONTAINER_SPRITE") public static ResourceLocation getHEART_VEHICLE_CONTAINER_SPRITE() { throw new AssertionError(); }
+	@Accessor("HEART_VEHICLE_FULL_SPRITE") public static ResourceLocation getHEART_VEHICLE_FULL_SPRITE() { throw new AssertionError(); }
+	@Accessor("HEART_VEHICLE_HALF_SPRITE") public static ResourceLocation getHEART_VEHICLE_HALF_SPRITE() { throw new AssertionError(); }
 
 	@Invoker("renderHeart") void invokeRenderHeart(GuiGraphics guiGraphics, Gui.HeartType heartType, int x, int y, boolean hardcore, boolean halfHeart, boolean blinking);
 	@Invoker("renderFood") void invokeRenderFood(GuiGraphics guiGraphics, Player player, int y, int x);

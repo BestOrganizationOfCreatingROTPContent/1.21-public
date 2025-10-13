@@ -14,6 +14,9 @@ public class VanillaHudSprites {
 	public static ResourceLocation EFFECT_BACKGROUND_SPRITE;
 	public static ResourceLocation AIR_SPRITE;
 	public static ResourceLocation AIR_BURSTING_SPRITE;
+	public static ResourceLocation HEART_VEHICLE_CONTAINER_SPRITE;
+	public static ResourceLocation HEART_VEHICLE_FULL_SPRITE;
+	public static ResourceLocation HEART_VEHICLE_HALF_SPRITE;
 
 	public static void cacheSpritePaths(GuiAccessor gui) {
 		if (ARMOR_FULL_SPRITE == null) {
@@ -26,6 +29,9 @@ public class VanillaHudSprites {
 			EFFECT_BACKGROUND_SPRITE = GuiAccessor.getEFFECT_BACKGROUND_SPRITE();
 			AIR_SPRITE = GuiAccessor.getAIR_SPRITE();
 			AIR_BURSTING_SPRITE = GuiAccessor.getAIR_BURSTING_SPRITE();
+			HEART_VEHICLE_CONTAINER_SPRITE = GuiAccessor.getHEART_VEHICLE_CONTAINER_SPRITE();
+			HEART_VEHICLE_FULL_SPRITE = GuiAccessor.getHEART_VEHICLE_FULL_SPRITE();
+			HEART_VEHICLE_HALF_SPRITE = GuiAccessor.getHEART_VEHICLE_HALF_SPRITE();
 		}
 	}
 

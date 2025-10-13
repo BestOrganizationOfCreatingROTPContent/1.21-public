@@ -15,11 +15,11 @@ import com.github.standobyte.jojo.powersystem.standpower.StandPower;
 import com.github.standobyte.jojo.powersystem.standpower.entity.StandEntity;
 import com.github.standobyte.v1_21_4_stuff.missingmethods.ARGB;
 import com.github.standobyte.v1_21_4_stuff.missingmethods.Profiler;
-import com.github.standobyte.v1_21_4_stuff.missingmethods._Gui;
 import com.github.standobyte.v1_21_4_stuff.missingmethods._LivingEntity;
 import com.github.standobyte.v1_21_4_stuff.missingmethods._Screen;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Ordering;
+import com.mojang.blaze3d.systems.RenderSystem;
 
 import net.minecraft.Util;
 import net.minecraft.client.AttackIndicatorStatus;
@@ -31,6 +31,7 @@ import net.minecraft.client.renderer.texture.TextureAtlasSprite;
 import net.minecraft.client.resources.MobEffectTextureManager;
 import net.minecraft.core.Holder;
 import net.minecraft.resources.ResourceLocation;
+import net.minecraft.tags.FluidTags;
 import net.minecraft.util.Mth;
 import net.minecraft.util.RandomSource;
 import net.minecraft.world.effect.MobEffect;
@@ -47,6 +48,7 @@ import net.neoforged.neoforge.client.event.RenderGuiLayerEvent;
 import net.neoforged.neoforge.client.extensions.common.IClientMobEffectExtensions;
 import net.neoforged.neoforge.client.gui.VanillaGuiLayers;
 import net.neoforged.neoforge.common.NeoForge;
+import net.neoforged.neoforge.common.NeoForgeMod;
 import net.neoforged.neoforge.event.EventHooks;
 
 public class StandHudElements {
@@ -71,11 +73,15 @@ public class StandHudElements {
 			renderAlways(event, stand);
 		}
 	}
-
-	protected long healthBlinkTime;
-	protected int lastHealth;
-	protected long lastHealthTime;
-	protected int displayHealth;
+	
+	protected HealthHudTracker health = new HealthHudTracker();
+	
+	public static class HealthHudTracker {
+		public long healthBlinkTime;
+		public int lastHealth;
+		public long lastHealthTime;
+		public int displayHealth;
+	}
 	
 	public void renderInManualControl(RenderGuiLayerEvent.Pre event, LivingEntity stand) {
 		Minecraft mc = Minecraft.getInstance();
@@ -86,22 +92,22 @@ public class StandHudElements {
 		VanillaHudSprites.cacheSpritePaths(gui);
 		if (layerName.equals(VanillaGuiLayers.PLAYER_HEALTH)) {
 			if (mc.gameMode.canHurtPlayer()) {
-				renderStandHealth(stand, guiGraphics, gui, mc);
+				 renderHealth(stand, guiGraphics, gui, mc, health);
 			}
 		}
 		else if (layerName.equals(VanillaGuiLayers.ARMOR_LEVEL)) {
 			if (mc.gameMode.canHurtPlayer()) {
-				renderStandArmor(stand, guiGraphics, gui, mc);
+				renderArmor(stand, guiGraphics, gui, mc);
 			}
 		}
 		else if (layerName.equals(VanillaGuiLayers.FOOD_LEVEL)) {
 			if (mc.gameMode.canHurtPlayer() && mc.player != null) {
-				renderPlayerFood(guiGraphics, gui, mc);
+				renderFood(mc.player, guiGraphics, gui, mc);
 			}
 		}
 		else if (layerName.equals(VanillaGuiLayers.AIR_LEVEL)) {
 			if (mc.gameMode.canHurtPlayer() && mc.player != null) {
-				renderPlayerAir(guiGraphics, gui, mc);
+				renderAir(mc.player, guiGraphics, gui, mc);
 			}
 		}
 		else if (layerName.equals(VanillaGuiLayers.HOTBAR)) {
@@ -140,38 +146,38 @@ public class StandHudElements {
 		GuiAccessor gui = (GuiAccessor) mc.gui;
 		VanillaHudSprites.cacheSpritePaths(gui);
 		if (layerName.equals(VanillaGuiLayers.EFFECTS)) {
-			renderStandStatusEffects(stand, guiGraphics, gui, mc);
+			renderStatusEffects(stand, guiGraphics, gui, mc, true);
 		}
 	}
 
 
 
 	// the fact that literally the same methods exist in the vanilla Gui class, but take a Player parameter when LivingEntity works just fine makes me irrationally angry
-	protected void renderStandHealth(LivingEntity stand, GuiGraphics guiGraphics, GuiAccessor gui, Minecraft mc) {
+	public static void renderHealth(LivingEntity stand, GuiGraphics guiGraphics, GuiAccessor gui, Minecraft mc, HealthHudTracker hudHp) {
 		float hpF = stand.getHealth();
 		int hp = Mth.ceil(hpF);
 
 		int tickCount = gui.getTickCount();
 		RandomSource random = gui.getRandom();
 
-		boolean renderHighlight = healthBlinkTime > (long) tickCount && (healthBlinkTime - (long) tickCount) / 3L % 2L == 1L;
+		boolean renderHighlight = hudHp.healthBlinkTime > (long) tickCount && (hudHp.healthBlinkTime - (long) tickCount) / 3L % 2L == 1L;
 
 		long time = Util.getMillis();
-		if (hp < lastHealth) {
-			lastHealthTime = time;
-			healthBlinkTime = (long)(tickCount + 20);
-		} else if (hp > lastHealth) {
-			lastHealthTime = time;
-			healthBlinkTime = (long)(tickCount + 10);
+		if (hp < hudHp.lastHealth) {
+			hudHp.lastHealthTime = time;
+			hudHp.healthBlinkTime = (long)(tickCount + 20);
+		} else if (hp > hudHp.lastHealth) {
+			hudHp.lastHealthTime = time;
+			hudHp.healthBlinkTime = (long)(tickCount + 10);
 		}
 
-		if (time - lastHealthTime > 1000L) {
-			displayHealth = hp;
-			lastHealthTime = time;
+		if (time - hudHp.lastHealthTime > 1000L) {
+			hudHp.displayHealth = hp;
+			hudHp.lastHealthTime = time;
 		}
 
-		lastHealth = hp;
-		int k = displayHealth;
+		hudHp.lastHealth = hp;
+		int k = hudHp.displayHealth;
 
 		random.setSeed((long)(tickCount * 312871));
 		int l = guiGraphics.guiWidth() / 2 - 91;
@@ -192,7 +198,7 @@ public class StandHudElements {
 		Profiler.get().pop();
 	}
 	
-	protected void renderHearts(GuiAccessor gui, 
+	public static void renderHearts(GuiAccessor gui, 
 			GuiGraphics guiGraphics, LivingEntity stand, Player player,
 			int x, int y, int height, int offsetHeartIndex, float maxHealth,
 			int currentHealth, int displayHealth, int absorptionAmount, boolean renderHighlight) {
@@ -249,7 +255,7 @@ public class StandHudElements {
 		}
 	}
 	
-	protected void renderStandArmor(LivingEntity stand, GuiGraphics guiGraphics, GuiAccessor gui, Minecraft mc) {
+	public static void renderArmor(LivingEntity stand, GuiGraphics guiGraphics, GuiAccessor gui, Minecraft mc) {
 		int l = guiGraphics.guiWidth() / 2 - 91;
 		Profiler.get().push("armor");
 		renderArmor(guiGraphics, stand, guiGraphics.guiHeight() - mc.gui.leftHeight + 10, 1, 0, l);
@@ -273,25 +279,45 @@ public class StandHudElements {
 		}
 	}
 	
-	protected void renderPlayerFood(GuiGraphics guiGraphics, GuiAccessor gui, Minecraft mc) {
+	public static void renderFood(Player player, GuiGraphics guiGraphics, GuiAccessor gui, Minecraft mc) {
 		Profiler.get().push("food");
 		int i1 = guiGraphics.guiWidth() / 2 + 91;
 		int j1 = guiGraphics.guiHeight() - mc.gui.rightHeight;
-		gui.invokeRenderFood(guiGraphics, mc.player, j1, i1);
+		gui.invokeRenderFood(guiGraphics, player, j1, i1);
 		mc.gui.rightHeight += 10;
 		Profiler.get().pop();
 	}
 	
-	protected void renderPlayerAir(GuiGraphics guiGraphics, GuiAccessor gui, Minecraft mc) {
+	public static void renderAir(LivingEntity player, GuiGraphics guiGraphics, GuiAccessor gui, Minecraft mc) {
 		int x = guiGraphics.guiWidth() / 2 + 91;
 		int y = guiGraphics.guiHeight() - mc.gui.rightHeight;
 		Profiler.get().push("air");
-		_Gui.renderAirBubbles(mc.gui, guiGraphics, mc.player, 10, y, x);
-//		gui.invokeRenderAirBubbles(guiGraphics, mc.player, 10, y, x);
+		renderAirBubbles(mc.gui, guiGraphics, player, 10, y, x);
 		Profiler.get().pop();
 	}
+
+    public static void renderAirBubbles(Gui gui, GuiGraphics guiGraphics, LivingEntity player, int vehicleMaxHealth, int y, int x) {
+        int i3 = player.getMaxAirSupply();
+        int j3 = Math.min(player.getAirSupply(), i3);
+        if (player.isEyeInFluid(FluidTags.WATER) && player.canDrownInFluidType(NeoForgeMod.WATER_TYPE.value()) || j3 < i3) {
+            int l3 = Mth.ceil((double)(j3 - 2) * 10.0 / (double)i3);
+            int i4 = Mth.ceil((double)j3 * 10.0 / (double)i3) - l3;
+            RenderSystem.enableBlend();
+
+            for (int j4 = 0; j4 < l3 + i4; j4++) {
+                if (j4 < l3) {
+                	guiGraphics.blitSprite(VanillaHudSprites.AIR_SPRITE, x - j4 * 8 - 9, y, 9, 9);
+                } else {
+                	guiGraphics.blitSprite(VanillaHudSprites.AIR_BURSTING_SPRITE, x - j4 * 8 - 9, y, 9, 9);
+                }
+            }
+
+            RenderSystem.disableBlend();
+            gui.rightHeight += 10;
+        }
+    }
 	
-	protected void renderStandStatusEffects(LivingEntity stand, GuiGraphics guiGraphics, GuiAccessor gui, Minecraft mc) {
+	public static void renderStatusEffects(LivingEntity stand, GuiGraphics guiGraphics, GuiAccessor gui, Minecraft mc, boolean standColor) {
 		Collection<MobEffectInstance> effects = stand.getActiveEffects();
 		if (!effects.isEmpty() && (mc.screen == null || !_Screen.showsActiveEffects(mc.screen))) {
 			int beneficialI = 0;
@@ -299,9 +325,14 @@ public class StandHudElements {
 			MobEffectTextureManager textureManager = mc.getMobEffectTextures();
 			List<Runnable> list = Lists.newArrayListWithExpectedSize(effects.size());
 
-			StandPower standPower = ClientPowerCache.getPower(PowerClass.STAND);
-			StandSkin standSkin = StandSkinsLoader.getInstance().getSkin(standPower);
-			int color = standSkin != null ? standSkin.getColor() : 0xFFFFFFFF;
+			int color = 0xFFFFFFFF;
+			if (standColor) {
+				StandPower standPower = ClientPowerCache.getPower(PowerClass.STAND);
+				StandSkin standSkin = StandSkinsLoader.getInstance().getSkin(standPower);
+				if (standSkin != null) {
+					color = standSkin.getColor();
+				}
+			}
 			for (MobEffectInstance effect : Ordering.natural().reverse().sortedCopy(effects)) {
 				var renderer = IClientMobEffectExtensions.of(effect);
 				if (!renderer.isVisibleInGui(effect)) continue;

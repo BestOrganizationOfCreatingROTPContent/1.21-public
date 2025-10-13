@@ -51,6 +51,10 @@ public abstract class ClientEntityController {
 	public static ClientEntityController getInstance() {
 		return instance;
 	}
+	
+	public static boolean isBeingControlledByClient(Entity entity) {
+		return instance != null && instance.entity == entity;
+	}
 
 	public static void clientTickPre() {
 		if (instance != null) {
