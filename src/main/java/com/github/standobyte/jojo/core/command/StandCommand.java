@@ -2,6 +2,7 @@ package com.github.standobyte.jojo.core.command;
 
 import java.util.Collection;
 
+import com.github.standobyte.jojo.core.JojoMod;
 import com.github.standobyte.jojo.core.command.argument.StandArgument;
 import com.github.standobyte.jojo.powersystem.PowerClass;
 import com.github.standobyte.jojo.powersystem.standpower.StandPower;
@@ -27,9 +28,10 @@ public class StandCommand {
 
 	public static void register(CommandDispatcher<CommandSourceStack> dispatcher, CommandBuildContext context) {
 		dispatcher.register(
-		Commands.literal("jojo_ripples").then(
+		Commands.literal(JojoMod.MOD_ID).then(
 			Commands.literal("stand")
 				.requires(src -> src.hasPermission(2))
+				
 				.then(
 				Commands.literal("give")
 					.then(
