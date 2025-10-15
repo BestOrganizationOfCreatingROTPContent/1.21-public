@@ -15,9 +15,9 @@ import net.minecraft.world.entity.Mob;
 import net.minecraft.world.level.Level;
 
 @Mixin(Mob.class)
-public abstract class MobControlMixin extends LivingEntity {
+public abstract class MobAIMixin extends LivingEntity {
 
-	protected MobControlMixin(EntityType<? extends LivingEntity> entityType, Level level) {
+	protected MobAIMixin(EntityType<? extends LivingEntity> entityType, Level level) {
 		super(entityType, level);
 	}
 	
@@ -32,7 +32,8 @@ public abstract class MobControlMixin extends LivingEntity {
 
 	@Inject(method = "serverAiStep", at = @At("HEAD"), cancellable = true)
 	public void jojo_ripples$manualMobControl(CallbackInfo ci) {
-		if (ServerEntityController.getControllerEntity(this) != null) {
+		ServerEntityController controller = ServerEntityController.getCurrentController(this);
+		if (controller != null && controller.suppressTargetEntity()) {
 			this.customServerAiStep();
 			ci.cancel();
 		}

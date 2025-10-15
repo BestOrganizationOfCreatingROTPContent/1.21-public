@@ -74,7 +74,8 @@ public class ClientMobController extends ClientEntityController {
 	@Override
 	public void tick() {
 		PacketDistributor.sendToServer(new ClMobControlMovementPacket(entity.getId(), 
-				entity.getX(), entity.getY(), entity.getZ(), entity.getXRot(), entity.getYRot()));
+				entity.getX(), entity.getY(), entity.getZ(), 
+				entity.getXRot(), entity.getYRot(), entity.onGround()));
 	}
 	
 	@Override

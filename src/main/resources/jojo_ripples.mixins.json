@@ -9,8 +9,12 @@
     "damage.DamageSourceMixin",
 	"damage.LivingEntityMixin",
     "grab.LivingEntityMixin",
-	"entitycontrol.mob.MobControlMixin",
+    
+	"entitycontrol.mob.MobAIMixin",
+	"entitycontrol.mob.EntityEffectiveAIMixin",
+	"entitycontrol.mob.EntityFallDamageInvoker",
 	"entitycontrol.syncfix.ServerBypassSyncMotionMixin",
+	
     "standuseitems.ProjectileMixin",
 	"ProjectileHighSpeedSync",
 	"attributes.EntityMixin",
@@ -35,7 +39,6 @@
     
 	"client.controls.KeyboardHandlerMixin",
 	
-	"entitycontrol.mob.EntityEffectiveAIMixin",
 	"entitycontrol.mob.MobAILookMixin",
 	"entitycontrol.syncfix.ClientPacketListenerMixin",
 	"entitycontrol.client.EntityMixinMouseTurn",

@@ -22,9 +22,20 @@ public class ServerEntityController implements TickingEntityData {
 		addTicking(entity);
 	}
 	
-	public void stopControlling() {
-		setControlTarget(null, null);
+	@Nullable
+	public LivingEntity getControllingEntity() {
+		return controllingEntity;
 	}
+	
+	@Nullable
+	public Entity getControlTarget() {
+		return controlTarget;
+	}
+	
+	public boolean suppressTargetEntity() {
+		return true;
+	}
+	
 	
 	public void setControlTarget(@Nullable Entity controlTarget, @Nullable String clientControllerType) {
 		if (thisEntity instanceof LivingEntity controllingEntity) {
@@ -49,6 +60,10 @@ public class ServerEntityController implements TickingEntityData {
 		}
 	}
 	
+	public void stopControlling() {
+		setControlTarget(null, null);
+	}
+	
 	public static void setServerControlTarget(LivingEntity controllingEntity, @Nullable Entity targetEntity, @Nullable String setOnClientType) {
 		if (targetEntity != null) {
 			ServerEntityController component = controllingEntity.getData(ModDataAttachmentTypes.CONTROLLER.get());
@@ -70,9 +85,9 @@ public class ServerEntityController implements TickingEntityData {
 	}
 	
 	@Nullable
-	public static LivingEntity getControllerEntity(Entity targetEntity) {
+	public static ServerEntityController getCurrentController(Entity targetEntity) {
 		ServerEntityController component = ComponentUtil.getExistingDataOrNull(targetEntity, ModDataAttachmentTypes.CONTROLLER);
-		return component != null ? component.controllingEntity : null;
+		return component != null && component.controllingEntity != null ? component : null;
 	}
 		
 
@@ -82,16 +97,6 @@ public class ServerEntityController implements TickingEntityData {
 			ServerEntityController controllerComponent = controllingEntity.getData(ModDataAttachmentTypes.CONTROLLER);
 			controllerComponent.stopControlling();
 		}
-	}
-	
-	@Nullable
-	public LivingEntity getControllingEntity() {
-		return controllingEntity;
-	}
-	
-	@Nullable
-	public Entity getControlTarget() {
-		return controlTarget;
 	}
 
 }

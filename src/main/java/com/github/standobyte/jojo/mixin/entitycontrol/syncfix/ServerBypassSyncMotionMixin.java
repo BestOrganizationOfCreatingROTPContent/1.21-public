@@ -22,7 +22,7 @@ public class ServerBypassSyncMotionMixin {
 			target =  "Lnet/minecraft/world/entity/Entity;hurtMarked:Z", 
 			ordinal = 0))
 	public void jojo_ripples$syncHurtMarkedFlag(CallbackInfo ci) {
-		if (entity.hurtMarked && ServerEntityController.getControllerEntity(entity) != null) {
+		if (entity.hurtMarked && ServerEntityController.getCurrentController(entity) != null) {
 			PacketDistributor.sendToPlayersTrackingEntity(this.entity, new EntitySyncMotionBypassingPacket(this.entity.getId(), this.entity.getDeltaMovement()));
 		}
 	}
