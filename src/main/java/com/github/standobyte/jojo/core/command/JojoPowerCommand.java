@@ -2,6 +2,7 @@ package com.github.standobyte.jojo.core.command;
 
 import java.util.Collection;
 
+import com.github.standobyte.jojo.core.JojoMod;
 import com.github.standobyte.jojo.init.power.ModPlayerPowers;
 import com.github.standobyte.jojo.powersystem.PowerClass;
 import com.github.standobyte.jojo.powersystem.playerpower.PlayerPower;
@@ -26,9 +27,10 @@ public class JojoPowerCommand {
 
 	public static void register(CommandDispatcher<CommandSourceStack> dispatcher, CommandBuildContext context) {
 		dispatcher.register(
-		Commands.literal("jojo_ripples").then(
+		Commands.literal(JojoMod.MOD_ID).then(
 			Commands.literal("power")
 				.requires(src -> src.hasPermission(2))
+				
 				.then(
 				Commands.literal("give")
 					.then(

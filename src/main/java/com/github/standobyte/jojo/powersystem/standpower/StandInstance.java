@@ -16,8 +16,11 @@ import com.mojang.datafixers.util.Either;
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 
+import net.minecraft.ChatFormatting;
+import net.minecraft.Util;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.network.chat.Component;
+import net.minecraft.network.chat.MutableComponent;
 import net.minecraft.network.codec.ByteBufCodecs;
 import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.resources.ResourceLocation;
@@ -91,7 +94,11 @@ public class StandInstance {
 	
 	@Nullable
 	public Component getStandName(boolean clientSide) {
-		StandType stand = getStandType(); // FIXME this may return null
+		StandType stand = getStandType();
+		if (stand == null) {
+			MutableComponent name = Component.translatable(Util.makeDescriptionId("stand", getStandId()));
+			return name.withStyle(ChatFormatting.GRAY, ChatFormatting.STRIKETHROUGH);
+		}
 		Component name = stand.name.get();
 		if (clientSide) {
 			StandSkin skin = StandSkinsLoader.getInstance().getSkin(this);
