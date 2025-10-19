@@ -40,8 +40,7 @@ public class CrazyDBlockBulletAbility extends StandEntityAbility {
 	public CrazyDBlockBulletAbility(AbilityType<?> abilityType, AbilityId abilityId) {
 		super(abilityType, abilityId);
 		setDefaultPhaseLength(ActionPhase.WINDUP, 15);
-		this.homingSpriteName = this.spriteName + "_homing";
-		this.homingName = Component.translatable("jojo_ripples.ability." + abilityId.nameInMoveset() + ".homing");
+		initVariationAssets();
 	}
 
 	@Override
@@ -175,11 +174,17 @@ public class CrazyDBlockBulletAbility extends StandEntityAbility {
 
 	public static boolean isHoming(LivingEntity user, StandPower userPower) {
 		return user != null && !disableHoming(user)
-				&& UserStandEffects.getEffectLookedAt(userPower, ModStandEffects.CRAZY_D_BLOOD_DROPS.get(), PLAYER_TRACKING_RANGE, userPower.getUser()).isPresent();
+				&& UserStandEffects.getEffectLookedAt(userPower, ModStandEffects.CRAZY_D_BLOOD_DROPS.get(), PLAYER_TRACKING_RANGE, user).isPresent();
 	}
 
+
 	protected String homingSpriteName;
-	protected Component homingName;
+	protected Component homingAbilityName;
+	
+	protected void initVariationAssets() {
+		this.homingSpriteName = this.spriteName + "_homing";
+		this.homingAbilityName = abilityName(abilityId, ".homing");
+	}
 	
 	@Override
 	public String getSpriteName(Power<?> context) {
@@ -193,7 +198,7 @@ public class CrazyDBlockBulletAbility extends StandEntityAbility {
 	@Override
 	public Component getName(Power<?> context) {
 		if (isHoming(context.getUser(), PowerClass.STAND.cast(context))) {
-			return homingName;
+			return homingAbilityName;
 		}
 		return name;
 	}

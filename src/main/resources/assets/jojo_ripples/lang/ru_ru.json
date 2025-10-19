@@ -237,26 +237,44 @@
   "jojo_ripples.ability.bearing_shot": "Выстрел кусочком",
   
   
+  "stand.jojo_ripples.star_platinum": "Star Platinum",
+  
   "jojo_ripples.skill.enhanced_eyesight": "Суперзрение",
   "jojo_ripples.skill.enhanced_eyesight.desc": "#################################",
+  "jojo_ripples.skill.enhanced_eyesight.controls": "Особая способность",
   "jojo_ripples.ability.enhanced_eyesight": "Суперзрение",
   
   "jojo_ripples.skill.star_finger": "Звёздный палец",
   "jojo_ripples.skill.star_finger.desc": "#################################",
+  "jojo_ripples.skill.star_finger.controls": "Особая способность",
   "jojo_ripples.ability.star_finger": "Звёздный палец (скоро)",
   
   "jojo_ripples.skill.inhale": "Звёздный вдох",
   "jojo_ripples.skill.inhale.desc": "#################################",
+  "jojo_ripples.skill.inhale.controls": "Особая способность",
   "jojo_ripples.ability.inhale": "Звёздный вдох (скоро)",
   "jojo_ripples.subtitle.inhale": "Вдох",
   
   "jojo_ripples.skill.time_stop": "Остановка времени",
   "jojo_ripples.skill.time_stop.desc": "#################################",
+  "jojo_ripples.skill.time_stop.controls": "Особая способность",
   "jojo_ripples.ability.time_stop": "Остановка времени (%ss) (скоро)",
   
   
+  "stand.jojo_ripples.hierophant_green": "Hierophant Green",
+  
+  "jojo_ripples.skill.puppet": "Взять под контроль",
+  "jojo_ripples.skill.puppet.desc": "#################################",
+  "jojo_ripples.skill.puppet.controls": "Особая способность",
+  "jojo_ripples.ability.puppet": "Взять под контроль",
+  "jojo_ripples.ability.puppet.release": "Освободить из-под контроля",
+  
+  
+  "stand.jojo_ripples.crazy_diamond": "Crazy Diamond",
+  
   "jojo_ripples.skill.block_bullet": "Снаряд из блока",
   "jojo_ripples.skill.block_bullet.desc": "#################################",
+  "jojo_ripples.skill.block_bullet.controls": "Особая способность",
   "jojo_ripples.ability.block_bullet": "Снаряд из блока",
   "jojo_ripples.ability.block_bullet_homing": "Самонаводящийся снаряд",
   "jojo_ripples.ability.blood_cutter": "Резак из крови",

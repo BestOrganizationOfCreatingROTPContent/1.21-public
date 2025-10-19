@@ -24,7 +24,6 @@ import com.github.standobyte.jojo.mechanics.clothes.TrClothesItemsPacket;
 import com.github.standobyte.jojo.mechanics.entitycontrol.SetClientControllerPacket;
 import com.github.standobyte.jojo.mechanics.entitycontrol.client.mob.ClMobControlMovementPacket;
 import com.github.standobyte.jojo.mechanics.entitycontrol.client.stand.ClStandManualMovementPacket;
-import com.github.standobyte.jojo.mechanics.entitycontrol.tmp.ClQuitControllerPacket;
 import com.github.standobyte.jojo.mechanics.entityuseitem.ClStandClickPacket;
 import com.github.standobyte.jojo.mechanics.grab.TrSetGrabbedEntityPacket;
 import com.github.standobyte.jojo.powersystem.entityaction.netcode.TrEntityActionInstancePacket;
@@ -54,7 +53,6 @@ public class PacketsRegister {
 		registerPacket(registrar, PayloadRegistrar::playToServer, new ClMobControlMovementPacket.Handler(JojoMod.resLoc("clmobctrlmove")));
 		registerPacket(registrar, PayloadRegistrar::playToServer, new ClStandClickPacket.Handler(JojoMod.resLoc("clstandclick")));
 		registerPacket(registrar, PayloadRegistrar::playToServer, new ClDebugCommandPacket.Handler(JojoMod.resLoc("cldebug")));
-		registerPacket(registrar, PayloadRegistrar::playToServer, new ClQuitControllerPacket.Handler(JojoMod.resLoc("clctrlquit")));
 
 		registerPacket(registrar, PayloadRegistrar::playToClient, new DatapackStandsPacket.Handler(JojoMod.resLoc("datastands")));
 		registerPacket(registrar, PayloadRegistrar::playToClient, new TrAbilityUsePacket.Handler(JojoMod.resLoc("abilityuse")));

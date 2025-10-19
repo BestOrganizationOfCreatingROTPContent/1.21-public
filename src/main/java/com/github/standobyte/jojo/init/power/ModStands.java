@@ -130,11 +130,11 @@ public class ModStands {
 			"crazy_diamond", id -> 
 			new EntityStandType(
 					new StandStats.Builder()
-					.power(17.0)
+					.power(17)
 					.speed(16.5)
 					.range(2, 4)
-					.durability(13.0)
-					.precision(12.0)
+					.durability(13)
+					.precision(12)
 					.build(),
 
 					new MovesetBuilder()
@@ -174,4 +174,33 @@ public class ModStands {
 
 					, id)
 			.discTooltipWIP());
+	
+	
+	
+	public static final DeferredHolder<StandType, EntityStandType> HIEROPHANT_GREEN = DEFAULT_STANDS.register(
+			"hierophant_green", id -> 
+			new EntityStandType(
+					new StandStats.Builder()
+					.power(9)
+					.speed(12)
+					.range(50, 100)
+					.durability(10)
+					.precision(10)
+					.build(),
+
+					new MovesetBuilder()
+					
+					.addHumanoidStandStuff()
+					
+					
+					.makeHotbar(0, InputKey.X, InputKey.C)
+					
+					.addAbility("puppet", ModStandAbilities.HG_PUPPET)
+					.inHotbar(0, InputMethod.CLICK)
+					
+					
+					.addSkill(StandUnlockableSkill.unlockableAbility("puppet", 1))
+
+					, id)
+			.discTooltipExperimental());
 }

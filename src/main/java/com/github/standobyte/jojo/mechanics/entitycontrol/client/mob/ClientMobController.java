@@ -6,7 +6,6 @@ import com.github.standobyte.jojo.client.ui.hud.VanillaHudSprites;
 import com.github.standobyte.jojo.mechanics.entitycontrol.client.ClientEntityController;
 import com.github.standobyte.jojo.mechanics.entitycontrol.client.stand.StandHudElements;
 import com.github.standobyte.jojo.mechanics.entitycontrol.client.stand.StandHudElements.HealthHudTracker;
-import com.github.standobyte.jojo.mechanics.entitycontrol.tmp.ClQuitControllerPacket;
 import com.github.standobyte.jojo.mixin.entitycontrol.client.GuiAccessor;
 import com.github.standobyte.jojo.util.UtilFunctions;
 import com.mojang.blaze3d.systems.RenderSystem;
@@ -42,20 +41,12 @@ public class ClientMobController extends ClientEntityController {
 
 	@Override
 	public void onUnset() {
-		PacketDistributor.sendToServer(ClQuitControllerPacket.packet());
 		NeoForge.EVENT_BUS.unregister(this);
 	}
 
-	protected boolean prevShift = true;
 	@SubscribeEvent(priority = EventPriority.HIGHEST)
 	public void onInputUpdate(MovementInputUpdateEvent event) {
 		Input clientInput = event.getInput();
-		if (!prevShift && clientInput.shiftKeyDown) {
-			setInstance(null);
-			return;
-		}
-		prevShift = clientInput.shiftKeyDown;
-		
 		Mob controlledMob = MobControlUtil.getMobOrMobVehicle(entityAsLiving);
 		
 		// LookControl tick is being cancelled in com.github.standobyte.jojo.mixin.entitycontrol.mob.MobAILookMixin

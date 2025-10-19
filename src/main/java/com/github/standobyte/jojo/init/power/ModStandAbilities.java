@@ -2,6 +2,8 @@ package com.github.standobyte.jojo.init.power;
 
 import static com.github.standobyte.jojo.core.JojoRegistries.ABILITY_TYPES;
 
+import com.github.standobyte.jojo.core.JojoMod;
+import com.github.standobyte.jojo.core.JojoRegistries;
 import com.github.standobyte.jojo.jojoimpl.stands._entitybase.StandBearingShotAbility;
 import com.github.standobyte.jojo.jojoimpl.stands._entitybase.StandEntityBarrageAbility;
 import com.github.standobyte.jojo.jojoimpl.stands._entitybase.StandEntityGrabAbility;
@@ -20,16 +22,24 @@ import com.github.standobyte.jojo.jojoimpl.stands._entitybase.item.TossStandItem
 import com.github.standobyte.jojo.jojoimpl.stands.crazydiamond.CrazyDBlockBulletAbility;
 import com.github.standobyte.jojo.jojoimpl.stands.crazydiamond.CrazyDBloodCutterAbility;
 import com.github.standobyte.jojo.jojoimpl.stands.crazydiamond.CrazyDRepairItemAbility;
+import com.github.standobyte.jojo.jojoimpl.stands.crazydiamond.DriedBloodDropsEffect;
+import com.github.standobyte.jojo.jojoimpl.stands.hierophant.HierophantPuppetAbility;
+import com.github.standobyte.jojo.jojoimpl.stands.hierophant.HierophantPuppetEffect;
 import com.github.standobyte.jojo.jojoimpl.stands.starplatinum.InhaleAbility;
 import com.github.standobyte.jojo.jojoimpl.stands.starplatinum.StarFingerAbility;
 import com.github.standobyte.jojo.jojoimpl.stands.starplatinum.StarFingerSwipeAbility;
 import com.github.standobyte.jojo.jojoimpl.stands.theworld.TimeStopAbility;
 import com.github.standobyte.jojo.powersystem.ability.Ability;
 import com.github.standobyte.jojo.powersystem.ability.AbilityType;
+import com.github.standobyte.jojo.powersystem.standpower.effect.StandEffectType;
 
 import net.neoforged.neoforge.registries.DeferredHolder;
+import net.neoforged.neoforge.registries.DeferredRegister;
 
 public final class ModStandAbilities {
+	public static final DeferredRegister<StandEffectType<?>> STAND_EFFECT_TYPES = DeferredRegister.create(JojoRegistries.STAND_EFFECTS_REG, JojoMod.MOD_ID);
+	
+	
 	public static final DeferredHolder<AbilityType<?>, AbilityType<StandEntityManualControlToggle>> MANUAL_CONTROL = ABILITY_TYPES.register(
 			"stand_manual_control", key -> new AbilityType<>(key, StandEntityManualControlToggle::new));
 	
@@ -92,6 +102,13 @@ public final class ModStandAbilities {
 	
 	public static final DeferredHolder<AbilityType<?>, AbilityType<TimeStopAbility>> TIME_STOP = ABILITY_TYPES.register(
 			"time_stop", key -> new AbilityType<>(key, TimeStopAbility::new));
+	
+	
+	public static final DeferredHolder<AbilityType<?>, AbilityType<HierophantPuppetAbility>> HG_PUPPET = ABILITY_TYPES.register(
+			"puppet", key -> new AbilityType<>(key, HierophantPuppetAbility::new));
+
+	public static final DeferredHolder<StandEffectType<?>, StandEffectType<HierophantPuppetEffect>> EFFECT_HG_PUPPET = STAND_EFFECT_TYPES.register(
+			"hg_puppet", key -> new StandEffectType<>(key, HierophantPuppetEffect::new));
 
 	
 	public static final DeferredHolder<AbilityType<?>, AbilityType<CrazyDBloodCutterAbility>> CD_BLOOD_CUTTER = ABILITY_TYPES.register(
@@ -121,9 +138,8 @@ public final class ModStandAbilities {
 	public static final DeferredHolder<AbilityType<?>, AbilityType<Ability>> CD_UNCRAFT_ITEM = ABILITY_TYPES.register(
 			"uncraft_item", key -> new AbilityType<>(key, Ability::new));
 
-
-
-	public static void load() {}
+	public static final DeferredHolder<StandEffectType<?>, StandEffectType<DriedBloodDropsEffect>> EFFECT_CD_BLOOD_DROPS = STAND_EFFECT_TYPES.register(
+			"cd_blood_drops", key -> new StandEffectType<>(key, DriedBloodDropsEffect::new));
 
 
 

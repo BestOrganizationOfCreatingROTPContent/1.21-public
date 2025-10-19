@@ -35,7 +35,11 @@ public class Ability {
 		this.abilityType = abilityType;
 		this.abilityId = abilityId;
 		this.spriteName = StringUtil.splitIntAtTheEnd(abilityId.nameInMoveset()).getFirst();
-		this.name = Component.translatable("jojo_ripples.ability." + abilityId.nameInMoveset());
+		this.name = abilityName(abilityId, "");
+	}
+	
+	protected static Component abilityName(AbilityId abilityId, String postfix) {
+		return Component.translatable("jojo_ripples.ability." + abilityId.nameInMoveset() + postfix);
 	}
 	
 	public AbilityId getAbilityId() {

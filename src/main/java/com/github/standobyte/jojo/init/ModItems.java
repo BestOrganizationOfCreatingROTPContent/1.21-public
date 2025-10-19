@@ -17,7 +17,6 @@ import com.github.standobyte.jojo.mechanics.clothes.itemdata.ClothesPiece;
 import com.github.standobyte.jojo.mechanics.clothes.itemdata.ClothesSet;
 import com.github.standobyte.jojo.mechanics.clothes.itemdata.ClothesSlotType;
 import com.github.standobyte.jojo.mechanics.clothes.mannequin.MannequinItem;
-import com.github.standobyte.jojo.mechanics.entitycontrol.tmp.ControllerDebugItem;
 import com.github.standobyte.jojo.powersystem.standpower.StandInstance;
 import com.github.standobyte.jojo.powersystem.standpower.type.StandType;
 
@@ -40,7 +39,6 @@ public final class ModItems {
 	public static final DeferredRegister.Items ITEMS = DeferredRegister.createItems(JojoMod.MOD_ID);
 
 	public static final DeferredItem<Item> DEBUG_ITEM = ITEMS.registerItem("debug_item", DebugItem::new, new Item.Properties());
-	public static final DeferredItem<Item> CONTROLLER_DEBUG_ITEM = ITEMS.registerItem("controller_debug_item", ControllerDebugItem::new, new Item.Properties());
 
 	public static final DeferredItem<Item> STAND_DISC = ITEMS.registerItem("stand_disc", StandDiscItem::new, new Item.Properties().stacksTo(1));
 
