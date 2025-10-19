@@ -121,7 +121,8 @@ public class ModStands {
 					.addSkill(StandUnlockableSkill.unlockableAbility("inhale", 1))
 					.addSkill(StandUnlockableSkill.unlockableAbility("time_stop", 1))
 
-					, id));
+					, id)
+			.discTooltipWIP());
 	
 	
 	
@@ -171,5 +172,6 @@ public class ModStands {
 					.addSkill(StandUnlockableSkill.unlockableAbility("block_anchor", 1).withAbility("block_anchor_move"))
 					.addSkill(StandUnlockableSkill.unlockableAbility("block_bullet", 1).withAbility("blood_cutter"))
 
-					, id));
+					, id)
+			.discTooltipWIP());
 }

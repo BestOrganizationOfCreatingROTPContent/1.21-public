@@ -9,9 +9,12 @@ import com.github.standobyte.jojo.init.ModItemDataComponents;
 import com.github.standobyte.jojo.mc.item.component.StandWrittenOnDisc;
 import com.github.standobyte.jojo.mechanics.StoryPart;
 import com.github.standobyte.jojo.powersystem.PowerClass;
+import com.github.standobyte.jojo.powersystem.standpower.StandInstance;
 import com.github.standobyte.jojo.powersystem.standpower.StandPower;
+import com.github.standobyte.jojo.powersystem.standpower.type.StandType;
 
 import net.minecraft.core.Holder;
+import net.minecraft.network.chat.CommonComponents;
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResultHolder;
@@ -32,17 +35,24 @@ public class StandDiscItem extends Item {
 		StandWrittenOnDisc discStand = item.get(ModItemDataComponents.DISC_STAND.get());
 		if (discStand == null || !discStand.isValid()) return;
 		
-		Component standName = discStand.getInstance().getStandName(true);
+		StandInstance standInstance = discStand.getInstance();
+		StandType standType = standInstance.getStandType();
+		Component standName = standInstance.getStandName(true);
 		if (standName != null) {
 			tooltip.add(standName);
 		}
 
-		StandSkin skin = StandSkinsLoader.getInstance().getSkin(discStand.getInstance());
+		StandSkin skin = StandSkinsLoader.getInstance().getSkin(standInstance);
 		if (skin != null) {
 			Holder<StoryPart> storyPart = skin.getStoryPart(ctx.registries());
 			if (storyPart != null) {
 				tooltip.add(StoryPart.partName(storyPart));
 			}
+		}
+		
+		if (!standType.discExtraTooltip.isEmpty()) {
+			tooltip.add(CommonComponents.EMPTY);
+			tooltip.addAll(standType.discExtraTooltip);
 		}
 	}
 

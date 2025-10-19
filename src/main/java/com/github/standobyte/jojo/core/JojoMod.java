@@ -32,8 +32,6 @@ import net.neoforged.fml.loading.FMLLoader;
 import net.neoforged.neoforge.network.event.RegisterPayloadHandlersEvent;
 
 // XXX allow PowerType to override controls/HUD rendering
-// XXX make some sort of marker annotation for client-only methods in common classes
-// XXX hardcode the stand credits (Map<ResourceLocation, Component[]>)
 @Mod(JojoMod.MOD_ID)
 public class JojoMod {
 	public static final String MOD_ID = "jojo_ripples";

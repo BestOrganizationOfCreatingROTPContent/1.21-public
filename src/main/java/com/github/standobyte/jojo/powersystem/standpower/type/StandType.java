@@ -1,12 +1,16 @@
 package com.github.standobyte.jojo.powersystem.standpower.type;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.function.Consumer;
 import java.util.stream.Stream;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 
+import com.github.standobyte.jojo.core.JojoMod;
 import com.github.standobyte.jojo.core.JojoRegistries;
 import com.github.standobyte.jojo.core.packet.fromserver.StandSkinSoundPacket;
 import com.github.standobyte.jojo.core.packet.fromserver.TrNonEntityStandSummonPacket;
@@ -28,12 +32,15 @@ import com.github.standobyte.jojo.util.mc.AttributeUtil;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 
+import net.minecraft.ChatFormatting;
 import net.minecraft.Util;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.LivingEntity;
+import net.neoforged.fml.ModList;
 import net.neoforged.neoforge.common.util.Lazy;
 import net.neoforged.neoforge.network.PacketDistributor;
+import net.neoforged.neoforgespi.language.IConfigurable;
 
 public class StandType extends PowerType {
 	protected final ResourceLocation standTypeId;
@@ -41,6 +48,8 @@ public class StandType extends PowerType {
 	protected boolean isEnabled;
 	protected boolean playSummonSound = true;
 	protected boolean playUnsummonSound = true;
+	public StandCreationSource createdIn = StandCreationSource.REGISTRY;
+	public List<Component> discExtraTooltip = new ArrayList<>();
 	
 	public StandType(StandStats stats, MovesetBuilder moveset, 
 			ResourceLocation id) {
@@ -49,7 +58,52 @@ public class StandType extends PowerType {
 		if (stats == null) stats = new StandStats(0, 0, 0, 0, 0, 0);
 		this.stats = stats;
 		this.isEnabled = true;
+		addAddonCredits();
 	}
+	
+	public <T extends StandType> T init(Consumer<T> init) {
+		T cast = (T) this;
+		init.accept(cast);
+		return cast;
+	}
+	
+	public <T extends StandType> T discTooltipWIP() { 
+		return init(stand -> stand.discExtraTooltip.add(
+				Component.translatable("item.jojo_ripples.stand_disc.wip")
+				.withStyle(ChatFormatting.ITALIC).withColor(0x808000)));
+	}
+	
+	public <T extends StandType> T discTooltipExperimental() { 
+		return init(stand -> stand.discExtraTooltip.add(
+				Component.translatable("item.jojo_ripples.stand_disc.experimental")
+				.withStyle(ChatFormatting.ITALIC).withColor(0x800000))); 
+	}
+	
+	public void discTooltipDatapack() { 
+		this.createdIn = StandCreationSource.DATAPACK;
+		this.discExtraTooltip.add(
+				Component.translatable("item.jojo_ripples.stand_disc.data_pack")
+				.withStyle(ChatFormatting.ITALIC).withColor(0x6060ff));
+	}
+
+	public void addAddonCredits() {
+		if (createdIn == StandCreationSource.REGISTRY) {
+			String modId = standTypeId.getNamespace();
+			if (!modId.equals(JojoMod.MOD_ID)) {
+				ModList.get().getModContainerById(modId)
+				.map(mod -> mod.getModInfo())
+				.flatMap(modInfo -> modInfo instanceof IConfigurable ? ((IConfigurable) modInfo).getConfigElement("authors") : Optional.empty())
+				.map(authorsString -> authorsString instanceof String ? (String) authorsString : null)
+				.ifPresent(authors -> {
+					authors = authors.replace(", StandoByte", "").replace("StandoByte, ", "");
+					discExtraTooltip.add(
+							Component.translatable("item.jojo_ripples.stand_disc.addon_author", authors)
+							.withStyle(ChatFormatting.ITALIC).withColor(0x00b0b0));
+				});
+			}
+		}
+	}
+	
 	
 	@Override
 	public JsonObject makeConfigTemplate() {

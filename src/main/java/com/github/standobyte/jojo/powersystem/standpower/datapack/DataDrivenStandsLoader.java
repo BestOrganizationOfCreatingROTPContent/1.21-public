@@ -192,6 +192,7 @@ public class DataDrivenStandsLoader {
 						
 						StandType newDatapackStand = standTypeClass.createStand(stats, new MovesetBuilder(), standId);
 						newDatapackStand.applyConfig(json);
+						newDatapackStand.discTooltipDatapack();
 						datapackStands.put(standId, newDatapackStand);
 					}
 				}
