@@ -1,13 +1,11 @@
 package com.github.standobyte.jojo.jojoimpl.stands.hierophant;
 
-import java.util.Optional;
+import java.util.List;
 
 import javax.annotation.Nullable;
 
-import com.github.standobyte.jojo.init.ModDataAttachmentTypes;
 import com.github.standobyte.jojo.init.power.ModStandAbilities;
 import com.github.standobyte.jojo.mechanics.entitycontrol.ServerEntityController;
-import com.github.standobyte.jojo.mechanics.entitycontrol.SetClientControllerPacket;
 import com.github.standobyte.jojo.powersystem.Power;
 import com.github.standobyte.jojo.powersystem.PowerClass;
 import com.github.standobyte.jojo.powersystem.ability.AbilityId;
@@ -19,15 +17,12 @@ import com.github.standobyte.jojo.powersystem.entityaction.type.EntityActionType
 import com.github.standobyte.jojo.powersystem.standpower.StandPower;
 import com.github.standobyte.jojo.powersystem.standpower.effect.StandEffectInstance;
 import com.github.standobyte.jojo.powersystem.standpower.entity.StandEntityAbility;
-import com.github.standobyte.jojo.util.entitycomponent.ComponentUtil;
 
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.network.chat.Component;
-import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.Mob;
 import net.minecraft.world.level.Level;
-import net.neoforged.neoforge.network.PacketDistributor;
 
 public class HierophantPuppetAbility extends StandEntityAbility {
 
@@ -43,18 +38,10 @@ public class HierophantPuppetAbility extends StandEntityAbility {
 		if (!level.isClientSide()) {
 			StandPower power = PowerClass.STAND.get(user);
 			if (power != null) {
-				Optional<HierophantPuppetEffect> effect = power.userStandEffects.getEffectOfType(ModStandAbilities.EFFECT_HG_PUPPET.get());
-				if (effect.isPresent()) {
-					effect.get().remove();
-
-					ServerEntityController component = ComponentUtil.getExistingDataOrNull(user, ModDataAttachmentTypes.CONTROLLER);
-					if (component != null) {
-						component.stopControlling();
-						if (user instanceof ServerPlayer player) {
-							PacketDistributor.sendToPlayer(player, new SetClientControllerPacket(-1, ""));
-						}
-					}
-					
+				// Toggle back from the mob control instantly, without a Stand action
+				List<HierophantPuppetEffect> effects = power.userStandEffects.getEffectsOfType(ModStandAbilities.EFFECT_HG_PUPPET.get()).toList();
+				if (!effects.isEmpty()) {
+					effects.forEach(StandEffectInstance::remove);
 					return null;
 				}
 			}
@@ -69,6 +56,7 @@ public class HierophantPuppetAbility extends StandEntityAbility {
 		return new PuppetingAction(this);
 	}
 	
+	// The action is only created when we click an entity we want Hierophant to puppet
 	public static class PuppetingAction extends EntityActionInstance {
 		public LivingEntity targetEntity;
 

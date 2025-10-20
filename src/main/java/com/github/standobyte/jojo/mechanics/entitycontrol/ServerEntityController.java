@@ -32,7 +32,7 @@ public class ServerEntityController implements TickingEntityData {
 		return controlTarget;
 	}
 	
-	public boolean suppressTargetEntity() {
+	public boolean suppressControlledEntity() {
 		return true;
 	}
 	
@@ -60,8 +60,14 @@ public class ServerEntityController implements TickingEntityData {
 		}
 	}
 	
-	public void stopControlling() {
+	/**
+	 * Does not sync from server to the player's client on its own. 
+	 */
+	public void stopControlling(boolean syncToClient) {
 		setControlTarget(null, null);
+		if (syncToClient && thisEntity instanceof ServerPlayer player) {
+			PacketDistributor.sendToPlayer(player, new SetClientControllerPacket(-1, ""));
+		}
 	}
 	
 	public static void setServerControlTarget(LivingEntity controllingEntity, @Nullable Entity targetEntity, @Nullable String setOnClientType) {
@@ -72,7 +78,7 @@ public class ServerEntityController implements TickingEntityData {
 		else {
 			ServerEntityController component = ComponentUtil.getExistingDataOrNull(controllingEntity, ModDataAttachmentTypes.CONTROLLER);
 			if (component != null) {
-				component.stopControlling();
+				component.stopControlling(false);
 			}
 		}
 	}
@@ -95,7 +101,7 @@ public class ServerEntityController implements TickingEntityData {
 	public void tick() {
 		if (controllingEntity != null && !controllingEntity.isAlive()) {
 			ServerEntityController controllerComponent = controllingEntity.getData(ModDataAttachmentTypes.CONTROLLER);
-			controllerComponent.stopControlling();
+			controllerComponent.stopControlling(false);
 		}
 	}
 

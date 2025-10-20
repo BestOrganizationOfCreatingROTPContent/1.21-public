@@ -33,7 +33,7 @@ public class EntityEffectiveAIMixin {
 		}
 		else {
 			ServerEntityController controller = ServerEntityController.getCurrentController(thisEntity);
-			if (controller != null && controller.suppressTargetEntity()) {
+			if (controller != null && controller.suppressControlledEntity()) {
 				ci.setReturnValue(false);
 			}
 		}

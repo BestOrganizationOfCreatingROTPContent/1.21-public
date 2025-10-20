@@ -33,7 +33,7 @@ public abstract class MobAIMixin extends LivingEntity {
 	@Inject(method = "serverAiStep", at = @At("HEAD"), cancellable = true)
 	public void jojo_ripples$manualMobControl(CallbackInfo ci) {
 		ServerEntityController controller = ServerEntityController.getCurrentController(this);
-		if (controller != null && controller.suppressTargetEntity()) {
+		if (controller != null && controller.suppressControlledEntity()) {
 			this.customServerAiStep();
 			ci.cancel();
 		}
