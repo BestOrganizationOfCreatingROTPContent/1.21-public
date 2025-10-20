@@ -3,24 +3,37 @@ package com.github.standobyte.jojo.mechanics.entitycontrol.client.mob;
 import javax.annotation.Nullable;
 
 import com.github.standobyte.jojo.client.ui.hud.VanillaHudSprites;
+import com.github.standobyte.jojo.client.ui.utils.BlitFloat;
+import com.github.standobyte.jojo.client.ui.utils.GuiIcon;
+import com.github.standobyte.jojo.core.JojoMod;
 import com.github.standobyte.jojo.mechanics.entitycontrol.client.ClientEntityController;
+import com.github.standobyte.jojo.mechanics.entitycontrol.client.ItemNameAboveHotbarTimer;
+import com.github.standobyte.jojo.mechanics.entitycontrol.client.mob.HardcodedMobControlCommands.WitchPotionMode;
 import com.github.standobyte.jojo.mechanics.entitycontrol.client.stand.StandHudElements;
 import com.github.standobyte.jojo.mechanics.entitycontrol.client.stand.StandHudElements.HealthHudTracker;
 import com.github.standobyte.jojo.mixin.entitycontrol.client.GuiAccessor;
 import com.github.standobyte.jojo.util.UtilFunctions;
+import com.mojang.blaze3d.platform.InputConstants;
 import com.mojang.blaze3d.systems.RenderSystem;
 
+import net.minecraft.client.DeltaTracker;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.player.Input;
+import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.Mob;
 import net.minecraft.world.entity.ai.control.JumpControl;
 import net.minecraft.world.entity.ai.control.MoveControl;
+import net.minecraft.world.entity.monster.Witch;
+import net.minecraft.world.item.Item;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.Items;
 import net.neoforged.bus.api.EventPriority;
 import net.neoforged.bus.api.SubscribeEvent;
+import net.neoforged.neoforge.client.event.InputEvent;
 import net.neoforged.neoforge.client.event.MovementInputUpdateEvent;
 import net.neoforged.neoforge.client.event.RenderGuiLayerEvent;
 import net.neoforged.neoforge.client.gui.VanillaGuiLayers;
@@ -37,6 +50,10 @@ public class ClientMobController extends ClientEntityController {
 	@Override
 	public void onSet() {
 		NeoForge.EVENT_BUS.register(this);
+		if (entityAsLiving instanceof Witch) {
+			witchHotbar = new WitchStuff();
+			witchHotbar.setInitialHotbarSlot(entityAsLiving);
+		}
 	}
 
 	@Override
@@ -61,9 +78,19 @@ public class ClientMobController extends ClientEntityController {
         
 		UtilFunctions.wrapYRotationAngles(entityAsLiving);
 	}
+	
+	@Override
+	public void tickPre() {
+		if (witchHotbar != null) {
+			witchHotbar.handleVanillaKeybinds(mc);
+		}
+	}
 
 	@Override
 	public void tick() {
+		if (witchHotbar != null) {
+			witchHotbar.itemName.tick(entityAsLiving.getMainHandItem(), mc);
+		}
 		PacketDistributor.sendToServer(new ClMobControlMovementPacket(entity.getId(), 
 				entity.getX(), entity.getY(), entity.getZ(), 
 				entity.getXRot(), entity.getYRot(), entity.onGround()));
@@ -78,6 +105,20 @@ public class ClientMobController extends ClientEntityController {
 		}
 		return true;
 	}
+	
+	@SubscribeEvent
+	public void onMouseScroll(InputEvent.MouseScrollingEvent event) {
+		double scrollX = event.getScrollDeltaX();
+		double scrollY = event.getScrollDeltaY();
+		if (scrollX != 0 || scrollY != 0) {
+			double scroll = scrollY == 0 ? -scrollX : scrollY;
+			if (witchHotbar != null) {
+				witchHotbar.onMouseScroll(scroll < 0);
+			}
+		}
+		event.setCanceled(true);
+	}
+	
 
 	@Override
 	public boolean isBeingControlled(Entity entity) {
@@ -91,7 +132,6 @@ public class ClientMobController extends ClientEntityController {
 	}
 
 
-
 	@SubscribeEvent(priority = EventPriority.HIGHEST)
 	public void removeHudElements(RenderGuiLayerEvent.Pre event) {
 		ResourceLocation layerName = event.getName();
@@ -101,16 +141,18 @@ public class ClientMobController extends ClientEntityController {
 	}
 	
 	protected HealthHudTracker healthHudTracker = new HealthHudTracker();
+	protected WitchStuff witchHotbar;
+	
 	@SubscribeEvent(priority = EventPriority.LOW)
 	public void renderHudElements(RenderGuiLayerEvent.Pre event) {
 		Minecraft mc = Minecraft.getInstance();
 		ResourceLocation layerName = event.getName();
 		GuiGraphics guiGraphics = event.getGuiGraphics();
-//		DeltaTracker deltaTracker = event.getPartialTick();
+		DeltaTracker deltaTracker = event.getPartialTick();
 		GuiAccessor gui = (GuiAccessor) mc.gui;
 		VanillaHudSprites.cacheSpritePaths(gui);
 		if (layerName.equals(VanillaGuiLayers.PLAYER_HEALTH)) {
-			StandHudElements.renderHealth(entityAsLiving, guiGraphics, gui, mc, healthHudTracker);
+			StandHudElements.renderHealth(entityAsLiving, entityAsLiving, guiGraphics, gui, mc, healthHudTracker);
 		}
 		if (layerName.equals(VanillaGuiLayers.VEHICLE_HEALTH)) {
 			renderVehicleHealth(entityAsLiving, guiGraphics, gui, mc);
@@ -124,12 +166,23 @@ public class ClientMobController extends ClientEntityController {
 		else if (layerName.equals(VanillaGuiLayers.EFFECTS)) {
 			StandHudElements.renderStatusEffects(entityAsLiving, guiGraphics, gui, mc, false);
 		}
-//		else if (layerName.equals(VanillaGuiLayers.HOTBAR)) { // XXX witch potions hotbar
-//			int center = guiGraphics.guiWidth() / 2;
-//			int xLeft = center;
-//			int xRight = center;
-//			renderStandHeldItems(stand, guiGraphics, gui, deltaTracker, mc, xLeft, xRight, true);
-//		}
+		else if (layerName.equals(VanillaGuiLayers.HOTBAR)) {
+			int center = guiGraphics.guiWidth() / 2;
+			if (witchHotbar != null) {
+				witchHotbar.renderHotbar(entityAsLiving, guiGraphics, deltaTracker, gui, mc, center);
+			}
+			else {
+				int xLeft = center;
+				int xRight = center;
+				StandHudElements.renderLivingHeldItems(entityAsLiving, guiGraphics, gui, deltaTracker, mc, xLeft, xRight, true);
+			}
+		}
+		else if (layerName.equals(VanillaGuiLayers.SELECTED_ITEM_NAME)) {
+			if (witchHotbar != null) {
+				witchHotbar.renderHotbarText(entityAsLiving, guiGraphics, deltaTracker, gui, mc);
+			}
+			event.setCanceled(true);
+		}
 //		else if (layerName.equals(VanillaGuiLayers.CROSSHAIR)) {
 //			
 //		}
@@ -181,6 +234,153 @@ public class ClientMobController extends ClientEntityController {
 	@Nullable
 	public static LivingEntity getVehicleWithHealth(LivingEntity entity) {
 		return entity.getVehicle() instanceof LivingEntity vehicle && vehicle.showVehicleHealth() ? vehicle : null;
+	}
+	
+	
+	public static class WitchStuff {
+		@Nullable public Integer hotbarSlot;
+		public WitchPotionMode witchPotionMode;
+		public ItemNameAboveHotbarTimer itemName = new ItemNameAboveHotbarTimer();
+		
+
+		public void handleVanillaKeybinds(Minecraft mc) {
+			if (mc.screen == null) {
+				for (int i = 0; i < 9; i++) {
+					if (mc.options.keyHotbarSlots[i].consumeClick()) {
+						onNumberKeyPressed(i);
+					}
+				}
+				
+				while (mc.options.keySwapOffhand.consumeClick()) {
+					onFKeyPressed();
+				}
+			}
+		}
+		
+		
+		public void onMouseScroll(boolean forward) {
+			ItemStack[] potions = HardcodedMobControlCommands.getWitchPotions(witchPotionMode);
+			if (potions != null) {
+				if (hotbarSlot == null) {
+					setSelectedSlot(forward ? 0 : potions.length - 1);
+				}
+				else {
+					setSelectedSlot(((forward ? hotbarSlot + 1 : hotbarSlot - 1) + potions.length) % potions.length);
+				}
+			}
+		}
+
+		public void onNumberKeyPressed(int slot) {
+			ItemStack[] potions = HardcodedMobControlCommands.getWitchPotions(witchPotionMode);
+			if (potions != null) {
+				if (slot >= 0 && slot < potions.length) {
+					setSelectedSlot(slot);
+				}
+				else {
+					setSelectedSlot(null);
+				}
+			}
+		}
+		
+		public void onFKeyPressed() {
+			if (witchPotionMode == WitchPotionMode.DRINK) {
+				setPotionMode(WitchPotionMode.SPLASH);
+			}
+			else {
+				setPotionMode(WitchPotionMode.DRINK);
+			}
+		}
+		
+		// TODO set them on the client side too, to account for server lag
+		// make sure that the right click will use the correct potion, similarly to net.minecraft.client.multiplayer.MultiPlayerGameMode#ensureHasSentCarriedItem()
+		public void setSelectedSlot(Integer slot) {
+			this.hotbarSlot = slot;
+			PacketDistributor.sendToServer(new ClControlledMobCommandPacket(
+					witchPotionMode == WitchPotionMode.DRINK ? 
+							ClControlledMobCommandPacket.CommandType.WITCH_PICK_DRINK_POTION : 
+							ClControlledMobCommandPacket.CommandType.WITCH_PICK_SPLASH_POTION, 
+					hotbarSlot != null ? hotbarSlot : 127));
+		}
+		
+		public void setPotionMode(WitchPotionMode mode) {
+			this.witchPotionMode = mode;
+			setSelectedSlot(null);
+		}
+		
+		
+		public static final GuiIcon MODE_DRINK = new GuiIcon(JojoMod.resLoc("textures/gui/sprites/witch_mode_drink.png"), 16, 16);
+		public static final GuiIcon MODE_SPLASH = new GuiIcon(JojoMod.resLoc("textures/gui/sprites/witch_mode_splash.png"), 16, 16);
+		public void renderHotbar(LivingEntity witch, GuiGraphics guiGraphics, DeltaTracker deltaTracker, GuiAccessor gui, Minecraft mc, int center) {
+			int width = 182;
+			int halfWidth = width / 2;
+			RenderSystem.enableBlend();
+			guiGraphics.pose().pushPose();
+			guiGraphics.pose().translate(0.0F, 0.0F, -90.0F);
+			guiGraphics.blitSprite(VanillaHudSprites.HOTBAR_SPRITE, center - 91, guiGraphics.guiHeight() - 22, width, 22);
+			if (hotbarSlot != null) {
+				guiGraphics.blitSprite(VanillaHudSprites.HOTBAR_SELECTION_SPRITE, center - 91 - 1 + hotbarSlot * 20, guiGraphics.guiHeight() - 22 - 1, 24, 23);
+			}
+			
+			guiGraphics.blitSprite(VanillaHudSprites.HOTBAR_OFFHAND_LEFT_SPRITE, center - halfWidth - 29, guiGraphics.guiHeight() - 23, 29, 24);
+
+			guiGraphics.pose().popPose();
+			RenderSystem.disableBlend();
+			int seed = 1;
+
+			if (witchPotionMode == null) setPotionMode(WitchPotionMode.SPLASH);
+			ItemStack[] potions = HardcodedMobControlCommands.getWitchPotions(witchPotionMode);
+			int y = guiGraphics.guiHeight() - 16 - 3;
+			for (int i = 0; i < potions.length; i++) {
+				int x = center - halfWidth + 1 + i * 20 + 2;
+				ItemStack item = potions[i];
+				StandHudElements.renderSlot(guiGraphics, x, y, deltaTracker, witch, item, mc, seed++);
+			}
+
+			GuiIcon modeSwitcherSprite = switch (witchPotionMode) {
+				case SPLASH -> MODE_DRINK;
+				case DRINK -> MODE_SPLASH;
+			};
+			RenderSystem.enableBlend();
+			modeSwitcherSprite.render(guiGraphics.pose(), center - halfWidth - 26, y);
+		}
+
+		public void renderHotbarText(LivingEntity witch, GuiGraphics guiGraphics, DeltaTracker deltaTracker, GuiAccessor gui, Minecraft mc) {
+			itemName.renderSelectedItemName(guiGraphics, mc);
+			
+			int modeSwitcherX = guiGraphics.guiWidth() / 2 - 109;
+			int modeSwitcherY = guiGraphics.guiHeight() - 33;
+			InputConstants.Key key = mc.options.keySwapOffhand.getKey();
+			if (key != null && !key.equals(InputConstants.UNKNOWN)) {
+				Component keyName = key.getDisplayName();
+				guiGraphics.drawCenteredString(mc.font, keyName, modeSwitcherX, modeSwitcherY, BlitFloat.NO_TINT);
+			}
+		}
+
+		public void setInitialHotbarSlot(LivingEntity witch) {
+			ItemStack heldItem = witch.getMainHandItem();
+			if (!heldItem.isEmpty()) {
+				Item item = heldItem.getItem();
+				if (item == Items.POTION) {
+					witchPotionMode = WitchPotionMode.DRINK;
+				}
+				else if (item == Items.SPLASH_POTION) {
+					witchPotionMode = WitchPotionMode.SPLASH;
+				}
+				else {
+					witchPotionMode = null;
+				}
+				ItemStack[] potions = HardcodedMobControlCommands.getWitchPotions(witchPotionMode);
+				if (potions != null) {
+					for (int i = 0; i < potions.length; i++) {
+						if (ItemStack.matches(potions[i], heldItem)) {
+							hotbarSlot = i;
+							break;
+						}
+					}
+				}
+			}
+		}
+		
 	}
 
 }

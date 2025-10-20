@@ -136,7 +136,7 @@ public class ClientStandController extends ClientEntityController {
 
 	@Override
 	public boolean renderFirstPerson(float partialTick, PoseStack poseStack, BufferSource bufferSource, int packedLight) {
-		EntityRenderer<?> renderer = Minecraft.getInstance().getEntityRenderDispatcher().getRenderer(entityAsLiving);
+		EntityRenderer<?> renderer = mc.getEntityRenderDispatcher().getRenderer(entityAsLiving);
 		
 		StandEntityRenderer entityRenderer = (StandEntityRenderer) renderer;
 		StandEntity _entity = (StandEntity) entityAsLiving;
@@ -157,7 +157,6 @@ public class ClientStandController extends ClientEntityController {
 
 	@Override
 	public boolean shouldRenderBlockOutline() {
-		Minecraft mc = Minecraft.getInstance();
 		if (!mc.player.mayBuild()) { // either adventure mode or spectator
 			ItemStack heldItem = ((LivingEntity) entity).getMainHandItem();
 			HitResult vanillaAim = mc.hitResult;
@@ -186,7 +185,6 @@ public class ClientStandController extends ClientEntityController {
 			float partialTick = deltaTracker.getGameTimeDeltaPartialTick(false);
 			float alpha = movementSpeedBarTranslucency.getAlpha(partialTick);
 			int color = ARGB32.colorFromFloat(alpha, 1, 1, 1);
-			Minecraft mc = Minecraft.getInstance();
 			int x = guiGraphics.guiWidth() / 2 + 4;
 			int y = guiGraphics.guiHeight() / 2 - 8;
 			float SPRITE_WIDTH = 16;
@@ -197,7 +195,7 @@ public class ClientStandController extends ClientEntityController {
 					GlStateManager.DestFactor.ONE_MINUS_SRC_COLOR,
 					GlStateManager.SourceFactor.ONE,
 					GlStateManager.DestFactor.ZERO);
-			BlitFloat.blit(guiGraphics.pose(), Minecraft.getInstance(), SPEED_BAR_EMPTY, 
+			BlitFloat.blit(guiGraphics.pose(), mc, SPEED_BAR_EMPTY, 
 					x, y, SPRITE_WIDTH, SPRITE_HEIGHT, 0, 
 					BlitFloat.NO_TINT);
             RenderSystem.defaultBlendFunc();
@@ -206,7 +204,7 @@ public class ClientStandController extends ClientEntityController {
 			if (speed > 1E-4) {
 				float height = speed == 1 ? 1 : Math.min(speed, 1f - 1f / (16 * mc.options.guiScale().get()));
 				float fillY = SPRITE_HEIGHT * (1 - height);
-				BlitFloat.blit(guiGraphics.pose(), Minecraft.getInstance(), SPEED_BAR_FULL, 
+				BlitFloat.blit(guiGraphics.pose(), mc, SPEED_BAR_FULL, 
 						x, y + fillY, SPRITE_WIDTH, SPRITE_HEIGHT - fillY, 0, 
 						0, fillY,     SPRITE_WIDTH, SPRITE_HEIGHT - fillY, SPRITE_WIDTH, SPRITE_HEIGHT, 
 						color);

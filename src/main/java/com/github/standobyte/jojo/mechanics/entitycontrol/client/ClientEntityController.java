@@ -23,12 +23,14 @@ import net.minecraft.world.entity.Mob;
 public abstract class ClientEntityController {
 	@Nullable protected static ClientEntityController instance;
 
+	protected Minecraft mc;
 	@ApiStatus.Internal public Entity entity;
 	@ApiStatus.Internal public LivingEntity entityAsLiving;
 
 	public ClientEntityController(Entity entity) {
 		this.entity = entity;
 		this.entityAsLiving = entity instanceof LivingEntity l ? l : null;
+		this.mc = Minecraft.getInstance();
 	}
 
 	public static void setInstance(ClientEntityController instance) {
@@ -72,17 +74,21 @@ public abstract class ClientEntityController {
 				setInstance(null);
 			}
 			else {
-				Minecraft mc = Minecraft.getInstance();
+				Minecraft mc = instance.mc;
 				if (mc.cameraEntity == null || mc.cameraEntity == mc.player) {
 					ClientUtil.setCameraEntityPreventShaderSwitch(instance.entity);
 				}
+			}
+			
+			if (instance != null) {
+				instance.tickPre();
 			}
 		}
 	}
 
 	public static void clientTickPost() {
 		if (instance != null) {
-			sendLocalPlayerPosition(Minecraft.getInstance().player);
+			sendLocalPlayerPosition(instance.mc.player);
 			instance.tick();
 		}
 	}
@@ -110,6 +116,11 @@ public abstract class ClientEntityController {
 	public boolean isBeingControlled(Entity entity) {
 		return this.entity == entity;
 	}
+
+	/**
+	 * This lets us override the vanilla keybinds, for things like hotbar keys
+	 */
+	public void tickPre() {}
 
 	public void tick() {}
 	public static void sendLocalPlayerPosition(LocalPlayer player) {

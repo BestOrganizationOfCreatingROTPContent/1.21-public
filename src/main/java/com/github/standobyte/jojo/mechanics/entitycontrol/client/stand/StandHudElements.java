@@ -92,7 +92,7 @@ public class StandHudElements {
 		VanillaHudSprites.cacheSpritePaths(gui);
 		if (layerName.equals(VanillaGuiLayers.PLAYER_HEALTH)) {
 			if (mc.gameMode.canHurtPlayer()) {
-				 renderHealth(stand, guiGraphics, gui, mc, health);
+				 renderHealth(stand, mc.player, guiGraphics, gui, mc, health);
 			}
 		}
 		else if (layerName.equals(VanillaGuiLayers.ARMOR_LEVEL)) {
@@ -114,7 +114,7 @@ public class StandHudElements {
 			int center = guiGraphics.guiWidth() / 2;
 			int xLeft = center;
 			int xRight = center;
-			renderStandHeldItems(stand, guiGraphics, gui, deltaTracker, mc, xLeft, xRight, true);
+			renderLivingHeldItems(stand, guiGraphics, gui, deltaTracker, mc, xLeft, xRight, true);
 		}
 	}
 	
@@ -135,7 +135,7 @@ public class StandHudElements {
 				case RIGHT -> attackIndicator ? center - 167 : center - 141;
 			};
 			
-			renderStandHeldItems(stand, guiGraphics, gui, deltaTracker, mc, xItemsCenter, xItemsCenter, false);
+			renderLivingHeldItems(stand, guiGraphics, gui, deltaTracker, mc, xItemsCenter, xItemsCenter, false);
 		}
 	}
 	
@@ -153,7 +153,7 @@ public class StandHudElements {
 
 
 	// the fact that literally the same methods exist in the vanilla Gui class, but take a Player parameter when LivingEntity works just fine makes me irrationally angry
-	public static void renderHealth(LivingEntity stand, GuiGraphics guiGraphics, GuiAccessor gui, Minecraft mc, HealthHudTracker hudHp) {
+	public static void renderHealth(LivingEntity stand,LivingEntity heartTypeEntity, GuiGraphics guiGraphics, GuiAccessor gui, Minecraft mc, HealthHudTracker hudHp) {
 		float hpF = stand.getHealth();
 		int hp = Mth.ceil(hpF);
 
@@ -194,27 +194,29 @@ public class StandHudElements {
 			k2 = tickCount % Mth.ceil(f + 5.0F);
 		}
 		Profiler.get().push("health");
-		renderHearts(gui, guiGraphics, stand, mc.player, l, j1, i2, k2, f, hp, k, k1, renderHighlight);
+		renderHearts(gui, guiGraphics, stand, heartTypeEntity, l, j1, i2, k2, f, hp, k, k1, renderHighlight);
 		Profiler.get().pop();
 	}
 	
 	public static void renderHearts(GuiAccessor gui, 
-			GuiGraphics guiGraphics, LivingEntity stand, Player player,
+			GuiGraphics guiGraphics, LivingEntity stand, LivingEntity heartTypeEntity,
 			int x, int y, int height, int offsetHeartIndex, float maxHealth,
 			int currentHealth, int displayHealth, int absorptionAmount, boolean renderHighlight) {
 		Gui.HeartType heartType;
-		if (player.hasEffect(MobEffects.POISON)) {
+		if (heartTypeEntity.hasEffect(MobEffects.POISON)) {
 			heartType = Gui.HeartType.POISIONED;
-		} else if (player.hasEffect(MobEffects.WITHER)) {
+		} else if (heartTypeEntity.hasEffect(MobEffects.WITHER)) {
 			heartType = Gui.HeartType.WITHERED;
-		} else if (player.isFullyFrozen()) {
+		} else if (heartTypeEntity.isFullyFrozen()) {
 			heartType = Gui.HeartType.FROZEN;
 		} else {
 			heartType = Gui.HeartType.NORMAL;
 		}
-		heartType = EventHooks.firePlayerHeartTypeEvent(player, heartType);
-
-		boolean hardcore = player.level().getLevelData().isHardcore();
+		boolean hardcore = false;
+		if (heartTypeEntity instanceof Player player) {
+			heartType = EventHooks.firePlayerHeartTypeEvent(player, heartType);
+			hardcore = player.level().getLevelData().isHardcore();
+		}
 		int hpHearts = Mth.ceil((double)maxHealth / 2);
 		int absorpHearts = Mth.ceil((double)absorptionAmount / 2);
 		int healthInt = hpHearts * 2;
@@ -387,7 +389,7 @@ public class StandHudElements {
 	
 	
 	
-	private void renderStandHeldItems(LivingEntity stand, GuiGraphics guiGraphics, GuiAccessor gui, DeltaTracker deltaTracker, Minecraft mc, 
+	public static void renderLivingHeldItems(LivingEntity stand, GuiGraphics guiGraphics, GuiAccessor gui, DeltaTracker deltaTracker, Minecraft mc, 
 			int xLeft, int xRight, boolean renderEmpty) {
 		ItemStack itemLeft = _LivingEntity.getItemHeldByArm(stand, HumanoidArm.LEFT);
 		ItemStack itemRight = _LivingEntity.getItemHeldByArm(stand, HumanoidArm.RIGHT);
