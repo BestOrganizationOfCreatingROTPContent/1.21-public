@@ -51,8 +51,9 @@ public class StandType extends PowerType {
 	
 	public StandCreationSource createdIn = StandCreationSource.REGISTRY;
 	public List<Component> discExtraTooltip = new ArrayList<>();
-	/** The lesser this field is, the earlier the disc will appear in the creative tab */
-	public int discOrderPriority = 100;
+	/** The lesser this field is, the earlier the disc will appear in the creative tab. Default is 100. */
+	public int discCategoryPriority = 100;
+	public int discStoryPartPriority = 100;
 	
 	public StandType(StandStats stats, MovesetBuilder moveset, 
 			ResourceLocation id) {
@@ -75,7 +76,7 @@ public class StandType extends PowerType {
 			stand.discExtraTooltip.add(
 					Component.translatable("item.jojo_ripples.stand_disc.wip")
 					.withStyle(ChatFormatting.ITALIC).withColor(0x808000));
-			stand.discOrderPriority = 200;
+			stand.discCategoryPriority = 200;
 		});
 	}
 	
@@ -84,7 +85,7 @@ public class StandType extends PowerType {
 			stand.discExtraTooltip.add(
 					Component.translatable("item.jojo_ripples.stand_disc.experimental")
 					.withStyle(ChatFormatting.ITALIC).withColor(0x800000));
-			stand.discOrderPriority = 300;
+			stand.discCategoryPriority = 300;
 		});
 	}
 	
@@ -93,7 +94,7 @@ public class StandType extends PowerType {
 		this.discExtraTooltip.add(
 				Component.translatable("item.jojo_ripples.stand_disc.data_pack")
 				.withStyle(ChatFormatting.ITALIC).withColor(0x6060ff));
-		this.discOrderPriority = 400;
+		this.discCategoryPriority = 400;
 	}
 
 	public void addAddonCredits() {

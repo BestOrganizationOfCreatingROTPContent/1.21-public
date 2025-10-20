@@ -122,7 +122,9 @@ public class ModStands {
 					.addSkill(StandUnlockableSkill.unlockableAbility("time_stop", 1))
 
 					, id)
-			.discTooltipWIP());
+			.discTooltipWIP()
+			 /* This is to make it appear first in the list of Stardust Crusaders Stands in the creative tab, as the protagonist's Stand */
+			.init(stand -> stand.discStoryPartPriority = 0));
 	
 	
 	
@@ -173,5 +175,6 @@ public class ModStands {
 					.addSkill(StandUnlockableSkill.unlockableAbility("block_bullet", 1).withAbility("blood_cutter"))
 
 					, id)
-			.discTooltipWIP());
+			.discTooltipWIP()
+			.init(stand -> stand.discStoryPartPriority = 0));
 }

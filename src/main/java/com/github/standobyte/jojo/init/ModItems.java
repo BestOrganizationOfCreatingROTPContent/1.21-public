@@ -52,9 +52,9 @@ public final class ModItems {
 	
 	public static Comparator<StandInstance> discsOrder(HolderLookup.Provider registries) {
 		return Comparator
-				.comparingInt((StandInstance stand) -> stand.getStandType().discOrderPriority)
-				.thenComparing((StandInstance stand) -> StoryPart.getStoryPart(stand, registries),
-						StoryPart.COMPARATOR);
+				.comparingInt((StandInstance stand) -> stand.getStandType().discCategoryPriority)
+				.thenComparing((StandInstance stand) -> StoryPart.getStoryPart(stand, registries), StoryPart.COMPARATOR)
+				.thenComparingInt((StandInstance stand) -> stand.getStandType().discStoryPartPriority);
 	}
 
 	public static final DeferredHolder<CreativeModeTab, CreativeModeTab> MAIN_TAB = CREATIVE_MODE_TABS.register(JojoMod.MOD_ID + "_main", () -> CreativeModeTab.builder()
