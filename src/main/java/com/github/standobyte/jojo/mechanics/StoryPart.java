@@ -112,7 +112,7 @@ public class StoryPart {
 
 
 	@Nullable
-	public static Holder<StoryPart> getDefaultStoryPart(StandInstance standInstance, HolderLookup.Provider registries) {
+	public static Holder<StoryPart> getStoryPart(StandInstance standInstance, HolderLookup.Provider registries) {
 		if (FMLEnvironment.dist == Dist.CLIENT) {
 			StandSkin skin = StandSkinsLoader.getInstance().getSkin(standInstance);
 			if (skin != null) {

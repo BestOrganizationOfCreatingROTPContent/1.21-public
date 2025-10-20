@@ -20,6 +20,7 @@ import com.github.standobyte.jojo.mechanics.clothes.mannequin.MannequinItem;
 import com.github.standobyte.jojo.powersystem.standpower.StandInstance;
 import com.github.standobyte.jojo.powersystem.standpower.type.StandType;
 
+import net.minecraft.core.HolderLookup;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.item.CreativeModeTab;
@@ -48,18 +49,23 @@ public final class ModItems {
 
 	public static final DeferredItem<ClothesItem> CLOTHES_BASE_ITEM = ITEMS.registerItem("clothes", props -> new ClothesItem(props));
 
+	
+	public static Comparator<StandInstance> discsOrder(HolderLookup.Provider registries) {
+		return Comparator
+				.comparingInt((StandInstance stand) -> stand.getStandType().discCategoryPriority)
+				.thenComparing((StandInstance stand) -> StoryPart.getStoryPart(stand, registries), StoryPart.COMPARATOR)
+				.thenComparingInt((StandInstance stand) -> stand.getStandType().discStoryPartPriority);
+	}
 
 	public static final DeferredHolder<CreativeModeTab, CreativeModeTab> MAIN_TAB = CREATIVE_MODE_TABS.register(JojoMod.MOD_ID + "_main", () -> CreativeModeTab.builder()
 			.title(Component.translatable("itemGroup." + JojoMod.MOD_ID + "_main"))
 			.icon(() -> DEBUG_ITEM.value().getDefaultInstance())
-			.displayItems((parameters, output) -> {
+			.displayItems((CreativeModeTab.ItemDisplayParameters parameters, CreativeModeTab.Output output) -> {
 				// most of the mod's items
 				Stream<StandType> stands = StandType.getAllEnabledStands();
 				stands
 				.map(StandInstance::new)
-				.sorted(Comparator.comparing(
-						(StandInstance stand) -> StoryPart.getDefaultStoryPart(stand, parameters.holders()),
-						StoryPart.COMPARATOR))
+				.sorted(discsOrder(parameters.holders()))
 				.map((StandInstance stand) -> {
 					ItemStack disc = new ItemStack(STAND_DISC.get());
 					disc.set(ModItemDataComponents.DISC_STAND.get(), new StandWrittenOnDisc(stand));
