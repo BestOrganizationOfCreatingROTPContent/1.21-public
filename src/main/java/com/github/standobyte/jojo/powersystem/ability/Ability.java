@@ -46,6 +46,10 @@ public class Ability {
 		return abilityId;
 	}
 	
+	public Power<?> getUserPower(LivingEntity user) {
+		return this.abilityId.powerClass().get(user);
+	}
+	
 	
 	// Most of the methods below are called in AvailableAbilities#update(Power, Moveset)
 	
