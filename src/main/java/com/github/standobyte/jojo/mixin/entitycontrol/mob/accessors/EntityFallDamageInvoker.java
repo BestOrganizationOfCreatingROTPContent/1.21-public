@@ -1,4 +1,4 @@
-package com.github.standobyte.jojo.mixin.entitycontrol.mob;
+package com.github.standobyte.jojo.mixin.entitycontrol.mob.accessors;
 
 import javax.annotation.Nullable;
 

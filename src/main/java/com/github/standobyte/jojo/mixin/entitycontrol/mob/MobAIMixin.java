@@ -8,6 +8,7 @@ import org.spongepowered.asm.mixin.injection.Redirect;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
 import com.github.standobyte.jojo.mechanics.entitycontrol.ServerEntityController;
+import com.github.standobyte.jojo.mechanics.entitycontrol.client.mob.HardcodedMobControlCommands;
 
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.LivingEntity;
@@ -34,13 +35,10 @@ public abstract class MobAIMixin extends LivingEntity {
 	public void jojo_ripples$manualMobControl(CallbackInfo ci) {
 		ServerEntityController controller = ServerEntityController.getCurrentController(this);
 		if (controller != null && controller.suppressControlledEntity()) {
-			this.customServerAiStep();
+			HardcodedMobControlCommands.serverTickControlledMob((Mob) (LivingEntity) this);
 			ci.cancel();
 		}
 	}
 	
 	@Shadow protected abstract void customServerAiStep();
-	
-	
-	// FIXME cancel Mob#customServerAiStep() call on client side
 }

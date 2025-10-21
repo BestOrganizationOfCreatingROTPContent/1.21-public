@@ -34,6 +34,7 @@ import net.minecraft.world.item.Items;
 import net.neoforged.bus.api.EventPriority;
 import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.neoforge.client.event.InputEvent;
+import net.neoforged.neoforge.client.event.InputEvent.InteractionKeyMappingTriggered;
 import net.neoforged.neoforge.client.event.MovementInputUpdateEvent;
 import net.neoforged.neoforge.client.event.RenderGuiLayerEvent;
 import net.neoforged.neoforge.client.gui.VanillaGuiLayers;
@@ -79,11 +80,58 @@ public class ClientMobController extends ClientEntityController {
 		UtilFunctions.wrapYRotationAngles(entityAsLiving);
 	}
 	
+	protected boolean lmbHeld;
+	protected boolean rmbHeld;
+	protected int rmbDelay;
 	@Override
 	public void tickPre() {
-		if (witchHotbar != null) {
-			witchHotbar.handleVanillaKeybinds(mc);
+		if (mc.screen == null) {
+			if (witchHotbar != null) {
+				witchHotbar.handleVanillaKeybinds(mc);
+			}
+
+			boolean holdingLMB = mc.options.keyAttack.isDown();
+			boolean holdingRMB = mc.options.keyUse.isDown();
+			
+			if (holdingRMB) {
+				if (rmbDelay > 0) --rmbDelay;
+			}
+			if (lmbHeld != holdingLMB) {
+				if (holdingLMB) {
+					PacketDistributor.sendToServer(new ClControlledMobCommandPacket(HardcodedMobControlCommands.CommandType.PRESS_LMB, mc.hitResult));
+				}
+				else {
+					PacketDistributor.sendToServer(new ClControlledMobCommandPacket(HardcodedMobControlCommands.CommandType.RELEASE_LMB));
+				}
+			}
+			if (rmbHeld != holdingRMB) {
+				if (holdingRMB) {
+					PacketDistributor.sendToServer(new ClControlledMobCommandPacket(HardcodedMobControlCommands.CommandType.PRESS_RMB, mc.hitResult));
+					rmbDelay = 4;
+				}
+				else {
+					PacketDistributor.sendToServer(new ClControlledMobCommandPacket(HardcodedMobControlCommands.CommandType.RELEASE_RMB));
+					rmbDelay = 0;
+				}
+			}
+			else if (rmbDelay <= 0) {
+				PacketDistributor.sendToServer(new ClControlledMobCommandPacket(HardcodedMobControlCommands.CommandType.HOLDING_RMB, mc.hitResult));
+				rmbDelay = 4;
+			}
+			
+			while (mc.options.keyAttack.consumeClick()) {}
+			while (mc.options.keyUse.consumeClick()) {}
+			while (mc.options.keyPickItem.consumeClick()) {}
+			
+			this.lmbHeld = holdingLMB;
+			this.rmbHeld = holdingRMB;
 		}
+	}
+	
+	@SubscribeEvent
+	public void cancelPlayerClickInput(InteractionKeyMappingTriggered event) {
+		event.setCanceled(true);
+		event.setSwingHand(false);
 	}
 
 	@Override
@@ -244,16 +292,14 @@ public class ClientMobController extends ClientEntityController {
 		
 
 		public void handleVanillaKeybinds(Minecraft mc) {
-			if (mc.screen == null) {
-				for (int i = 0; i < 9; i++) {
-					if (mc.options.keyHotbarSlots[i].consumeClick()) {
-						onNumberKeyPressed(i);
-					}
+			for (int i = 0; i < 9; i++) {
+				if (mc.options.keyHotbarSlots[i].consumeClick()) {
+					onNumberKeyPressed(i);
 				}
-				
-				while (mc.options.keySwapOffhand.consumeClick()) {
-					onFKeyPressed();
-				}
+			}
+
+			while (mc.options.keySwapOffhand.consumeClick()) {
+				onFKeyPressed();
 			}
 		}
 		
@@ -297,8 +343,8 @@ public class ClientMobController extends ClientEntityController {
 			this.hotbarSlot = slot;
 			PacketDistributor.sendToServer(new ClControlledMobCommandPacket(
 					witchPotionMode == WitchPotionMode.DRINK ? 
-							ClControlledMobCommandPacket.CommandType.WITCH_PICK_DRINK_POTION : 
-							ClControlledMobCommandPacket.CommandType.WITCH_PICK_SPLASH_POTION, 
+							HardcodedMobControlCommands.CommandType.WITCH_PICK_DRINK_POTION : 
+							HardcodedMobControlCommands.CommandType.WITCH_PICK_SPLASH_POTION, 
 					hotbarSlot != null ? hotbarSlot : 127));
 		}
 		

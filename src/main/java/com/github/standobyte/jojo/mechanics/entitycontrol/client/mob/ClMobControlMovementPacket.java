@@ -2,7 +2,7 @@ package com.github.standobyte.jojo.mechanics.entitycontrol.client.mob;
 
 import com.github.standobyte.jojo.core.PacketsRegister;
 import com.github.standobyte.jojo.mechanics.entitycontrol.ServerEntityController;
-import com.github.standobyte.jojo.mixin.entitycontrol.mob.EntityFallDamageInvoker;
+import com.github.standobyte.jojo.mixin.entitycontrol.mob.accessors.EntityFallDamageInvoker;
 import com.google.common.primitives.Floats;
 
 import net.minecraft.core.BlockPos;

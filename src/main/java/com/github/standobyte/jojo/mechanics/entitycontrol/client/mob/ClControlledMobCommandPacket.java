@@ -2,26 +2,26 @@ package com.github.standobyte.jojo.mechanics.entitycontrol.client.mob;
 
 import com.github.standobyte.jojo.core.PacketsRegister;
 import com.github.standobyte.jojo.mechanics.entitycontrol.ServerEntityController;
+import com.github.standobyte.jojo.mechanics.entitycontrol.client.mob.HardcodedMobControlCommands.CommandType;
+import com.github.standobyte.jojo.mechanics.entityuseitem.HitResultSync;
 
 import net.minecraft.network.RegistryFriendlyByteBuf;
 import net.minecraft.network.protocol.common.custom.CustomPacketPayload;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.entity.Entity;
-import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.entity.Mob;
+import net.minecraft.world.phys.HitResult;
 import net.neoforged.neoforge.network.handling.IPayloadContext;
 
-public record ClControlledMobCommandPacket(CommandType commandType, int slot) implements CustomPacketPayload {
-	private static CustomPacketPayload.Type<ClControlledMobCommandPacket> type;
+public record ClControlledMobCommandPacket(CommandType commandType, int slot, HitResultSync target) implements CustomPacketPayload {
+
+	public ClControlledMobCommandPacket(CommandType commandType) { this(commandType, 0, new HitResultSync(null)); }
+	public ClControlledMobCommandPacket(CommandType commandType, int slot) { this(commandType, slot, new HitResultSync(null)); }
+	public ClControlledMobCommandPacket(CommandType commandType, HitResult target) { this(commandType, 0, new HitResultSync(target)); }
+	public ClControlledMobCommandPacket(CommandType commandType, int slot, HitResult target) { this(commandType, slot, new HitResultSync(target)); }
 	
-	public enum CommandType {
-		PICK_SLOT,
-		EMPTY_MAIN_HAND,
-		SWAP_ITEMS,
-		TOSS,
-		WITCH_PICK_DRINK_POTION,
-		WITCH_PICK_SPLASH_POTION,
-	}
+	private static CustomPacketPayload.Type<ClControlledMobCommandPacket> type;
 
 	public static class Handler implements PacketsRegister.PacketOGHandler<ClControlledMobCommandPacket> {
 
@@ -38,13 +38,15 @@ public record ClControlledMobCommandPacket(CommandType commandType, int slot) im
 		public void encode(ClControlledMobCommandPacket packet, RegistryFriendlyByteBuf buf) {
 			buf.writeEnum(packet.commandType);
 			buf.writeVarInt(packet.slot);
+			HitResultSync.STREAM_CODEC.encode(buf, packet.target);
 		}
 		
 		@Override
 		public ClControlledMobCommandPacket decode(RegistryFriendlyByteBuf buf) {
 			CommandType commandType = buf.readEnum(CommandType.class);
 			int slot = buf.readVarInt();
-			return new ClControlledMobCommandPacket(commandType, slot);
+			HitResultSync target = HitResultSync.STREAM_CODEC.decode(buf);
+			return new ClControlledMobCommandPacket(commandType, slot, target);
 		}
 
 		@Override
@@ -52,8 +54,9 @@ public record ClControlledMobCommandPacket(CommandType commandType, int slot) im
 			ServerPlayer player = (ServerPlayer) context.player();
 			
 			Entity curControlTarget = ServerEntityController.getControlTarget(player);
-			if (curControlTarget instanceof LivingEntity living) {
-				HardcodedMobControlCommands.onHotbarPacket(living, packet.commandType, packet.slot);
+			if (curControlTarget instanceof Mob mob) {
+				HitResult target = packet.target().resolveEntity(player.level());
+				HardcodedMobControlCommands.onHotbarPacket(mob, packet.commandType, packet.slot, target);
 			}
 		}
 
