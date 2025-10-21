@@ -84,7 +84,6 @@ public class ClientMobController extends ClientEntityController {
 	
 	protected boolean lmbHeld;
 	protected boolean rmbHeld;
-	protected int rmbDelay;
 	@Override
 	public void tickPre() {
 		if (mc.screen == null) {
@@ -95,9 +94,6 @@ public class ClientMobController extends ClientEntityController {
 			boolean holdingLMB = mc.options.keyAttack.isDown();
 			boolean holdingRMB = mc.options.keyUse.isDown();
 			
-			if (holdingRMB) {
-				if (rmbDelay > 0) --rmbDelay;
-			}
 			if (lmbHeld != holdingLMB) {
 				if (holdingLMB) {
 					PacketDistributor.sendToServer(new ClControlledMobCommandPacket(HardcodedMobControlCommands.CommandType.PRESS_LMB, mc.hitResult));
@@ -109,16 +105,10 @@ public class ClientMobController extends ClientEntityController {
 			if (rmbHeld != holdingRMB) {
 				if (holdingRMB) {
 					PacketDistributor.sendToServer(new ClControlledMobCommandPacket(HardcodedMobControlCommands.CommandType.PRESS_RMB, mc.hitResult));
-					rmbDelay = 4;
 				}
 				else {
 					PacketDistributor.sendToServer(new ClControlledMobCommandPacket(HardcodedMobControlCommands.CommandType.RELEASE_RMB));
-					rmbDelay = 0;
 				}
-			}
-			else if (rmbDelay <= 0) {
-				PacketDistributor.sendToServer(new ClControlledMobCommandPacket(HardcodedMobControlCommands.CommandType.HOLDING_RMB, mc.hitResult));
-				rmbDelay = 4;
 			}
 			
 			while (mc.options.keyAttack.consumeClick()) {}

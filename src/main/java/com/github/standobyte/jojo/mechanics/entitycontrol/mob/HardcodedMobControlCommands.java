@@ -1,5 +1,7 @@
 package com.github.standobyte.jojo.mechanics.entitycontrol.mob;
 
+import java.util.HashMap;
+import java.util.Map;
 import java.util.Set;
 import java.util.function.Predicate;
 
@@ -7,27 +9,33 @@ import javax.annotation.Nullable;
 
 import com.github.standobyte.jojo.mixin.entitycontrol.mob.accessors.MeleeAttackGoalInvoker;
 import com.github.standobyte.jojo.mixin.entitycontrol.mob.accessors.MobInvoker;
+import com.github.standobyte.jojo.mixin.entitycontrol.mob.accessors.RangedAttackGoalAccessor;
 import com.github.standobyte.jojo.mixin.entitycontrol.mob.accessors.SkeletonAccessor;
 import com.github.standobyte.jojo.util.mc.EntityEvents;
 
+import net.minecraft.Util;
+import net.minecraft.resources.ResourceLocation;
+import net.minecraft.sounds.SoundEvent;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.entity.Entity;
+import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.Mob;
 import net.minecraft.world.entity.ai.goal.Goal;
 import net.minecraft.world.entity.ai.goal.MeleeAttackGoal;
+import net.minecraft.world.entity.ai.goal.RangedAttackGoal;
 import net.minecraft.world.entity.ai.goal.WrappedGoal;
 import net.minecraft.world.entity.animal.Fox;
-import net.minecraft.world.entity.animal.IronGolem;
 import net.minecraft.world.entity.animal.PolarBear;
+import net.minecraft.world.entity.animal.SnowGolem;
 import net.minecraft.world.entity.monster.AbstractSkeleton;
-import net.minecraft.world.entity.monster.Ravager;
 import net.minecraft.world.entity.monster.Witch;
-import net.minecraft.world.entity.monster.Zoglin;
 import net.minecraft.world.entity.monster.hoglin.Hoglin;
 import net.minecraft.world.entity.monster.piglin.AbstractPiglin;
 import net.minecraft.world.entity.projectile.AbstractArrow;
+import net.minecraft.world.entity.projectile.Snowball;
+import net.minecraft.world.entity.projectile.ThrownPotion;
 import net.minecraft.world.item.BowItem;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
@@ -39,6 +47,10 @@ import net.minecraft.world.phys.EntityHitResult;
 import net.minecraft.world.phys.HitResult;
 import net.minecraft.world.phys.Vec3;
 
+// TODO (mob controller) sync all status effects of the mob to the controller player
+// TODO (mob controller) make witch not drink potions instinctively on its own
+// TODO (mob controller) make mobs not avoid liquids instinctively
+// TODO (mob controller) ...there's a lot of other stuff
 public class HardcodedMobControlCommands {
 	
 	public enum CommandType {
@@ -46,7 +58,6 @@ public class HardcodedMobControlCommands {
 		RELEASE_LMB,
 		PRESS_RMB,
 		RELEASE_RMB,
-		HOLDING_RMB,
 		
 		EMPTY_MAIN_HAND,
 		SWAP_ITEMS,
@@ -57,7 +68,7 @@ public class HardcodedMobControlCommands {
 	}
 	
 	
-	public static void serverTickControlledMob(Mob mob) {
+	public static void serverTickControlledMob(Mob mob, boolean isHoldingRMB) {
 		switch (mob) {
 			case AbstractPiglin piglin -> {
 				// conversion to zombified version
@@ -73,64 +84,118 @@ public class HardcodedMobControlCommands {
 		Set<WrappedGoal> availableAIGoals = mob.goalSelector.getAvailableGoals();
 		for (WrappedGoal wrappedGoal : availableAIGoals) {
 			Goal goal = wrappedGoal.getGoal();
-			if (goal instanceof MeleeAttackGoal meleeAttack) {
-				MeleeAttackGoalInvoker despiteAllMyRage = (MeleeAttackGoalInvoker) meleeAttack;
-				int cooldown = despiteAllMyRage.callGetTicksUntilNextAttack();
-				if (cooldown > 0) { despiteAllMyRage.setTicksUntilNextAttack(cooldown - 1); }
+			switch (goal) {
+				case MeleeAttackGoal meleeAttack -> {
+					MeleeAttackGoalInvoker despiteAllMyRage = (MeleeAttackGoalInvoker) meleeAttack;
+					int cooldown = despiteAllMyRage.callGetTicksUntilNextAttack();
+					despiteAllMyRage.setTicksUntilNextAttack(Math.max(cooldown - 1, 0));
+				}
+				case RangedAttackGoal rangedAttack -> {
+					RangedAttackGoalAccessor imStillJustARatInACage = (RangedAttackGoalAccessor) rangedAttack;
+					int cooldown = imStillJustARatInACage.getAttackTime();
+					imStillJustARatInACage.setAttackTime(Math.max(cooldown - 1, 0));
+				}
+				default -> {}
 			}
 		}
 		
+		if (isHoldingRMB) {
+			switch (mob) {
+				case Witch witch -> {
+					RangedAttackGoal rangedAttack = getMobAIGoal(mob, RangedAttackGoal.class);
+					if (rangedAttack != null) {
+						RangedAttackGoalAccessor CYKABLYAT = (RangedAttackGoalAccessor) rangedAttack;
+						int cooldown = CYKABLYAT.getAttackTime();
+						if (cooldown <= 0) {
+							ItemStack heldItem = mob.getMainHandItem();
+							if (!heldItem.isEmpty() && heldItem.getItem() == Items.SPLASH_POTION) {
+								ThrownPotion thrownPotion = new ThrownPotion(mob.level(), mob);
+								Vec3 lookVec = mob.getLookAngle();
+								thrownPotion.setItem(heldItem.copy());
+								thrownPotion.setXRot(thrownPotion.getXRot() - -20.0F);
+								thrownPotion.shoot(lookVec.x, lookVec.y, lookVec.z, 0.75F, 8.0F);
+								if (!mob.isSilent()) {
+									mob.level()
+									.playSound(null, mob.getX(), mob.getY(), mob.getZ(), SoundEvents.WITCH_THROW, 
+											mob.getSoundSource(), 1.0F, 0.8F + mob.getRandom().nextFloat() * 0.4F);
+								}
+
+								mob.level().addFreshEntity(thrownPotion);
+								setAvgRangedAttackCD(CYKABLYAT);
+							}
+						}
+					}
+				}
+				case SnowGolem snowGolem -> {
+					RangedAttackGoal rangedAttack = getMobAIGoal(mob, RangedAttackGoal.class);
+					if (rangedAttack != null) {
+						RangedAttackGoalAccessor CYKABLYAT = (RangedAttackGoalAccessor) rangedAttack;
+						int cooldown = CYKABLYAT.getAttackTime();
+						if (cooldown <= 0) {
+							Snowball snowball = new Snowball(mob.level(), mob);
+							Vec3 lookVec = mob.getLookAngle();
+							snowball.shoot(lookVec.x, lookVec.y, lookVec.z, 1.6F, 12.0F);
+							mob.playSound(SoundEvents.SNOW_GOLEM_SHOOT, 1.0F, 0.4F / (mob.getRandom().nextFloat() * 0.4F + 0.8F));
+							mob.level().addFreshEntity(snowball);
+							setAvgRangedAttackCD(CYKABLYAT);
+						}
+					}
+				}
+				default -> {}
+			}
+		}
 	}
+
+	public static void setAvgRangedAttackCD(RangedAttackGoalAccessor goal) { goal.setAttackTime((goal.getAttackIntervalMin() + goal.getAttackIntervalMax()) / 2); }
+	
+	public static Map<ResourceLocation, SoundEvent> ATTACK_SOUNDS = Util.make(new HashMap<>(), map -> {
+		map.put(ResourceLocation.withDefaultNamespace("iron_golem"), SoundEvents.IRON_GOLEM_ATTACK);
+		map.put(ResourceLocation.withDefaultNamespace("hoglin"), SoundEvents.HOGLIN_ATTACK);
+		map.put(ResourceLocation.withDefaultNamespace("ravager"), SoundEvents.RAVAGER_ATTACK);
+		map.put(ResourceLocation.withDefaultNamespace("zoglin"), SoundEvents.ZOGLIN_ATTACK);
+	});
 	
 	public static void onHotbarPacket(Mob mob, CommandType commandType, int slot, HitResult target) {
 		switch (commandType) {
 			case PRESS_LMB -> {
-				Set<WrappedGoal> availableAIGoals = mob.goalSelector.getAvailableGoals();
-				for (WrappedGoal wrappedGoal : availableAIGoals) {
-					Goal goal = wrappedGoal.getGoal();
-					if (goal instanceof MeleeAttackGoal meleeAttack) {
-						Entity targetEntity = target.getType() == HitResult.Type.ENTITY ? ((EntityHitResult) target).getEntity() : null;
-						LivingEntity targetLiving = targetEntity instanceof LivingEntity __ ? __ : null;
-						MeleeAttackGoalInvoker despiteAllMyRage = (MeleeAttackGoalInvoker) meleeAttack;
-						boolean canAttack = targetLiving != null && despiteAllMyRage.callCanPerformAttack(targetLiving);
-						int cooldown = despiteAllMyRage.callGetTicksUntilNextAttack();
-						if (canAttack) {
-							// yes, it will do the check twice, but fox and polar bear override this method completely for some dumbass fucking reason
-							// god i hate this game's source code
-							despiteAllMyRage.callCheckAndPerformAttack(targetLiving);
+				MeleeAttackGoal meleeAttack = getMobAIGoal(mob, MeleeAttackGoal.class);
+				if (meleeAttack != null) {
+					Entity targetEntity = target.getType() == HitResult.Type.ENTITY ? ((EntityHitResult) target).getEntity() : null;
+					LivingEntity targetLiving = targetEntity instanceof LivingEntity __ ? __ : null;
+					MeleeAttackGoalInvoker despiteAllMyRage = (MeleeAttackGoalInvoker) meleeAttack;
+					boolean canAttack = targetLiving != null && despiteAllMyRage.callCanPerformAttack(targetLiving);
+					int cooldown = despiteAllMyRage.callGetTicksUntilNextAttack();
+					if (canAttack) {
+						// yes, it will do the check twice, but fox and polar bear override this method completely for some dumbass fucking reason
+						// god i hate this game's source code
+						despiteAllMyRage.callCheckAndPerformAttack(targetLiving);
+					}
+					else if (cooldown <= 0) {
+						SoundEvent attackSound = ATTACK_SOUNDS.get(EntityType.getKey(mob.getType()));
+						if (attackSound != null) {
+							mob.makeSound(attackSound);
 						}
-						else if (cooldown <= 0) {
-							switch (mob) {
-								case IronGolem ironGolem -> { mob.makeSound(SoundEvents.IRON_GOLEM_ATTACK); }
-								case Hoglin hoglin -> { mob.makeSound(SoundEvents.HOGLIN_ATTACK); }
-								case Ravager ravager -> { mob.makeSound(SoundEvents.RAVAGER_ATTACK); }
-//								case Warden warden -> {}
-								case Zoglin zoglin -> { mob.makeSound(SoundEvents.ZOGLIN_ATTACK); }
-								default -> {}
-							}
-							switch (mob) {
-								case PolarBear polarBear -> {
-									if (targetLiving != null && mob.distanceToSqr(targetLiving) < (double)((targetLiving.getBbWidth() + 3.0F) * (targetLiving.getBbWidth() + 3.0F))) {
-										if (despiteAllMyRage.callIsTimeToAttack()) {
-											polarBear.setStanding(false);
-										}
-										if (cooldown <= 10) {
-											polarBear.setStanding(true);
-										}
-									} else {
+						switch (mob) {
+							case PolarBear polarBear -> {
+								if (targetLiving != null && mob.distanceToSqr(targetLiving) < (double)((targetLiving.getBbWidth() + 3.0F) * (targetLiving.getBbWidth() + 3.0F))) {
+									if (despiteAllMyRage.callIsTimeToAttack()) {
 										polarBear.setStanding(false);
 									}
-								}
-								case Fox fox -> {
-								}
-								default -> {
-									mob.swing(InteractionHand.MAIN_HAND);
+									if (cooldown <= 10) {
+										polarBear.setStanding(true);
+									}
+								} else {
+									polarBear.setStanding(false);
 								}
 							}
-							
-							despiteAllMyRage.callResetAttackCooldown();
-							mob.level().broadcastEntityEvent(mob, EntityEvents.MOB_ATTACK_ANIMATION);
+							case Fox fox -> {}
+							default -> {
+								mob.swing(InteractionHand.MAIN_HAND);
+							}
 						}
+						
+						despiteAllMyRage.callResetAttackCooldown();
+						mob.level().broadcastEntityEvent(mob, EntityEvents.MOB_ATTACK_ANIMATION);
 					}
 				}
 			}
@@ -141,6 +206,7 @@ public class HardcodedMobControlCommands {
 				for (InteractionHand hand : InteractionHand.values()) {
 					ItemStack item = mob.getItemInHand(hand);
 					if (!item.isEmpty()) {
+						// TODO (mob controller) make witch not drink splash potions
 						mob.startUsingItem(hand);
 						if (mob.isUsingItem()) {
 							break;
@@ -155,9 +221,6 @@ public class HardcodedMobControlCommands {
 					}
 					default -> {}
 				}
-			}
-			case HOLDING_RMB -> {
-				
 			}
 			case RELEASE_RMB -> {
 				switch (mob) {
@@ -176,10 +239,7 @@ public class HardcodedMobControlCommands {
 										arrowEntity = weaponItem.customArrow(arrowEntity, arrowItem, weapon);
 									}
 									Vec3 lookVec = skeleton.getLookAngle();
-									double x = lookVec.x;
-									double y = lookVec.y;
-									double z = lookVec.z;
-									arrowEntity.shoot(x, y, z, 1.6F, (float)(14 - skeleton.level().getDifficulty().getId() * 4));
+									arrowEntity.shoot(lookVec.x, lookVec.y, lookVec.z, 1.6F, (float)(14 - skeleton.level().getDifficulty().getId() * 4));
 									skeleton.playSound(SoundEvents.SKELETON_SHOOT, 1.0F, 1.0F / (skeleton.getRandom().nextFloat() * 0.4F + 0.8F));
 									skeleton.level().addFreshEntity(arrowEntity);
 								}
@@ -254,6 +314,18 @@ public class HardcodedMobControlCommands {
 			entity.setItemInHand(InteractionHand.MAIN_HAND, ItemStack.EMPTY);
 		}
 	}
+	
+	@Nullable
+	public static <T extends Goal> T getMobAIGoal(Mob mob, Class<T> goalClass) {
+		Set<WrappedGoal> availableAIGoals = mob.goalSelector.getAvailableGoals();
+		for (WrappedGoal wrappedGoal : availableAIGoals) {
+			Goal goal = wrappedGoal.getGoal();
+			if (goalClass.isAssignableFrom(goal.getClass())) {
+				return (T) goal;
+			}
+		}
+		return null;
+	}
 
 
 	public static enum WitchPotionMode { DRINK, SPLASH }
@@ -278,6 +350,12 @@ public class HardcodedMobControlCommands {
 			case SPLASH -> WITCH_SPLASH_POTIONS;
 			case DRINK -> WITCH_DRINK_POTIONS;
 		};
+	}
+	
+	
+	public static interface KeepRMBState {
+		boolean jojo_ripples$isHoldingRMB();
+		void jojo_ripples$setIsHoldingRMB(boolean isHoldingRMB);
 	}
 	
 }

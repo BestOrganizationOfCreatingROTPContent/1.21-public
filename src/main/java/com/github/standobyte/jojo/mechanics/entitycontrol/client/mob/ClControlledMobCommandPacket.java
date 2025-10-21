@@ -58,9 +58,13 @@ public record ClControlledMobCommandPacket(CommandType commandType, int slot, Hi
 			if (curControlTarget instanceof Mob mob) {
 				HitResult target = packet.target().resolveEntity(player.level());
 				HardcodedMobControlCommands.onHotbarPacket(mob, packet.commandType, packet.slot, target);
+				switch (packet.commandType) {
+					case PRESS_RMB -> { ((HardcodedMobControlCommands.KeepRMBState) mob).jojo_ripples$setIsHoldingRMB(true); }
+					case RELEASE_RMB -> { ((HardcodedMobControlCommands.KeepRMBState) mob).jojo_ripples$setIsHoldingRMB(false); }
+					default -> {}
+				}
 			}
 		}
-
 	}
 
 	@Override

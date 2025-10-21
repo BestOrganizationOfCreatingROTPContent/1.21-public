@@ -16,7 +16,10 @@ import net.minecraft.world.entity.Mob;
 import net.minecraft.world.level.Level;
 
 @Mixin(Mob.class)
-public abstract class MobAIMixin extends LivingEntity {
+public abstract class MobAIMixin extends LivingEntity implements HardcodedMobControlCommands.KeepRMBState {
+	public boolean jojo_ripples$controllerHoldingRMB = false;
+	@Override public boolean jojo_ripples$isHoldingRMB() { return jojo_ripples$controllerHoldingRMB; }
+	@Override public void jojo_ripples$setIsHoldingRMB(boolean isHoldingRMB) { this.jojo_ripples$controllerHoldingRMB = isHoldingRMB; }
 
 	protected MobAIMixin(EntityType<? extends LivingEntity> entityType, Level level) {
 		super(entityType, level);
@@ -35,7 +38,7 @@ public abstract class MobAIMixin extends LivingEntity {
 	public void jojo_ripples$manualMobControl(CallbackInfo ci) {
 		ServerEntityController controller = ServerEntityController.getCurrentController(this);
 		if (controller != null && controller.suppressControlledEntity()) {
-			HardcodedMobControlCommands.serverTickControlledMob((Mob) (LivingEntity) this);
+			HardcodedMobControlCommands.serverTickControlledMob((Mob) (LivingEntity) this, jojo_ripples$controllerHoldingRMB);
 			ci.cancel();
 		}
 	}

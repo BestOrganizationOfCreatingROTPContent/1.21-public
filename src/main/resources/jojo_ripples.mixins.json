@@ -17,6 +17,7 @@
 	"entitycontrol.mob.accessors.MobInvoker",
 	"entitycontrol.mob.accessors.EntityFallDamageInvoker",
 	"entitycontrol.mob.accessors.MeleeAttackGoalInvoker",
+	"entitycontrol.mob.accessors.RangedAttackGoalAccessor",
 	"entitycontrol.mob.accessors.PolarBearWarningSoundYesReally",
 	"entitycontrol.mob.accessors.SkeletonAccessor",
 	
