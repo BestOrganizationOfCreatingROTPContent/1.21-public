@@ -1,4 +1,4 @@
-package com.github.standobyte.jojo.mechanics.entitycontrol.client.mob;
+package com.github.standobyte.jojo.mechanics.entitycontrol.mob;
 
 import java.util.Set;
 import java.util.function.Predicate;
@@ -93,7 +93,7 @@ public class HardcodedMobControlCommands {
 							// god i hate this game's source code
 							despiteAllMyRage.callCheckAndPerformAttack(targetLiving);
 						}
-						else {
+						else if (cooldown <= 0) {
 							switch (mob) {
 								case IronGolem ironGolem -> { mob.makeSound(SoundEvents.IRON_GOLEM_ATTACK); }
 								case Hoglin hoglin -> { mob.makeSound(SoundEvents.HOGLIN_ATTACK); }
@@ -122,8 +122,8 @@ public class HardcodedMobControlCommands {
 								}
 							}
 							
+							despiteAllMyRage.callResetAttackCooldown();
 							mob.level().broadcastEntityEvent(mob, EntityEvents.MOB_ATTACK_ANIMATION);
-							if (cooldown <= 0) despiteAllMyRage.callResetAttackCooldown();
 						}
 					}
 				}

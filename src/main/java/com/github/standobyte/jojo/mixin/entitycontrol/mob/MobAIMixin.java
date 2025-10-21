@@ -8,7 +8,7 @@ import org.spongepowered.asm.mixin.injection.Redirect;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
 import com.github.standobyte.jojo.mechanics.entitycontrol.ServerEntityController;
-import com.github.standobyte.jojo.mechanics.entitycontrol.client.mob.HardcodedMobControlCommands;
+import com.github.standobyte.jojo.mechanics.entitycontrol.mob.HardcodedMobControlCommands;
 
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.LivingEntity;

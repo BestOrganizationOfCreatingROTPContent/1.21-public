@@ -2,7 +2,8 @@ package com.github.standobyte.jojo.mechanics.entitycontrol.client.mob;
 
 import com.github.standobyte.jojo.core.PacketsRegister;
 import com.github.standobyte.jojo.mechanics.entitycontrol.ServerEntityController;
-import com.github.standobyte.jojo.mechanics.entitycontrol.client.mob.HardcodedMobControlCommands.CommandType;
+import com.github.standobyte.jojo.mechanics.entitycontrol.mob.HardcodedMobControlCommands;
+import com.github.standobyte.jojo.mechanics.entitycontrol.mob.HardcodedMobControlCommands.CommandType;
 import com.github.standobyte.jojo.mechanics.entityuseitem.HitResultSync;
 
 import net.minecraft.network.RegistryFriendlyByteBuf;

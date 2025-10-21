@@ -1,4 +1,4 @@
-package com.github.standobyte.jojo.mechanics.entitycontrol.client.mob;
+package com.github.standobyte.jojo.mechanics.entitycontrol.mob;
 
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.Mob;
