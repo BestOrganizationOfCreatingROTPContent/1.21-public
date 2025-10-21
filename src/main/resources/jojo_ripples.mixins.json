@@ -12,12 +12,13 @@
     
 	"entitycontrol.mob.MobAIMixin",
 	"entitycontrol.mob.EntityEffectiveAIMixin",
+	"entitycontrol.syncfix.ServerBypassSyncMotionMixin",
+	"entitycontrol.PlayerListBroadcastMixin",
 	"entitycontrol.mob.accessors.MobInvoker",
 	"entitycontrol.mob.accessors.EntityFallDamageInvoker",
 	"entitycontrol.mob.accessors.MeleeAttackGoalInvoker",
 	"entitycontrol.mob.accessors.PolarBearWarningSoundYesReally",
-	"entitycontrol.syncfix.ServerBypassSyncMotionMixin",
-	"entitycontrol.PlayerListBroadcastMixin",
+	"entitycontrol.mob.accessors.SkeletonAccessor",
 	
     "standuseitems.ProjectileMixin",
 	"ProjectileHighSpeedSync",

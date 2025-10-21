@@ -7,6 +7,7 @@ import javax.annotation.Nullable;
 
 import com.github.standobyte.jojo.mixin.entitycontrol.mob.accessors.MeleeAttackGoalInvoker;
 import com.github.standobyte.jojo.mixin.entitycontrol.mob.accessors.MobInvoker;
+import com.github.standobyte.jojo.mixin.entitycontrol.mob.accessors.SkeletonAccessor;
 import com.github.standobyte.jojo.util.mc.EntityEvents;
 
 import net.minecraft.sounds.SoundEvents;
@@ -20,18 +21,23 @@ import net.minecraft.world.entity.ai.goal.WrappedGoal;
 import net.minecraft.world.entity.animal.Fox;
 import net.minecraft.world.entity.animal.IronGolem;
 import net.minecraft.world.entity.animal.PolarBear;
+import net.minecraft.world.entity.monster.AbstractSkeleton;
 import net.minecraft.world.entity.monster.Ravager;
 import net.minecraft.world.entity.monster.Witch;
 import net.minecraft.world.entity.monster.Zoglin;
 import net.minecraft.world.entity.monster.hoglin.Hoglin;
 import net.minecraft.world.entity.monster.piglin.AbstractPiglin;
+import net.minecraft.world.entity.projectile.AbstractArrow;
+import net.minecraft.world.item.BowItem;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
+import net.minecraft.world.item.ProjectileWeaponItem;
 import net.minecraft.world.item.alchemy.PotionContents;
 import net.minecraft.world.item.alchemy.Potions;
 import net.minecraft.world.phys.EntityHitResult;
 import net.minecraft.world.phys.HitResult;
+import net.minecraft.world.phys.Vec3;
 
 public class HardcodedMobControlCommands {
 	
@@ -132,13 +138,65 @@ public class HardcodedMobControlCommands {
 				
 			}
 			case PRESS_RMB -> {
-				
+				for (InteractionHand hand : InteractionHand.values()) {
+					ItemStack item = mob.getItemInHand(hand);
+					if (!item.isEmpty()) {
+						mob.startUsingItem(hand);
+						if (mob.isUsingItem()) {
+							break;
+						}
+					}
+				}
+				switch (mob) {
+					case AbstractSkeleton skeleton -> {
+						if (mob.isUsingItem()) {
+							skeleton.setAggressive(true);
+						}
+					}
+					default -> {}
+				}
 			}
 			case HOLDING_RMB -> {
 				
 			}
 			case RELEASE_RMB -> {
-				
+				switch (mob) {
+					case AbstractSkeleton skeleton -> {
+						// copypasted AbstractSkeleton#performRangedAttack(LivingEntity target, float velocity), but using the look vector
+						// instead of a specific LivingEntity target because there is none
+						for (InteractionHand hand : InteractionHand.values()) {
+							ItemStack weapon = skeleton.getItemInHand(hand);
+							if (!weapon.isEmpty() && weapon.getItem() instanceof BowItem) {
+								int ticksBowUsed = skeleton.getTicksUsingItem();
+								if (ticksBowUsed >= 20) {
+									float velocity = BowItem.getPowerForTime(ticksBowUsed);
+									ItemStack arrowItem = skeleton.getProjectile(weapon);
+									AbstractArrow arrowEntity = ((SkeletonAccessor) skeleton).callGetArrow(arrowItem, velocity, weapon);
+									if (weapon.getItem() instanceof ProjectileWeaponItem weaponItem) {
+										arrowEntity = weaponItem.customArrow(arrowEntity, arrowItem, weapon);
+									}
+									Vec3 lookVec = skeleton.getLookAngle();
+									double x = lookVec.x;
+									double y = lookVec.y;
+									double z = lookVec.z;
+									arrowEntity.shoot(x, y, z, 1.6F, (float)(14 - skeleton.level().getDifficulty().getId() * 4));
+									skeleton.playSound(SoundEvents.SKELETON_SHOOT, 1.0F, 1.0F / (skeleton.getRandom().nextFloat() * 0.4F + 0.8F));
+									skeleton.level().addFreshEntity(arrowEntity);
+								}
+
+								break;
+							}
+						}
+
+						mob.stopUsingItem();
+						skeleton.setAggressive(false);
+					}
+					default -> {
+						if (mob.isUsingItem()) {
+							mob.stopUsingItem();
+						}
+					}
+				}
 			}
 			
 			/* VERY careful with this one, this MUST NOT remove any player-made items that the mob might have picked up
@@ -152,13 +210,13 @@ public class HardcodedMobControlCommands {
 					});
 				}
 			}
-			case SWAP_ITEMS ->  {
+			case SWAP_ITEMS -> {
 				
 			}
-			case TOSS ->  {
+			case TOSS -> {
 				
 			}
-			case PICK_SLOT ->  {
+			case PICK_SLOT -> {
 				
 			}
 			case WITCH_PICK_DRINK_POTION ->  {
