@@ -4,7 +4,6 @@ import com.github.standobyte.jojo.modcompat.JojoModsInteraction;
 import com.github.standobyte.jojo.powersystem.PowerClass;
 import com.github.standobyte.jojo.powersystem.standpower.StandPower;
 import com.github.standobyte.jojo.powersystem.standpower.entity.StandEntity;
-import com.github.standobyte.jojo.util.JojoModUtil;
 
 import net.minecraft.client.Minecraft;
 
@@ -18,7 +17,7 @@ public class ClientGlobals {
 		if (mc.player != null) {
 			StandPower stand = ClientPowerCache.getPower(PowerClass.STAND);
 			playerStandEntity = stand != null ? stand.getSummonedStandEntity() : null;
-			if (JojoModUtil.isPlayerSpectator(mc.player)) {
+			if (mc.player.isSpectator()) {
 				canSeeStands = true;
 			}
 			else {

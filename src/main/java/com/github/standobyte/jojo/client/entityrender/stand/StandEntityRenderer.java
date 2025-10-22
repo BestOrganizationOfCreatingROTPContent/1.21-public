@@ -206,12 +206,16 @@ public class StandEntityRenderer<
 		}
 		
 		if (this.model != null) {
-			super.render(entity, entityYaw, partialTicks, poseStack, bufferSource, light);
+			this.doRender(entity, entityYaw, partialTicks, poseStack, bufferSource, light);
 		}
 		RenderStateCrutches.currentEntityRenderState = null;
 		RenderStateCrutches.currentStandEntityRenderState = null;
 
 	}
+
+    public void doRender(T entity, float entityYaw, float partialTicks, PoseStack poseStack, MultiBufferSource bufferSource, int light) {
+		super.render(entity, entityYaw, partialTicks, poseStack, bufferSource, light);
+    }
 
 	@Override
 	protected boolean shouldShowName(T entity/*, double distSqr*/) {
