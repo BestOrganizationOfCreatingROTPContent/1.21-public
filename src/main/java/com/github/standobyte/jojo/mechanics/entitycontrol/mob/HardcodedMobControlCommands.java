@@ -63,8 +63,6 @@ public class HardcodedMobControlCommands {
 		SWAP_ITEMS,
 		TOSS,
 		PICK_SLOT,
-		WITCH_PICK_DRINK_POTION,
-		WITCH_PICK_SPLASH_POTION,
 	}
 	
 	
@@ -277,25 +275,10 @@ public class HardcodedMobControlCommands {
 				
 			}
 			case PICK_SLOT -> {
-				
-			}
-			case WITCH_PICK_DRINK_POTION ->  {
 				if (mob instanceof Witch) {
-					if (slot >= 0 && slot < WITCH_DRINK_POTIONS.length) {
-						mob.setItemInHand(InteractionHand.MAIN_HAND, WITCH_DRINK_POTIONS[slot].copy());
-					}
-					else {
-						clearHeldItem(mob, heldItem -> {
-							Item item = heldItem.getItem();
-							return item == Items.POTION || item == Items.SPLASH_POTION;
-						});
-					}
-				}
-			}
-			case WITCH_PICK_SPLASH_POTION ->  {
-				if (mob instanceof Witch) {
-					if (slot >= 0 && slot < WITCH_SPLASH_POTIONS.length) {
-						mob.setItemInHand(InteractionHand.MAIN_HAND, WITCH_SPLASH_POTIONS[slot].copy());
+					ItemStack potionItem = getWitchPotionItem(slot);
+					if (!potionItem.isEmpty()) {
+						mob.setItemInHand(InteractionHand.MAIN_HAND, potionItem.copy());
 					}
 					else {
 						clearHeldItem(mob, heldItem -> {
@@ -343,6 +326,7 @@ public class HardcodedMobControlCommands {
 			PotionContents.createItemStack(Items.SPLASH_POTION, Potions.POISON),
 			PotionContents.createItemStack(Items.SPLASH_POTION, Potions.WEAKNESS),
 	};
+	
 	@Nullable
 	public static ItemStack[] getWitchPotions(@Nullable WitchPotionMode mode) {
 		if (mode == null) return null;
@@ -350,6 +334,25 @@ public class HardcodedMobControlCommands {
 			case SPLASH -> WITCH_SPLASH_POTIONS;
 			case DRINK -> WITCH_DRINK_POTIONS;
 		};
+	}
+	
+	public static int getWitchPotionSlotNumber(WitchPotionMode mode, int hotbarSlot) {
+		return mode == WitchPotionMode.SPLASH ? hotbarSlot : hotbarSlot + 9;
+	}
+	
+	public static ItemStack getWitchPotionItem(int slotNumber) {
+		ItemStack[] array;
+		if (slotNumber < 9) {
+			array = WITCH_SPLASH_POTIONS;
+		}
+		else {
+			array = WITCH_DRINK_POTIONS;
+			slotNumber -= 9;
+		}
+		if (slotNumber >= 0 && slotNumber < array.length) {
+			return array[slotNumber];
+		}
+		return ItemStack.EMPTY;
 	}
 	
 	

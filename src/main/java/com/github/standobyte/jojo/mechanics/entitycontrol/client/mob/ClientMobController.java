@@ -333,11 +333,10 @@ public class ClientMobController extends ClientEntityController {
 		// make sure that the right click will use the correct potion, similarly to net.minecraft.client.multiplayer.MultiPlayerGameMode#ensureHasSentCarriedItem()
 		public void setSelectedSlot(Integer slot) {
 			this.hotbarSlot = slot;
+			int networkSlot = slot != null ? HardcodedMobControlCommands
+					.getWitchPotionSlotNumber(witchPotionMode, hotbarSlot) : 127;
 			PacketDistributor.sendToServer(new ClControlledMobCommandPacket(
-					witchPotionMode == WitchPotionMode.DRINK ? 
-							HardcodedMobControlCommands.CommandType.WITCH_PICK_DRINK_POTION : 
-							HardcodedMobControlCommands.CommandType.WITCH_PICK_SPLASH_POTION, 
-					hotbarSlot != null ? hotbarSlot : 127));
+					HardcodedMobControlCommands.CommandType.PICK_SLOT, networkSlot));
 		}
 		
 		public void setPotionMode(WitchPotionMode mode) {
