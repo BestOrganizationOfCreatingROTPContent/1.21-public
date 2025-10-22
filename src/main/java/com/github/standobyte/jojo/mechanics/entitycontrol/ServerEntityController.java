@@ -14,26 +14,42 @@ import net.neoforged.neoforge.network.PacketDistributor;
 public class ServerEntityController implements TickingEntityData {
 	public final Entity thisEntity;
 	@Nullable private LivingEntity controllingEntity;
-	public String controllerType;
 	@Nullable private Entity controlTarget;
+	public String controllerType;
 	
 	public ServerEntityController(Entity entity) {
 		this.thisEntity = entity;
 		addTicking(entity);
 	}
 	
+	
 	@Nullable
-	public LivingEntity getControllingEntity() {
-		return controllingEntity;
+	public static Entity getControlTarget(LivingEntity controllerEntity) {
+		ServerEntityController component = ComponentUtil.getExistingDataOrNull(controllerEntity, ModDataAttachmentTypes.CONTROLLER);
+		return component != null ? component.controlTarget : null;
 	}
 	
 	@Nullable
-	public Entity getControlTarget() {
-		return controlTarget;
+	public static ServerEntityController getCurrentController(Entity targetEntity) {
+		ServerEntityController component = ComponentUtil.getExistingDataOrNull(targetEntity, ModDataAttachmentTypes.CONTROLLER);
+		return component != null && component.controllingEntity != null ? component : null;
 	}
-	
-	public boolean suppressControlledEntity() {
-		return true;
+		
+
+	@Override
+	public void tick() {
+		if (controlTarget != null) {
+			if (!controlTarget.isAlive()) {
+				this.stopControlling(true);
+			}
+		}
+		
+		if (controllingEntity != null) {
+			if (!controllingEntity.isAlive()) {
+				ServerEntityController controllerComponent = controllingEntity.getData(ModDataAttachmentTypes.CONTROLLER);
+				controllerComponent.stopControlling(false);
+			}
+		}
 	}
 	
 	
@@ -60,15 +76,13 @@ public class ServerEntityController implements TickingEntityData {
 		}
 	}
 	
-	/**
-	 * Does not sync from server to the player's client on its own. 
-	 */
 	public void stopControlling(boolean syncToClient) {
 		setControlTarget(null, null);
 		if (syncToClient && thisEntity instanceof ServerPlayer player) {
 			PacketDistributor.sendToPlayer(player, new SetClientControllerPacket(-1, ""));
 		}
 	}
+	
 	
 	public static void setServerControlTarget(LivingEntity controllingEntity, @Nullable Entity targetEntity, @Nullable String setOnClientType) {
 		if (targetEntity != null) {
@@ -85,24 +99,17 @@ public class ServerEntityController implements TickingEntityData {
 	
 	
 	@Nullable
-	public static Entity getControlTarget(LivingEntity controllerEntity) {
-		ServerEntityController component = ComponentUtil.getExistingDataOrNull(controllerEntity, ModDataAttachmentTypes.CONTROLLER);
-		return component != null ? component.controlTarget : null;
+	public LivingEntity getControllingEntity() {
+		return controllingEntity;
 	}
 	
 	@Nullable
-	public static ServerEntityController getCurrentController(Entity targetEntity) {
-		ServerEntityController component = ComponentUtil.getExistingDataOrNull(targetEntity, ModDataAttachmentTypes.CONTROLLER);
-		return component != null && component.controllingEntity != null ? component : null;
+	public Entity getControlTarget() {
+		return controlTarget;
 	}
-		
-
-	@Override
-	public void tick() {
-		if (controllingEntity != null && !controllingEntity.isAlive()) {
-			ServerEntityController controllerComponent = controllingEntity.getData(ModDataAttachmentTypes.CONTROLLER);
-			controllerComponent.stopControlling(false);
-		}
+	
+	public boolean suppressControlledEntity() {
+		return true;
 	}
 
 }

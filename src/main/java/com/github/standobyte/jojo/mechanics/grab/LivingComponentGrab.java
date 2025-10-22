@@ -68,8 +68,22 @@ public class LivingComponentGrab implements TickingEntityData {
 	
 	@Override
 	public void tick() {
-		tickGrabbedEntity();
-		tickBeingGrabbed();
+		if (grabbedTarget != null) {
+			if (!grabbedTarget.isAlive()) {
+				this.setGrabTarget(null);
+			}
+		}
+
+		if (grabbingEntity != null) {
+			if (!grabbingEntity.isAlive()) {
+				grabbingEntity
+				.getData(ModDataAttachmentTypes.LIVING_GRAB.get())
+				.setGrabTarget(null);
+			}
+			else {
+				thisEntity.fallDistance = 0;
+			}
+		}
 	}
 	
 	public void setGrabTarget(LivingEntity target) {
@@ -91,14 +105,6 @@ public class LivingComponentGrab implements TickingEntityData {
 		if (!thisEntity.level().isClientSide()) {
 			PacketDistributor.sendToPlayersTrackingEntityAndSelf(thisEntity, new TrSetGrabbedEntityPacket(thisEntity.getId(), target != null ? target.getId() : -1));
 		}
-	}
-	
-	public boolean isGrabbed() {
-		return grabbingEntity != null && grabbingEntity.isAlive();
-	}
-
-	public LivingEntity getGrabbedEntity() {
-		return grabbedTarget;
 	}
 	
 	@ApiStatus.Internal
@@ -125,6 +131,16 @@ public class LivingComponentGrab implements TickingEntityData {
 		this.grabbingEntity = grabbing;
 	}
 	
+	
+	public boolean isGrabbed() {
+		return grabbingEntity != null && grabbingEntity.isAlive();
+	}
+
+	public LivingEntity getGrabbedEntity() {
+		return grabbedTarget;
+	}
+	
+	
 	protected void saveRotationDiff(LivingEntity grabbing) {
 		this.xRotWhenGrabbed = thisEntity.getXRot();
 		float yRot = thisEntity.getYRot();
@@ -133,39 +149,8 @@ public class LivingComponentGrab implements TickingEntityData {
 		this.yBodyRotDiffWhenGrabbed = thisEntity.yBodyRot - yRot;
 	}
 	
-	public void applyRotationDiff() {
-		if (grabbingEntity != null) {
-			thisEntity.setXRot(this.xRotWhenGrabbed);
-			float yRot = grabbingEntity.getYRot() + this.yRotDiffWhenGrabbed;
-			thisEntity.setYRot(yRot);
-			thisEntity.setYHeadRot(yRot + this.yHeadRotDiffWhenGrabbed);
-			thisEntity.setYBodyRot(yRot + this.yBodyRotDiffWhenGrabbed);
-		}
-	}
-	
-	
-	private void tickBeingGrabbed() {
-		if (grabbingEntity != null) {
-			if (!grabbingEntity.isAlive()) {
-				grabbingEntity
-				.getData(ModDataAttachmentTypes.LIVING_GRAB.get())
-				.setGrabTarget(null);
-			}
-			else {
-				thisEntity.fallDistance = 0;
-			}
-		}
-	}
-	
-	private void tickGrabbedEntity() {
-		if (grabbedTarget != null) {
-			if (!grabbedTarget.isAlive()) {
-				this.setGrabTarget(null);
-			}
-		}
-	}
-
 	protected static Vec3 armChokeOffset = new Vec3(0, 0.125, 0);
+	@ApiStatus.Internal
 	public void setGrabbedPos() {
 		if (grabbingEntity != null) {
 			HumanoidArm grabbingArm = HumanoidArm.LEFT;
@@ -211,9 +196,22 @@ public class LivingComponentGrab implements TickingEntityData {
 		}
 	}
 	
+	@ApiStatus.Internal
 	public void onFrameRender() {
 		applyRotationDiff();
 	}
+
+	@ApiStatus.Internal
+	public void applyRotationDiff() {
+		if (grabbingEntity != null) {
+			thisEntity.setXRot(this.xRotWhenGrabbed);
+			float yRot = grabbingEntity.getYRot() + this.yRotDiffWhenGrabbed;
+			thisEntity.setYRot(yRot);
+			thisEntity.setYHeadRot(yRot + this.yHeadRotDiffWhenGrabbed);
+			thisEntity.setYBodyRot(yRot + this.yBodyRotDiffWhenGrabbed);
+		}
+	}
+	
 	
 	@SubscribeEvent
 	public static void onLevelTickPost(LevelTickEvent.Post event) {

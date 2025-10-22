@@ -46,16 +46,17 @@ public final class ModDataAttachmentTypes {
 	@ApiStatus.Internal
 	public static final Supplier<AttachmentType<EntityActionInputState>> ENTITY_ABILITY_INPUT = ATTACHMENT_TYPES.register("player_ability_input", 
 			() -> AttachmentType.builder(obj -> obj instanceof LivingEntity living ? new EntityActionInputState(living) : null).build());
-
-	@ApiStatus.Internal
-	public static final Supplier<AttachmentType<ServerEntityController>> CONTROLLER = ATTACHMENT_TYPES.register("controller_player", 
-			() -> AttachmentType.builder(obj -> obj instanceof Entity entity ? new ServerEntityController(entity) : null).build());
 	
 	public static final Supplier<AttachmentType<EntityClothesInventory>> HUMANOID_CLOTHES = ATTACHMENT_TYPES.register("humanoid_clothes", 
 			() -> AttachmentType.serializable(obj -> obj instanceof LivingEntity living ? new EntityClothesInventory(living) : null).build());
 	
+	
 	public static final Supplier<AttachmentType<LivingComponentGrab>> LIVING_GRAB = ATTACHMENT_TYPES.register("living_grab", 
 			() -> AttachmentType.builder(entity -> entity instanceof LivingEntity living ? new LivingComponentGrab(living) : null).build());
+
+	public static final Supplier<AttachmentType<ServerEntityController>> CONTROLLER = ATTACHMENT_TYPES.register("controller_player", 
+			() -> AttachmentType.builder(obj -> obj instanceof Entity entity ? new ServerEntityController(entity) : null).build());
+	
 	
 	public static final Supplier<AttachmentType<StandEffectsTarget>> STAND_EFFECTS_TARGET = ATTACHMENT_TYPES.register("stand_effects_target", 
 			() -> AttachmentType.builder(entity -> entity instanceof LivingEntity living ? new StandEffectsTarget(living) : null).build());
