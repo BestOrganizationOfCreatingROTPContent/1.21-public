@@ -1,6 +1,8 @@
 package com.github.standobyte.jojo.util.entitycomponent;
 
+import java.util.ArrayList;
 import java.util.IdentityHashMap;
+import java.util.List;
 import java.util.Map;
 
 import org.jetbrains.annotations.ApiStatus;
@@ -10,10 +12,11 @@ import net.minecraft.world.entity.player.Player;
 import net.neoforged.neoforge.attachment.IAttachmentHolder;
 
 public class DataEventListeners {
-	private Map<Class<?>, SynchronizableEntityData> entityDataSync = new IdentityHashMap<>(4);
-	private Map<Class<?>, SynchronizablePlayerData> playerDataSync = new IdentityHashMap<>(4);
-	private Map<Class<?>, TickingEntityData> ticking = new IdentityHashMap<>(4);
-	private Map<Class<?>, PostNbtReadEntityData> postNbtCallback = new IdentityHashMap<>(4);
+	private Map<Class<?>, SynchronizableEntityData> entityDataSync = new IdentityHashMap<>(12);
+	private Map<Class<?>, SynchronizablePlayerData> playerDataSync = new IdentityHashMap<>(12);
+	private List<TickingEntityData> pendingAddToTick = new ArrayList<>(2);
+	private Map<Class<?>, TickingEntityData> ticking = new IdentityHashMap<>(12);
+	private Map<Class<?>, PostNbtReadEntityData> postNbtCallback = new IdentityHashMap<>(12);
 	
 	public DataEventListeners(IAttachmentHolder entity) {}
 	
@@ -30,7 +33,7 @@ public class DataEventListeners {
 	}
 	
 	public void addTickingData(TickingEntityData data) {
-		this.ticking.put(data.getClass(), data);
+		this.pendingAddToTick.add(data);
 	}
 	
 	public void addPostNbtReadCallback(PostNbtReadEntityData data) {
@@ -57,6 +60,12 @@ public class DataEventListeners {
 	}
 	
 	public void onTick() {
+		if (!pendingAddToTick.isEmpty()) {
+			for (var attachment : pendingAddToTick) {
+				this.ticking.put(attachment.getClass(), attachment);
+			}
+			pendingAddToTick.clear();
+		}
 		for (var listener : ticking.values()) {
 			listener.tick();
 		}
