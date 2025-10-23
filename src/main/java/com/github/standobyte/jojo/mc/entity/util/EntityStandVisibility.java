@@ -1,4 +1,4 @@
-package com.github.standobyte.jojo.powersystem.standpower.entity;
+package com.github.standobyte.jojo.mc.entity.util;
 
 import com.github.standobyte.jojo.client.ClientGlobals;
 

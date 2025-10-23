@@ -14,8 +14,11 @@ import com.github.standobyte.jojo.client.ClientProxy;
 import com.github.standobyte.jojo.core.packet.fromserver.TrSetStandEntityPacket;
 import com.github.standobyte.jojo.init.ModStatusEffects;
 import com.github.standobyte.jojo.init.core.ModEntityAttributes;
-import com.github.standobyte.jojo.mc.entity.EntityWithStandSkin;
 import com.github.standobyte.jojo.mc.entity.projectile.DamagingEntity;
+import com.github.standobyte.jojo.mc.entity.util.EntityStandVisibility;
+import com.github.standobyte.jojo.mc.entity.util.EntityWithStandSkin;
+import com.github.standobyte.jojo.mc.entity.util.HandItemsAsInventory;
+import com.github.standobyte.jojo.mc.entity.util.LivingReactToNewAction;
 import com.github.standobyte.jojo.mechanics.entitycontrol.client.ClientEntityController;
 import com.github.standobyte.jojo.mechanics.grab.LivingComponentGrab;
 import com.github.standobyte.jojo.powersystem.entityaction.EntityActionInstance;
@@ -155,7 +158,7 @@ public class StandEntity extends LivingEntity implements SummonedStand, IEntityW
 	}
 	
 
-	protected PrevRotations rotO = new PrevRotations();
+	public PrevRotations rotO = new PrevRotations();
 	@Override
 	public void tick() {
 		fallDistance = 0;
@@ -308,7 +311,7 @@ public class StandEntity extends LivingEntity implements SummonedStand, IEntityW
 		offsetFromUser.copyRotation(user, level().isClientSide());
 	}
 	
-	protected boolean lookAtCurTarget(PrevRotations rotO) {
+	public boolean lookAtCurTarget(PrevRotations rotO) {
 		ActionTarget lookTarget;
 		EntityActionInstance curAction = standAction.getAction();
 		boolean fullyRotateBody = curAction != null && LivingComponentGrab.getEntityGrabbedBy(this) == null;
@@ -377,27 +380,6 @@ public class StandEntity extends LivingEntity implements SummonedStand, IEntityW
 	public boolean isFollowingUser() {
 		return !isManuallyControlled();
 	}
-	
-	@Override
-	public void push(Entity entity) {}
-	
-	@Override
-	public boolean isPushable() { return false; }
-	
-	@Override
-	public void pushEntities() {}
-
-	@Override
-	public boolean isPickable() {
-		if (level().isClientSide()) {
-			Player clientPlayer = ClientProxy.getClientPlayer();
-			if (clientPlayer != null && this.is(ClientGlobals.playerStandEntity)) {
-				return false;
-			}
-		}
-		return super.isPickable();
-	}
-	
 	
 	public boolean isManuallyControlled() {
 		// makes it smoother if you move as soon as you enter manual control, otherwise there is a little stumble
@@ -667,6 +649,27 @@ public class StandEntity extends LivingEntity implements SummonedStand, IEntityW
 	
 	public final boolean isVisibleForAll() {
 		return !onlyVisibleToStandUsers();
+	}
+	
+	
+	@Override
+	public void push(Entity entity) {}
+	
+	@Override
+	public boolean isPushable() { return false; }
+	
+	@Override
+	public void pushEntities() {}
+
+	@Override
+	public boolean isPickable() {
+		if (level().isClientSide()) {
+			Player clientPlayer = ClientProxy.getClientPlayer();
+			if (clientPlayer != null && this.is(ClientGlobals.playerStandEntity)) {
+				return false;
+			}
+		}
+		return super.isPickable();
 	}
 	
 	
