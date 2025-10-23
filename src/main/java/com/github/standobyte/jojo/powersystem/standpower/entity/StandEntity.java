@@ -138,7 +138,7 @@ public class StandEntity extends LivingEntity implements SummonedStand, IEntityW
 		entityData.set(STAND_FLAGS, i);
 	}
 
-	protected boolean getStandFlag(StandFlag flag) {
+	public boolean getStandFlag(StandFlag flag) {
 		return (entityData.get(STAND_FLAGS) & flag.bit) != 0;
 	}
 
