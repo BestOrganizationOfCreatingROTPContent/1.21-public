@@ -5,12 +5,14 @@ import com.github.standobyte.jojo.core.event.RipplesAbilityKeyPressEvent;
 import com.github.standobyte.jojo.init.ModDataAttachmentTypes;
 import com.github.standobyte.jojo.init.power.ModStandAbilities;
 import com.github.standobyte.jojo.mechanics.entitycontrol.ServerEntityController;
+import com.github.standobyte.jojo.mechanics.possessionv2.LivingComponentPossession;
 import com.github.standobyte.jojo.powersystem.PowerClass;
 import com.github.standobyte.jojo.powersystem.ability.Ability;
 import com.github.standobyte.jojo.powersystem.ability.AbilityId;
 import com.github.standobyte.jojo.powersystem.standpower.StandPower;
 import com.github.standobyte.jojo.powersystem.standpower.effect.StandEffectInstance;
 import com.github.standobyte.jojo.powersystem.standpower.effect.StandEffectType;
+import com.github.standobyte.jojo.powersystem.standpower.entity.StandEntity;
 import com.github.standobyte.jojo.util.entitycomponent.ComponentUtil;
 
 import net.minecraft.world.entity.LivingEntity;
@@ -38,6 +40,11 @@ public class HierophantPuppetEffect extends StandEffectInstance {
 			ServerEntityController component = ComponentUtil.getExistingDataOrNull(user, ModDataAttachmentTypes.CONTROLLER);
 			if (component != null) {
 				component.stopControlling(true);
+			}
+			
+			StandEntity hierophant = StandPower.get(user).getSummonedStandEntity();
+			if (hierophant != null) {
+				LivingComponentPossession.setPossessionTarget(hierophant, null, null);
 			}
 		}
 	}

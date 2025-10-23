@@ -20,6 +20,8 @@
 	"entitycontrol.mob.accessors.RangedAttackGoalAccessor",
 	"entitycontrol.mob.accessors.PolarBearWarningSoundYesReally",
 	"entitycontrol.mob.accessors.SkeletonAccessor",
+
+	"possession.LivingEntityMixin",
 	
     "standuseitems.ProjectileMixin",
 	"ProjectileHighSpeedSync",

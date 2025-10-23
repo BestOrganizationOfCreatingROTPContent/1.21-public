@@ -6,6 +6,7 @@ import javax.annotation.Nullable;
 
 import com.github.standobyte.jojo.init.power.ModStandAbilities;
 import com.github.standobyte.jojo.mechanics.entitycontrol.ServerEntityController;
+import com.github.standobyte.jojo.mechanics.possessionv2.LivingComponentPossession;
 import com.github.standobyte.jojo.powersystem.Power;
 import com.github.standobyte.jojo.powersystem.PowerClass;
 import com.github.standobyte.jojo.powersystem.ability.AbilityId;
@@ -89,6 +90,8 @@ public class HierophantPuppetAbility extends StandEntityAbility {
 						if (targetEntity instanceof Mob) {
 							ServerEntityController.setServerControlTarget(standUser, targetEntity, "mob");
 						}
+						
+						LivingComponentPossession.setPossessionTarget(performer, targetEntity, "hierophant");
 					}
 				}
 			}

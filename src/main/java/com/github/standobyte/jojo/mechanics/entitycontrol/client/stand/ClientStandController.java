@@ -1,8 +1,5 @@
 package com.github.standobyte.jojo.mechanics.entitycontrol.client.stand;
 
-import com.github.standobyte.jojo.client.entityrender.stand.HumanoidPart;
-import com.github.standobyte.jojo.client.entityrender.stand.StandEntityRenderState;
-import com.github.standobyte.jojo.client.entityrender.stand.StandEntityRenderer;
 import com.github.standobyte.jojo.client.ui.utils.BlitFloat;
 import com.github.standobyte.jojo.client.ui.utils.ElementTransparency;
 import com.github.standobyte.jojo.core.JojoMod;
@@ -12,15 +9,10 @@ import com.github.standobyte.jojo.powersystem.entityaction.LivingComponentAction
 import com.github.standobyte.jojo.powersystem.standpower.entity.StandEntity;
 import com.mojang.blaze3d.platform.GlStateManager;
 import com.mojang.blaze3d.systems.RenderSystem;
-import com.mojang.blaze3d.vertex.PoseStack;
-import com.mojang.math.Axis;
 
 import net.minecraft.client.DeltaTracker;
-import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.player.Input;
-import net.minecraft.client.renderer.MultiBufferSource.BufferSource;
-import net.minecraft.client.renderer.entity.EntityRenderer;
 import net.minecraft.core.BlockPos;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.util.FastColor.ARGB32;
@@ -133,27 +125,6 @@ public class ClientStandController extends ClientEntityController {
 		}
 	}
 
-
-	@Override
-	public boolean renderFirstPerson(float partialTick, PoseStack poseStack, BufferSource bufferSource, int packedLight) {
-		EntityRenderer<?> renderer = mc.getEntityRenderDispatcher().getRenderer(entityAsLiving);
-		
-		StandEntityRenderer entityRenderer = (StandEntityRenderer) renderer;
-		StandEntity _entity = (StandEntity) entityAsLiving;
-		StandEntityRenderState renderState = entityRenderer.createRenderState(_entity, partialTick);
-		renderState.visibleParts = HumanoidPart.reduce(renderState.visibleParts, HumanoidPart.ARMS_ONLY);
-		
-		poseStack.pushPose();
-		poseStack.mulPose(Axis.XP.rotationDegrees(renderState.xRot));
-		poseStack.mulPose(Axis.YP.rotationDegrees(180 + renderState.bodyRot));
-		poseStack.translate(0, -entityAsLiving.getEyeHeight(), 0);
-//		entityRenderer.render(renderState, poseStack, bufferSource, packedLight);
-		entityRenderer.render(_entity, renderState, 0, partialTick, poseStack, bufferSource, packedLight);
-		poseStack.popPose();
-		
-		bufferSource.endBatch();
-		return true;
-	}
 
 	@Override
 	public boolean shouldRenderBlockOutline() {

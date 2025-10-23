@@ -7,14 +7,12 @@ import org.jetbrains.annotations.ApiStatus;
 import com.github.standobyte.jojo.client.ClientUtil;
 import com.github.standobyte.jojo.mechanics.entitycontrol.SetClientControllerPacket;
 import com.github.standobyte.jojo.mechanics.entitycontrol.client.mob.ClientMobController;
-import com.mojang.blaze3d.vertex.PoseStack;
 
 import net.minecraft.client.DeltaTracker;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.player.Input;
 import net.minecraft.client.player.LocalPlayer;
-import net.minecraft.client.renderer.MultiBufferSource.BufferSource;
 import net.minecraft.network.protocol.game.ServerboundMovePlayerPacket;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.LivingEntity;
@@ -195,13 +193,6 @@ public abstract class ClientEntityController {
 //			player.autoJumpEnabled = player.minecraft.options.autoJump().get();
 //		}
 //	}
-
-	/**
-	 * @return true if the vanilla hand render should be canceled entirely
-	 */
-	public boolean renderFirstPerson(float partialTicks, PoseStack poseStack, BufferSource buffer, int combinedLight) {
-		return true;
-	}
 
 	public boolean shouldRenderBlockOutline() {
 		return false;

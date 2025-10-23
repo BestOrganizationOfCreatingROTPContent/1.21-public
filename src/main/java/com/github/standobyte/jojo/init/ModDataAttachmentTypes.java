@@ -9,6 +9,7 @@ import com.github.standobyte.jojo.mechanics.ServerBlockDestroyTracker;
 import com.github.standobyte.jojo.mechanics.clothes.EntityClothesInventory;
 import com.github.standobyte.jojo.mechanics.entitycontrol.ServerEntityController;
 import com.github.standobyte.jojo.mechanics.grab.LivingComponentGrab;
+import com.github.standobyte.jojo.mechanics.possessionv2.LivingComponentPossession;
 import com.github.standobyte.jojo.powersystem.PowerClass;
 import com.github.standobyte.jojo.powersystem.entityaction.EntityActionInputState;
 import com.github.standobyte.jojo.powersystem.entityaction.LivingComponentAction;
@@ -56,6 +57,9 @@ public final class ModDataAttachmentTypes {
 
 	public static final Supplier<AttachmentType<ServerEntityController>> CONTROLLER = ATTACHMENT_TYPES.register("controller_player", 
 			() -> AttachmentType.builder(obj -> obj instanceof Entity entity ? new ServerEntityController(entity) : null).build());
+
+	public static final Supplier<AttachmentType<LivingComponentPossession>> ENTITY_POSSESSION = ATTACHMENT_TYPES.register("possession", 
+			() -> AttachmentType.builder(obj -> obj instanceof Entity entity ? new LivingComponentPossession(entity) : null).build());
 	
 	
 	public static final Supplier<AttachmentType<StandEffectsTarget>> STAND_EFFECTS_TARGET = ATTACHMENT_TYPES.register("stand_effects_target", 
