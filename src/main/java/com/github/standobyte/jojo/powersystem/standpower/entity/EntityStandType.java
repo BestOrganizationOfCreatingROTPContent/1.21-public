@@ -151,7 +151,7 @@ public class EntityStandType extends StandType {
 //			StandEntity standEntity = ((StandEntity) standPower.getSummonedStand());
 //			if (standEntity != null) {
 //				if (!standEntity.isBeingRetracted()) {
-//					standEntity.retractStand(true);
+//					standEntity.retractAndUnsummon();
 //				}
 //				else if (standEntity.isManuallyControlled()) {
 //					standEntity.stopRetraction();

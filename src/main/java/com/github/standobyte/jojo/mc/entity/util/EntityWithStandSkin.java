@@ -1,4 +1,4 @@
-package com.github.standobyte.jojo.mc.entity;
+package com.github.standobyte.jojo.mc.entity.util;
 
 import java.util.Optional;
 
