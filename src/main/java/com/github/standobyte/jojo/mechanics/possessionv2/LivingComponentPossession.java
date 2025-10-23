@@ -73,6 +73,20 @@ public class LivingComponentPossession implements TickingEntityData, Synchroniza
 					possessTarget.getZ(), 
 					possessTarget.getYRot(), 
 					possessTarget.getXRot());
+			thisEntity.xRotO = possessTarget.xRotO;
+			thisEntity.yRotO = possessTarget.yRotO;
+			LivingEntity thisAsLiving = (LivingEntity) thisEntity;
+			if (possessTarget instanceof LivingEntity livingTarget) {
+				thisAsLiving.yHeadRot = livingTarget.yHeadRot;
+				thisAsLiving.yBodyRot = livingTarget.yBodyRot;
+				thisAsLiving.yHeadRotO = livingTarget.yHeadRotO;
+				thisAsLiving.yBodyRotO = livingTarget.yBodyRotO;
+			}
+			else {
+				thisAsLiving.yHeadRot = thisAsLiving.getYRot();
+				thisAsLiving.yBodyRot = thisAsLiving.getYRot();
+			}
+			
 			if (thisEntity instanceof ServerPlayer serverPlayer) {
 				serverPlayer.serverLevel().getChunkSource().move(serverPlayer);
 			}
@@ -104,7 +118,7 @@ public class LivingComponentPossession implements TickingEntityData, Synchroniza
 		this.possessTarget = target;
 		this.possessionType = possessionType;
 		if (!thisEntity.level().isClientSide()) {
-			PacketDistributor.sendToPlayersTrackingEntity(thisEntity, new TrPossessEntityPacket(
+			PacketDistributor.sendToPlayersTrackingEntityAndSelf(thisEntity, new TrPossessEntityPacket(
 					thisEntity.getId(), possessTarget != null ? possessTarget.getId() : 0, possessionType));
 		}
 		
@@ -132,8 +146,10 @@ public class LivingComponentPossession implements TickingEntityData, Synchroniza
 	
 	@Override
 	public void syncToTracking(ServerPlayer trackingPlayer) {
-		PacketDistributor.sendToPlayer(trackingPlayer, new TrPossessEntityPacket(
-				thisEntity.getId(), possessTarget != null ? possessTarget.getId() : 0, possessionType));
+		if (possessTarget != null) {
+			PacketDistributor.sendToPlayer(trackingPlayer, new TrPossessEntityPacket(
+					thisEntity.getId(), possessTarget != null ? possessTarget.getId() : 0, possessionType));
+		}
 		// TODO sync being possessed
 	}
 	

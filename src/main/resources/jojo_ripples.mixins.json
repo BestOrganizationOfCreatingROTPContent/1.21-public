@@ -21,7 +21,9 @@
 	"entitycontrol.mob.accessors.PolarBearWarningSoundYesReally",
 	"entitycontrol.mob.accessors.SkeletonAccessor",
 
+	"possession.EntityMixin",
 	"possession.LivingEntityMixin",
+	"possession.PlayerEntityMixin",
 	
     "standuseitems.ProjectileMixin",
 	"ProjectileHighSpeedSync",
