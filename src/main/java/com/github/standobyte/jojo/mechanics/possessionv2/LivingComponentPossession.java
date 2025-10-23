@@ -98,6 +98,10 @@ public class LivingComponentPossession implements TickingEntityData, Synchroniza
 		data.setPossessionTarget(target, possessionType);
 	}
 	
+	public static void stopPossession(LivingEntity possessing) {
+		setPossessionTarget(possessing, null, null);
+	}
+	
 	public void setPossessionTarget(@Nullable Entity target, @Nullable String possessionType) {
 		while (target instanceof PartEntity<?> partEntity) target = partEntity.getParent();
 		

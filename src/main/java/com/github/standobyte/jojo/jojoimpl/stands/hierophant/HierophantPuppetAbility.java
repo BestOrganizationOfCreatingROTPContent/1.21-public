@@ -5,7 +5,6 @@ import java.util.List;
 import javax.annotation.Nullable;
 
 import com.github.standobyte.jojo.init.power.ModStandAbilities;
-import com.github.standobyte.jojo.mechanics.entitycontrol.ServerEntityController;
 import com.github.standobyte.jojo.mechanics.possessionv2.LivingComponentPossession;
 import com.github.standobyte.jojo.powersystem.Power;
 import com.github.standobyte.jojo.powersystem.PowerClass;
@@ -22,7 +21,6 @@ import com.github.standobyte.jojo.powersystem.standpower.entity.StandEntityAbili
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.entity.LivingEntity;
-import net.minecraft.world.entity.Mob;
 import net.minecraft.world.level.Level;
 
 public class HierophantPuppetAbility extends StandEntityAbility {
@@ -86,12 +84,8 @@ public class HierophantPuppetAbility extends StandEntityAbility {
 					if (targetEntity != null) {
 						HierophantPuppetEffect newEffect = ModStandAbilities.EFFECT_HG_PUPPET.get().create(level);
 						power.userStandEffects.addEffect(newEffect.withTarget(targetEntity));
-
-						if (targetEntity instanceof Mob) {
-							ServerEntityController.setServerControlTarget(standUser, targetEntity, "mob");
-						}
-						
 						LivingComponentPossession.setPossessionTarget(performer, targetEntity, "hierophant");
+						newEffect.setMobControl(true);
 					}
 				}
 			}
