@@ -2,12 +2,21 @@ package com.github.standobyte.jojo.util.java;
 
 import net.minecraft.util.Mth;
 
-public class LerpValue {
+public class Lerp {
 
-	public static class Float {
+	public static class FloatValue {
 		public float prevValue;
 		public float value;
 		boolean firstUpdate;
+		
+		public FloatValue() {
+			this(0);
+		}
+		
+		public FloatValue(float value) {
+			this.prevValue = value;
+			this.value = value;
+		}
 
 		public void lerpTick() {
 			this.prevValue = this.value;
@@ -37,10 +46,19 @@ public class LerpValue {
 		}
 	}
 
-	public static class Double {
+	public static class DoubleValue {
 		public double prevValue;
 		public double value;
 		boolean firstUpdate;
+		
+		public DoubleValue() {
+			this(0);
+		}
+		
+		public DoubleValue(double value) {
+			this.prevValue = value;
+			this.value = value;
+		}
 
 		public void preTick() {
 			this.prevValue = this.value;

@@ -8,7 +8,6 @@ import com.github.standobyte.jojo.powersystem.entityaction.type.SpecialEntityAct
 
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerPlayer;
-import net.minecraft.world.entity.LivingEntity;
 
 /**
  * An action for when a Stand clicks specific items, for example, when it throws a projectile,
@@ -18,12 +17,8 @@ public class VanillaItemClickAsAction extends SpecialEntityActionType {
 
 	public VanillaItemClickAsAction(ResourceLocation id) {
 		super("", id);
-	}
-	
-	// Anim set returned by this method overwrites the vanilla player poses, we don't want that
-	@Override
-	public ResourceLocation getEntityAnimSet(LivingEntity user) {
-		return null;
+		// Anim set overwrites the vanilla player poses, we don't want that
+		this.animSet = null;
 	}
 
 	@Override

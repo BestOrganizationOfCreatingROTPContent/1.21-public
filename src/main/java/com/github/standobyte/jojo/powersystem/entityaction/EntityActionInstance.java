@@ -301,7 +301,7 @@ public class EntityActionInstance implements HeldInput {
 	}
 	
 	@ApiStatus.NonExtendable
-	public float getAnimPhaseLength(float partialTick) {
+	public float getAnimPhaseLength() {
 		float phaseLength = curPhaseLength;
 		if (skippedWindupPhase != null) {
 			phaseLength -= skippedWindupPhase.getOrDefault(this.phase, 0);
@@ -313,7 +313,7 @@ public class EntityActionInstance implements HeldInput {
 	public float getAnimPhaseRatio(float partialTick) {
 		if (curPhaseLength == 0) throw new IllegalStateException();
 		float phaseTick = getAnimPhaseTick(partialTick);
-		float phaseLength = getAnimPhaseLength(partialTick);
+		float phaseLength = getAnimPhaseLength();
 		return phaseTick / phaseLength;
 	}
 	
@@ -411,9 +411,14 @@ public class EntityActionInstance implements HeldInput {
 	public void _tickAction() {
 		if (!isOver()) {
 			_onTick();
-			++curPhaseTick;
+			_incPhaseTick();
 			checkNextPhase();
 		}
+	}
+
+	@ApiStatus.Internal
+	protected void _incPhaseTick() {
+		++curPhaseTick;
 	}
 	
 	@ApiStatus.Internal

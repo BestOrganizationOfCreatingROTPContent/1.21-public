@@ -1,6 +1,7 @@
 package com.github.standobyte.jojo.jojoimpl.stands._entitybase;
 
 import com.github.standobyte.jojo.client.ClientProxy;
+import com.github.standobyte.jojo.client.input.InputHandler;
 import com.github.standobyte.jojo.init.ModDataAttachmentTypes;
 import com.github.standobyte.jojo.mechanics.entitycontrol.ServerEntityController;
 import com.github.standobyte.jojo.mechanics.entitycontrol.client.ClientEntityController;
@@ -11,6 +12,7 @@ import com.github.standobyte.jojo.powersystem.ability.AbilityType;
 import com.github.standobyte.jojo.powersystem.standpower.entity.StandEntity;
 import com.github.standobyte.jojo.util.StandUtil;
 import com.github.standobyte.jojo.util.entitycomponent.ComponentUtil;
+import com.mojang.blaze3d.platform.InputConstants;
 
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.world.entity.LivingEntity;
@@ -23,19 +25,29 @@ public class StandEntityManualControlToggle extends Ability {
 	}
 	
 	@Override
+	public void writeExtraInput(FriendlyByteBuf serverboundBuf, LivingEntity user, boolean isClientPlayer) {
+		if (isClientPlayer) {
+			boolean shift = InputHandler.getInstance().isKeyHeld(InputConstants.KEY_LSHIFT);
+			serverboundBuf.writeBoolean(shift);
+		}
+	}
+	
+	@Override
 	public void onClick(Level level, LivingEntity user, FriendlyByteBuf extraClientInput) {
+		boolean shift = extraClientInput.readBoolean();
 		StandEntity stand = StandUtil.getSummonedStand(user);
 		if (stand != null) {
 			if (!stand.isManuallyControlled()) {
 				on(level, stand);
 			}
 			else {
-				off(level, stand);
+				off(level, stand, shift);
 			}
 		}
 	}
 	
 	public static void on(Level level, StandEntity stand) {
+		stand.setCanFollowUser(true);
 		stand.setManuallyControlled(true);
 		LivingEntity user = stand.getUser();
 		if (level.isClientSide()) {
@@ -48,7 +60,8 @@ public class StandEntityManualControlToggle extends Ability {
 		}
 	}
 	
-	public static void off(Level level, StandEntity stand) {
+	public static void off(Level level, StandEntity stand, boolean keepPosition) {
+		stand.setCanFollowUser(!keepPosition);
 		stand.setManuallyControlled(false);
 		LivingEntity user = stand.getUser();
 		if (level.isClientSide()) {

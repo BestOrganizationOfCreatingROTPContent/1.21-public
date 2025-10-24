@@ -22,7 +22,7 @@ import com.github.standobyte.jojo.powersystem.standpower.type.SummonedStand;
 import com.github.standobyte.jojo.util.NBTUtil;
 import com.github.standobyte.jojo.util.StandUtil;
 import com.github.standobyte.jojo.util.entitycomponent.PostNbtReadEntityData;
-import com.github.standobyte.jojo.util.java.LerpValue;
+import com.github.standobyte.jojo.util.java.Lerp;
 import com.mojang.datafixers.util.Either;
 
 import net.minecraft.core.HolderLookup;
@@ -42,7 +42,7 @@ public class StandPower extends Power<StandPower> implements PostNbtReadEntityDa
 	protected SummonedStand summonedStand;
 	protected Map<ResourceLocation, Either<StandTypePersistentData, CompoundTag>> standData = new HashMap<>();
 	
-	protected LerpValue.Float staminaLerp = new LerpValue.Float();
+	protected Lerp.FloatValue staminaLerp = new Lerp.FloatValue();
 	protected float staminaAddNextTick = 0;
 	public ResolveHandler resolveHandler = new ResolveHandler();
 	public UserStandEffects userStandEffects = new UserStandEffects(this);

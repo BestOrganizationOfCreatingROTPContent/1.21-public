@@ -11,7 +11,6 @@ import com.github.standobyte.jojo.powersystem.standpower.entity.StandEntity;
 
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerPlayer;
-import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.player.Player;
 
 /**
@@ -22,12 +21,8 @@ public class VanillaItemUseAsAction extends SpecialEntityActionType {
 
 	public VanillaItemUseAsAction(ResourceLocation id) {
 		super("", id);
-	}
-	
-	// Anim set returned by this method overwrites the vanilla player poses, we don't want that
-	@Override
-	public ResourceLocation getEntityAnimSet(LivingEntity user) {
-		return null;
+		// Anim set overwrites the vanilla player poses, we don't want that
+		this.animSet = null;
 	}
 
 	@Override

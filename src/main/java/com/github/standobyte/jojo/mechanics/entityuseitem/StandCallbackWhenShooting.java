@@ -52,9 +52,8 @@ public class StandCallbackWhenShooting {
 					stand.offsetFromUser.setOffset(standOffset, rotations);
 					stand.offsetFromUser.syncToTracking();
 	
-					if (stand.updatePosition(stand.getUser())) {
-						projectile.setPos(stand.getX(), stand.getEyeY() - 0.1, stand.getZ());
-					}
+					stand.updatePosition(stand.getUser());
+					projectile.setPos(stand.getX(), stand.getEyeY() - 0.1, stand.getZ());
 				}
 				
 				return newProjectileVec;
