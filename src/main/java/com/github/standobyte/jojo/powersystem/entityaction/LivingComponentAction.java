@@ -102,7 +102,7 @@ public class LivingComponentAction implements SynchronizablePlayerData, TickingE
 	}
 	
 	@ApiStatus.Internal
-	public HeldInput setAction(EntityActionInstance action, SyncType sync) {
+	public HeldInput setAction(@Nullable EntityActionInstance action, SyncType sync) {
 		// A way for the performer entity to the changed action, i.e. for a Stand entity to reset offset to idle
 		
 		if (setActionCallback != null && setActionCallback.onActionSet(action)) {

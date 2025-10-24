@@ -12,8 +12,10 @@ import javax.annotation.Nullable;
 import com.github.standobyte.jojo.client.ClientGlobals;
 import com.github.standobyte.jojo.client.ClientProxy;
 import com.github.standobyte.jojo.core.packet.fromserver.TrSetStandEntityPacket;
+import com.github.standobyte.jojo.init.ModSpecialActions;
 import com.github.standobyte.jojo.init.ModStatusEffects;
 import com.github.standobyte.jojo.init.core.ModEntityAttributes;
+import com.github.standobyte.jojo.jojoimpl.stands._entitybase.StandEntityUnsummonAction;
 import com.github.standobyte.jojo.mc.entity.projectile.DamagingEntity;
 import com.github.standobyte.jojo.mc.entity.util.EntityStandVisibility;
 import com.github.standobyte.jojo.mc.entity.util.EntityWithStandSkin;
@@ -23,6 +25,7 @@ import com.github.standobyte.jojo.mechanics.entitycontrol.client.ClientEntityCon
 import com.github.standobyte.jojo.mechanics.grab.LivingComponentGrab;
 import com.github.standobyte.jojo.powersystem.entityaction.EntityActionInstance;
 import com.github.standobyte.jojo.powersystem.entityaction.LivingComponentAction;
+import com.github.standobyte.jojo.powersystem.entityaction.netcode.SyncType;
 import com.github.standobyte.jojo.powersystem.standpower.StandPower;
 import com.github.standobyte.jojo.powersystem.standpower.StandStats;
 import com.github.standobyte.jojo.powersystem.standpower.type.StandType;
@@ -34,6 +37,7 @@ import com.github.standobyte.jojo.util.UtilFunctions;
 import com.github.standobyte.jojo.util.damage.DamageUtil;
 import com.github.standobyte.jojo.util.damage.RipplesModifiedDamageSource;
 import com.github.standobyte.jojo.util.damage.StandLinkDamageSource;
+import com.github.standobyte.jojo.util.java.Lerp;
 import com.github.standobyte.jojo.util.mc.AttributeUtil;
 import com.github.standobyte.jojo.util.mc.PrevRotations;
 import com.github.standobyte.jojo.util.target.ActionTarget;
@@ -103,6 +107,7 @@ public class StandEntity extends LivingEntity implements SummonedStand, IEntityW
 	public StandOffsetFromUser offsetFromUser;
     public double rangeEfficiency = 1;
     public double staminaCondition = 1;
+    public Lerp.FloatValue modelAlpha = new Lerp.FloatValue(1);
 	
 	public ClientStandEntityStuff clientStuff;
 
@@ -110,7 +115,6 @@ public class StandEntity extends LivingEntity implements SummonedStand, IEntityW
 		super(type, level);
 		this.standAction = LivingComponentAction.getComponent(this);
 		this.offsetFromUser = StandOffsetFromUser.createDefault(this);
-		setNoGravity(true);
 		if (level.isClientSide()) {
 			this.clientStuff = new ClientStandEntityStuff();
 		}
@@ -127,33 +131,18 @@ public class StandEntity extends LivingEntity implements SummonedStand, IEntityW
 	protected void defineSynchedData(SynchedEntityData.Builder builder) {
 		super.defineSynchedData(builder);
 		builder.define(USER_ID, -1);
-		builder.define(STAND_FLAGS, (byte)0);
+		builder.define(STAND_FLAGS, defaultStandFlags());
 		builder.define(FINISHER_VALUE, 0f);
 	}
-
-	protected void setStandFlag(StandFlag flag, boolean value) {
-		byte i = entityData.get(STAND_FLAGS);
-		if (value) {
-			i |= flag.bit;
-		} else {
-			i &= ~flag.bit;
+	
+	@Override
+	public void onAddedToLevel() {
+		super.onAddedToLevel();
+		if (standHasNoGravity) {
+			setNoGravity(true);
 		}
-		entityData.set(STAND_FLAGS, i);
-	}
-
-	protected boolean getStandFlag(StandFlag flag) {
-		return (entityData.get(STAND_FLAGS) & flag.bit) != 0;
-	}
-
-	public static enum StandFlag {
-		MANUAL_CONTROL,
-		FIXED_REMOTE_POSITION,
-		BEING_RETRACTED,
-		NO_PHYSICS;
-
-		private final byte bit;
-		private StandFlag() {
-			bit = (byte) (1 << ordinal());
+		if (standCanHaveNoPhysics) {
+			noPhysics = true;
 		}
 	}
 	
@@ -162,6 +151,7 @@ public class StandEntity extends LivingEntity implements SummonedStand, IEntityW
 	@Override
 	public void tick() {
 		fallDistance = 0;
+		modelAlpha.set(1, true);
 		rotO.rememberAngles(this);
 		LivingEntity user = getUser();
 		Level level = level();
@@ -291,7 +281,7 @@ public class StandEntity extends LivingEntity implements SummonedStand, IEntityW
 	}
 	
 	
-	public boolean updatePosition(LivingEntity user) {
+	public void updatePosition(LivingEntity user) {
 		if (isFollowingUser()) {
 			if (user != null) {
 				Vec3 pos = offsetFromUser.getPosition(user);
@@ -299,12 +289,21 @@ public class StandEntity extends LivingEntity implements SummonedStand, IEntityW
 				copyStandUserRotation(user);
 			}
 			lookAtCurTarget(rotO);
-			return true;
 		}
 		else if (isManuallyControlled()) {
 			moveStandManualControl();
 		}
-		return false;
+		if (isBeingRetracted() && user != null) {
+			if (!isCloseToUser()) {
+				Vec3 targetPos = offsetFromUser.getPosition(user);
+				Vec3 movementVec = targetPos.subtract(position());
+				setDeltaMovement(movementVec.normalize().scale(getAttributeValue(Attributes.MOVEMENT_SPEED)));
+			}
+			else {
+				setDeltaMovement(Vec3.ZERO);
+				setStandFlag(StandFlag.BEING_RETRACTED, false);
+			}
+		}
 	}
 	
 	public void copyStandUserRotation(LivingEntity user) {
@@ -377,31 +376,8 @@ public class StandEntity extends LivingEntity implements SummonedStand, IEntityW
 		return false;
 	}
 	
-	public boolean isFollowingUser() {
-		return !isManuallyControlled();
-	}
-	
-	public boolean isManuallyControlled() {
-		// makes it smoother if you move as soon as you enter manual control, otherwise there is a little stumble
-		if (level().isClientSide() && getUser() == ClientProxy.getClientPlayer()) {
-			ClientEntityController ctrl = ClientEntityController.getInstance();
-			return ctrl != null && ctrl.entity == this;
-		}
-		return getStandFlag(StandFlag.MANUAL_CONTROL);
-	}
-	
-	public void setManuallyControlled(boolean value) {
-		if (isManuallyControlled() != value) {
-			if (!level().isClientSide()) {
-				setStandFlag(StandFlag.MANUAL_CONTROL, value);
-			}
-			else {
-				setDeltaMovement(Vec3.ZERO);
-			}
-		}
-	}
-	
 	protected Vec3 _offsetFromUserVec;
+	protected Vec3 _manualControlInput = Vec3.ZERO;
 	protected void updateUserOffset(LivingEntity user) {
 		if (user != null) {
 			this._offsetFromUserVec = this.position().subtract(user.position());
@@ -409,34 +385,36 @@ public class StandEntity extends LivingEntity implements SummonedStand, IEntityW
 	}
 	
 	public void manualControlInput(Vec3 motionInput) {
-		if (_offsetFromUserVec == null) {
-			updateUserOffset(getUser());
-		}
-		if (_offsetFromUserVec != null) {
-			_offsetFromUserVec = _offsetFromUserVec.add(motionInput);
-		}
-		else {
-			move(MoverType.SELF, motionInput);
-		}
+		this._manualControlInput = motionInput;
 	}
 	
-	public void moveStandManualControl() {
+	protected void moveStandManualControl() {
 		LivingEntity user = getUser();
 		if (user != null && isControlledByLocalInstance()) {
 			if (_offsetFromUserVec == null) {
 				updateUserOffset(user);
 			}
-			Vec3 userPos = user.position();
-			Vec3 newPos = userPos.add(_offsetFromUserVec);
-			Vec3 move = newPos.subtract(this.position());
-			move(MoverType.SELF, move);
-			updateUserOffset(user);
+			
+			if (_offsetFromUserVec != null) {
+				_offsetFromUserVec = _offsetFromUserVec.add(_manualControlInput);
+				_manualControlInput = Vec3.ZERO;
+				
+				Vec3 userPos = user.position();
+				Vec3 newPos = userPos.add(_offsetFromUserVec);
+				Vec3 move = newPos.subtract(this.position());
+				move(MoverType.SELF, move);
+			}
+			else {
+				move(MoverType.SELF, _manualControlInput);
+				_manualControlInput = Vec3.ZERO;
+			}
 		}
 	}
 
 	@Override
 	public void move(MoverType type, Vec3 vec) {
 		super.move(type, vec);
+		
 		LivingEntity user = getUser();
 		Level level = this.level();
 		if (user != null && user.level() == level) {
@@ -448,6 +426,9 @@ public class StandEntity extends LivingEntity implements SummonedStand, IEntityW
 				Vec3 userPos = bbDistance.posBB2();
 				Vec3 vecToUser = userPos.subtract(standPos).scale(1 - range / distance);
 				moveWithoutCollision(vecToUser);
+			}
+			if (!vec.equals(Vec3.ZERO)) {
+				updateUserOffset(user);
 			}
 		}
 	}
@@ -466,7 +447,162 @@ public class StandEntity extends LivingEntity implements SummonedStand, IEntityW
 				return player.isLocalPlayer();
 			}
 		}
-		return false;
+		return isEffectiveAi();
+	}
+
+	
+	protected void setStandFlag(StandFlag flag, boolean value) {
+		byte i = entityData.get(STAND_FLAGS);
+		if (value) {
+			i |= flag.bit;
+		} else {
+			i &= ~flag.bit;
+		}
+		entityData.set(STAND_FLAGS, i);
+	}
+	
+	protected byte defaultStandFlags() {
+		byte i = 0;
+		for (StandFlag flag : StandFlag.values()) {
+			if (flag.defaultValue) {
+				i |= flag.bit;
+			}
+		}
+		
+		if (standCanHaveNoPhysics) {
+			i |= StandFlag.NO_PHYSICS.bit;
+		} else {
+			i &= ~StandFlag.NO_PHYSICS.bit;
+		}
+		
+		return i;
+	}
+
+	public boolean getStandFlag(StandFlag flag) {
+		return (entityData.get(STAND_FLAGS) & flag.bit) != 0;
+	}
+
+	public static enum StandFlag {
+		MANUAL_CONTROL(false),
+		CAN_FOLLOW_USER(true),
+		BEING_RETRACTED(false),
+		NO_PHYSICS(true);
+
+		private final byte bit;
+		private final boolean defaultValue;
+		private StandFlag(boolean defaultValue) {
+			this.bit = (byte) (1 << ordinal());
+			this.defaultValue = defaultValue;
+		}
+	}
+	
+	
+	public boolean isFollowingUser() {
+		return !isManuallyControlled() && followingUserIsEnabled() && !isBeingRetracted();
+	}
+	
+	public boolean isManuallyControlled() {
+		// makes it smoother if you move as soon as you enter manual control, otherwise there is a little stumble
+		if (level().isClientSide() && getUser() == ClientProxy.getClientPlayer()) {
+			ClientEntityController ctrl = ClientEntityController.getInstance();
+			return ctrl != null && ctrl.entity == this;
+		}
+		return getStandFlag(StandFlag.MANUAL_CONTROL);
+	}
+	
+	public void setManuallyControlled(boolean value) {
+		setStandFlag(StandFlag.MANUAL_CONTROL, value);
+		if (level().isClientSide()) {
+			setDeltaMovement(Vec3.ZERO);
+		}
+
+		if (!value && followingUserIsEnabled()) {
+			retract();
+		}
+		else {
+			setStandFlag(StandFlag.BEING_RETRACTED, false);
+		}
+		
+		updateNoPhysics();
+	}
+	
+	public void setCanFollowUser(boolean enabled) {
+		setStandFlag(StandFlag.CAN_FOLLOW_USER, enabled);
+	}
+	
+	public boolean followingUserIsEnabled() {
+		return getStandFlag(StandFlag.CAN_FOLLOW_USER);
+	}
+	
+	public boolean isBeingRetracted() {
+		return getStandFlag(StandFlag.BEING_RETRACTED);
+	}
+	
+	public void retract() {
+		LivingEntity user = getUser();
+		if (user != null) {
+			setStandFlag(StandFlag.BEING_RETRACTED, true);
+		}
+	}
+
+	public void retractAndUnsummon() {
+		LivingEntity user = getUser();
+		if (user != null) {
+			if (!isFollowingUser()) {
+				setStandFlag(StandFlag.BEING_RETRACTED, true);
+			}
+			startStandUnsummon();
+		}
+	}
+	
+	public boolean isCloseToUser() {
+		LivingEntity user = getUser();
+		return user != null ? distanceToSqr(user) < 4 : false;
+	}
+	
+	public void onUnsummonUserInput() {
+		// TODO only cancel current stand action
+		if (!this.isBeingRetracted()) {
+			this.retractAndUnsummon();
+		}
+		else if (this.isManuallyControlled()) {
+			this.stopRetraction();
+		}
+	}
+
+	public void stopRetraction() {
+		setStandFlag(StandFlag.BEING_RETRACTED, false);
+		
+		EntityActionInstance curAction = getCurStandAction();
+		if (curAction != null && curAction.ability == ModSpecialActions.STAND_UNSUMMON.get()) {
+			standAction.setAction(null, SyncType.TRACKING_AND_SELF);
+		}
+	}
+
+	private void startStandUnsummon() {
+		if (!level().isClientSide()) {
+			var unsummonAction = new StandEntityUnsummonAction.StandUnsummonInstance();
+			standAction.setAction(unsummonAction, getUser(), SyncType.TRACKING_AND_SELF);
+		}
+	}
+
+	public void updateNoPhysics() {
+		setNoPhysics(shouldHaveNoPhysics());
+	}
+
+	protected boolean shouldHaveNoPhysics() {
+		return standCanHaveNoPhysics && !isManuallyControlled() && followingUserIsEnabled();
+	}
+
+	public void setNoPhysics(boolean noPhysics) {
+		if (noPhysics || standCanHaveNoPhysics) {
+			setStandFlag(StandFlag.NO_PHYSICS, noPhysics);
+		}
+	}
+	
+	
+	public void multiplyTranslucency(float multiplier) {
+		modelAlpha.set(modelAlpha.get() * multiplier, false);
 	}
 	
 	
@@ -481,8 +617,12 @@ public class StandEntity extends LivingEntity implements SummonedStand, IEntityW
 	}
 	
 	@Override
-	public boolean onActionSet(EntityActionInstance action) {
-		if (action == null) {
+	public boolean onActionSet(@Nullable EntityActionInstance action) {
+		if (action != null) {
+			setNoPhysics(false);
+		}
+		else {
+			updateNoPhysics();
 			offsetFromUser.resetToIdle();
 		}
 		return false;
@@ -627,6 +767,19 @@ public class StandEntity extends LivingEntity implements SummonedStand, IEntityW
 	}
 	
 	
+	public boolean onlyVisibleToStandUsers = true;
+	public boolean standCanHaveNoPhysics = true;
+	public boolean standHasNoGravity = true;
+	public boolean canOnlyHurtFromStands = true;
+	public boolean healthLinkedWithUser = true;
+	public void setIsPhysicalObject() {
+		onlyVisibleToStandUsers = false;
+		standCanHaveNoPhysics = false;
+		standHasNoGravity = false;
+		canOnlyHurtFromStands = false;
+		healthLinkedWithUser = false;
+	}
+	
 	@Override
 	public boolean isInvisible() {
 		return clientCantSeeThisStand() || super.isInvisible();
@@ -644,7 +797,7 @@ public class StandEntity extends LivingEntity implements SummonedStand, IEntityW
 	
 	@Override
 	public boolean onlyVisibleToStandUsers() {
-		return true;
+		return onlyVisibleToStandUsers;
 	}
 	
 	public final boolean isVisibleForAll() {
@@ -673,16 +826,8 @@ public class StandEntity extends LivingEntity implements SummonedStand, IEntityW
 	}
 	
 	
-	public boolean canOnlyHurtFromStands() {
-		return true;
-	}
-	
-	public boolean healthLinkedWithUser() {
-		return true;
-	}
-	
 	public boolean requiresUser() {
-		return healthLinkedWithUser();
+		return healthLinkedWithUser;
 	}
 	
 	@Override
@@ -691,7 +836,7 @@ public class StandEntity extends LivingEntity implements SummonedStand, IEntityW
 		return user != null && (
 					user.isInvulnerableTo(/*level, */damageSource)
 					|| user instanceof Player player && player.getAbilities().invulnerable && !damageSource.is(DamageTypeTags.BYPASSES_INVULNERABILITY))
-				|| canOnlyHurtFromStands() && !DamageUtil.canHurtStands(damageSource)
+				|| canOnlyHurtFromStands && !DamageUtil.canHurtStands(damageSource)
 				|| super.isInvulnerableTo(/*level, */damageSource);
 	}
 	
@@ -751,7 +896,7 @@ public class StandEntity extends LivingEntity implements SummonedStand, IEntityW
 	
 	@Override
 	public void setHealth(float health) {
-		if (healthLinkedWithUser()) {
+		if (healthLinkedWithUser) {
 			redirectDamageToUser(health);
 		}
 		super.setHealth(health);
@@ -798,7 +943,7 @@ public class StandEntity extends LivingEntity implements SummonedStand, IEntityW
 			RipplesModifiedDamageSource.afterKnockbackApplied(this, curDamage);
 		}
 
-		if (healthLinkedWithUser()) {
+		if (healthLinkedWithUser) {
 			LivingEntity user = getUser();
 			if (user != null && user.isAlive()) {
 				user.knockback(strength, xRatio, zRatio);
@@ -809,7 +954,7 @@ public class StandEntity extends LivingEntity implements SummonedStand, IEntityW
 	}
 
 	protected void tickHealth(LivingEntity user) {
-		if (healthLinkedWithUser()) {
+		if (healthLinkedWithUser) {
 			getAttribute(Attributes.MAX_HEALTH).setBaseValue(user.getMaxHealth());
 			super.setHealth(user.isAlive() ? user.getHealth() : 0);
 			deathTime = user.deathTime;

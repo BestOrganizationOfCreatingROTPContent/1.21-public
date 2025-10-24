@@ -344,6 +344,10 @@ public class InputHandler {
 		return false;
 	}
 	
+	public boolean isKeyHeld(int keyCode) {
+		return isHeld(ClientKeyWrapper.make(InputConstants.Type.KEYSYM, keyCode), null);
+	}
+	
 	private void clickHeldOnRelease(HeldKeyTimer heldKeyTimer, short keyId) {
 		ClickHoldResolve keyResolution = heldKeyTimer.getResolvingInputMethod();
 		if (keyResolution != null) {

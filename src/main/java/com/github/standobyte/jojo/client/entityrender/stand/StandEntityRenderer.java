@@ -104,7 +104,7 @@ public class StandEntityRenderer<
 				getStandAnim(renderState), entity.clientStuff.barrageSwings);
 		
 		renderState.tint = -1;
-		renderState.alpha = (float) entity.rangeEfficiency;
+		renderState.alpha = (float) entity.rangeEfficiency * entity.modelAlpha.lerp(partialTick);
 		
 		Minecraft mc = Minecraft.getInstance();
 		renderState.mayObstructView = mc.options.getCameraType().isFirstPerson() && mc.player != null && entity.getUser() == mc.player;

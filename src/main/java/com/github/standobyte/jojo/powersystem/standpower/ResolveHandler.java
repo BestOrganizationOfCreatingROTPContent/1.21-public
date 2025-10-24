@@ -11,7 +11,7 @@ import com.github.standobyte.jojo.powersystem.standpower.packet.ResolveBoostsPac
 import com.github.standobyte.jojo.powersystem.standpower.packet.TrResolvePacket;
 import com.github.standobyte.jojo.powersystem.standpower.type.StandTypePersistentData;
 import com.github.standobyte.jojo.util.StandUtil;
-import com.github.standobyte.jojo.util.java.LerpValue;
+import com.github.standobyte.jojo.util.java.Lerp;
 import com.github.standobyte.jojo.util.java.OptionalFloat;
 
 import net.minecraft.nbt.CompoundTag;
@@ -57,7 +57,7 @@ public class ResolveHandler {
 	public static final float BOOST_CHAT_MAX = 1.25F;
 	public static final float BOOST_PER_CHARACTER = 0.05F;
 
-	public LerpValue.Float resolveLerp = new LerpValue.Float();
+	public Lerp.FloatValue resolveLerp = new Lerp.FloatValue();
 	public DefaultedValue.Int resolveModeTimer = new DefaultedValue.Int(-1);
 	
 	public float boostAttack = 1;

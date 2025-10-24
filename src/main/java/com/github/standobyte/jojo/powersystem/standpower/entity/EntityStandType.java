@@ -144,28 +144,22 @@ public class EntityStandType extends StandType {
 //			super.triggerAdvancement(standPower, stand);
 //		}
 //	}
-//
-//	@Override
-//	public void unsummon(LivingEntity user, StandPower standPower) {
-//		if (!user.level().isClientSide()) {
-//			StandEntity standEntity = ((StandEntity) standPower.getSummonedStand());
-//			if (standEntity != null) {
-//				if (!standEntity.isBeingRetracted()) {
-//					standEntity.retractAndUnsummon();
-//				}
-//				else if (standEntity.isManuallyControlled()) {
-//					standEntity.stopRetraction();
-//				}
-//			}
-//		}
-//	}
+
+	@Override
+	public void unsummon(LivingEntity user, StandPower standPower) {
+		if (!user.level().isClientSide()) {
+			StandEntity standEntity = ((StandEntity) standPower.getSummonedStand());
+			if (standEntity != null) {
+				standEntity.onUnsummonUserInput();
+			}
+		}
+	}
 
 	@Override
 	public void forceUnsummon(LivingEntity user, StandPower standPower) {
 		if (!user.level().isClientSide()) {
 			StandEntity standEntity = standPower.getSummonedStandEntity();
 			if (standEntity != null) {
-				PacketDistributor.sendToPlayersTrackingEntityAndSelf(user, new StandEntitySoundPacket(standEntity, ModSoundEvents.STAND_UNSUMMON, 1, 1));
 				standPower.setSummonedStand(null);
 				standEntity.remove(Entity.RemovalReason.DISCARDED);
 			}
