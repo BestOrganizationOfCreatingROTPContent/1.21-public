@@ -86,6 +86,10 @@ public class ClientMobController extends ClientEntityController {
 	protected boolean rmbHeld;
 	@Override
 	public void tickPre() {
+		if (mc.getConnection() == null) {
+			setInstance(null);
+			return;
+		}
 		if (mc.screen == null) {
 			if (witchHotbar != null) {
 				witchHotbar.handleVanillaKeybinds(mc);
