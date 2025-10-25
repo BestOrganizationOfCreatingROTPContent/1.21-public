@@ -5,7 +5,6 @@ import java.util.List;
 import javax.annotation.Nullable;
 
 import com.github.standobyte.jojo.init.power.ModStandAbilities;
-import com.github.standobyte.jojo.mechanics.possessionv2.LivingComponentPossession;
 import com.github.standobyte.jojo.powersystem.Power;
 import com.github.standobyte.jojo.powersystem.PowerClass;
 import com.github.standobyte.jojo.powersystem.ability.AbilityId;
@@ -84,8 +83,6 @@ public class HierophantPuppetAbility extends StandEntityAbility {
 					if (targetEntity != null) {
 						HierophantPuppetEffect newEffect = ModStandAbilities.EFFECT_HG_PUPPET.get().create(level);
 						power.userStandEffects.addEffect(newEffect.withTarget(targetEntity));
-						LivingComponentPossession.setPossessionTarget(performer, targetEntity, "hierophant");
-						newEffect.setMobControl(true);
 					}
 				}
 			}

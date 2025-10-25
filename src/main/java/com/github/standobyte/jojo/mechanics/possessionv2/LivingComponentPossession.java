@@ -62,6 +62,10 @@ public class LivingComponentPossession implements TickingEntityData, Synchroniza
 			}
 		}
 		
+		updatePosition();
+	}
+	
+	public void updatePosition() {
 		if (possessTarget != null) {
 			thisEntity.noPhysics = true;
 			thisEntity.setOnGround(false);
@@ -98,8 +102,8 @@ public class LivingComponentPossession implements TickingEntityData, Synchroniza
 		data.setPossessionTarget(target, possessionType);
 	}
 	
-	public static void stopPossession(LivingEntity possessing) {
-		setPossessionTarget(possessing, null, null);
+	public void stopPossession() {
+		setPossessionTarget(null, null);
 	}
 	
 	public void setPossessionTarget(@Nullable Entity target, @Nullable String possessionType) {
