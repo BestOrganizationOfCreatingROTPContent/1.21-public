@@ -78,9 +78,9 @@ public class HierophantPuppetEffect extends StandEffectInstance {
 				LivingComponentPossession possession = ComponentUtil.getExistingDataOrNull(hierophant, ModDataAttachmentTypes.ENTITY_POSSESSION);
 				if (possession != null) {
 					possession.updatePosition();
-				}
-				if (!level.isClientSide()) {
-					possession.stopPossession();
+					if (!level.isClientSide()) {
+						possession.stopPossession();
+					}
 				}
 				
 				hierophant.setCanFollowUser(true);
