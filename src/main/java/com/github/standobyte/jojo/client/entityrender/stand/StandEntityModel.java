@@ -9,6 +9,7 @@ import com.github.standobyte.jojo.client.entityanim.RotpAnimDefinition;
 import com.github.standobyte.jojo.client.entityanim.barrage.BarrageSwings;
 import com.github.standobyte.jojo.client.utils.ModelUtil;
 import com.github.standobyte.jojo.powersystem.standpower.entity.StandEntity;
+import com.github.standobyte.jojo.util.MathUtil;
 import com.github.standobyte.v1_21_4_stuff.Reminder;
 import com.github.standobyte.v1_21_4_stuff.missingmethods.Model_1_21_2plus;
 import com.github.standobyte.v1_21_4_stuff.renderstate.EntityRenderState;
@@ -68,6 +69,10 @@ public class StandEntityModel<T extends StandEntity, S extends StandEntityRender
 		float seconds = renderState.action.timeSeconds;
 		if (anim != null) {
 			anim.animate(this, renderState, seconds, 1);
+		}
+		else if (head != null) {
+			head.xRot = renderState.xRot * MathUtil.DEG_TO_RAD;
+			head.yRot = renderState.yRot * MathUtil.DEG_TO_RAD;
 		}
 		
 		// TODO (entity anim) iterate over the array of parts invisible by default - if a part was not animated, set visible to false
