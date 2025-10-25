@@ -112,7 +112,6 @@ public class HierophantPuppetEffect extends StandEffectInstance {
 		StandEntity hierophant = getUserPower().getSummonedStandEntity();
 		if (hierophant != null) {
 			hierophant.setManuallyControlled(control);
-			JojoMod.LOGGER.debug("set {}", hierophant.getStandFlag(StandFlag.MANUAL_CONTROL));
 		}
 	}
 
