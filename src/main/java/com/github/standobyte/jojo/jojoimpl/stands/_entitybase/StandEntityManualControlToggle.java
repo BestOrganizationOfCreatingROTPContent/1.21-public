@@ -31,14 +31,16 @@ public class StandEntityManualControlToggle extends Ability {
 	
 	@Override
 	public void onClick(Level level, LivingEntity user, FriendlyByteBuf extraClientInput) {
-		boolean shift = extraClientInput.readBoolean();
-		StandEntity stand = StandUtil.getSummonedStand(user);
-		if (stand != null) {
-			if (!stand.isManuallyControlled()) {
-				on(level, stand);
-			}
-			else {
-				off(level, stand, shift);
+		if (!level.isClientSide() || ClientProxy.getClientPlayer() == user) {
+			boolean shift = extraClientInput.readBoolean();
+			StandEntity stand = StandUtil.getSummonedStand(user);
+			if (stand != null) {
+				if (!stand.isManuallyControlled()) {
+					on(level, stand);
+				}
+				else {
+					off(level, stand, shift);
+				}
 			}
 		}
 	}
