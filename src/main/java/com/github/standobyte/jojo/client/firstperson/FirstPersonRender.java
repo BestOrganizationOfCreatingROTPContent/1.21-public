@@ -460,6 +460,15 @@ public class FirstPersonRender {
 				rendererArmwear.xRot = 0.0F;
 				rendererArmwear.render(poseStack, buffer.getBuffer(RenderType.entityTranslucent(texture)), light, OverlayTexture.NO_OVERLAY);
 			}
+			
+			renderLayers(renderer, entity, poseStack, buffer, light, handSide);
+		}
+	}
+	
+	public static void renderLayers(LivingEntityRenderer renderer, LivingEntity entity, PoseStack poseStack, 
+			MultiBufferSource buffer, int light, HumanoidArm handSide) {
+		for (FirstPersonModelLayer layer : ((FirstPersonLayersAccess) renderer).jojo_ripples$firstPersonHandLayers()) {
+			layer.renderHandFirstPerson(handSide, poseStack, buffer, light, entity, renderer);
 		}
 	}
 

@@ -1,5 +1,6 @@
 package com.github.standobyte.jojo.mechanics.clothes.client.layer;
 
+import com.github.standobyte.jojo.client.firstperson.FirstPersonModelLayer;
 import com.github.standobyte.jojo.core.JojoMod;
 import com.github.standobyte.jojo.init.ModItemDataComponents;
 import com.github.standobyte.jojo.mechanics.clothes.itemdata.ClothesSlotType;
@@ -9,13 +10,16 @@ import com.mojang.blaze3d.vertex.VertexConsumer;
 
 import net.minecraft.client.model.HumanoidModel;
 import net.minecraft.client.model.PlayerModel;
+import net.minecraft.client.model.geom.ModelPart;
 import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.RenderType;
+import net.minecraft.client.renderer.entity.LivingEntityRenderer;
 import net.minecraft.client.renderer.entity.RenderLayerParent;
 import net.minecraft.client.renderer.entity.layers.RenderLayer;
 import net.minecraft.client.renderer.entity.player.PlayerRenderer;
 import net.minecraft.client.renderer.texture.OverlayTexture;
 import net.minecraft.resources.ResourceLocation;
+import net.minecraft.world.entity.HumanoidArm;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.item.ItemStack;
 import net.neoforged.api.distmarker.Dist;
@@ -26,7 +30,7 @@ import net.neoforged.neoforge.client.event.RenderPlayerEvent;
 // TODO (clothes) fix the model z-fighting
 //public class HumanoidClothesLayer<S extends HumanoidRenderState, M extends HumanoidModel<S>> extends RenderLayer<S, M> {
 @EventBusSubscriber(modid = JojoMod.MOD_ID, value = Dist.CLIENT)
-public class HumanoidClothesLayer<T extends LivingEntity, M extends HumanoidModel<T>> extends RenderLayer<T, M> {
+public class HumanoidClothesLayer<T extends LivingEntity, M extends HumanoidModel<T>> extends RenderLayer<T, M> implements FirstPersonModelLayer {
 	private static final ClothesSlotType[] RENDER_ORDER = {
 			ClothesSlotType.CHEST,
 			ClothesSlotType.HEAD,
@@ -71,12 +75,13 @@ public class HumanoidClothesLayer<T extends LivingEntity, M extends HumanoidMode
 	
 	
 	@SubscribeEvent
-	public static void disablePlayerOuterLayer(RenderPlayerEvent.Pre event) {
+	public static void beforeEntityRender(RenderPlayerEvent.Pre event) {
 		ExtractRSExtensionManually.extractClothes(event.getEntity());
-		
-		HumanoidClothesRSExtension clothesRS = HumanoidClothesRSExtension.getCurRenderData();
+		disablePlayerOuterLayer(event.getRenderer(), HumanoidClothesRSExtension.getCurRenderData());
+	}
+	
+	public static void disablePlayerOuterLayer(PlayerRenderer renderer, HumanoidClothesRSExtension clothesRS) {
 		if (clothesRS != null) {
-			PlayerRenderer renderer = event.getRenderer();
 			PlayerModel<?> model = renderer.getModel();
 			if (!clothesRS.items.get(ClothesSlotType.HEAD).isEmpty()) {
 				model.hat.visible = false;
@@ -95,6 +100,47 @@ public class HumanoidClothesLayer<T extends LivingEntity, M extends HumanoidMode
 	
 	@SubscribeEvent
 	public static void clear(RenderPlayerEvent.Post event) {
+		ExtractRSExtensionManually.resetClothes();
+	}
+
+	@Override
+	public void renderHandFirstPerson(HumanoidArm side, PoseStack poseStack, MultiBufferSource buffer, int light,
+			LivingEntity entity, LivingEntityRenderer<?, ?> entityRenderer) {
+		ExtractRSExtensionManually.extractClothes(entity);
+		HumanoidClothesRSExtension clothes = HumanoidClothesRSExtension.getCurRenderData();
+		if (clothes == null) return;
+		ClothesModelLoader clothesModels = ClothesModelLoader.getInstance();
+		if (clothesModels == null) return;
+		
+		M parentModel = getParentModel();
+		for (ClothesSlotType piece : RENDER_ORDER) {
+			ItemStack clothesItem = clothes.items.get(piece); if (clothesItem.isEmpty()) continue;
+			var clothesComponent = clothesItem.get(ModItemDataComponents.CLOTHES_PIECE.get()); if (clothesComponent == null) continue;
+			var clothesPiece = clothesComponent.getPiece(); if (clothesPiece == null) continue;
+			var assetId = clothesPiece.assetId; if (assetId == null) continue;
+			var assetPath = assetId.location();
+			ClothesModelEntry modelEntry = clothesModels.getClothesModelEntry(assetPath); if (modelEntry == null) continue;
+			
+			HumanoidClothesModel clothesModel = modelEntry.getModel();
+			ResourceLocation clothesTexture = modelEntry.texPath;
+			parentModel.copyPropertiesTo((M) clothesModel);
+			clothesModel.setClothesPartsVisibility(clothes.slimModel, piece);
+			clothesModel.poseClothes(parentModel);
+			VertexConsumer vertexBuilder = buffer.getBuffer(RenderType.entityCutoutNoCull(clothesTexture));
+			
+			clothesModel.head.visible = false;
+			clothesModel.body.visible = false;
+			clothesModel.rightLeg.visible = false;
+			clothesModel.leftLeg.visible = false;
+			clothesModel.hat.visible = false;
+			
+			ModelPart arm = FirstPersonModelLayer.getArm(clothesModel, side);
+			arm.xRot = 0.0F;
+			arm.render(poseStack, vertexBuilder, light, OverlayTexture.NO_OVERLAY);
+			ModelPart armSlim = side == HumanoidArm.LEFT ? clothesModel.leftArmSlim : clothesModel.rightArmSlim;
+			armSlim.xRot = 0.0F;
+			armSlim.render(poseStack, vertexBuilder, light, OverlayTexture.NO_OVERLAY);
+		}
 		ExtractRSExtensionManually.resetClothes();
 	}
 

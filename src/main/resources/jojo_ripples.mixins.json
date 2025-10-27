@@ -56,6 +56,9 @@
 	"entitycontrol.client.GuiAccessor",
 	
 	"client.firstperson.ItemInHandRendererMixin",
+	"client.firstperson.LivingEntityRendererMixin",
+	"client.firstperson.PlayerRendererMixin",
+	
 	"client.screen.KeyMappingMixin",
 	"client.screen.MinecraftMixin",
     "client.standskin.SoundInstanceMixin",
