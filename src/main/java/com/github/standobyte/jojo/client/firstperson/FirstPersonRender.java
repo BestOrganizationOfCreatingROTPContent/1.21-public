@@ -1,4 +1,4 @@
-package com.github.standobyte.jojo.client;
+package com.github.standobyte.jojo.client.firstperson;
 
 import org.joml.Matrix4f;
 
@@ -421,7 +421,7 @@ public class FirstPersonRender {
 
 	public static void renderHand(LivingEntityRenderer renderer, LivingEntity entity, PoseStack poseStack, 
 			MultiBufferSource buffer, int light, HumanoidArm handSide) {
-		 if (entity instanceof AbstractClientPlayer player && !ClientHooks.renderSpecificFirstPersonArm(poseStack, buffer, light, player, handSide)) return;
+		if (entity instanceof AbstractClientPlayer player && !ClientHooks.renderSpecificFirstPersonArm(poseStack, buffer, light, player, handSide)) return;
 
 		if (renderer.getModel() instanceof HumanoidModel humanoidModel) {
 			HumanoidModel.ArmPose mainArmPose = getArmPose(entity, InteractionHand.MAIN_HAND);
