@@ -8,6 +8,7 @@ import javax.annotation.Nullable;
 
 import org.jetbrains.annotations.ApiStatus;
 
+import com.github.standobyte.jojo.core.JojoMod;
 import com.github.standobyte.jojo.init.ModDataAttachmentTypes;
 
 import net.minecraft.core.BlockPos;
@@ -22,7 +23,7 @@ import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.fml.common.EventBusSubscriber;
 import net.neoforged.neoforge.event.tick.LevelTickEvent;
 
-@EventBusSubscriber
+@EventBusSubscriber(modid = JojoMod.MOD_ID)
 public class ServerBlockDestroyTracker {
 	public final ServerLevel level;
 	protected static AtomicInteger counter = new AtomicInteger();
