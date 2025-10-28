@@ -9,6 +9,7 @@ import javax.annotation.Nullable;
 
 import org.jetbrains.annotations.ApiStatus;
 
+import com.github.standobyte.jojo.core.JojoMod;
 import com.github.standobyte.jojo.core.utils.EnumUtil;
 import com.github.standobyte.jojo.init.ModDataAttachmentTypes;
 import com.github.standobyte.jojo.init.ModItemDataComponents;
@@ -42,7 +43,7 @@ import net.neoforged.neoforge.common.util.INBTSerializable;
 import net.neoforged.neoforge.event.entity.living.LivingDropsEvent;
 import net.neoforged.neoforge.network.PacketDistributor;
 
-@EventBusSubscriber
+@EventBusSubscriber(modid = JojoMod.MOD_ID)
 public class EntityClothesInventory implements Container, SynchronizablePlayerData, TickingEntityData, INBTSerializable<ListTag> {
 	private final LivingEntity entity;
 	private final Map<ClothesSlotType, ItemStack> items;

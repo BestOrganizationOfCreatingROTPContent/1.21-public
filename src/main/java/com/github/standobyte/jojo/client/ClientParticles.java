@@ -4,6 +4,7 @@ import com.github.standobyte.jojo.client.particle.type.BloodParticle;
 import com.github.standobyte.jojo.client.particle.type.MeteoriteVirusParticle;
 import com.github.standobyte.jojo.client.particle.type.OnomatopoeiaParticle;
 import com.github.standobyte.jojo.client.particle.type.RPSPickPartile;
+import com.github.standobyte.jojo.core.JojoMod;
 import com.github.standobyte.jojo.init.ModParticles;
 import com.github.standobyte.jojo.jojoimpl.hamon.client.particle.HamonAuraParticle;
 import com.github.standobyte.jojo.jojoimpl.hamon.client.particle.HamonSparkParticle;
@@ -20,11 +21,12 @@ import net.minecraft.client.particle.Particle;
 import net.minecraft.client.particle.PlayerCloudParticle;
 import net.minecraft.client.particle.SpriteSet;
 import net.minecraft.core.particles.SimpleParticleType;
+import net.neoforged.api.distmarker.Dist;
 import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.fml.common.EventBusSubscriber;
 import net.neoforged.neoforge.client.event.RegisterParticleProvidersEvent;
 
-@EventBusSubscriber
+@EventBusSubscriber(modid = JojoMod.MOD_ID, value = Dist.CLIENT)
 public class ClientParticles {
 
 	@SubscribeEvent
