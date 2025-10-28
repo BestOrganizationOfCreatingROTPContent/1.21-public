@@ -57,10 +57,11 @@ public abstract class MarkerRenderer {
 
 	public MarkerRenderer(int color, ResourceLocation iconTexture, Minecraft mc) {
 		this(iconTexture, mc);
+		this.color = color;
 	}
 
 	public MarkerRenderer(ResourceLocation iconTexture, Minecraft mc) {
-		this(new GuiIcon(iconTexture, 16, 16), null, mc);
+		this(iconTexture != null ? new GuiIcon(iconTexture, 16, 16) : null, null, mc);
 	}
 
 	public MarkerRenderer(String iconAbilityName, Minecraft mc) {
