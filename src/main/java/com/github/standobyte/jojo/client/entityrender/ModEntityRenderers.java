@@ -10,6 +10,7 @@ import com.github.standobyte.jojo.client.entityrender.stand.StandEntityRenderer;
 import com.github.standobyte.jojo.core.JojoMod;
 import com.github.standobyte.jojo.init.ModEntityTypes;
 import com.github.standobyte.jojo.jojoimpl.stands.crazydiamond.client.CrazyDBlockBulletRenderer;
+import com.github.standobyte.jojo.mechanics.character.client.CharacterMobRenderer;
 import com.github.standobyte.jojo.mechanics.clothes.client.layer.HumanoidClothesLayer;
 import com.github.standobyte.v1_21_4_stuff.Reminder;
 
@@ -35,6 +36,7 @@ public class ModEntityRenderers {
 	
 	@SubscribeEvent
 	public static void registerEntityRenderers(EntityRenderersEvent.RegisterRenderers event) {
+		event.registerEntityRenderer(ModEntityTypes.CHARACTER.get(), CharacterMobRenderer::new);
 		event.registerEntityRenderer(ModEntityTypes.HUMANOID_STAND.get(), StandEntityRenderer::new);
 		event.registerEntityRenderer(ModEntityTypes.MANNEQUIN.get(), MannequinRenderer::new);
 		event.registerEntityRenderer(ModEntityTypes.NUGGET_BEARING.get(), ctx -> new ThrownItemRenderer<>(ctx, 0.5f, false));
