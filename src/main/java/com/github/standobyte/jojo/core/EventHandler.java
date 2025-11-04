@@ -76,7 +76,7 @@ public class EventHandler {
 		syncAttachedData((ServerPlayer) event.getEntity());
 	}
 
-	private static void syncAttachedData(ServerPlayer player) {
+	public static void syncAttachedData(ServerPlayer player) {
 		DataEventListeners data = entityEventListeners(player);
 		if (data != null) {
 			data.onSyncToPlayer(player);

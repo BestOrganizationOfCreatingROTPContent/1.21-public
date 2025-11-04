@@ -4,6 +4,7 @@ import com.github.standobyte.jojo.core.JojoMod;
 import com.github.standobyte.jojo.jojoimpl.stands.crazydiamond.CrazyDBlockBulletEntity;
 import com.github.standobyte.jojo.jojoimpl.stands.crazydiamond.CrazyDBloodCutterEntity;
 import com.github.standobyte.jojo.mc.entity.projectile.ThrownNuggetBearingEntity;
+import com.github.standobyte.jojo.mechanics.character.mob.PowerUserMobEntity;
 import com.github.standobyte.jojo.mechanics.clothes.mannequin.MannequinEntity;
 import com.github.standobyte.jojo.powersystem.standpower.entity.StandEntity;
 
@@ -11,6 +12,7 @@ import net.minecraft.core.registries.Registries;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.MobCategory;
+import net.minecraft.world.entity.ai.attributes.Attributes;
 import net.minecraft.world.entity.decoration.ArmorStand;
 import net.minecraft.world.entity.player.Player;
 import net.neoforged.bus.api.SubscribeEvent;
@@ -25,10 +27,21 @@ public final class ModEntityTypes {
 	
 	@SubscribeEvent
 	public static void registerAttributes(EntityAttributeCreationEvent event) {
+		event.put(CHARACTER.get(), Player.createAttributes().add(Attributes.FOLLOW_RANGE, 16.0).build());
 		event.put(HUMANOID_STAND.get(), StandEntity.createAttributes().build());
 		event.put(MANNEQUIN.get(), ArmorStand.createAttributes().build());
 	}
+
 	
+	public static final DeferredHolder<EntityType<?>, EntityType<PowerUserMobEntity>> CHARACTER = ENTITY_TYPES.register("character", key -> 
+			EntityType.Builder.<PowerUserMobEntity>of(PowerUserMobEntity::new, MobCategory.MISC)
+			.noSummon()
+			.sized(0.6F, 1.8F)
+			.eyeHeight(1.62F)
+			.vehicleAttachment(Player.DEFAULT_VEHICLE_ATTACHMENT)
+			.clientTrackingRange(32)
+			.updateInterval(2)
+			.build(createIDFor(key)));
 	
 	public static final DeferredHolder<EntityType<?>, EntityType<StandEntity>> HUMANOID_STAND = ENTITY_TYPES.register("humanoid_stand", key -> 
 			EntityType.Builder.of(StandEntity::new, MobCategory.MISC)
