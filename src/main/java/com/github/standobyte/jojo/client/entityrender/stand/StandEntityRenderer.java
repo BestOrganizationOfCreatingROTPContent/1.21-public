@@ -27,6 +27,7 @@ import net.minecraft.client.renderer.entity.EntityRendererProvider.Context;
 import net.minecraft.client.renderer.entity.LivingEntityRenderer;
 import net.minecraft.client.renderer.entity.layers.ItemInHandLayer;
 import net.minecraft.resources.ResourceLocation;
+import net.minecraft.world.entity.Entity;
 
 public class StandEntityRenderer<
 				T extends StandEntity, 
@@ -107,7 +108,12 @@ public class StandEntityRenderer<
 		renderState.alpha = (float) entity.rangeEfficiency * entity.modelAlpha.lerp(partialTick);
 		
 		Minecraft mc = Minecraft.getInstance();
-		renderState.mayObstructView = mc.options.getCameraType().isFirstPerson() && mc.player != null && entity.getUser() == mc.player;
+		renderState.mayObstructView = mc.options.getCameraType().isFirstPerson();
+		if (renderState.mayObstructView) {
+			Entity cameraEntity = mc.getCameraEntity();
+			if (cameraEntity == null) cameraEntity = mc.player;
+			renderState.mayObstructView &= cameraEntity != null && entity.getUser() == cameraEntity;
+		}
 	}
 	
 	public void extractSkinMenuRenderState(S renderState, StandSkin skin, ResourceLocation standId, float ticks) {
