@@ -51,6 +51,17 @@ public class ModDamageTypes {
 	 * neoforge:is_technical
 	 */
 	public static final ResourceKey<DamageType> STAND_HEALTH_LINK = ResourceKey.create(Registries.DAMAGE_TYPE, JojoMod.resLoc("stand_health_link"));
+
+    /** Tags:
+     * minecraft:bypasses_armor,
+     * minecraft:bypasses_cooldown,
+     * minecraft:bypasses_enchantments,
+     * minecraft:always_hurts_ender_dragon,
+     * minecraft:panic_causes,
+     * minecraft:no_knockback,
+     * neoforge:is_physical
+     */
+    public static final ResourceKey<DamageType> SUFFOCATION = ResourceKey.create(Registries.DAMAGE_TYPE, JojoMod.resLoc("suffocation"));
 	
 	
 	public static final TagKey<DamageType> CAN_HURT_STANDS = TagKey.create(Registries.DAMAGE_TYPE, 

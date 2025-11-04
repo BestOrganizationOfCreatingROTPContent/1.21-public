@@ -25,7 +25,7 @@ import com.github.standobyte.jojo.jojoimpl.stands.crazydiamond.CrazyDRepairItemA
 import com.github.standobyte.jojo.jojoimpl.stands.crazydiamond.DriedBloodDropsEffect;
 import com.github.standobyte.jojo.jojoimpl.stands.hierophant.HierophantPuppetAbility;
 import com.github.standobyte.jojo.jojoimpl.stands.hierophant.HierophantPuppetEffect;
-import com.github.standobyte.jojo.jojoimpl.stands.starplatinum.InhaleAbility;
+import com.github.standobyte.jojo.jojoimpl.stands.starplatinum.StarInhaleAbility;
 import com.github.standobyte.jojo.jojoimpl.stands.starplatinum.StarFingerAbility;
 import com.github.standobyte.jojo.jojoimpl.stands.starplatinum.StarFingerSwipeAbility;
 import com.github.standobyte.jojo.jojoimpl.stands.theworld.TimeStopAbility;
@@ -94,8 +94,8 @@ public final class ModStandAbilities {
 	public static final DeferredHolder<AbilityType<?>, AbilityType<StarFingerSwipeAbility>> SP_STAR_FINGER_SWIPE = ABILITY_TYPES.register(
 			"star_finger_swipe", key -> new AbilityType<>(key, StarFingerSwipeAbility::new));
 	
-	public static final DeferredHolder<AbilityType<?>, AbilityType<InhaleAbility>> SP_INHALE = ABILITY_TYPES.register(
-			"inhale", key -> new AbilityType<>(key, InhaleAbility::new));
+	public static final DeferredHolder<AbilityType<?>, AbilityType<StarInhaleAbility>> SP_INHALE = ABILITY_TYPES.register(
+			"inhale", key -> new AbilityType<>(key, StarInhaleAbility::new));
 	
 	public static final DeferredHolder<AbilityType<?>, AbilityType<StandBearingShotAbility>> BEARING_SHOT = ABILITY_TYPES.register(
 			"bearing_shot", key -> new AbilityType<>(key, StandBearingShotAbility::new));
