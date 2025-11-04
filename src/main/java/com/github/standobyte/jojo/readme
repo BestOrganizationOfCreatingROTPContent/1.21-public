@@ -32,3 +32,6 @@ Terminology:
 	
 	StandEffect - Can be thought of as a "sub-entity" of the Stand user, but instead of being present in the world, it is attached to the user. Can have various uses; the primary goal is to implement persistent effects, which disappear when the Stand user dies, goes out of range or logs out, and which can also target another entity.
 	StandEffectType - A type object, once again, with the same relation to StandEffect as EntityType is to Entity.
+
+    OBB (Oriented Bounding Box) - new hitbox type that can be rotated in 3 axis.
+    ExtendableOBB - OBB with extend/shrink logic (based on OwnerboundProjectile with ExtendableModel). Can be used to add hitboxes to animated parts (Star Finger for example).

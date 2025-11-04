@@ -402,7 +402,9 @@
     "subtitle": "jojo_ripples.subtitle.shot",
     "sounds": [ "jojo_ripples:bearing_shot", "jojo_ripples:bearing_shot_2", "jojo_ripples:bearing_shot_3", "jojo_ripples:bearing_shot_4" ]
   },
-  
+  "jotaro_star_finger": {
+    "sounds": [ "jojo_ripples:stand_user/jotaro_star_finger" ]
+  },
   "star_platinum_star_finger": {
     "sounds": [ "jojo_ripples:stand/star_platinum/star_platinum_star_finger" ]
   },

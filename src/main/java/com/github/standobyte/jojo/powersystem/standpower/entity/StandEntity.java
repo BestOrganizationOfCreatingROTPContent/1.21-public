@@ -337,11 +337,14 @@ public class StandEntity extends LivingEntity implements SummonedStand, IEntityW
 		Vec3 targetPos = switch (lookTarget.getType()) {
 			case ENTITY -> {
 				Entity targetEntity = lookTarget.getEntity();
-				// TODO (stand aiming) look closer to where the user is looking (legs/head aiming)
-				double y = targetEntity instanceof LivingEntity ? 
-						targetEntity.getEyeY() : 
-						(targetEntity.getBoundingBox().minY + targetEntity.getBoundingBox().maxY) / 2.0;
-				yield new Vec3(targetEntity.getX(), y, targetEntity.getZ());
+                if (targetEntity != null){
+                    // TODO (stand aiming) look closer to where the user is looking (legs/head aiming)
+                    double y = targetEntity instanceof LivingEntity ?
+                            targetEntity.getEyeY() :
+                            (targetEntity.getBoundingBox().minY + targetEntity.getBoundingBox().maxY) / 2.0;
+                    yield new Vec3(targetEntity.getX(), y, targetEntity.getZ());
+                }
+				yield null;
 			}
 			case BLOCK -> {
 				yield Vec3.atCenterOf(lookTarget.getBlockPos());
