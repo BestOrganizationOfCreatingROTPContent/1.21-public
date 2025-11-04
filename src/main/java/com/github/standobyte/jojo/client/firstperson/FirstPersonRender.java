@@ -44,7 +44,6 @@ import net.minecraft.world.level.saveddata.maps.MapItemSavedData;
 import net.neoforged.neoforge.client.ClientHooks;
 import net.neoforged.neoforge.client.extensions.common.IClientItemExtensions;
 
-// TODO backport player renderer layers rendering in 1st person
 @SuppressWarnings({ "unchecked", "rawtypes" }) // Silence, Java generics.
 public class FirstPersonRender {
 	static FirstPersonRender instance;

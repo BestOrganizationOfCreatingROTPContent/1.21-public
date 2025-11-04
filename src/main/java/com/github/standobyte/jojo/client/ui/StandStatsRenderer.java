@@ -121,7 +121,6 @@ public class StandStatsRenderer {
 	public static void addWidgets(ScreenEvent.Init.Post event) {
 		Screen screen = event.getScreen();
 		if (screenHasStandStats(screen)) {
-			// TODO widgets
 			if (standStatsPower != null && standStatsPower.hasPower()) {
 				AbstractSliderButton statsBgAlphaSlider = new HeightScaledSlider(
 						screen.width - 160, screen.height - 6, 153, 6, CommonComponents.EMPTY, 0.0D) {
