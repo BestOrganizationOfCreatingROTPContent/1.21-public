@@ -1,7 +1,7 @@
 package com.github.standobyte.jojo.util.hitboxes;
 
 import com.github.standobyte.jojo.powersystem.entityaction.netcode.TrEntityActionWithOBBSyncPacket;
-import com.github.standobyte.jojo.util.java.LerpValue;
+import com.github.standobyte.jojo.util.java.Lerp;
 import net.minecraft.util.Mth;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.level.Level;
@@ -26,7 +26,7 @@ public class ExtendableOBB {
     protected int lifeSpan;
     protected int maxLifeSpan;
     private float lengthChange;
-    protected LerpValue.Float lengthLerp = new LerpValue.Float();
+    protected Lerp.FloatValue lengthLerp = new Lerp.FloatValue();
     private float movementSpeed;
     private final int timeAtFullLength;
     private Vec3 offset;
