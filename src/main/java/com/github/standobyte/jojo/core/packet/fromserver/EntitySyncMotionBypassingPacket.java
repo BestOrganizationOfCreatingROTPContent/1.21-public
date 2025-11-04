@@ -13,34 +13,34 @@ import net.minecraft.world.phys.Vec3;
 import com.github.standobyte.v1_21_4_stuff.missingmethods._Vec3;
 import net.neoforged.neoforge.network.handling.IPayloadContext;
 
-public record ProjectileHighSpeedPacket(int entityId, Vec3 deltaMovement) implements CustomPacketPayload {
+public record EntitySyncMotionBypassingPacket(int entityId, Vec3 deltaMovement) implements CustomPacketPayload {
 	
-	private static CustomPacketPayload.Type<ProjectileHighSpeedPacket> type;
+	private static CustomPacketPayload.Type<EntitySyncMotionBypassingPacket> type;
 	
-	public static class Handler implements PacketsRegister.PacketCodecHandler<ProjectileHighSpeedPacket> {
+	public static class Handler implements PacketsRegister.PacketCodecHandler<EntitySyncMotionBypassingPacket> {
 		
 		public Handler(ResourceLocation packetId) { 
 			type = new CustomPacketPayload.Type<>(packetId);
 		}
 
 		@Override
-		public Type<ProjectileHighSpeedPacket> type() {
+		public Type<EntitySyncMotionBypassingPacket> type() {
 			return type;
 		}
 
 		@Override
-		public StreamCodec<? super RegistryFriendlyByteBuf, ProjectileHighSpeedPacket> reader() {
+		public StreamCodec<? super RegistryFriendlyByteBuf, EntitySyncMotionBypassingPacket> reader() {
 			return STREAM_CODEC;
 		}
 		
 		
-		public static final StreamCodec<RegistryFriendlyByteBuf, ProjectileHighSpeedPacket> STREAM_CODEC = StreamCodec.composite(
-				ByteBufCodecs.INT, ProjectileHighSpeedPacket::entityId,
-				_Vec3.STREAM_CODEC, ProjectileHighSpeedPacket::deltaMovement,
-				ProjectileHighSpeedPacket::new);
+		public static final StreamCodec<RegistryFriendlyByteBuf, EntitySyncMotionBypassingPacket> STREAM_CODEC = StreamCodec.composite(
+				ByteBufCodecs.INT, EntitySyncMotionBypassingPacket::entityId,
+				_Vec3.STREAM_CODEC, EntitySyncMotionBypassingPacket::deltaMovement,
+				EntitySyncMotionBypassingPacket::new);
 
 		@Override
-		public void handle(ProjectileHighSpeedPacket payload, IPayloadContext context) {
+		public void handle(EntitySyncMotionBypassingPacket payload, IPayloadContext context) {
 			Entity entity = ClientProxy.getEntityById(payload.entityId);
 			if (entity != null) {
 				Vec3 vec = payload.deltaMovement;

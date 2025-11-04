@@ -9,6 +9,22 @@
     "damage.DamageSourceMixin",
 	"damage.LivingEntityMixin",
     "grab.LivingEntityMixin",
+    
+	"entitycontrol.mob.MobAIMixin",
+	"entitycontrol.mob.EntityEffectiveAIMixin",
+	"entitycontrol.syncfix.ServerBypassSyncMotionMixin",
+	"entitycontrol.PlayerListBroadcastMixin",
+	"entitycontrol.mob.accessors.MobInvoker",
+	"entitycontrol.mob.accessors.EntityFallDamageInvoker",
+	"entitycontrol.mob.accessors.MeleeAttackGoalInvoker",
+	"entitycontrol.mob.accessors.RangedAttackGoalAccessor",
+	"entitycontrol.mob.accessors.PolarBearWarningSoundYesReally",
+	"entitycontrol.mob.accessors.SkeletonAccessor",
+
+	"possession.EntityMixin",
+	"possession.LivingEntityMixin",
+	"possession.PlayerEntityMixin",
+	
     "standuseitems.ProjectileMixin",
 	"ProjectileHighSpeedSync",
 	"attributes.EntityMixin",
@@ -30,11 +46,19 @@
 	"client.v1_21_1_itemmodel.ItemModelShaperMixin",
     "client.ModelAnimOptimization",
     "client.playeranim.ModelPartMixin",
+    
 	"client.controls.KeyboardHandlerMixin",
+	
+	"entitycontrol.mob.MobAILookMixin",
+	"entitycontrol.syncfix.ClientPacketListenerMixin",
 	"entitycontrol.client.EntityMixinMouseTurn",
 	"entitycontrol.client.GameRendererMixin",
 	"entitycontrol.client.GuiAccessor",
-	"entitycontrol.client.ItemInHandRendererMixin",
+	
+	"client.firstperson.ItemInHandRendererMixin",
+	"client.firstperson.LivingEntityRendererMixin",
+	"client.firstperson.PlayerRendererMixin",
+	
 	"client.screen.KeyMappingMixin",
 	"client.screen.MinecraftMixin",
     "client.standskin.SoundInstanceMixin",

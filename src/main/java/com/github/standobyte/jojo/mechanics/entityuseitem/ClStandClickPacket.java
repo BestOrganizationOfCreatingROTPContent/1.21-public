@@ -64,7 +64,7 @@ public record ClStandClickPacket(HitResultSync target, short internalKeyId, Inte
 			if (standEntity != null) {
 				boolean wasUsingItem = standEntity.isUsingItem();
 				
-				HitResult target = packet.target().resolveEntity(standEntity.level());
+				HitResult target = packet.target().resolveEntity(player.level());
 				ServerSideLivingClick.rightClick(standEntity, player, target);
 				
 				if (!wasUsingItem && standEntity.isUsingItem()) {

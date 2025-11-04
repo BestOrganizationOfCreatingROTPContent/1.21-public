@@ -57,7 +57,7 @@ public class StandUtil {
     }
 
     public static boolean playerCanSeeStands(Player player) {
-    	return JojoModUtil.isPlayerSpectator(player)
+    	return player.isSpectator()
     			|| isEntityStandUser(player) /*|| player.hasEffect(ModStatusEffects.SPIRIT_VISION.get())*/;
     	// TODO spirit vision effect
     }

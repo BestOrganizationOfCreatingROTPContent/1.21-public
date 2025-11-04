@@ -25,10 +25,6 @@ import net.neoforged.neoforge.event.EventHooks;
 
 public class JojoModUtil {
 
-	public static boolean isPlayerSpectator(Player player) {
-		return player.isSpectator();
-	}
-	
 	@Nullable
 	public static ItemEntity dropItem(Entity entity, ItemStack item, boolean dropAround, boolean includeThrowerName) {
 		if (item.isEmpty()) {

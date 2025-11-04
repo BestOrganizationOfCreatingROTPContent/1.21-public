@@ -4,6 +4,8 @@ import java.util.concurrent.atomic.AtomicInteger;
 
 import javax.annotation.Nullable;
 
+import com.github.standobyte.jojo.core.event.ModEventHooks;
+import com.github.standobyte.jojo.core.event.RipplesAbilityKeyPressEvent;
 import com.github.standobyte.jojo.core.packet.fromserver.TrAbilityUsePacket;
 import com.github.standobyte.jojo.init.ModDataAttachmentTypes;
 import com.github.standobyte.jojo.powersystem.Power;
@@ -54,11 +56,21 @@ public class AbilityInput {
 		if (ability == null || user == null) return null;
 		
 		Level level = user.level();
-		HeldInput action = ability.onKeyPress(level, user, extraClientInput, inputMethod, clickHoldResolveTime);
+		
+		RipplesAbilityKeyPressEvent event = ModEventHooks.onAbilityKeyPress(user, ability, inputMethod, clickHoldResolveTime);
+		ability = event.ability;
+		HeldInput action;
+		if (event.isCanceled()) {
+			action = event.newHeldInput;
+		}
+		else {
+			action = ability.onKeyPress(level, user, extraClientInput, inputMethod, clickHoldResolveTime);
+		}
 		if (!level.isClientSide()) {
 			PacketDistributor.sendToPlayersTrackingEntity(user, 
 					TrAbilityUsePacket.keyPress(user.getId(), keyId, ability, inputMethod, clickHoldResolveTime, user));
 		}
+		
 		
 		if (action != null) {
 			EntityActionInputState inputHandler = user.getData(ModDataAttachmentTypes.ENTITY_ABILITY_INPUT.get());

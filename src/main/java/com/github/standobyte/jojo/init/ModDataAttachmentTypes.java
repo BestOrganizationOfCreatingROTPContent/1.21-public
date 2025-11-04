@@ -7,7 +7,9 @@ import org.jetbrains.annotations.ApiStatus;
 import com.github.standobyte.jojo.core.JojoMod;
 import com.github.standobyte.jojo.mechanics.ServerBlockDestroyTracker;
 import com.github.standobyte.jojo.mechanics.clothes.EntityClothesInventory;
+import com.github.standobyte.jojo.mechanics.entitycontrol.ServerEntityController;
 import com.github.standobyte.jojo.mechanics.grab.LivingComponentGrab;
+import com.github.standobyte.jojo.mechanics.possessionv2.LivingComponentPossession;
 import com.github.standobyte.jojo.powersystem.PowerClass;
 import com.github.standobyte.jojo.powersystem.entityaction.EntityActionInputState;
 import com.github.standobyte.jojo.powersystem.entityaction.LivingComponentAction;
@@ -17,6 +19,7 @@ import com.github.standobyte.jojo.powersystem.standpower.effect.StandEffectsTarg
 import com.github.standobyte.jojo.util.entitycomponent.DataEventListeners;
 
 import net.minecraft.server.level.ServerLevel;
+import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.LivingEntity;
 import net.neoforged.neoforge.attachment.AttachmentType;
 import net.neoforged.neoforge.registries.DeferredRegister;
@@ -48,8 +51,16 @@ public final class ModDataAttachmentTypes {
 	public static final Supplier<AttachmentType<EntityClothesInventory>> HUMANOID_CLOTHES = ATTACHMENT_TYPES.register("humanoid_clothes", 
 			() -> AttachmentType.serializable(obj -> obj instanceof LivingEntity living ? new EntityClothesInventory(living) : null).build());
 	
+	
 	public static final Supplier<AttachmentType<LivingComponentGrab>> LIVING_GRAB = ATTACHMENT_TYPES.register("living_grab", 
 			() -> AttachmentType.builder(entity -> entity instanceof LivingEntity living ? new LivingComponentGrab(living) : null).build());
+
+	public static final Supplier<AttachmentType<ServerEntityController>> CONTROLLER = ATTACHMENT_TYPES.register("controller_player", 
+			() -> AttachmentType.builder(obj -> obj instanceof Entity entity ? new ServerEntityController(entity) : null).build());
+
+	public static final Supplier<AttachmentType<LivingComponentPossession>> ENTITY_POSSESSION = ATTACHMENT_TYPES.register("possession", 
+			() -> AttachmentType.builder(obj -> obj instanceof Entity entity ? new LivingComponentPossession(entity) : null).build());
+	
 	
 	public static final Supplier<AttachmentType<StandEffectsTarget>> STAND_EFFECTS_TARGET = ATTACHMENT_TYPES.register("stand_effects_target", 
 			() -> AttachmentType.builder(entity -> entity instanceof LivingEntity living ? new StandEffectsTarget(living) : null).build());

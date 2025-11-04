@@ -1,8 +1,5 @@
 package com.github.standobyte.jojo.mechanics.entitycontrol.client.stand;
 
-import com.github.standobyte.jojo.client.entityrender.stand.HumanoidPart;
-import com.github.standobyte.jojo.client.entityrender.stand.StandEntityRenderState;
-import com.github.standobyte.jojo.client.entityrender.stand.StandEntityRenderer;
 import com.github.standobyte.jojo.client.ui.utils.BlitFloat;
 import com.github.standobyte.jojo.client.ui.utils.ElementTransparency;
 import com.github.standobyte.jojo.core.JojoMod;
@@ -12,15 +9,10 @@ import com.github.standobyte.jojo.powersystem.entityaction.LivingComponentAction
 import com.github.standobyte.jojo.powersystem.standpower.entity.StandEntity;
 import com.mojang.blaze3d.platform.GlStateManager;
 import com.mojang.blaze3d.systems.RenderSystem;
-import com.mojang.blaze3d.vertex.PoseStack;
-import com.mojang.math.Axis;
 
 import net.minecraft.client.DeltaTracker;
-import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.player.Input;
-import net.minecraft.client.renderer.MultiBufferSource.BufferSource;
-import net.minecraft.client.renderer.entity.EntityRenderer;
 import net.minecraft.core.BlockPos;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.util.FastColor.ARGB32;
@@ -135,29 +127,7 @@ public class ClientStandController extends ClientEntityController {
 
 
 	@Override
-	public boolean renderFirstPerson(float partialTick, PoseStack poseStack, BufferSource bufferSource, int packedLight) {
-		EntityRenderer<?> renderer = Minecraft.getInstance().getEntityRenderDispatcher().getRenderer(entityAsLiving);
-		
-		StandEntityRenderer entityRenderer = (StandEntityRenderer) renderer;
-		StandEntity _entity = (StandEntity) entityAsLiving;
-		StandEntityRenderState renderState = entityRenderer.createRenderState(_entity, partialTick);
-		renderState.visibleParts = HumanoidPart.reduce(renderState.visibleParts, HumanoidPart.ARMS_ONLY);
-		
-		poseStack.pushPose();
-		poseStack.mulPose(Axis.XP.rotationDegrees(renderState.xRot));
-		poseStack.mulPose(Axis.YP.rotationDegrees(180 + renderState.bodyRot));
-		poseStack.translate(0, -entityAsLiving.getEyeHeight(), 0);
-//		entityRenderer.render(renderState, poseStack, bufferSource, packedLight);
-		entityRenderer.render(_entity, renderState, 0, partialTick, poseStack, bufferSource, packedLight);
-		poseStack.popPose();
-		
-		bufferSource.endBatch();
-		return true;
-	}
-
-	@Override
 	public boolean shouldRenderBlockOutline() {
-		Minecraft mc = Minecraft.getInstance();
 		if (!mc.player.mayBuild()) { // either adventure mode or spectator
 			ItemStack heldItem = ((LivingEntity) entity).getMainHandItem();
 			HitResult vanillaAim = mc.hitResult;
@@ -186,7 +156,6 @@ public class ClientStandController extends ClientEntityController {
 			float partialTick = deltaTracker.getGameTimeDeltaPartialTick(false);
 			float alpha = movementSpeedBarTranslucency.getAlpha(partialTick);
 			int color = ARGB32.colorFromFloat(alpha, 1, 1, 1);
-			Minecraft mc = Minecraft.getInstance();
 			int x = guiGraphics.guiWidth() / 2 + 4;
 			int y = guiGraphics.guiHeight() / 2 - 8;
 			float SPRITE_WIDTH = 16;
@@ -197,7 +166,7 @@ public class ClientStandController extends ClientEntityController {
 					GlStateManager.DestFactor.ONE_MINUS_SRC_COLOR,
 					GlStateManager.SourceFactor.ONE,
 					GlStateManager.DestFactor.ZERO);
-			BlitFloat.blit(guiGraphics.pose(), Minecraft.getInstance(), SPEED_BAR_EMPTY, 
+			BlitFloat.blit(guiGraphics.pose(), mc, SPEED_BAR_EMPTY, 
 					x, y, SPRITE_WIDTH, SPRITE_HEIGHT, 0, 
 					BlitFloat.NO_TINT);
             RenderSystem.defaultBlendFunc();
@@ -206,7 +175,7 @@ public class ClientStandController extends ClientEntityController {
 			if (speed > 1E-4) {
 				float height = speed == 1 ? 1 : Math.min(speed, 1f - 1f / (16 * mc.options.guiScale().get()));
 				float fillY = SPRITE_HEIGHT * (1 - height);
-				BlitFloat.blit(guiGraphics.pose(), Minecraft.getInstance(), SPEED_BAR_FULL, 
+				BlitFloat.blit(guiGraphics.pose(), mc, SPEED_BAR_FULL, 
 						x, y + fillY, SPRITE_WIDTH, SPRITE_HEIGHT - fillY, 0, 
 						0, fillY,     SPRITE_WIDTH, SPRITE_HEIGHT - fillY, SPRITE_WIDTH, SPRITE_HEIGHT, 
 						color);

@@ -1,17 +1,20 @@
 package com.github.standobyte.jojo.init.power;
 
-import com.github.standobyte.jojo.core.JojoMod;
-import com.github.standobyte.jojo.core.JojoRegistries;
+import java.util.function.Supplier;
+
 import com.github.standobyte.jojo.jojoimpl.stands.crazydiamond.DriedBloodDropsEffect;
 import com.github.standobyte.jojo.powersystem.standpower.effect.StandEffectType;
 
-import net.neoforged.neoforge.registries.DeferredHolder;
-import net.neoforged.neoforge.registries.DeferredRegister;
-
+/**
+ * @deprecated Stand effects are now registered in {@link ModStandAbilities}, in the same file as abilities
+ */
+@Deprecated
 public final class ModStandEffects {
-	public static final DeferredRegister<StandEffectType<?>> STAND_EFFECT_TYPES = DeferredRegister.create(JojoRegistries.STAND_EFFECTS_REG, JojoMod.MOD_ID);
 
 
-	public static final DeferredHolder<StandEffectType<?>, StandEffectType<DriedBloodDropsEffect>> CRAZY_D_BLOOD_DROPS = STAND_EFFECT_TYPES.register(
-			"cd_blood_drops", key -> new StandEffectType<>(key, DriedBloodDropsEffect::new));
+	public static final Supplier<StandEffectType<DriedBloodDropsEffect>> CRAZY_D_BLOOD_DROPS = ModStandAbilities.EFFECT_CD_BLOOD_DROPS;
+
+
+	public static void load() {}
+
 }

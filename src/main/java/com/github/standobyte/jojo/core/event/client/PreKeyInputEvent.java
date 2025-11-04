@@ -1,4 +1,4 @@
-package com.github.standobyte.jojo.client.event;
+package com.github.standobyte.jojo.core.event.client;
 
 import org.lwjgl.glfw.GLFW;
 

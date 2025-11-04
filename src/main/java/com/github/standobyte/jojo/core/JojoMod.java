@@ -56,11 +56,11 @@ public class JojoMod {
 		ModContainers.CONTAINERS.register(modEventBus);
 		
 		JojoRegistries.ABILITY_TYPES.register(modEventBus);
-		ModStandAbilities.load();
 		ModPlayerPowers.PLAYER_POWERS.register(modEventBus);
 		ModHamonSkills.HAMON_SKILLS.register(modEventBus);
 		ModHamonSkills.HAMON_CHARACTER_TECHNIQUES.register(modEventBus);
-		ModStandEffects.STAND_EFFECT_TYPES.register(modEventBus);
+		ModStandAbilities.STAND_EFFECT_TYPES.register(modEventBus);
+		ModStandEffects.load();
 		ModStands.DEFAULT_STANDS.register(modEventBus);
 		ModSpecialActions.ACTIONS.register(modEventBus);
 	}

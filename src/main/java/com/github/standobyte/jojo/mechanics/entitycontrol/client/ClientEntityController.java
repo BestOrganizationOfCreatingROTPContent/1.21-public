@@ -5,27 +5,30 @@ import javax.annotation.Nullable;
 import org.jetbrains.annotations.ApiStatus;
 
 import com.github.standobyte.jojo.client.ClientUtil;
-import com.mojang.blaze3d.vertex.PoseStack;
+import com.github.standobyte.jojo.mechanics.entitycontrol.SetClientControllerPacket;
+import com.github.standobyte.jojo.mechanics.entitycontrol.client.mob.ClientMobController;
 
 import net.minecraft.client.DeltaTracker;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.player.Input;
 import net.minecraft.client.player.LocalPlayer;
-import net.minecraft.client.renderer.MultiBufferSource.BufferSource;
 import net.minecraft.network.protocol.game.ServerboundMovePlayerPacket;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.entity.Mob;
 
 public abstract class ClientEntityController {
 	@Nullable protected static ClientEntityController instance;
 
+	protected Minecraft mc;
 	@ApiStatus.Internal public Entity entity;
 	@ApiStatus.Internal public LivingEntity entityAsLiving;
 
 	public ClientEntityController(Entity entity) {
 		this.entity = entity;
 		this.entityAsLiving = entity instanceof LivingEntity l ? l : null;
+		this.mc = Minecraft.getInstance();
 	}
 
 	public static void setInstance(ClientEntityController instance) {
@@ -47,14 +50,21 @@ public abstract class ClientEntityController {
 		}
 		ClientEntityController.instance = instance;
 	}
+	
+	public static void onPacket(SetClientControllerPacket packet, Entity target) {
+		switch (packet.controllerType()) {
+			case "mob" -> {
+				if (target instanceof Mob mob) {
+					setInstance(new ClientMobController(mob));
+				}
+			}
+		}
+	}
 
 	public static ClientEntityController getInstance() {
 		return instance;
 	}
 	
-	public static boolean isBeingControlledByClient(Entity entity) {
-		return instance != null && instance.entity == entity;
-	}
 
 	public static void clientTickPre() {
 		if (instance != null) {
@@ -62,17 +72,21 @@ public abstract class ClientEntityController {
 				setInstance(null);
 			}
 			else {
-				Minecraft mc = Minecraft.getInstance();
+				Minecraft mc = instance.mc;
 				if (mc.cameraEntity == null || mc.cameraEntity == mc.player) {
 					ClientUtil.setCameraEntityPreventShaderSwitch(instance.entity);
 				}
+			}
+			
+			if (instance != null) {
+				instance.tickPre();
 			}
 		}
 	}
 
 	public static void clientTickPost() {
 		if (instance != null) {
-			sendLocalPlayerPosition(Minecraft.getInstance().player);
+			sendLocalPlayerPosition(instance.mc.player);
 			instance.tick();
 		}
 	}
@@ -92,9 +106,21 @@ public abstract class ClientEntityController {
 	public void onSet() {}
 
 	public void onUnset() {}
+	
+	public static boolean isBeingControlledByClient(Entity entity) {
+		return instance != null && instance.isBeingControlled(entity);
+	}
+	
+	public boolean isBeingControlled(Entity entity) {
+		return this.entity == entity;
+	}
+
+	/**
+	 * This lets us override the vanilla keybinds, for things like hotbar keys
+	 */
+	public void tickPre() {}
 
 	public void tick() {}
-	
 	public static void sendLocalPlayerPosition(LocalPlayer player) {
 		if (player != null) {
 			player.connection
@@ -167,13 +193,6 @@ public abstract class ClientEntityController {
 //			player.autoJumpEnabled = player.minecraft.options.autoJump().get();
 //		}
 //	}
-
-	/**
-	 * @return true if the vanilla hand render should be canceled entirely
-	 */
-	public boolean renderFirstPerson(float partialTicks, PoseStack poseStack, BufferSource buffer, int combinedLight) {
-		return true;
-	}
 
 	public boolean shouldRenderBlockOutline() {
 		return false;

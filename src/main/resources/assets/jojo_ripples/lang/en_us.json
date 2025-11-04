@@ -193,9 +193,6 @@
   "jojo.message.action_condition.stand_user_too_far": "You and your Stand are too far away from each other",
   "jojo.message.action_condition.stand_too_slow": "Your Stand is too slow to do this",
   
-  "stand.jojo_ripples.star_platinum": "Star Platinum",
-  "stand.jojo_ripples.crazy_diamond": "Crazy Diamond",
-  
   "jojo_ripples.subtitle.stand_summon": "Stand summoned",
   "jojo_ripples.subtitle.stand_unsummon": "Stand unsummoned",
   "jojo_ripples.subtitle.stand_attack_light": "Attack",
@@ -252,26 +249,44 @@
   "jojo_ripples.ability.bearing_shot": "Bearing Shot",
   
   
+  "stand.jojo_ripples.star_platinum": "Star Platinum",
+  
   "jojo_ripples.skill.enhanced_eyesight": "Enhanced Vision",
   "jojo_ripples.skill.enhanced_eyesight.desc": "#################################",
+  "jojo_ripples.skill.enhanced_eyesight.controls": "Special ability",
   "jojo_ripples.ability.enhanced_eyesight": "Enhanced Vision",
   
   "jojo_ripples.skill.star_finger": "Star Finger",
   "jojo_ripples.skill.star_finger.desc": "#################################",
+  "jojo_ripples.skill.star_finger.controls": "Special ability",
   "jojo_ripples.ability.star_finger": "Star Finger (soon)",
   
   "jojo_ripples.skill.inhale": "Inhale",
   "jojo_ripples.skill.inhale.desc": "#################################",
+  "jojo_ripples.skill.inhale.controls": "Special ability",
   "jojo_ripples.ability.inhale": "Inhale (soon)",
   "jojo_ripples.subtitle.inhale": "Inhale",
   
   "jojo_ripples.skill.time_stop": "Time Stop",
   "jojo_ripples.skill.time_stop.desc": "#################################",
+  "jojo_ripples.skill.time_stop.controls": "Special ability",
   "jojo_ripples.ability.time_stop": "Time Stop (%ss) (soon)",
   
   
+  "stand.jojo_ripples.hierophant_green": "Hierophant Green",
+  
+  "jojo_ripples.skill.puppet": "Puppet",
+  "jojo_ripples.skill.puppet.desc": "#################################",
+  "jojo_ripples.skill.puppet.controls": "Special ability",
+  "jojo_ripples.ability.puppet": "Puppet",
+  "jojo_ripples.ability.puppet.release": "Release Puppet",
+  
+  
+  "stand.jojo_ripples.crazy_diamond": "Crazy Diamond",
+  
   "jojo_ripples.skill.block_bullet": "Block Bullet",
   "jojo_ripples.skill.block_bullet.desc": "#################################",
+  "jojo_ripples.skill.block_bullet.controls": "Special ability",
   "jojo_ripples.ability.block_bullet": "Block Bullet",
   "jojo_ripples.ability.block_bullet_homing": "Homing Bullet",
   "jojo_ripples.ability.blood_cutter": "Blood Cutter",

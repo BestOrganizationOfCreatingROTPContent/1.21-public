@@ -18,6 +18,8 @@ public interface GuiAccessor {
 	@Accessor("ARMOR_FULL_SPRITE") public static ResourceLocation getARMOR_FULL_SPRITE() { throw new AssertionError(); }
 	@Accessor("ARMOR_HALF_SPRITE") public static ResourceLocation getARMOR_HALF_SPRITE() { throw new AssertionError(); }
 	@Accessor("ARMOR_EMPTY_SPRITE") public static ResourceLocation getARMOR_EMPTY_SPRITE() { throw new AssertionError(); }
+	@Accessor("HOTBAR_SPRITE") public static ResourceLocation getHOTBAR_SPRITE() { throw new AssertionError(); }
+	@Accessor("HOTBAR_SELECTION_SPRITE") public static ResourceLocation getHOTBAR_SELECTION_SPRITE() { throw new AssertionError(); }
 	@Accessor("HOTBAR_OFFHAND_LEFT_SPRITE") public static ResourceLocation getHOTBAR_OFFHAND_LEFT_SPRITE() { throw new AssertionError(); }
 	@Accessor("HOTBAR_OFFHAND_RIGHT_SPRITE") public static ResourceLocation getHOTBAR_OFFHAND_RIGHT_SPRITE() { throw new AssertionError(); }
 	@Accessor("EFFECT_BACKGROUND_AMBIENT_SPRITE") public static ResourceLocation getEFFECT_BACKGROUND_AMBIENT_SPRITE() { throw new AssertionError(); }

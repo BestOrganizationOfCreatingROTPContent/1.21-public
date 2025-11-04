@@ -174,12 +174,16 @@ public abstract class MarkerRenderer {
 				Entity target = effect.getTarget();
 				if (target != null) {
 					list.add(new MarkerInstance(
-							target.getPosition(partialTick).add(0, target.getBbHeight() * 1.1, 0), 
+							entityMarkerPos(target, partialTick), 
 							highlightLookedAt && outlined.map(outlinedEffect -> effect == outlinedEffect).orElse(false),
 							Optional.of(effect)));
 				}
 			});
 		}
+	}
+	
+	protected static Vec3 entityMarkerPos(Entity entity, float partialTick) {
+		return entity.getPosition(partialTick).add(0, entity.getBbHeight() * 1.1, 0);
 	}
 	
 	// XXX (marker) UI color (current stand color)
@@ -222,7 +226,7 @@ public abstract class MarkerRenderer {
 	protected static class MarkerInstance {
 		protected Vec3 pos;
 		protected boolean outlined;
-		protected final Optional<StandEffectInstance> standEffect;
+		protected final Optional<? extends StandEffectInstance> standEffect;
 
 		public MarkerInstance(Vec3 pos) {
 			this(pos, false);
@@ -232,7 +236,7 @@ public abstract class MarkerRenderer {
 			this(pos, outlined, Optional.empty());
 		}
 
-		public MarkerInstance(Vec3 pos, boolean outlined, Optional<StandEffectInstance> standEffect) {
+		public MarkerInstance(Vec3 pos, boolean outlined, Optional<? extends StandEffectInstance> standEffect) {
 			this.pos = pos;
 			this.outlined = outlined;
 			this.standEffect = standEffect;
