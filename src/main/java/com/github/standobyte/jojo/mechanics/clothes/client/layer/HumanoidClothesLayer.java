@@ -7,13 +7,14 @@ import com.github.standobyte.v1_21_4_stuff.renderstate.ExtractRSExtensionManuall
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.VertexConsumer;
 
+import net.minecraft.client.model.EntityModel;
 import net.minecraft.client.model.HumanoidModel;
 import net.minecraft.client.model.PlayerModel;
 import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.RenderType;
+import net.minecraft.client.renderer.entity.LivingEntityRenderer;
 import net.minecraft.client.renderer.entity.RenderLayerParent;
 import net.minecraft.client.renderer.entity.layers.RenderLayer;
-import net.minecraft.client.renderer.entity.player.PlayerRenderer;
 import net.minecraft.client.renderer.texture.OverlayTexture;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.LivingEntity;
@@ -21,7 +22,7 @@ import net.minecraft.world.item.ItemStack;
 import net.neoforged.api.distmarker.Dist;
 import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.fml.common.EventBusSubscriber;
-import net.neoforged.neoforge.client.event.RenderPlayerEvent;
+import net.neoforged.neoforge.client.event.RenderLivingEvent;
 
 // TODO (clothes) fix the model z-fighting
 //public class HumanoidClothesLayer<S extends HumanoidRenderState, M extends HumanoidModel<S>> extends RenderLayer<S, M> {
@@ -71,30 +72,33 @@ public class HumanoidClothesLayer<T extends LivingEntity, M extends HumanoidMode
 	
 	
 	@SubscribeEvent
-	public static void disablePlayerOuterLayer(RenderPlayerEvent.Pre event) {
+	public static void beforeEntityRender(RenderLivingEvent.Pre<?, ?> event) {
 		ExtractRSExtensionManually.extractClothes(event.getEntity());
-		
-		HumanoidClothesRSExtension clothesRS = HumanoidClothesRSExtension.getCurRenderData();
+		disablePlayerOuterLayer(event.getRenderer(), HumanoidClothesRSExtension.getCurRenderData());
+	}
+	
+	public static void disablePlayerOuterLayer(LivingEntityRenderer<?, ?> renderer, HumanoidClothesRSExtension clothesRS) {
 		if (clothesRS != null) {
-			PlayerRenderer renderer = event.getRenderer();
-			PlayerModel<?> model = renderer.getModel();
-			if (!clothesRS.items.get(ClothesSlotType.HEAD).isEmpty()) {
-				model.hat.visible = false;
-			}
-			if (!clothesRS.items.get(ClothesSlotType.CHEST).isEmpty()) {
-				model.jacket.visible = false;
-				model.leftSleeve.visible = false;
-				model.rightSleeve.visible = false;
-			}
-			if (!clothesRS.items.get(ClothesSlotType.LEGS).isEmpty()) {
-				model.leftPants.visible = false;
-				model.rightPants.visible = false;
+			EntityModel<?> model = renderer.getModel();
+			if (model instanceof PlayerModel playerModel) {
+				if (!clothesRS.items.get(ClothesSlotType.HEAD).isEmpty()) {
+					playerModel.hat.visible = false;
+				}
+				if (!clothesRS.items.get(ClothesSlotType.CHEST).isEmpty()) {
+					playerModel.jacket.visible = false;
+					playerModel.leftSleeve.visible = false;
+					playerModel.rightSleeve.visible = false;
+				}
+				if (!clothesRS.items.get(ClothesSlotType.LEGS).isEmpty()) {
+					playerModel.leftPants.visible = false;
+					playerModel.rightPants.visible = false;
+				}
 			}
 		}
 	}
 	
 	@SubscribeEvent
-	public static void clear(RenderPlayerEvent.Post event) {
+	public static void clear(RenderLivingEvent.Post<?, ?> event) {
 		ExtractRSExtensionManually.resetClothes();
 	}
 
