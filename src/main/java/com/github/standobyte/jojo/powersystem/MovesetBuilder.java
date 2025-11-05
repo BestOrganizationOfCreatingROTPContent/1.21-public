@@ -1,11 +1,9 @@
 package com.github.standobyte.jojo.powersystem;
 
-import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.function.Consumer;
 import java.util.function.Supplier;
-import java.util.stream.Collectors;
 
 import javax.annotation.Nullable;
 
@@ -25,7 +23,7 @@ import net.minecraft.resources.ResourceLocation;
 
 @ApiStatus.NonExtendable
 public class MovesetBuilder {
-	public final Map<String, ConfigAbilityFactory<?>> abilities = new HashMap<>();
+	public final Map<String, ConfigAbilityFactory<?>> abilities = new LinkedHashMap<>();
 	public final Map<String, UnlockableSkill> unlockableSkills = new LinkedHashMap<>();
 	@ApiStatus.Internal
 	public ControlSchemeTemplate _controlScheme = new ControlSchemeTemplate();
@@ -43,11 +41,15 @@ public class MovesetBuilder {
 	}
 	
 	public Moveset build(PowerClass<?> powerClass, ResourceLocation powerTypeId) {
-		Map<String, Ability> abilities = this.abilities.entrySet().stream()
-//				.filter(ability -> !disable.contains(ability.getKey()))
-				.collect(Collectors.toMap(
-						Map.Entry::getKey, 
-						entry -> entry.getValue().makeAbility(new AbilityId(powerClass, powerTypeId, entry.getKey()))));
+		Map<String, Ability> abilities = new LinkedHashMap<>();
+		for (var abilityEntry : this.abilities.entrySet()) {
+			String abilityName = abilityEntry.getKey();
+			var abilityFactory = abilityEntry.getValue();
+//			if (!disable.contains(key)) {
+				var ability = abilityFactory.makeAbility(new AbilityId(powerClass, powerTypeId, abilityName));
+				abilities.put(abilityName, ability);
+//			}
+		}
 		Moveset moveset = new Moveset(abilities, powerClass, powerTypeId);
 		moveset.controlScheme = this._controlScheme;
 		return moveset;

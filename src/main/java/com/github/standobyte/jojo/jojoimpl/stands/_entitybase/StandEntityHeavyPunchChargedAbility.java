@@ -8,6 +8,7 @@ import com.github.standobyte.jojo.init.ModSoundEvents;
 import com.github.standobyte.jojo.powersystem.Power;
 import com.github.standobyte.jojo.powersystem.ability.AbilityId;
 import com.github.standobyte.jojo.powersystem.ability.AbilityType;
+import com.github.standobyte.jojo.powersystem.ability.AbilityUsageGroup;
 import com.github.standobyte.jojo.powersystem.entityaction.ActionPhase;
 import com.github.standobyte.jojo.powersystem.entityaction.EntityActionInstance;
 import com.github.standobyte.jojo.powersystem.entityaction.type.EntityActionType;
@@ -33,6 +34,7 @@ public class StandEntityHeavyPunchChargedAbility extends StandEntityAbility {
 
 	public StandEntityHeavyPunchChargedAbility(AbilityType<?> abilityType, AbilityId abilityId) {
 		super(abilityType, abilityId);
+		usageGroup = AbilityUsageGroup.COMBAT;
 		setDefaultPhaseLength(ActionPhase.BUTTON_CHARGE, 16);
 		setButtonHoldPhase(ActionPhase.WINDUP);
 		setDefaultPhaseLength(ActionPhase.PERFORM, 6);

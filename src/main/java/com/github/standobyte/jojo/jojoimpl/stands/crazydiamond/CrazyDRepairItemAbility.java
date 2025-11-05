@@ -7,6 +7,7 @@ import javax.annotation.Nullable;
 import com.github.standobyte.jojo.client.input.AbilityInputState;
 import com.github.standobyte.jojo.client.input.InputHandler;
 import com.github.standobyte.jojo.powersystem.Power;
+import com.github.standobyte.jojo.powersystem.ability.AbilityUsageGroup;
 import com.github.standobyte.jojo.powersystem.ability.AbilityId;
 import com.github.standobyte.jojo.powersystem.ability.AbilityType;
 import com.github.standobyte.jojo.powersystem.entityaction.ActionPhase;
@@ -45,6 +46,7 @@ public class CrazyDRepairItemAbility extends StandEntityAbility {
 
 	public CrazyDRepairItemAbility(AbilityType<?> abilityType, AbilityId abilityId) {
 		super(abilityType, abilityId);
+		usageGroup = AbilityUsageGroup.INVENTORY;
 		setButtonHoldPhase(ActionPhase.PERFORM);
 	}
 

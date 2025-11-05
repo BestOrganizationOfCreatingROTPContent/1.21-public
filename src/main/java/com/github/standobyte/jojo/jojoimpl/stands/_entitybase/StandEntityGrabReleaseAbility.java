@@ -6,6 +6,7 @@ import com.github.standobyte.jojo.powersystem.Power;
 import com.github.standobyte.jojo.powersystem.ability.Ability;
 import com.github.standobyte.jojo.powersystem.ability.AbilityId;
 import com.github.standobyte.jojo.powersystem.ability.AbilityType;
+import com.github.standobyte.jojo.powersystem.ability.AbilityUsageGroup;
 import com.github.standobyte.jojo.powersystem.standpower.entity.StandEntity;
 import com.github.standobyte.jojo.util.StandUtil;
 
@@ -17,6 +18,7 @@ public class StandEntityGrabReleaseAbility extends Ability {
 
 	public StandEntityGrabReleaseAbility(AbilityType<?> abilityType, AbilityId abilityId) {
 		super(abilityType, abilityId);
+		usageGroup = AbilityUsageGroup.GRAB;
 	}
 	
 	@Override

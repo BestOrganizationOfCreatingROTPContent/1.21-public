@@ -14,6 +14,7 @@ import com.github.standobyte.jojo.client.standskin.StandSkinsScreen;
 import com.github.standobyte.jojo.client.ui.utils.GuiIcon;
 import com.github.standobyte.jojo.core.JojoMod;
 import com.github.standobyte.jojo.init.power.ModPlayerPowers;
+import com.github.standobyte.jojo.powersystem.Power;
 import com.github.standobyte.jojo.powersystem.PowerClass;
 import com.github.standobyte.jojo.powersystem.standpower.StandPower;
 
@@ -229,34 +230,23 @@ public class JojoMenuTabs {
 			.withName(Component.translatable("jojo_ripples.screen.edit_hud_layout"))
 			.withIcon(new GuiIcon(JojoMod.resLoc("textures/gui/controls.png"), 16, 16));
 	
-	public static final Tab STAND_POWER_CONTROLS = new Tab(CATEGORY_CONTROLS, PowerClass.STAND, null) {
-		@Override
-		public Component getName() {
-			return Component.translatable("jojo_ripples.class.stand", ClientPowerCache.getPower(PowerClass.STAND).getName());
-		}
+	public static final Tab EDIT_CONTROL_SCHEMES = new Tab(CATEGORY_CONTROLS, null, null) {
 		
 		@Override
-		public void renderIcon(GuiGraphics guiGraphics, int x, int y) {
-			StandSkin skin = StandSkinsLoader.getCurSkin();
-			if (skin != null) {
-				this.icon = skin.getStandIcon();
-				if (icon != null) {
-					super.renderIcon(guiGraphics, x, y);
+		public boolean isActive() {
+			if (isDisabled) return false;
+			for (PowerClass<?> powerClass : PowerClass.values()) {
+				Power<?> power = ClientPowerCache.getPower(powerClass);
+				if (power != null && power.hasPower()) {
+					return true;
 				}
 			}
+			return false;
 		}
-	};
+	}		
+			.withScreen(tab -> new ControlSchemeScreen(CommonComponents.EMPTY, tab.getCategory(), tab))
+			.withName(Component.translatable("jojo_ripples.screen.edit_hud_layout"))
+			.withIcon(new GuiIcon(JojoMod.resLoc("textures/gui/controls.png"), 16, 16));
 	
-	public static final Tab PLAYER_POWER_CONTROLS = new Tab(CATEGORY_CONTROLS, PowerClass.PLAYER_POWER, null) {
-		@Override
-		public Component getName() {
-			return Component.translatable("jojo_ripples.class.player_power", ClientPowerCache.getPower(PowerClass.PLAYER_POWER).getName());
-		}
-		
-		@Override
-		public void renderIcon(GuiGraphics guiGraphics, int x, int y) {
-//			renderPlayerPowerIcon();
-		}
-	};
 
 }

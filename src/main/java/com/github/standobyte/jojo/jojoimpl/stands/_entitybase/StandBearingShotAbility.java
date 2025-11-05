@@ -7,6 +7,7 @@ import com.github.standobyte.jojo.mechanics.entityuseitem.StandCallbackWhenShoot
 import com.github.standobyte.jojo.powersystem.Power;
 import com.github.standobyte.jojo.powersystem.ability.AbilityId;
 import com.github.standobyte.jojo.powersystem.ability.AbilityType;
+import com.github.standobyte.jojo.powersystem.ability.AbilityUsageGroup;
 import com.github.standobyte.jojo.powersystem.entityaction.ActionPhase;
 import com.github.standobyte.jojo.powersystem.entityaction.EntityActionInstance;
 import com.github.standobyte.jojo.powersystem.entityaction.type.EntityActionType;
@@ -27,6 +28,8 @@ public class StandBearingShotAbility extends StandEntityAbility {
 
 	public StandBearingShotAbility(AbilityType<?> abilityType, AbilityId abilityId) {
 		super(abilityType, abilityId);
+		usageGroup = AbilityUsageGroup.UTILITY;
+		isSubAbility = true;
 		setButtonHoldPhase(ActionPhase.PERFORM);
 		setDefaultPhaseLength(ActionPhase.RECOVERY, 10);
 	}

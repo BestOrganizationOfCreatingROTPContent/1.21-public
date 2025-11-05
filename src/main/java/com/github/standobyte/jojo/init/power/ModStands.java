@@ -41,22 +41,24 @@ public class ModStands {
 					.addAbility("punch", ModStandAbilities.PUNCH)
 					.withBind(InputKey.LMB, InputMethod.CLICK)
 					
-					.addAbility("punch2", ModStandAbilities.PUNCH)
-					.addAbility("punch3", ModStandAbilities.PUNCH)
+					// TODO refactor sub-punches initialization
+					.addAbility("punch2", ModStandAbilities.PUNCH, punch -> punch.isSubAbility = true)
+					.addAbility("punch3", ModStandAbilities.PUNCH, punch -> punch.isSubAbility = true)
 					.addAbility("punch4", ModStandAbilities.PUNCH, punch -> {
+						punch.isSubAbility = true;
 						punch.setDefaultPhaseLength(ActionPhase.WINDUP, 5);
 					})
-
-					.addAbility("heavy_punch", ModStandAbilities.HEAVY_PUNCH)
-					.withBind(InputKey.RMB, InputMethod.CLICK)
-					.addAbility("heavy_punch2", ModStandAbilities.HEAVY_PUNCH)
-					.addAbility("finisher_uppercut", ModStandAbilities.HEAVY_PUNCH)
-					
-					.addAbility("heavy_charged", ModStandAbilities.HEAVY_CHARGED)
-					.withBind(InputKey.RMB, InputMethod.HOLD)
 					
 					.addAbility("barrage", ModStandAbilities.BARRAGE)
 					.withBind(InputKey.LMB, InputMethod.HOLD)
+
+					.addAbility("heavy_punch", ModStandAbilities.HEAVY_PUNCH)
+					.withBind(InputKey.RMB, InputMethod.CLICK)
+					.addAbility("heavy_punch2", ModStandAbilities.HEAVY_PUNCH, punch -> punch.isSubAbility = true)
+					.addAbility("finisher_uppercut", ModStandAbilities.HEAVY_PUNCH, punch -> punch.isSubAbility = true)
+					
+					.addAbility("heavy_charged", ModStandAbilities.HEAVY_CHARGED)
+					.withBind(InputKey.RMB, InputMethod.HOLD)
 					
 					.addAbility("grab",ModStandAbilities.GRAB)
 					.withBind(InputKey.RMB.withModifier(InputKey.Modifier.CONTROL), InputMethod.CLICK)
@@ -67,9 +69,10 @@ public class ModStands {
 					.addAbility("grab_throw", ModStandAbilities.GRAB_THROW)
 					.withBind(InputKey.RMB, InputMethod.HOLD)
 					
-					.addAbility("grab_punch", ModStandAbilities.GRAB_PUNCH)
-					.addAbility("grab_barrage", ModStandAbilities.GRAB_BARRAGE)
+					.addAbility("grab_punch", ModStandAbilities.GRAB_PUNCH, punch -> punch.isSubAbility = true)
+					.addAbility("grab_barrage", ModStandAbilities.GRAB_BARRAGE, punch -> punch.isSubAbility = true)
 					.addAbility("grab_uppercut", ModStandAbilities.GRAB_HEAVY_PUNCH, punch -> {
+						punch.isSubAbility = true;
 						punch.verticalKnockback = true;
 					})
 					
@@ -103,10 +106,10 @@ public class ModStands {
 					
 					
 					.addSkill(StandUnlockableSkill.startingAbility("punch"))
+					.addSkill(StandUnlockableSkill.startingAbility("barrage"))
 					.addSkill(StandUnlockableSkill.startingAbility("heavy_punch"))
 					.addSkill(StandUnlockableSkill.startingAbility("uppercut").prerequisiteSkill("heavy_punch"))
 					.addSkill(StandUnlockableSkill.startingAbility("heavy_charged").prerequisiteSkill("heavy_punch"))
-					.addSkill(StandUnlockableSkill.startingAbility("barrage"))
 					.addSkill(StandUnlockableSkill.startingAbility("guard"))
 					.addSkill(StandUnlockableSkill.startingAbility("grab"))
 					.addSkill(StandUnlockableSkill.startingAbility("leap"))

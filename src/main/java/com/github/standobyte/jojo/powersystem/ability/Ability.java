@@ -30,6 +30,9 @@ public class Ability {
 	public final AbilityId abilityId;
 	protected String spriteName;
 	protected Component name;
+	
+	public AbilityUsageGroup usageGroup = AbilityUsageGroup.SPECIAL;
+	public boolean isSubAbility = false;
 
 	public Ability(AbilityType<?> abilityType, AbilityId abilityId) {
 		this.abilityType = abilityType;

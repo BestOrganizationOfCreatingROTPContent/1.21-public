@@ -9,6 +9,7 @@ import com.github.standobyte.jojo.mechanics.entitycontrol.client.stand.ClientSta
 import com.github.standobyte.jojo.powersystem.ability.Ability;
 import com.github.standobyte.jojo.powersystem.ability.AbilityId;
 import com.github.standobyte.jojo.powersystem.ability.AbilityType;
+import com.github.standobyte.jojo.powersystem.ability.AbilityUsageGroup;
 import com.github.standobyte.jojo.powersystem.standpower.entity.StandEntity;
 import com.github.standobyte.jojo.util.StandUtil;
 import com.github.standobyte.jojo.util.entitycomponent.ComponentUtil;
@@ -22,6 +23,7 @@ public class StandEntityManualControlToggle extends Ability {
 
 	public StandEntityManualControlToggle(AbilityType<?> abilityType, AbilityId abilityId) {
 		super(abilityType, abilityId);
+		usageGroup = AbilityUsageGroup.UTILITY;
 	}
 	
 	@Override
