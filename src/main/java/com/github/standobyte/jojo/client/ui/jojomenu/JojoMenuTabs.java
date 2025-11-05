@@ -19,8 +19,12 @@ import com.github.standobyte.jojo.powersystem.standpower.StandPower;
 
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.network.chat.CommonComponents;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
+import net.minecraft.world.entity.Entity;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.level.GameType;
 
 public class JojoMenuTabs {
 	public static Map<TabCategory, Tab> curTabs = new IdentityHashMap<>();
@@ -62,37 +66,56 @@ public class JojoMenuTabs {
 	
 	public static void initDefaults() {}
 	
-	// Player menu
+	// Story tabs
 	
-	public static final TabCategory CATEGORY_PLAYER_MENU = new TabCategory() {
-		@Override
-		public void renderIcon(GuiGraphics guiGraphics, int x, int y) {
-			ClientUtil.renderPlayerFace(guiGraphics.pose(), x, y, Minecraft.getInstance().player);
-		}
-	}
-			.withName(Component.translatable("jojo_ripples.ui.player_menu"));
+	public static final TabCategory CATEGORY_STORY = new TabCategory() {}
+			.withName(Component.translatable("jojo_ripples.ui.story"))
+			.withIcon(new GuiIcon(JojoMod.resLoc("textures/gui/story.png"), 16, 16));
 	
 	static {
 		if (JojoMod.disableDevStuff()) {
-			TabCategory.ALL_CATEGORIES.remove(CATEGORY_PLAYER_MENU);
+			TabCategory.ALL_CATEGORIES.remove(CATEGORY_STORY);
 		}
 	}
 	
-	public static final Tab PLAYER_PROFILE = new Tab(CATEGORY_PLAYER_MENU) {
+	public static final Tab PLAYER_PROFILE = new Tab(CATEGORY_STORY) {
 		@Override
 		public void renderIcon(GuiGraphics guiGraphics, int x, int y) {
 			ClientUtil.renderPlayerFace(guiGraphics.pose(), x, y, Minecraft.getInstance().player);
 		}
-	}
-			.withName(Component.translatable(JojoMod.MOD_ID + ".menu.player.profile"));
+		
+		@Override
+		public Component getName() {
+			Entity curCharacter = Minecraft.getInstance().player;
+			Component curCharacterName = curCharacter != null ? curCharacter.getDisplayName() : CommonComponents.EMPTY;
+			return Component.translatable(JojoMod.MOD_ID + ".menu.player.profile", curCharacterName);
+		}
+	};
 	
-	public static final Tab GROUP = new Tab(CATEGORY_PLAYER_MENU)
+	public static final Tab GROUP = new Tab(CATEGORY_STORY)
 			.withName(Component.translatable(JojoMod.MOD_ID + ".menu.player.group"))
 			.withIcon(new GuiIcon(JojoMod.resLoc("textures/gui/group.png"), 16, 16));
 	
-	public static final Tab STORY_ARCS = new Tab(CATEGORY_PLAYER_MENU)
+	public static final Tab STORY_ARCS = new Tab(CATEGORY_STORY)
 			.withName(Component.translatable(JojoMod.MOD_ID + ".menu.player.story_arcs"))
 			.withIcon(new GuiIcon(JojoMod.resLoc("textures/gui/arcs.png"), 16, 16));
+	
+	public static final Tab STORYTELLING = new Tab(CATEGORY_STORY) {
+		@Override
+		public boolean isActive() {
+			if (super.isActive()) {
+				Minecraft mc = Minecraft.getInstance();
+				Player player = mc.player;
+				if (player != null && player.hasPermissions(2)) {
+					GameType gameMode = mc.gameMode.getPlayerMode();
+					return gameMode == GameType.CREATIVE || gameMode == GameType.SPECTATOR;
+				}
+			}
+			return false;
+		}
+	}
+			.withName(Component.translatable(JojoMod.MOD_ID + ".menu.player.storytelling"))
+			.withIcon(new GuiIcon(JojoMod.resLoc("textures/gui/storytelling.png"), 16, 16));
 	
 	// Stand
 	

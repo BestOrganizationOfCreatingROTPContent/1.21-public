@@ -70,11 +70,12 @@
   "jojo_ripples.config.client.hamonAuraBlur.tooltip": "Размытие частиц ауры Хамона",
   "jojo_ripples.config.client.vampireGlowingEyes": "Светящиеся глаза",
   "jojo_ripples.config.client.vampireGlowingEyes.tooltip": "Красные светящиеся в темноте глаза от 3 лица, когда у вас 80% или больше энергии",
-  
-  "jojo_ripples.ui.player_menu": "Меню игрока (NYI)",
-  "jojo_ripples.menu.player.profile": "Профиль персонажа (NYI)",
+
+  "jojo_ripples.ui.story": "История (NYI)",
+  "jojo_ripples.menu.player.profile": "Профиль персонажа: %s (NYI)",
   "jojo_ripples.menu.player.group": "Группа (NYI)",
   "jojo_ripples.menu.player.story_arcs": "Сюжетные арки (NYI)",
+  "jojo_ripples.menu.player.storytelling": "Повествование (NYI)",
   
   "jojo_ripples.screen.edit_hud_layout": "Настройки управления (NYI)",
   "jojo_ripples.screen.ability_selection_wheel": "Выберите способность",
