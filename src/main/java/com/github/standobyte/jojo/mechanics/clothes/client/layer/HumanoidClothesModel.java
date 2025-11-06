@@ -9,6 +9,8 @@ import java.util.Map;
 import org.apache.commons.lang3.ArrayUtils;
 import org.jetbrains.annotations.ApiStatus;
 
+import com.github.standobyte.jojo.client.entityanim.playerbend.IPlayerBendModel;
+import com.github.standobyte.jojo.client.entityanim.playerbend.IPlayerLimbBend;
 import com.github.standobyte.jojo.client.utils.ModelUtil;
 import com.github.standobyte.jojo.mechanics.clothes.itemdata.ClothesSlotType;
 import com.github.standobyte.v1_21_4_stuff.Reminder;
@@ -20,6 +22,8 @@ import net.minecraft.client.model.HumanoidModel;
 import net.minecraft.client.model.geom.ModelPart;
 import net.minecraft.world.entity.HumanoidArm;
 
+// FIXME model bend on left leg
+// WHY IS IT ONLY LEFT LEG SPECIFICALLY????
 public class HumanoidClothesModel extends HumanoidModel/*<HumanoidRenderState>*/ {
 	private Map<ClothesSlotType, List<ModelPart>> byClothesPart = new EnumMap<>(ClothesSlotType.class);
 	public final ModelPart rightArmSlim;
@@ -40,6 +44,9 @@ public class HumanoidClothesModel extends HumanoidModel/*<HumanoidRenderState>*/
 		super(addMissing(root));
 		this.rightArmSlim = root.getChild("right_arm_slim");
 		this.leftArmSlim = root.getChild("left_arm_slim");
+		IPlayerBendModel thisBends = (IPlayerBendModel) this;
+		((IPlayerLimbBend) (Object) rightArmSlim).jojo_ripples$setBendBone(thisBends.jojo_ripples$animRightArmBend(), false);
+		((IPlayerLimbBend) (Object) leftArmSlim).jojo_ripples$setBendBone(thisBends.jojo_ripples$animLeftArmBend(), false);
 		initClothesSlots();
 	}
 	
