@@ -41,8 +41,6 @@ public class StandDiscRenderer extends BlockEntityWithoutLevelRenderer {
 				renderTypeBuffer, rendertype, true, itemStack.hasFoil());
 		ir.renderModelLists(pModel, itemStack, light, overlay, poseStack, ivertexbuilder);
 
-
-
 		StandWrittenOnDisc discStand = itemStack.get(ModItemDataComponents.DISC_STAND.get());
 		if (discStand != null) {
 			StandInstance stand = discStand.getInstance();
@@ -137,5 +135,24 @@ public class StandDiscRenderer extends BlockEntityWithoutLevelRenderer {
 					0xFFFFFFFF, vertex.u, vertex.v, 
 					overlay, light, normalX, normalY, normalZ);
 		}
+	}
+	
+	
+	public static int getStandColor(StandWrittenOnDisc discStand) {
+		if (discStand != null) {
+			StandInstance stand = discStand.getInstance();
+			if (stand != null) {
+				StandSkin skin = StandSkinsLoader.getInstance().getSkin(stand);
+				if (skin != null) {
+					return skin.getColor();
+				}
+			}
+		}
+		
+		return -1;
+	}
+
+	public static int lightDiscTint(int color) {
+		return (((0xFFFFFF - color) & 0xFEFEFE) >> 1) + color;
 	}
 }
