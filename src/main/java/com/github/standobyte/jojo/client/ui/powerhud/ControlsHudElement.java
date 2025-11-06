@@ -384,10 +384,10 @@ public class ControlsHudElement extends HudElement {
 				Component keyName = getKeyName(key);
 				if (modifier != null) {
 					String modifierName = switch (modifier) {
-					case CONTROL -> "ripples_hud.modifier_ctrl";
-					case SHIFT -> "ripples_hud.modifier_shift";
-					case ALT -> "ripples_hud.modifier_alt";
-					default -> null;
+						case CONTROL -> "ripples_hud.modifier_ctrl";
+						case SHIFT -> "ripples_hud.modifier_shift";
+						case ALT -> "ripples_hud.modifier_alt";
+						default -> null;
 					};
 					if (modifierName != null) {
 						keyName = Component.translatable("ripples_hud.key_modifier", Component.translatable(modifierName), keyName);

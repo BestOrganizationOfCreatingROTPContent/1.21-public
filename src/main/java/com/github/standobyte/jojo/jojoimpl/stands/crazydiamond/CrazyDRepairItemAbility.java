@@ -7,9 +7,9 @@ import javax.annotation.Nullable;
 import com.github.standobyte.jojo.client.input.AbilityInputState;
 import com.github.standobyte.jojo.client.input.InputHandler;
 import com.github.standobyte.jojo.powersystem.Power;
-import com.github.standobyte.jojo.powersystem.ability.AbilityUsageGroup;
 import com.github.standobyte.jojo.powersystem.ability.AbilityId;
 import com.github.standobyte.jojo.powersystem.ability.AbilityType;
+import com.github.standobyte.jojo.powersystem.ability.AbilityUsageGroup;
 import com.github.standobyte.jojo.powersystem.entityaction.ActionPhase;
 import com.github.standobyte.jojo.powersystem.entityaction.EntityActionInstance;
 import com.github.standobyte.jojo.powersystem.entityaction.type.EntityActionType;
@@ -62,6 +62,7 @@ public class CrazyDRepairItemAbility extends StandEntityAbility {
 				Slot hovered = invScreen.getSlotUnderMouse();
 				if (hovered != null) {
 					ItemStack item = hovered.getItem();
+					// TODO (item repair) disable it when hovering over an item in a creative tab
 					active = canBeRepaired(item);
 				}
 			}
