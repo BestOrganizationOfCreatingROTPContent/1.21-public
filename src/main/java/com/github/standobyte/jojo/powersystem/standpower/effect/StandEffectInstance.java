@@ -125,7 +125,7 @@ public abstract class StandEffectInstance {
 		}
 	}
 
-	protected void updateTarget(Level level) {
+	public void updateTarget(Level level) {
 		if (target == null) {
 			if (!level.isClientSide()) {
 				if (targetUUID != null) {

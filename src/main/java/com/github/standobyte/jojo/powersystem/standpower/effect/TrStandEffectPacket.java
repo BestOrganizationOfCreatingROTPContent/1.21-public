@@ -130,8 +130,7 @@ public class TrStandEffectPacket implements CustomPacketPayload {
 		@Override
 		public void handle(TrStandEffectPacket payload, IPayloadContext context) {
 			Entity entity = ClientProxy.getEntityById(payload.userId);
-			if (entity instanceof LivingEntity) {
-				LivingEntity livingEntity = (LivingEntity) entity;
+			if (entity instanceof LivingEntity livingEntity) {
 				StandPower stand = StandPower.get(livingEntity);
 				if (stand != null) {
 					switch (payload.packetType) {
@@ -143,6 +142,7 @@ public class TrStandEffectPacket implements CustomPacketPayload {
 
 						newEffect.tickCount = payload.buf.readVarInt();
 						newEffect.readAdditionalPacketData(payload.buf, payload.isUser);
+						newEffect.updateTarget(entity.level());
 						stand.userStandEffects.addEffect(newEffect);
 						break;
 					case REMOVE:
