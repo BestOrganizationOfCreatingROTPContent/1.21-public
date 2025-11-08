@@ -328,7 +328,7 @@ public class StandPower extends Power<StandPower> implements PostNbtReadEntityDa
 		newEntityData.staminaLerp = this.staminaLerp;
 		newEntityData.resolveHandler.copyValues(this.resolveHandler, wasDeath);
 		newEntityData.userStandEffects = this.userStandEffects;
-		newEntityData.userStandEffects.setPowerData(this);
+		newEntityData.userStandEffects.setPowerData(newEntityData);
 	}
 	
 	
