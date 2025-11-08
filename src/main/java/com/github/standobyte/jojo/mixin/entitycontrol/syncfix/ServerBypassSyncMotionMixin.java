@@ -7,7 +7,7 @@ import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
 import com.github.standobyte.jojo.core.packet.fromserver.EntitySyncMotionBypassingPacket;
-import com.github.standobyte.jojo.mechanics.entitycontrol.ServerEntityController;
+import com.github.standobyte.jojo.mechanics.entitycontrol.EntityComponentController;
 
 import net.minecraft.server.level.ServerEntity;
 import net.minecraft.world.entity.Entity;
@@ -22,7 +22,7 @@ public class ServerBypassSyncMotionMixin {
 			target =  "Lnet/minecraft/world/entity/Entity;hurtMarked:Z", 
 			ordinal = 0))
 	public void jojo_ripples$syncHurtMarkedFlag(CallbackInfo ci) {
-		if (entity.hurtMarked && ServerEntityController.getCurrentController(entity) != null) {
+		if (entity.hurtMarked && EntityComponentController.getCurrentController(entity) != null) {
 			PacketDistributor.sendToPlayersTrackingEntity(this.entity, new EntitySyncMotionBypassingPacket(this.entity.getId(), this.entity.getDeltaMovement()));
 		}
 	}

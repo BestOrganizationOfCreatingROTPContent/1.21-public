@@ -11,7 +11,7 @@ import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
-import com.github.standobyte.jojo.mechanics.entitycontrol.ServerEntityController;
+import com.github.standobyte.jojo.mechanics.entitycontrol.EntityComponentController;
 
 import net.minecraft.network.protocol.Packet;
 import net.minecraft.resources.ResourceKey;
@@ -36,7 +36,7 @@ public class PlayerListBroadcastMixin {
 				double yD = y - player.getY();
 				double zD = z - player.getZ();
 				if (xD * xD + yD * yD + zD * zD >= radiusSq) {
-					Entity cameraEntity = ServerEntityController.getControlTarget(player);
+					Entity cameraEntity = EntityComponentController.getControlTarget(player);
 					if (cameraEntity != null) {
 						xD = x - cameraEntity.getX();
 						yD = y - cameraEntity.getY();

@@ -7,7 +7,7 @@ import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.Redirect;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
-import com.github.standobyte.jojo.mechanics.entitycontrol.ServerEntityController;
+import com.github.standobyte.jojo.mechanics.entitycontrol.EntityComponentController;
 import com.github.standobyte.jojo.mechanics.entitycontrol.mob.HardcodedMobControlCommands;
 
 import net.minecraft.world.entity.EntityType;
@@ -36,10 +36,12 @@ public abstract class MobAIMixin extends LivingEntity implements HardcodedMobCon
 
 	@Inject(method = "serverAiStep", at = @At("HEAD"), cancellable = true)
 	public void jojo_ripples$manualMobControl(CallbackInfo ci) {
-		ServerEntityController controller = ServerEntityController.getCurrentController(this);
-		if (controller != null && controller.suppressControlledEntity()) {
-			HardcodedMobControlCommands.serverTickControlledMob((Mob) (LivingEntity) this, jojo_ripples$controllerHoldingRMB);
-			ci.cancel();
+		if (!level().isClientSide()) {
+			EntityComponentController controller = EntityComponentController.getCurrentController(this);
+			if (controller != null && controller.suppressControlledEntity()) {
+				HardcodedMobControlCommands.serverTickControlledMob((Mob) (LivingEntity) this, jojo_ripples$controllerHoldingRMB);
+				ci.cancel();
+			}
 		}
 	}
 	

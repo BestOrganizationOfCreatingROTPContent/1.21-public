@@ -11,8 +11,8 @@ import com.github.standobyte.jojo.mechanics.entitycontrol.client.ItemNameAboveHo
 import com.github.standobyte.jojo.mechanics.entitycontrol.client.stand.StandHudElements;
 import com.github.standobyte.jojo.mechanics.entitycontrol.client.stand.StandHudElements.HealthHudTracker;
 import com.github.standobyte.jojo.mechanics.entitycontrol.mob.HardcodedMobControlCommands;
-import com.github.standobyte.jojo.mechanics.entitycontrol.mob.MobControlUtil;
 import com.github.standobyte.jojo.mechanics.entitycontrol.mob.HardcodedMobControlCommands.WitchPotionMode;
+import com.github.standobyte.jojo.mechanics.entitycontrol.mob.MobControlUtil;
 import com.github.standobyte.jojo.mixin.entitycontrol.client.GuiAccessor;
 import com.github.standobyte.jojo.util.UtilFunctions;
 import com.mojang.blaze3d.platform.InputConstants;
@@ -33,6 +33,7 @@ import net.minecraft.world.entity.monster.Witch;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
+import net.minecraft.world.phys.Vec3;
 import net.neoforged.bus.api.EventPriority;
 import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.neoforge.client.event.InputEvent;
@@ -71,8 +72,10 @@ public class ClientMobController extends ClientEntityController {
 		
 		// LookControl tick is being cancelled in com.github.standobyte.jojo.mixin.entitycontrol.mob.MobAILookMixin
 		
+		Vec3 prev = entityAsLiving.position();
 		MoveControl moveControl = controlledMob.getMoveControl();
 		moveControl.strafe(clientInput.forwardImpulse, clientInput.leftImpulse);
+		prev = entityAsLiving.position().subtract(prev);
 		
 		if (clientInput.jumping) {
 			JumpControl jumpControl = controlledMob.getJumpControl();

@@ -6,7 +6,7 @@ import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
-import com.github.standobyte.jojo.mechanics.entitycontrol.ServerEntityController;
+import com.github.standobyte.jojo.mechanics.entitycontrol.EntityComponentController;
 import com.github.standobyte.jojo.mechanics.entitycontrol.client.ClientEntityController;
 
 import net.minecraft.world.entity.Entity;
@@ -32,7 +32,7 @@ public class EntityEffectiveAIMixin {
 			}
 		}
 		else {
-			ServerEntityController controller = ServerEntityController.getCurrentController(thisEntity);
+			EntityComponentController controller = EntityComponentController.getCurrentController(thisEntity);
 			if (controller != null && controller.suppressControlledEntity()) {
 				ci.setReturnValue(false);
 			}

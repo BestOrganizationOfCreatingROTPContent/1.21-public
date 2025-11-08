@@ -5,8 +5,6 @@ import javax.annotation.Nullable;
 import org.jetbrains.annotations.ApiStatus;
 
 import com.github.standobyte.jojo.client.ClientUtil;
-import com.github.standobyte.jojo.mechanics.entitycontrol.SetClientControllerPacket;
-import com.github.standobyte.jojo.mechanics.entitycontrol.client.mob.ClientMobController;
 
 import net.minecraft.client.DeltaTracker;
 import net.minecraft.client.Minecraft;
@@ -16,7 +14,6 @@ import net.minecraft.client.player.LocalPlayer;
 import net.minecraft.network.protocol.game.ServerboundMovePlayerPacket;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.LivingEntity;
-import net.minecraft.world.entity.Mob;
 
 public abstract class ClientEntityController {
 	@Nullable protected static ClientEntityController instance;
@@ -49,16 +46,6 @@ public abstract class ClientEntityController {
 			instance.onSet();
 		}
 		ClientEntityController.instance = instance;
-	}
-	
-	public static void onPacket(SetClientControllerPacket packet, Entity target) {
-		switch (packet.controllerType()) {
-			case "mob" -> {
-				if (target instanceof Mob mob) {
-					setInstance(new ClientMobController(mob));
-				}
-			}
-		}
 	}
 
 	public static ClientEntityController getInstance() {

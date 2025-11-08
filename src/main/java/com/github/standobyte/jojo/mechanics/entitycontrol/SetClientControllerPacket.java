@@ -1,8 +1,9 @@
 package com.github.standobyte.jojo.mechanics.entitycontrol;
 
+import java.util.Optional;
+
 import com.github.standobyte.jojo.client.ClientProxy;
 import com.github.standobyte.jojo.core.PacketsRegister;
-import com.github.standobyte.jojo.mechanics.entitycontrol.client.ClientEntityController;
 
 import net.minecraft.network.RegistryFriendlyByteBuf;
 import net.minecraft.network.codec.ByteBufCodecs;
@@ -10,9 +11,10 @@ import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.network.protocol.common.custom.CustomPacketPayload;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.Entity;
+import net.minecraft.world.entity.LivingEntity;
 import net.neoforged.neoforge.network.handling.IPayloadContext;
 
-public record SetClientControllerPacket(int targetId, String controllerType) implements CustomPacketPayload {
+public record SetClientControllerPacket(int targetId, int controllerId, Optional<String> controllerType) implements CustomPacketPayload {
 	private static CustomPacketPayload.Type<SetClientControllerPacket> type;
 
 	public static class Handler implements PacketsRegister.PacketCodecHandler<SetClientControllerPacket> {
@@ -34,17 +36,17 @@ public record SetClientControllerPacket(int targetId, String controllerType) imp
 
 		public static final StreamCodec<RegistryFriendlyByteBuf, SetClientControllerPacket> STREAM_CODEC = StreamCodec.composite(
 				ByteBufCodecs.INT, SetClientControllerPacket::targetId,
-				ByteBufCodecs.STRING_UTF8, SetClientControllerPacket::controllerType,
+				ByteBufCodecs.INT, SetClientControllerPacket::controllerId,
+				ByteBufCodecs.STRING_UTF8.apply(ByteBufCodecs::optional), SetClientControllerPacket::controllerType,
 				SetClientControllerPacket::new);
 
 		@Override
 		public void handle(SetClientControllerPacket packet, IPayloadContext context) {
 			Entity target = ClientProxy.getEntityById(packet.targetId);
-			if (target == null) {
-				ClientEntityController.setInstance(null);
-			}
-			else {
-				ClientEntityController.onPacket(packet, target);
+			Entity ctrlEntity = ClientProxy.getEntityById(packet.controllerId);
+			
+			if (ctrlEntity instanceof LivingEntity controller) {
+				EntityComponentController.setControlTarget(controller, target, packet.controllerType.orElse(null));
 			}
 		}
 

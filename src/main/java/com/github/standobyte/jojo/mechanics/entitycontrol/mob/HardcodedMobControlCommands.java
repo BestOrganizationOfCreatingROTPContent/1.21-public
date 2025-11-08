@@ -66,6 +66,10 @@ public class HardcodedMobControlCommands {
 	}
 	
 	
+	/**
+	 * Ticks the parts of the mob AI that are still supposed to tick even when the mob is being controlled by a player.
+	 * I.e. piglin zombification, mob attack cooldowns, etc.
+	 */
 	public static void serverTickControlledMob(Mob mob, boolean isHoldingRMB) {
 		switch (mob) {
 			case AbstractPiglin piglin -> {

@@ -6,7 +6,9 @@ import com.github.standobyte.jojo.core.event.RipplesAbilityKeyPressEvent;
 import com.github.standobyte.jojo.init.ModDataAttachmentTypes;
 import com.github.standobyte.jojo.init.power.ModStandAbilities;
 import com.github.standobyte.jojo.jojoimpl.stands._entitybase.StandEntityManualControlToggle;
-import com.github.standobyte.jojo.mechanics.entitycontrol.ServerEntityController;
+import com.github.standobyte.jojo.mechanics.entitycontrol.EntityComponentController;
+import com.github.standobyte.jojo.mechanics.entitycontrol.client.ClientEntityController;
+import com.github.standobyte.jojo.mechanics.entitycontrol.client.mob.ClientMobController;
 import com.github.standobyte.jojo.mechanics.possessionv2.LivingComponentPossession;
 import com.github.standobyte.jojo.powersystem.PowerClass;
 import com.github.standobyte.jojo.powersystem.ability.Ability;
@@ -35,14 +37,16 @@ public class HierophantPuppetEffect extends StandEffectInstance {
 
 	@Override
 	protected void start() {
-		if (!level.isClientSide()) {
+		if (!level.isClientSide() || user == ClientProxy.getClientPlayer()) {
 			LivingEntity targetEntity = getTargetLiving();
 			if (targetEntity != null) {
 				StandPower standPower = getUserPower();
 				StandEntity hierophant = standPower.getSummonedStandEntity();
 				if (hierophant != null) {
-					LivingComponentPossession.setPossessionTarget(hierophant, targetEntity, "hierophant");
-					hierophant.setCanFollowUser(false);
+					if (!level.isClientSide()) {
+						LivingComponentPossession.setPossessionTarget(hierophant, targetEntity, "hierophant");
+						hierophant.setCanFollowUser(false);
+					}
 					setMobControl(true);
 				}
 			}
@@ -51,15 +55,6 @@ public class HierophantPuppetEffect extends StandEffectInstance {
 
 	@Override
 	protected void tick() {
-//		if (!level.isClientSide() || user == ClientProxy.getClientPlayer()) {
-//			StandEntity hierophant = getUserPower().getSummonedStandEntity();
-//			if (hierophant != null) {
-//				LivingComponentPossession possession = ComponentUtil.getExistingDataOrNull(hierophant, ModDataAttachmentTypes.ENTITY_POSSESSION);
-//				if (possession != null) {
-//					possession.updatePosition();
-//				}
-//			}
-//		}
 	}
 
 	@Override
@@ -71,9 +66,7 @@ public class HierophantPuppetEffect extends StandEffectInstance {
 			StandEntity hierophant = getUserPower().getSummonedStandEntity();
 			if (hierophant != null) {
 				boolean wasInMobControl = hierophant.getStandFlag(StandFlag.MANUAL_CONTROL);
-				if (!level.isClientSide()) {
-					setMobControl(false);
-				}
+				setMobControl(false);
 				
 				LivingComponentPossession possession = ComponentUtil.getExistingDataOrNull(hierophant, ModDataAttachmentTypes.ENTITY_POSSESSION);
 				if (possession != null) {
@@ -97,21 +90,33 @@ public class HierophantPuppetEffect extends StandEffectInstance {
 	public void setMobControl(boolean control) {
 		LivingEntity user = getStandUser();
 		
-		if (control) {
-			if (getTargetLiving() instanceof Mob targetMob) {
-				ServerEntityController.setServerControlTarget(user, targetMob, "mob");
+		if (!user.level().isClientSide()) {
+			if (control) {
+				if (getTargetLiving() instanceof Mob targetMob) {
+					EntityComponentController.setControlTarget(user, targetMob, "mob");
+				}
+			}
+			else {
+				EntityComponentController component = ComponentUtil.getExistingDataOrNull(user, ModDataAttachmentTypes.CONTROLLER);
+				if (component != null) {
+					component.stopControlling();
+				}
+			}
+			
+			StandEntity hierophant = getUserPower().getSummonedStandEntity();
+			if (hierophant != null) {
+				hierophant.setManuallyControlled(control);
 			}
 		}
-		else {
-			ServerEntityController component = ComponentUtil.getExistingDataOrNull(user, ModDataAttachmentTypes.CONTROLLER);
-			if (component != null) {
-				component.stopControlling(true);
+		else if (user == ClientProxy.getClientPlayer()) {
+			if (control) {
+				if (getTargetLiving() instanceof Mob targetMob) {
+					ClientEntityController.setInstance(new ClientMobController(targetMob));
+				}
 			}
-		}
-		
-		StandEntity hierophant = getUserPower().getSummonedStandEntity();
-		if (hierophant != null) {
-			hierophant.setManuallyControlled(control);
+			else {
+				ClientEntityController.setInstance(null);
+			}
 		}
 	}
 
@@ -131,11 +136,9 @@ public class HierophantPuppetEffect extends StandEffectInstance {
 				if (puppeting != null) {
 					event.setCanceled(true);
 					
-					if (!user.level().isClientSide()) {
-						StandEntity stand = StandUtil.getSummonedStand(user);
-						if (stand != null) {
-							puppeting.setMobControl(!stand.isManuallyControlled());
-						}
+					StandEntity stand = StandUtil.getSummonedStand(user);
+					if (stand != null) {
+						puppeting.setMobControl(!stand.getStandFlag(StandEntity.StandFlag.MANUAL_CONTROL));
 					}
 				}
 			}

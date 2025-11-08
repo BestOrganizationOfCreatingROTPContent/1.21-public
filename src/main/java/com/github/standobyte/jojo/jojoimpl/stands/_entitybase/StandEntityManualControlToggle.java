@@ -3,7 +3,7 @@ package com.github.standobyte.jojo.jojoimpl.stands._entitybase;
 import com.github.standobyte.jojo.client.ClientProxy;
 import com.github.standobyte.jojo.client.input.InputHandler;
 import com.github.standobyte.jojo.init.ModDataAttachmentTypes;
-import com.github.standobyte.jojo.mechanics.entitycontrol.ServerEntityController;
+import com.github.standobyte.jojo.mechanics.entitycontrol.EntityComponentController;
 import com.github.standobyte.jojo.mechanics.entitycontrol.client.ClientEntityController;
 import com.github.standobyte.jojo.mechanics.entitycontrol.client.stand.ClientStandController;
 import com.github.standobyte.jojo.powersystem.ability.Ability;
@@ -60,7 +60,7 @@ public class StandEntityManualControlToggle extends Ability {
 			}
 		}
 		else {
-			ServerEntityController.setServerControlTarget(user, stand, "stand");
+			EntityComponentController.setControlTarget(user, stand, "stand");
 		}
 	}
 	
@@ -74,9 +74,9 @@ public class StandEntityManualControlToggle extends Ability {
 			}
 		}
 		else {
-			ServerEntityController component = ComponentUtil.getExistingDataOrNull(user, ModDataAttachmentTypes.CONTROLLER);
+			EntityComponentController component = ComponentUtil.getExistingDataOrNull(user, ModDataAttachmentTypes.CONTROLLER);
 			if (component != null) {
-				component.stopControlling(false);
+				component.stopControlling();
 			}
 		}
 	}

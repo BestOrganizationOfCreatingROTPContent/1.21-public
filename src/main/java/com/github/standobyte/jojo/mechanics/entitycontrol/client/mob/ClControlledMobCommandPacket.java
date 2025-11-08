@@ -1,7 +1,7 @@
 package com.github.standobyte.jojo.mechanics.entitycontrol.client.mob;
 
 import com.github.standobyte.jojo.core.PacketsRegister;
-import com.github.standobyte.jojo.mechanics.entitycontrol.ServerEntityController;
+import com.github.standobyte.jojo.mechanics.entitycontrol.EntityComponentController;
 import com.github.standobyte.jojo.mechanics.entitycontrol.mob.HardcodedMobControlCommands;
 import com.github.standobyte.jojo.mechanics.entitycontrol.mob.HardcodedMobControlCommands.CommandType;
 import com.github.standobyte.jojo.mechanics.entityuseitem.HitResultSync;
@@ -54,7 +54,7 @@ public record ClControlledMobCommandPacket(CommandType commandType, int slot, Hi
 		public void handle(ClControlledMobCommandPacket packet, IPayloadContext context) {
 			ServerPlayer player = (ServerPlayer) context.player();
 			
-			Entity curControlTarget = ServerEntityController.getControlTarget(player);
+			Entity curControlTarget = EntityComponentController.getControlTarget(player);
 			if (curControlTarget instanceof Mob mob) {
 				HitResult target = packet.target().resolveEntity(player.level());
 				HardcodedMobControlCommands.onHotbarPacket(mob, packet.commandType, packet.slot, target);

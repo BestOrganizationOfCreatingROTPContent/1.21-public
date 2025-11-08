@@ -1,7 +1,7 @@
 package com.github.standobyte.jojo.mechanics.entitycontrol.client.mob;
 
 import com.github.standobyte.jojo.core.PacketsRegister;
-import com.github.standobyte.jojo.mechanics.entitycontrol.ServerEntityController;
+import com.github.standobyte.jojo.mechanics.entitycontrol.EntityComponentController;
 import com.github.standobyte.jojo.mechanics.entitycontrol.mob.MobControlUtil;
 import com.github.standobyte.jojo.mixin.entitycontrol.mob.accessors.EntityFallDamageInvoker;
 import com.google.common.primitives.Floats;
@@ -64,7 +64,7 @@ public record ClMobControlMovementPacket(int entityId, double x, double y, doubl
 				player.connection.disconnect(Component.translatable("multiplayer.disconnect.invalid_vehicle_movement"));
 			}
 			
-			Entity curControlTarget = ServerEntityController.getControlTarget(player);
+			Entity curControlTarget = EntityComponentController.getControlTarget(player);
 			if (curControlTarget != null && curControlTarget.getId() == packet.entityId) {
 				manualControlPacket(MobControlUtil.getMobOrMobVehicle(curControlTarget), packet);
 			}
