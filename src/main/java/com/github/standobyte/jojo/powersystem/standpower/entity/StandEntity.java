@@ -945,14 +945,14 @@ public class StandEntity extends LivingEntity implements SummonedStand, IEntityW
 					motionVec.x / 2 - knockbackVec.x, 
 					this.onGround() ? Math.min(0.4, motionVec.y / 2 + strength) : motionVec.y, 
 					motionVec.z / 2 - knockbackVec.z);
-			RipplesModifiedDamageSource.afterKnockbackApplied(this, curDamage);
+			RipplesModifiedDamageSource.afterKnockbackApplied(this, curDamage != null ? curDamage.getSource() : null);
 		}
 
 		if (healthLinkedWithUser) {
 			LivingEntity user = getUser();
 			if (user != null && user.isAlive()) {
 				user.knockback(strength, xRatio, zRatio);
-				RipplesModifiedDamageSource.afterKnockbackApplied(user, curDamage);
+				RipplesModifiedDamageSource.afterKnockbackApplied(user, curDamage != null ? curDamage.getSource() : null);
 				user.hurtMarked = true;
 			}
 		}

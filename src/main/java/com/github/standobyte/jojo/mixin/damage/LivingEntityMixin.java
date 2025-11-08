@@ -62,10 +62,8 @@ public abstract class LivingEntityMixin extends Entity {
 			target = "setDeltaMovement", 
 			shift = At.Shift.AFTER))
 	public void jojo_ripples$modifyKnockback(CallbackInfo ci) {
-		if (!damageContainers.isEmpty()) {
-			DamageContainer curDamage = damageContainers.peek();
-			RipplesModifiedDamageSource.afterKnockbackApplied((LivingEntity) (Entity) this, curDamage);
-		}
+		DamageSource curDamage = !damageContainers.isEmpty() ? damageContainers.peek().getSource() : null;
+		RipplesModifiedDamageSource.afterKnockbackApplied((LivingEntity) (Entity) this, curDamage);
 	}
 	
 }
