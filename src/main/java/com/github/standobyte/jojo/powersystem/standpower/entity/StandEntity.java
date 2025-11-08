@@ -804,6 +804,11 @@ public class StandEntity extends LivingEntity implements SummonedStand, IEntityW
 		return !onlyVisibleToStandUsers();
 	}
 	
+	@Override
+	public boolean canBeSeenByAnyone() {
+		return isVisibleForAll() && super.canBeSeenByAnyone();
+	}
+	
 	
 	@Override
 	public void push(Entity entity) {}
