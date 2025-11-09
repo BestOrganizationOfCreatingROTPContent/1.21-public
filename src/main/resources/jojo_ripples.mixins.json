@@ -11,6 +11,8 @@
     "grab.LivingEntityMixin",
 
 	"npc.LivingEntityAccessor",
+	"npc.InventoryAccessor",
+	"npc.PlayerAccessor",
     
 	"entitycontrol.mob.MobAIMixin",
 	"entitycontrol.mob.EntityEffectiveAIMixin",

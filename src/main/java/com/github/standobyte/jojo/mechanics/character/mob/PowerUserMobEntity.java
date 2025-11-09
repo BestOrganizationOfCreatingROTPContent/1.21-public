@@ -8,10 +8,13 @@ import com.github.standobyte.jojo.init.core.ModEntityDataSerializers;
 import com.github.standobyte.jojo.mechanics.inheritancesucks.EntityAsPlayerWrapper;
 import com.github.standobyte.jojo.mechanics.inheritancesucks.RemoteClientPlayerLivingWrapper;
 import com.github.standobyte.jojo.mechanics.inheritancesucks.ServerPlayerLivingWrapper;
+import com.github.standobyte.jojo.mixin.npc.PlayerAccessor;
 import com.github.standobyte.jojo.util.NBTUtil;
 
 import net.minecraft.nbt.CompoundTag;
+import net.minecraft.nbt.ListTag;
 import net.minecraft.nbt.NbtOps;
+import net.minecraft.nbt.Tag;
 import net.minecraft.network.syncher.EntityDataAccessor;
 import net.minecraft.network.syncher.SynchedEntityData;
 import net.minecraft.server.level.ServerLevel;
@@ -23,6 +26,7 @@ import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.EquipmentSlot;
 import net.minecraft.world.entity.ExperienceOrb;
 import net.minecraft.world.entity.Mob;
+import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.component.ResolvableProfile;
 import net.minecraft.world.level.Level;
@@ -74,7 +78,11 @@ public class PowerUserMobEntity extends Mob {
 			this.playerWrapper = RemoteClientPlayerLivingWrapper.create(this);
 			this.clientStuff = level.isClientSide() ? new ClientHumanoidCharacterStuff() : null;
 		}
-		setPersistenceRequired();
+		Player fakePlayerEntity = this.playerWrapper.asPlayer();
+		PlayerAccessor fakePlayerEntityAccess = (PlayerAccessor) fakePlayerEntity;
+		fakePlayerEntityAccess.setInventory(new MobAsPlayerInventory(fakePlayerEntity, this));
+		
+		this.setPersistenceRequired();
 	}
 
 	public PowerUserMobEntity(Level level) {
@@ -138,6 +146,9 @@ public class PowerUserMobEntity extends Mob {
 			playerData.putInt("XpTotal", player.totalExperience);
 //			playerData.putInt("XpSeed", player.enchantmentSeed);
 			
+			ListTag inventoryNbt = player.getInventory().save(new ListTag());
+			playerData.put("Inventory", inventoryNbt);
+			
 			compound.put("Player", playerData);
 		}
 		
@@ -161,6 +172,11 @@ public class PowerUserMobEntity extends Mob {
 				player.experienceLevel = playerData.getInt("XpLevel");
 				player.totalExperience = playerData.getInt("XpTotal");
 //				player.enchantmentSeed = playerData.getInt("XpSeed");
+
+				ListTag inventoryNbt = playerData.getList("Inventory", Tag.TAG_COMPOUND);
+				if (!inventoryNbt.isEmpty()) {
+					player.getInventory().load(inventoryNbt);
+				}
 			}
 		}
 		
@@ -255,11 +271,14 @@ public class PowerUserMobEntity extends Mob {
 	@Override
 	protected void dropEquipment() {
 		super.dropEquipment();
-//		PlayerLikeMobData data = ComponentUtil.getExistingDataOrNull(this, ModDataAttachmentTypes.PLAYER_LIKE_DATA);
-//		if (data != null && data.inventory != null) {
-//			CharacterMobInventory.destroyVanishingCursedItems(data.inventory);
-//			data.inventory.dropAll();
-//		}
+		
+		if (playerWrapper != null) {
+			Player fakePlayer = playerWrapper.asPlayer();
+			Inventory inventory = fakePlayer.getInventory();
+
+			((PlayerAccessor) fakePlayer).invokeDestroyVanishingCursedItems();
+			inventory.dropAll();
+		}
 	}
 
 
