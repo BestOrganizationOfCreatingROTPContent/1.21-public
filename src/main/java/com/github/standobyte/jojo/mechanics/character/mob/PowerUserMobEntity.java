@@ -19,6 +19,9 @@ import net.minecraft.network.syncher.EntityDataAccessor;
 import net.minecraft.network.syncher.SynchedEntityData;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.sounds.SoundEvents;
+import net.minecraft.util.Mth;
+import net.minecraft.world.InteractionHand;
 import net.minecraft.world.damagesource.DamageSource;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EntitySelector;
@@ -28,10 +31,12 @@ import net.minecraft.world.entity.ExperienceOrb;
 import net.minecraft.world.entity.Mob;
 import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.component.ResolvableProfile;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec3;
+import net.neoforged.neoforge.common.ItemAbilities;
 import net.neoforged.neoforge.entity.XpOrbTargetingEvent;
 
 // TODO (character mob) player mechanics
@@ -186,6 +191,18 @@ public class PowerUserMobEntity extends Mob {
 			});
 		});
 	}
+	
+	// Some pseudo AI, just for testing
+	
+	protected MobItemManageAI foo = new MobItemManageAI();
+	
+	@Override
+	protected void customServerAiStep() {
+		if (playerWrapper != null) {
+			Player asPlayer = playerWrapper.asPlayer();
+			foo.customServerAiStep(this, asPlayer);
+		}
+	}
 
 
 	// Disabling any form of despawning
@@ -278,6 +295,43 @@ public class PowerUserMobEntity extends Mob {
 
 			((PlayerAccessor) fakePlayer).invokeDestroyVanishingCursedItems();
 			inventory.dropAll();
+		}
+	}
+
+	@Override
+	protected void hurtArmor(DamageSource damageSource, float damage) {
+		this.doHurtEquipment(damageSource, damage, new EquipmentSlot[]{EquipmentSlot.FEET, EquipmentSlot.LEGS, EquipmentSlot.CHEST, EquipmentSlot.HEAD});
+	}
+
+	@Override
+	protected void hurtHelmet(DamageSource damageSource, float damageAmount) {
+		this.doHurtEquipment(damageSource, damageAmount, new EquipmentSlot[]{EquipmentSlot.HEAD});
+	}
+
+	@Override
+	protected void hurtCurrentlyUsedShield(float damage) {
+		if (this.useItem.canPerformAction(ItemAbilities.SHIELD_BLOCK)) {
+			if (damage >= 3.0F) {
+				int i = 1 + Mth.floor(damage);
+				InteractionHand interactionhand = this.getUsedItemHand();
+				if (this.level() instanceof ServerLevel serverlevel && !hasInfiniteMaterials()) {
+					this.useItem.hurtAndBreak(i, serverlevel, this, item -> {
+						this.onEquippedItemBroken(item, getSlotForHand(interactionhand));
+//						net.neoforged.neoforge.event.EventHooks.onPlayerDestroyItem(this, this.useItem, interactionhand);
+						stopUsingItem(); // Neo: Fix MC-168573 ("After breaking a shield, the player's off-hand can't finish using some items")
+					});
+				}
+				if (this.useItem.isEmpty()) {
+					if (interactionhand == InteractionHand.MAIN_HAND) {
+						this.setItemSlot(EquipmentSlot.MAINHAND, ItemStack.EMPTY);
+					} else {
+						this.setItemSlot(EquipmentSlot.OFFHAND, ItemStack.EMPTY);
+					}
+
+					this.useItem = ItemStack.EMPTY;
+					this.playSound(SoundEvents.SHIELD_BREAK, 0.8F, 0.8F + this.level().random.nextFloat() * 0.4F);
+				}
+			}
 		}
 	}
 
