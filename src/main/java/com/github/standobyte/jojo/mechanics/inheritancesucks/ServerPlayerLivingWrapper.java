@@ -1,8 +1,8 @@
-package com.github.standobyte.jojo.mechanics.entityuseitem;
+package com.github.standobyte.jojo.mechanics.inheritancesucks;
 
 import javax.annotation.Nullable;
 
-import com.github.standobyte.jojo.util.EntityWrapper;
+import com.github.standobyte.jojo.mixin.npc.LivingEntityAccessor;
 import com.mojang.authlib.GameProfile;
 
 import net.minecraft.network.chat.Component;
@@ -24,7 +24,7 @@ import net.neoforged.neoforge.common.util.FakePlayer;
  * This is not meant to be added to the world, but to be used as a parameter for Item methods like Item#use(Level, Player, InteractionHand).
  * Friendship ended with object-oriented programming.
  */
-public class ServerPlayerLivingWrapper extends FakePlayer implements EntityWrapper {
+public class ServerPlayerLivingWrapper extends FakePlayer implements EntityAsPlayerWrapper {
 
 	public static ServerPlayerLivingWrapper create(LivingEntity actualEntity, @Nullable ServerPlayer playerStandUser) {
 		ServerLevel level = (ServerLevel) (actualEntity.level());
@@ -35,7 +35,7 @@ public class ServerPlayerLivingWrapper extends FakePlayer implements EntityWrapp
 		fakePl.setUUID(actualEntity.getUUID());
 		fakePl.setId(actualEntity.getId());
 
-		setData(actualEntity, fakePl);
+		copyData(actualEntity, fakePl);
 		linkMutableData(actualEntity, fakePl);
 		
 		Inventory fakeInventory = fakePl.getInventory();
@@ -48,7 +48,23 @@ public class ServerPlayerLivingWrapper extends FakePlayer implements EntityWrapp
 		return fakePl;
 	}
 
-	public static void setData(LivingEntity from, LivingEntity to) {
+
+	protected LivingEntity actualEntity;
+	protected @Nullable ServerPlayer playerStandUser;
+
+	protected ServerPlayerLivingWrapper(LivingEntity actualEntity, @Nullable ServerPlayer playerStandUser, 
+			ServerLevel level, GameProfile gameProfile) {
+		super(level, gameProfile);
+		this.actualEntity = actualEntity;
+		this.playerStandUser = playerStandUser;
+	}
+
+	@Override
+	public Entity getEntity() {
+		return actualEntity;
+	}
+
+	public static void copyData(LivingEntity from, LivingEntity to) {
 //		to.dimensions = from.dimensions;
 //		to.eyeHeight = from.eyeHeight;
 		to.setPos(from.position());
@@ -71,29 +87,31 @@ public class ServerPlayerLivingWrapper extends FakePlayer implements EntityWrapp
 		to.moveDist = from.moveDist;
 		to.flyDist = from.flyDist;
 		to.fallDistance = from.fallDistance;
+		
+		to.tickCount = from.tickCount;
+
+		// synched entity data:
+//		DATA_LIVING_ENTITY_FLAGS
+//		DATA_EFFECT_PARTICLES
+//		DATA_EFFECT_AMBIENCE_ID
+//		DATA_ARROW_COUNT_ID
+//		DATA_STINGER_COUNT_ID
+		to.setHealth(from.getHealth());
+//		SLEEPING_POS_ID
 	}
 
 	public static void linkMutableData(LivingEntity from, LivingEntity to) {
-//		to.attributes = from.attributes;
-//		to.combatTracker = from.combatTracker;
-//		to.activeEffects = from.activeEffects;
-//		to.entityData = from.entityData;
+		LivingEntityAccessor _from = (LivingEntityAccessor) from;
+		LivingEntityAccessor _to = (LivingEntityAccessor) to;
+		_to.setAttributes(_from.getAttributes());
+		_to.setCombatTracker(_from.getCombatTracker());
+		// FIXME !!!!!!!!!!!!!!!!!!!!!!!! THEY WILL TICK TWICE YOU DUMBASS
+		_to.setActiveEffects(_from.getActiveEffects());
 	}
-
-	protected ServerPlayerLivingWrapper(LivingEntity actualEntity, @Nullable ServerPlayer playerStandUser, 
-			ServerLevel level, GameProfile gameProfile) {
-		super(level, gameProfile);
-		this.actualEntity = actualEntity;
-		this.playerStandUser = playerStandUser;
-	}
-
-
-	protected LivingEntity actualEntity;
-	protected @Nullable ServerPlayer playerStandUser;
-
-	@Override
-	public Entity getEntity() {
-		return actualEntity;
+	
+	protected void updateUseItem() {
+		this.useItem = actualEntity.getUseItem();
+		this.useItemRemaining = actualEntity.getUseItemRemainingTicks();
 	}
 
 	@Override
@@ -138,11 +156,6 @@ public class ServerPlayerLivingWrapper extends FakePlayer implements EntityWrapp
 	@Override
     public int getUseItemRemainingTicks() {
 		return actualEntity.getUseItemRemainingTicks();
-	}
-	
-	protected void updateUseItem() {
-		this.useItem = actualEntity.getUseItem();
-		this.useItemRemaining = actualEntity.getUseItemRemainingTicks();
 	}
 
 	

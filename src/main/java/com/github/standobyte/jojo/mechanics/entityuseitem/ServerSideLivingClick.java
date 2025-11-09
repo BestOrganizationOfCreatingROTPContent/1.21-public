@@ -2,6 +2,7 @@ package com.github.standobyte.jojo.mechanics.entityuseitem;
 
 import javax.annotation.Nullable;
 
+import com.github.standobyte.jojo.mechanics.inheritancesucks.ServerPlayerLivingWrapper;
 import com.github.standobyte.jojo.util.mc.AttributeUtil;
 
 import net.minecraft.ChatFormatting;

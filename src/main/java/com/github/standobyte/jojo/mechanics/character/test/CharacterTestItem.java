@@ -38,6 +38,7 @@ public class CharacterTestItem extends Item {
 				PowerUserMobEntity entity = new PowerUserMobEntity(serverLevel);
 				entity.setCustomName(Component.literal(name));
 				entity.copyPosition(player);
+				entity.setLeftHanded(level.getRandom().nextFloat() < 0.05f);
 				entity.getEntityData().set(PowerUserMobEntity.DATA_PROFILE, Optional.of(new ResolvableProfile(Optional.of(name), Optional.empty(), new PropertyMap())));
 				serverLevel.addFreshEntity(entity);
 			}

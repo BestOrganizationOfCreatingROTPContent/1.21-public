@@ -12,7 +12,7 @@ import org.spongepowered.asm.mixin.injection.ModifyVariable;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
 import com.github.standobyte.jojo.mechanics.entityuseitem.StandCallbackWhenShooting;
-import com.github.standobyte.jojo.util.EntityWrapper;
+import com.github.standobyte.jojo.mechanics.inheritancesucks.EntityAsPlayerWrapper;
 import com.github.standobyte.jojo.util.StandUtil;
 
 import net.minecraft.world.entity.Entity;
@@ -34,7 +34,7 @@ public abstract class ProjectileMixin extends Entity implements TraceableEntity 
 
 	@ModifyVariable(method = "setOwner", at = @At("HEAD"), argsOnly = true, ordinal = 0)
 	public Entity jojo_ripples$setActualOwner(@Nullable Entity owner) {
-		if (owner instanceof EntityWrapper wrapper) {
+		if (owner instanceof EntityAsPlayerWrapper wrapper) {
 			return wrapper.getEntity();
 		}
 		return owner;

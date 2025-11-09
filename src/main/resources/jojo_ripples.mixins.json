@@ -9,6 +9,8 @@
     "damage.DamageSourceMixin",
 	"damage.LivingEntityMixin",
     "grab.LivingEntityMixin",
+
+	"npc.LivingEntityAccessor",
     
 	"entitycontrol.mob.MobAIMixin",
 	"entitycontrol.mob.EntityEffectiveAIMixin",
