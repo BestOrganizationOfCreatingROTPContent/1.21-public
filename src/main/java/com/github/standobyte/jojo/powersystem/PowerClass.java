@@ -55,6 +55,10 @@ public abstract class PowerClass<P extends Power<P>> {
 	public P get(LivingEntity entity) {
 		return entity != null && entity.hasData(dataAttachment) ? entity.getData(dataAttachment) : null;
 	}
+
+	public P attachGet(LivingEntity entity) {
+		return entity.getData(dataAttachment);
+	}
 	
 	@SuppressWarnings("unchecked")
 	@Nullable

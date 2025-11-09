@@ -35,7 +35,6 @@ public final class ModEntityTypes {
 	
 	public static final DeferredHolder<EntityType<?>, EntityType<PowerUserMobEntity>> CHARACTER = ENTITY_TYPES.register("character", key -> 
 			EntityType.Builder.<PowerUserMobEntity>of(PowerUserMobEntity::new, MobCategory.MISC)
-			.noSummon()
 			.sized(0.6F, 1.8F)
 			.eyeHeight(1.62F)
 			.vehicleAttachment(Player.DEFAULT_VEHICLE_ATTACHMENT)

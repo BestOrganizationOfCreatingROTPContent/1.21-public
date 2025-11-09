@@ -3,6 +3,8 @@ package com.github.standobyte.jojo.mechanics.character.mob;
 import java.util.List;
 import java.util.Optional;
 
+import javax.annotation.Nullable;
+
 import com.github.standobyte.jojo.init.ModEntityTypes;
 import com.github.standobyte.jojo.init.core.ModEntityDataSerializers;
 import com.github.standobyte.jojo.mechanics.inheritancesucks.EntityAsPlayerWrapper;
@@ -15,13 +17,17 @@ import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.ListTag;
 import net.minecraft.nbt.NbtOps;
 import net.minecraft.nbt.Tag;
+import net.minecraft.network.chat.Component;
 import net.minecraft.network.syncher.EntityDataAccessor;
+import net.minecraft.network.syncher.EntityDataSerializers;
 import net.minecraft.network.syncher.SynchedEntityData;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.util.Mth;
+import net.minecraft.world.DifficultyInstance;
 import net.minecraft.world.InteractionHand;
+import net.minecraft.world.InteractionResult;
 import net.minecraft.world.damagesource.DamageSource;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EntitySelector;
@@ -29,11 +35,14 @@ import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.EquipmentSlot;
 import net.minecraft.world.entity.ExperienceOrb;
 import net.minecraft.world.entity.Mob;
+import net.minecraft.world.entity.MobSpawnType;
+import net.minecraft.world.entity.SpawnGroupData;
 import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.component.ResolvableProfile;
 import net.minecraft.world.level.Level;
+import net.minecraft.world.level.ServerLevelAccessor;
 import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec3;
 import net.neoforged.neoforge.common.ItemAbilities;
@@ -71,6 +80,8 @@ import net.neoforged.neoforge.entity.XpOrbTargetingEvent;
 public class PowerUserMobEntity extends Mob {
 	public static final EntityDataAccessor<Optional<ResolvableProfile>> DATA_PROFILE = SynchedEntityData.defineId(PowerUserMobEntity.class, 
 			ModEntityDataSerializers.RESOLVABLE_PROFILE_OPTIONAL.get());
+	public static final EntityDataAccessor<Boolean> IS_DEBUG_DUMMY = SynchedEntityData.defineId(PowerUserMobEntity.class, 
+			EntityDataSerializers.BOOLEAN);
 	public ClientHumanoidCharacterStuff clientStuff;
 	public EntityAsPlayerWrapper playerWrapper;
 
@@ -94,6 +105,12 @@ public class PowerUserMobEntity extends Mob {
 		this(ModEntityTypes.CHARACTER.get(), level);
 	}
 	
+	@Override
+    public boolean shouldShowName() {
+    	boolean qwe = super.shouldShowName();
+    	return qwe;
+    }
+	
 	
 	public static boolean isMobPlayerLike(Entity entity) {
 		return entity.getType() == ModEntityTypes.CHARACTER.get();
@@ -111,6 +128,7 @@ public class PowerUserMobEntity extends Mob {
 	protected void defineSynchedData(SynchedEntityData.Builder builder) {
 		super.defineSynchedData(builder);
 		builder.define(DATA_PROFILE, Optional.empty());
+		builder.define(IS_DEBUG_DUMMY, false);
 	}
 
 	@Override
@@ -162,6 +180,8 @@ public class PowerUserMobEntity extends Mob {
 				compound.put("Skin", profileNbt);
 			});
 		});
+		
+		setDummyFlag(this.getSpawnType());
 	}
 
 	@Override
@@ -337,8 +357,11 @@ public class PowerUserMobEntity extends Mob {
 
 
 	@Override
-	public boolean canUseSlot(EquipmentSlot slot) {
-		return slot != EquipmentSlot.BODY;
+	protected InteractionResult mobInteract(Player player, InteractionHand hand) {
+		if (isDebugDummy()) {
+			return DummyStuff.mobInteract(this, player, hand);
+		}
+		return super.mobInteract(player, hand);
 	}
 
 	@Override
@@ -346,10 +369,44 @@ public class PowerUserMobEntity extends Mob {
 		return false;
 	}
 
+
+	@Override
+	public boolean canUseSlot(EquipmentSlot slot) {
+		return slot != EquipmentSlot.BODY;
+	}
+	
 	@Override
 	public boolean canAttackType(EntityType<?> type) {
 		return true;
 	}
 
+
+	@Override
+	public SpawnGroupData finalizeSpawn(ServerLevelAccessor level, DifficultyInstance difficulty, MobSpawnType spawnType, @Nullable SpawnGroupData spawnGroupData) {
+		var ret = super.finalizeSpawn(level, difficulty, spawnType, spawnGroupData);
+		setDummyFlag(spawnType);
+		return ret;
+	}
+
+	public void setDummyFlag(MobSpawnType spawnType) {
+		entityData.set(IS_DEBUG_DUMMY, spawnType == MobSpawnType.COMMAND);
+	}
+	
+	public boolean isDebugDummy() {
+		return entityData.get(IS_DEBUG_DUMMY);
+	}
+
+
+	// prevents name tags from working on actual characters
+	@Override
+	public void setCustomName(@Nullable Component name) {
+		if (isDebugDummy()) {
+			super.setCustomName(name);
+		}
+	}
+
+	public void setCharacterName(@Nullable Component name) {
+		super.setCustomName(name);
+	}
 
 }

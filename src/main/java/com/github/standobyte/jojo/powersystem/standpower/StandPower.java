@@ -163,6 +163,8 @@ public class StandPower extends Power<StandPower> implements PostNbtReadEntityDa
 		}
 	}
 	
+	public void skipProgression() {}
+	
 	
 	public boolean usesStamina() {
 		return hasPower() ? getPowerType().usesStamina(this) : false;

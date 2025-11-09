@@ -47,13 +47,63 @@ public class CharacterMobRenderer<T extends PowerUserMobEntity> extends LivingEn
 	}
 
 	@Override
-	public void render(T entity, float entityYaw, float partialTicks, PoseStack poseStack, MultiBufferSource buffer, int packedLight) {
+	public void render(T entity, float entityYaw, float partialTick, PoseStack poseStack, MultiBufferSource buffer, int packedLight) {
 		PlayerSkin.Model modelType = entity.clientStuff.getModelType(entity);
 		this.model = switch (modelType) {
 			case WIDE -> regularPlayerModel;
 			case SLIM -> slimPlayerModel;
 		};
-		super.render(entity, entityYaw, partialTicks, poseStack, buffer, packedLight);
+		super.render(entity, entityYaw, partialTick, poseStack, buffer, packedLight);
+		
+		if (entity.isDebugDummy()) {
+			renderDummyStuff(entity, partialTick, poseStack, buffer, packedLight, entityRenderDispatcher);
+		}
+	}
+
+	@Override
+	protected boolean shouldShowName(T entity) {
+		return super.shouldShowName(entity) && entity.hasCustomName();
+	}
+
+	public void renderDummyStuff(T entity, float partialTick, PoseStack poseStack, MultiBufferSource buffer, int packedLight, EntityRenderDispatcher entityRenderDispatcher) {
+		poseStack.pushPose();
+		poseStack.translate(0, -0.25, 0);
+
+		if (Minecraft.renderNames() && entity == entityRenderDispatcher.crosshairPickEntity) {
+			StandPower stand = StandPower.get(entity);
+			if (stand != null && stand.hasPower()) {
+				poseStack.translate(0, 0.25, 0);
+				float staminaRatio = stand.getStamina() / stand.getMaxStamina();
+				float staminaCondition = 0.25F + Math.min(staminaRatio * 1.5F, 0.75F);
+				int color = FastColor.ARGB32.colorFromFloat(1, 1 - staminaCondition, staminaCondition, 0f);
+				renderNameTag(entity, 
+						Component.translatable("Stamina: %s", 
+								Component.translatable(String.format("%.2f%%", staminaRatio * 100)).withStyle(style -> style.withColor(color))), 
+						poseStack, buffer, packedLight, partialTick);
+
+				poseStack.translate(0, 0.25, 0);
+				float resolveRatio = stand.getResolve() / stand.getMaxResolve();
+				int level = stand.getCurTypeData().getResolveReached();
+				renderNameTag(entity, 
+						Component.translatable(String.format("Resolve: %.2f%% (level %d)", resolveRatio * 100, level)), 
+						poseStack, buffer, packedLight, partialTick);
+
+				poseStack.translate(0, 0.25, 0);
+				renderNameTag(entity, 
+						stand.getName(), 
+						poseStack, buffer, packedLight, partialTick);
+			}
+		}
+
+		DecimalFormat format = new DecimalFormat("#.##");
+		poseStack.translate(0, 0.25, 0);
+		String hp = format.format(entity.getHealth());
+		String maxHp = format.format(entity.getMaxHealth());
+		renderNameTag(entity, 
+				Component.translatable("❤ " + hp + "/" + maxHp), 
+				poseStack, buffer, packedLight, partialTick);
+
+		poseStack.popPose();
 	}
 
 	@Override
