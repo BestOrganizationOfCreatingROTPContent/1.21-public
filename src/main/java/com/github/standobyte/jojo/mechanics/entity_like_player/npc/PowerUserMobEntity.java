@@ -50,10 +50,6 @@ import net.neoforged.neoforge.entity.XpOrbTargetingEvent;
 
 // TODO (character mob) player mechanics
 /*
- * inventory
- * food data
- * picking up items
- * xp
  * ...
  * swimming, crawling, sneaking
  * ...
