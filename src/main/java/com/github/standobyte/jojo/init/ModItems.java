@@ -10,7 +10,6 @@ import com.github.standobyte.jojo.core.JojoRegistries;
 import com.github.standobyte.jojo.mc.item.DebugItem;
 import com.github.standobyte.jojo.mc.item.StandDiscItem;
 import com.github.standobyte.jojo.mechanics.StoryPart;
-import com.github.standobyte.jojo.mechanics.character.test.CharacterTestItem;
 import com.github.standobyte.jojo.mechanics.clothes.ClothesItem;
 import com.github.standobyte.jojo.mechanics.clothes.itemdata.ClothesDataComponent;
 import com.github.standobyte.jojo.mechanics.clothes.itemdata.ClothesPiece;
@@ -19,6 +18,7 @@ import com.github.standobyte.jojo.mechanics.clothes.itemdata.ClothesSlotType;
 import com.github.standobyte.jojo.mechanics.clothes.mannequin.MannequinItem;
 import com.github.standobyte.jojo.powersystem.standpower.StandInstance;
 import com.github.standobyte.jojo.powersystem.standpower.type.StandType;
+import com.github.standobyte.jojo.tmp.charactertest.CharacterTestItem;
 
 import net.minecraft.core.HolderLookup;
 import net.minecraft.core.registries.Registries;

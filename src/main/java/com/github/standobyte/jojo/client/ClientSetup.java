@@ -9,7 +9,7 @@ import com.github.standobyte.jojo.client.ui.hud.marker.StandAimMarker;
 import com.github.standobyte.jojo.client.ui.jojomenu.JojoMenuTabs;
 import com.github.standobyte.jojo.core.JojoMod;
 import com.github.standobyte.jojo.jojoimpl.stands.crazydiamond.client.CrazyDBloodHomingMarker;
-import com.github.standobyte.jojo.mechanics.entitycontrol.client.stand.StandHudElements;
+import com.github.standobyte.jojo.mechanics.entity_like_player.puppetcontrol.client.stand.StandHudElements;
 
 import net.minecraft.client.Minecraft;
 import net.neoforged.api.distmarker.Dist;

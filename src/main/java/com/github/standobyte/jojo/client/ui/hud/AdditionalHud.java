@@ -1,7 +1,7 @@
 package com.github.standobyte.jojo.client.ui.hud;
 
 import com.github.standobyte.jojo.core.JojoMod;
-import com.github.standobyte.jojo.mechanics.entitycontrol.client.ClientEntityController;
+import com.github.standobyte.jojo.mechanics.entity_like_player.puppetcontrol.client.ClientEntityController;
 
 import net.minecraft.client.DeltaTracker;
 import net.minecraft.client.Minecraft;

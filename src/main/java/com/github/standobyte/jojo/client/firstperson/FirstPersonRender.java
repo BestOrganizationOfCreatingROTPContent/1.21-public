@@ -5,7 +5,7 @@ import org.joml.Matrix4f;
 import com.github.standobyte.jojo.client.entityrender.stand.HumanoidPart;
 import com.github.standobyte.jojo.client.entityrender.stand.StandEntityRenderState;
 import com.github.standobyte.jojo.client.entityrender.stand.StandEntityRenderer;
-import com.github.standobyte.jojo.mechanics.entitycontrol.client.ClientEntityController;
+import com.github.standobyte.jojo.mechanics.entity_like_player.puppetcontrol.client.ClientEntityController;
 import com.github.standobyte.jojo.mechanics.possessionv2.LivingComponentPossession;
 import com.github.standobyte.jojo.powersystem.standpower.entity.StandEntity;
 import com.google.common.base.MoreObjects;

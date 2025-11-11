@@ -21,7 +21,7 @@ import com.github.standobyte.jojo.mc.entity.util.EntityStandVisibility;
 import com.github.standobyte.jojo.mc.entity.util.EntityWithStandSkin;
 import com.github.standobyte.jojo.mc.entity.util.HandItemsAsInventory;
 import com.github.standobyte.jojo.mc.entity.util.LivingReactToNewAction;
-import com.github.standobyte.jojo.mechanics.entitycontrol.client.ClientEntityController;
+import com.github.standobyte.jojo.mechanics.entity_like_player.puppetcontrol.client.ClientEntityController;
 import com.github.standobyte.jojo.mechanics.grab.LivingComponentGrab;
 import com.github.standobyte.jojo.powersystem.entityaction.EntityActionInstance;
 import com.github.standobyte.jojo.powersystem.entityaction.LivingComponentAction;

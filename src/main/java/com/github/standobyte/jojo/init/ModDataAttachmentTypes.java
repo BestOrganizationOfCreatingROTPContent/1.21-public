@@ -7,7 +7,7 @@ import org.jetbrains.annotations.ApiStatus;
 import com.github.standobyte.jojo.core.JojoMod;
 import com.github.standobyte.jojo.mechanics.ServerBlockDestroyTracker;
 import com.github.standobyte.jojo.mechanics.clothes.EntityClothesInventory;
-import com.github.standobyte.jojo.mechanics.entitycontrol.EntityComponentController;
+import com.github.standobyte.jojo.mechanics.entity_like_player.puppetcontrol.EntityComponentController;
 import com.github.standobyte.jojo.mechanics.grab.LivingComponentGrab;
 import com.github.standobyte.jojo.mechanics.possessionv2.LivingComponentPossession;
 import com.github.standobyte.jojo.powersystem.PowerClass;

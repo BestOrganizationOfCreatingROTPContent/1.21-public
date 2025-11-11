@@ -8,8 +8,8 @@ import com.github.standobyte.jojo.client.input.controlscheme.ClientControlScheme
 import com.github.standobyte.jojo.client.input.controlscheme.ClientControlScheme.PowerClassAbility;
 import com.github.standobyte.jojo.client.input.controlscheme.ClientKeyWrapper;
 import com.github.standobyte.jojo.core.JojoMod;
-import com.github.standobyte.jojo.mechanics.entityuseitem.ClStandClickPacket;
-import com.github.standobyte.jojo.mechanics.entityuseitem.ServerSideLivingClick;
+import com.github.standobyte.jojo.mechanics.entity_like_player.useitem.ClStandClickPacket;
+import com.github.standobyte.jojo.mechanics.entity_like_player.useitem.ServerSideLivingClick;
 import com.github.standobyte.jojo.powersystem.Power;
 import com.github.standobyte.jojo.powersystem.PowerClass;
 import com.github.standobyte.jojo.powersystem.ability.condition.AvailableAbilities;

@@ -3,7 +3,7 @@ package com.github.standobyte.jojo.jojoimpl.stands._entitybase;
 import com.github.standobyte.jojo.client.input.AbilityInputState;
 import com.github.standobyte.jojo.init.ModSoundEvents;
 import com.github.standobyte.jojo.mc.entity.projectile.ThrownNuggetBearingEntity;
-import com.github.standobyte.jojo.mechanics.entityuseitem.StandCallbackWhenShooting;
+import com.github.standobyte.jojo.mechanics.entity_like_player.useitem.StandCallbackWhenShooting;
 import com.github.standobyte.jojo.powersystem.Power;
 import com.github.standobyte.jojo.powersystem.ability.AbilityId;
 import com.github.standobyte.jojo.powersystem.ability.AbilityType;
