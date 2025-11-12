@@ -39,7 +39,7 @@ public class StandVanillaClickInput {
 			switch (keyCode) {
 				case 0 -> {} // LMB
 				case 1 -> { // RMB
-					if (standCanRightClickItems && (stand.isManuallyControlled() || !InputHandler.holdingLAlt && ServerSideLivingClick.isEntityHoldingAnItem(stand))) {
+					if (standCanRightClickItems && (stand.isManuallyControlled() || !InputHandler.inputsDisabled && ServerSideLivingClick.isEntityHoldingAnItem(stand))) {
 						event.setCanceled(true);
 						event.setSwingHand(false);
 						

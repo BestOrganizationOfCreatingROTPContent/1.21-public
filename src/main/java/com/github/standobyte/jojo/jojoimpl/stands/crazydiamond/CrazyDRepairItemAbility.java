@@ -58,7 +58,7 @@ public class CrazyDRepairItemAbility extends StandEntityAbility {
 		Screen screen = Minecraft.getInstance().screen;
 		if (screen instanceof AbstractContainerScreen invScreen) {
 			boolean active = false;
-			if (!InputHandler.holdingLAlt) {
+			if (!InputHandler.inputsDisabled) {
 				Slot hovered = invScreen.getSlotUnderMouse();
 				if (hovered != null) {
 					ItemStack item = hovered.getItem();

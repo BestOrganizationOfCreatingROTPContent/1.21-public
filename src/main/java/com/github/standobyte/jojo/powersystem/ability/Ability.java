@@ -119,7 +119,7 @@ public class Ability {
 	 */
 	public AbilityInputState cl_abilityInputState(Power<?> context) {
 		AbilityInputState state = AbilityInputState.init();
-		if (InputHandler.holdingLAlt || Minecraft.getInstance().screen != null) {
+		if (InputHandler.inputsDisabled || Minecraft.getInstance().screen != null) {
 			state.setFlag(AbilityInputState.IS_ACTIVE, false);
 			state.setFlag(AbilityInputState.VISIBLE_TRANSLUCENT, true);
 		}

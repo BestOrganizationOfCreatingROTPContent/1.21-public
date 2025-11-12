@@ -5,6 +5,7 @@ import com.mojang.blaze3d.platform.InputConstants;
 
 import it.unimi.dsi.fastutil.shorts.Short2ObjectMap;
 import it.unimi.dsi.fastutil.shorts.Short2ObjectOpenHashMap;
+import net.minecraft.client.KeyMapping;
 import net.minecraft.network.chat.Component;
 
 public class ClientKeyWrapper {
@@ -43,6 +44,11 @@ public class ClientKeyWrapper {
 	public static ClientKeyWrapper make(InputDevice device, InputConstants.Type type, int keyCode) {
 		short id = keyId(device, type, keyCode);
 		return cache.computeIfAbsent(id, _id -> new ClientKeyWrapper(_id, device, type, keyCode));
+	}
+	
+	public static ClientKeyWrapper fromVanillaKeybind(KeyMapping keyMapping) {
+		InputConstants.Key key = keyMapping.getKey();
+		return make(key.getType(), key.getValue());
 	}
 	
 	

@@ -93,9 +93,7 @@ public class InputHandler {
 		this.vanillaKeybinds = VanillaKeybinds.register(event);
 	}
 	
-	@Deprecated
-	public static boolean holdingLAlt;
-	public ClientKeyWrapper lAlt = ClientKeyWrapper.make(InputConstants.Type.KEYSYM, InputConstants.KEY_LALT);
+	public static boolean inputsDisabled;
 	
 	
 	@SubscribeEvent
@@ -105,9 +103,9 @@ public class InputHandler {
 		tickReleaseEventQueue();
 	}
 	
-	@SubscribeEvent
+	@SubscribeEvent(priority = EventPriority.HIGH)
 	public void onFrameUpdate(RenderFrameEvent.Pre event) {
-		holdingLAlt = _heldKeys.containsKey(lAlt);
+		inputsDisabled = _heldKeys.containsKey(ClientKeyWrapper.fromVanillaKeybind(vanillaKeybinds.disableHUDControls));
 		float tickDelta = mc.getTimer()/*getDeltaTracker()*/.getRealtimeDeltaTicks();
 		frameUpdateHeldKeys(tickDelta);
 	}
@@ -288,11 +286,6 @@ public class InputHandler {
 				PacketDistributor.sendToServer(ClAbilityInputPacket.releaseHold(keyId));
 			}
 		}
-	}
-	
-	@Deprecated
-	public boolean inputsDisabled() {
-		return mc.screen != null || _heldKeys.containsKey(lAlt);
 	}
 	
 	
