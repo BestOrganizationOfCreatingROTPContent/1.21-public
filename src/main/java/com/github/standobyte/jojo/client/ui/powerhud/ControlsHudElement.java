@@ -15,11 +15,12 @@ import com.github.standobyte.jojo.client.input.HeldKeyTimer;
 import com.github.standobyte.jojo.client.input.InputHandler;
 import com.github.standobyte.jojo.client.input.controlscheme.AllControlSchemes;
 import com.github.standobyte.jojo.client.input.controlscheme.ClientControlScheme;
+import com.github.standobyte.jojo.client.input.controlscheme.ClientControlScheme.AbilityControlsEntry;
 import com.github.standobyte.jojo.client.input.controlscheme.ClientControlScheme.Hotbar;
 import com.github.standobyte.jojo.client.input.controlscheme.ClientControlScheme.HotbarSlot;
-import com.github.standobyte.jojo.client.input.controlscheme.ClientControlScheme.KeyModifierMap;
-import com.github.standobyte.jojo.client.input.controlscheme.ClientControlScheme.PowerClassAbility;
-import com.github.standobyte.jojo.client.input.controlscheme.ClientKeyWrapper;
+import com.github.standobyte.jojo.client.input.controlscheme.ClientControlScheme.InputsByKeyModifier;
+import com.github.standobyte.jojo.client.input.controlscheme.ClientInputBind;
+import com.github.standobyte.jojo.client.input.controlscheme.ClientKey;
 import com.github.standobyte.jojo.client.standskin.StandSkin;
 import com.github.standobyte.jojo.client.standskin.StandSkinsLoader;
 import com.github.standobyte.jojo.client.standskin.sprites.AbilityIconSprites;
@@ -168,7 +169,8 @@ public class ControlsHudElement extends HudElement {
 	public static class AbilityBindUI {
 		public AbilityConditionCheck ability;
 		public TextureAtlasSprite sprite;
-		public ClientKeyWrapper keybind;
+		public ClientKey key;
+		public KeyModifier modifier = KeyModifier.NONE;
 		public InputMethod inputMethod;
 		public Component keybindName;
 		public Component keybindAbilityName;
@@ -176,6 +178,7 @@ public class ControlsHudElement extends HudElement {
 	
 	public static class BindUI {
 		public Component keybind;
+		@Nullable public KeyModifier modifier;
 		public Map<InputMethod, AbilityBindUI> abilities = new EnumMap<>(InputMethod.class);
 		
 		public int y;
@@ -224,37 +227,48 @@ public class ControlsHudElement extends HudElement {
 		InputHandler modInput = InputHandler.getInstance();
 
 		// separate keybinds
-		Map<ClientKeyWrapper, KeyModifierMap> binds = curGroup.binds;
+		Map<ClientKey, InputsByKeyModifier> binds = curGroup.getBinds();
 		for (var bindEntry : binds.entrySet()) {
-			ClientKeyWrapper key = bindEntry.getKey();
+			ClientKey key = bindEntry.getKey();
 			BindUI bindUI = new BindUI();
+			InputsByKeyModifier bindsForInputMethod = bindEntry.getValue();
 			
 			for (InputMethod inputMethod : InputMethod.values()) {
-				KeyModifierMap bindsForInputMethod = bindEntry.getValue();
-
 				AbilityBindUI abilityBindUI = makeBindUI(inputMethod, bindsForInputMethod, power, 
 						modifier, availableAbilities, key, false, 
 						abilityIconSprites, standSkin, 
 						font, hud.forContainerMenu);
-
-				if (abilityBindUI != null && modifier == KeyModifier.NONE) {
-					// if you aren't pressing Ctrl or Shift, but there is no ability keybind to render, render the Ctrl and Shift ones instead
-					for (KeyModifier otherModifier : KeyModifier.values()) {
-						if (otherModifier != modifier) {
-							abilityBindUI = makeBindUI(inputMethod, bindsForInputMethod, power, 
-									otherModifier, availableAbilities, key, true, 
-									abilityIconSprites, standSkin, 
-									font, hud.forContainerMenu);
+				if (abilityBindUI != null) {
+					bindUI.modifier = null;
+					bindUI.abilities.put(inputMethod, abilityBindUI);
+				}
+				else {
+					if (modifier == KeyModifier.NONE) {
+						// if you aren't pressing Ctrl or Shift, but there is no ability keybind to render, render the Ctrl and Shift ones instead
+						for (KeyModifier otherModifier : KeyModifier.values()) {
+							if (otherModifier != modifier) {
+								abilityBindUI = makeBindUI(inputMethod, bindsForInputMethod, power, 
+										otherModifier, availableAbilities, key, true, 
+										abilityIconSprites, standSkin, 
+										font, hud.forContainerMenu);
+								
+								if (abilityBindUI != null) {
+									if (bindUI.modifier == null) {
+										bindUI.modifier = otherModifier;
+									}
+									bindUI.abilities.put(inputMethod, abilityBindUI);
+								}
+							}
 						}
 					}
 				}
-
-				if (abilityBindUI != null) {
-					bindUI.abilities.put(inputMethod, abilityBindUI);
-				}
 			}
+			
+			// XXX aren't bind names with modifiers too long?
+			if (bindUI.modifier != KeyModifier.NONE && bindUI.modifier != null) continue;
+			
 			if (!bindUI.abilities.isEmpty()) {
-				bindUI.keybind = getKeyName(key);
+				bindUI.keybind = getKeyName(key, bindUI.modifier);
 				bindUI.keybindWidth = font.width(bindUI.keybind) + 4;
 				bindUI.width = bindUI.keybindWidth + bindUI.abilities.size() * SLOT_WIDTH + 4;
 				this.binds.add(bindUI);
@@ -266,16 +280,17 @@ public class ControlsHudElement extends HudElement {
 			if (!hotbar.slots.isEmpty()) {
 				HotbarUILine hotbarUI = new HotbarUILine();
 
-				ClientKeyWrapper key = hotbar.useAbilityKey;
+				ClientInputBind input = hotbar.useAbilityKey;
 				HotbarSlot selectedSlot = hotbar.getSelected();
 
 				for (ClientControlScheme.HotbarSlot slot : hotbar.slots) {
 					HotbarSlotUI slotUI = new HotbarSlotUI();
+					ClientKey key = input.getKey();
 					slotUI.bind = new BindUI();
-					slotUI.bind.keybind = getKeyName(key);
+					slotUI.bind.keybind = getKeyName(key, input.getKeyModifier());
 					
 					for (InputMethod inputMethod : InputMethod.values()) {
-						PowerClassAbility ability = slot.binds.getFirst(modifier, inputMethod);
+						AbilityControlsEntry ability = slot.getBinds().getFirst(modifier, inputMethod);
 						if (ability != null) {
 							AbilityBindUI bind = makeAbilityBindUI(key, null, 
 									inputMethod, availableAbilities._inMoveset.get(ability.abilityName()), power, 
@@ -298,8 +313,9 @@ public class ControlsHudElement extends HudElement {
 					}
 				}
 
-				hotbarUI.keybind = getKeyName(key);
-				hotbarUI.switchHint = Component.translatable("ripples_hud.hotbar_switch", getKeyName(hotbar.switchAbilityKey));
+				hotbarUI.keybind = getKeyName(input.getKey(), KeyModifier.NONE);
+				hotbarUI.switchHint = Component.translatable("ripples_hud.hotbar_switch", 
+						getKeyName(hotbar.switchAbilityKey.getKey(), hotbar.switchAbilityKey.getKeyModifier()));
 				hotbarUI.keybindWidth = font.width(hotbarUI.keybind) + 4;
 				hotbarUI.width = hotbarUI.keybindWidth + hotbarUI.slots.size() * SLOT_WIDTH + 4;
 				hotbarUI.width = Math.max(font.width(hotbarUI.switchHint), hotbarUI.width);
@@ -351,24 +367,24 @@ public class ControlsHudElement extends HudElement {
 
 
 	@Nullable
-	private static AbilityBindUI makeBindUI(InputMethod inputMethod, KeyModifierMap binds, Power<?> abilityCtx, 
-			@Nonnull KeyModifier modifier, AvailableAbilities available, ClientKeyWrapper key, boolean withModifierName, 
+	private static AbilityBindUI makeBindUI(InputMethod inputMethod, InputsByKeyModifier binds, Power<?> abilityCtx, 
+			@Nonnull KeyModifier modifier, AvailableAbilities available, ClientKey key, boolean withModifierName, 
 			AbilityIconSprites abilitySprites, @Nullable StandSkin standSkin, 
 			Font font, TriState forContainerMenu) {
-		List<PowerClassAbility> boundAbilities = binds.getAll(modifier, inputMethod);
+		List<AbilityControlsEntry> boundAbilities = binds.getAll(modifier, inputMethod);
 		if (boundAbilities.isEmpty()) {
 			return null;
 		}
 		AbilityConditionCheck ability = ClientControlScheme.prioritizedAbility(boundAbilities, available, abilityCtx, 
 				state -> AbilityInputState.showAbilityInHUD(state, forContainerMenu));
-		return makeAbilityBindUI(key, withModifierName ? modifier : null, 
+		return makeAbilityBindUI(key, withModifierName ? modifier : KeyModifier.NONE, 
 				inputMethod, ability, abilityCtx, 
 				abilitySprites, standSkin, 
 				font, forContainerMenu);
 	}
 
 	@Nullable
-	private static AbilityBindUI makeAbilityBindUI(ClientKeyWrapper key, @Nullable KeyModifier modifier, 
+	private static AbilityBindUI makeAbilityBindUI(ClientKey key, KeyModifier modifier, 
 			InputMethod inputMethod, AbilityConditionCheck ability, Power<?> abilityCtx, 
 			AbilityIconSprites abilitySprites, @Nullable StandSkin standSkin, 
 			Font font, TriState forContainerMenu) {
@@ -381,25 +397,15 @@ public class ControlsHudElement extends HudElement {
 			showAbility &= state.getFlag(AbilityInputState.ONLY_IN_CONTAINER) == forContainerMenu.isTrue();
 
 			if (showAbility) {
-				Component keyName = getKeyName(key);
-				if (modifier != null) {
-					String modifierName = switch (modifier) {
-						case CONTROL -> "ripples_hud.modifier_ctrl";
-						case SHIFT -> "ripples_hud.modifier_shift";
-						case ALT -> "ripples_hud.modifier_alt";
-						default -> null;
-					};
-					if (modifierName != null) {
-						keyName = Component.translatable("ripples_hud.key_modifier", Component.translatable(modifierName), keyName);
-					}
-				}
+				Component keyName = getKeyName(key, modifier);
 				Component bindName = inputMethod == InputMethod.HOLD ? Component.translatable("ripples_hud.hold_key", keyName) : keyName;
 
 				AbilityBindUI bindUI = new AbilityBindUI();
 
 				bindUI.ability = ability;
 				bindUI.sprite = abilitySprites.getAbilityIcon(ability.ability, abilityCtx, standSkin);
-				bindUI.keybind = key;
+				bindUI.key = key;
+				bindUI.modifier = modifier;
 				bindUI.inputMethod = inputMethod;
 				bindUI.keybindName = bindName;
 				bindUI.keybindAbilityName = Component.translatable("ripples_hud.key_ability", bindName, ability.ability.getName(abilityCtx));
@@ -441,10 +447,10 @@ public class ControlsHudElement extends HudElement {
 
 					boolean isClicked = switch (ability.inputMethod) {
 						case CLICK -> {
-							yield modInput.wasKeyClickedRecently(ability.keybind);
+							yield modInput.wasKeyClickedRecently(ability.key);
 						}
 						case HOLD -> {
-							HeldKeyTimer heldKeyTimer = modInput.getHeldKeyTimer(ability.keybind);
+							HeldKeyTimer heldKeyTimer = modInput.getHeldKeyTimer(ability.key);
 							yield heldKeyTimer != null && heldKeyTimer.getInputMethod() == InputMethod.HOLD;
 						}
 					};
@@ -568,21 +574,23 @@ public class ControlsHudElement extends HudElement {
 		return color;
 	}
 
-	public static Component getKeyName(ClientKeyWrapper key) {
-		if (key == ClientKeyWrapper.make(InputConstants.Type.MOUSE, InputConstants.MOUSE_BUTTON_LEFT)) {
+	public static Component getKeyName(ClientKey key, KeyModifier modifier) {
+		return modifier != null ? modifier.getCombinedName(key.getVanillaKey(), () -> getKeyName(key)) : getKeyName(key);
+	}
+
+	public static Component getKeyName(ClientKey key) {
+		if (key == ClientKey.make(InputConstants.Type.MOUSE, InputConstants.MOUSE_BUTTON_LEFT)) {
 			return Component.literal(Character.toString(IconSymbols.LMB_CLICK_LARGE));
 		}
-		else if (key == ClientKeyWrapper.make(InputConstants.Type.MOUSE, InputConstants.MOUSE_BUTTON_RIGHT)) {
+		else if (key == ClientKey.make(InputConstants.Type.MOUSE, InputConstants.MOUSE_BUTTON_RIGHT)) {
 			return Component.literal(Character.toString(IconSymbols.RMB_CLICK_LARGE));
 		}
-		else if (key == ClientKeyWrapper.make(InputConstants.Type.MOUSE, InputConstants.MOUSE_BUTTON_MIDDLE)) {
+		else if (key == ClientKey.make(InputConstants.Type.MOUSE, InputConstants.MOUSE_BUTTON_MIDDLE)) {
 			return Component.literal(Character.toString(IconSymbols.MMB_CLICK_LARGE));
 		}
 		else {
 			return ShortenText.shortenIfAble(key.keyName());
 		}
 	}
-
-
 
 }

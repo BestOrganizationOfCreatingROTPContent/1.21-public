@@ -5,8 +5,8 @@ import java.util.List;
 import com.github.standobyte.jojo.client.ClientGlobals;
 import com.github.standobyte.jojo.client.input.controlscheme.AllControlSchemes;
 import com.github.standobyte.jojo.client.input.controlscheme.ClientControlScheme;
-import com.github.standobyte.jojo.client.input.controlscheme.ClientControlScheme.PowerClassAbility;
-import com.github.standobyte.jojo.client.input.controlscheme.ClientKeyWrapper;
+import com.github.standobyte.jojo.client.input.controlscheme.ClientControlScheme.AbilityControlsEntry;
+import com.github.standobyte.jojo.client.input.controlscheme.ClientKey;
 import com.github.standobyte.jojo.core.JojoMod;
 import com.github.standobyte.jojo.mechanics.entity_like_player.useitem.ClStandClickPacket;
 import com.github.standobyte.jojo.mechanics.entity_like_player.useitem.ServerSideLivingClick;
@@ -43,7 +43,7 @@ public class StandVanillaClickInput {
 						event.setCanceled(true);
 						event.setSwingHand(false);
 						
-						ClientKeyWrapper key = ClientKeyWrapper.make(InputConstants.Type.MOUSE, keyCode);
+						ClientKey key = ClientKey.make(InputConstants.Type.MOUSE, keyCode);
 						InputHandler.getInstance().putHeldKeyTimer(key, new HeldKeyTimer(key, false, KeyModifier.NONE));
 
 						HitResult target = Minecraft.getInstance().hitResult;
@@ -70,10 +70,10 @@ public class StandVanillaClickInput {
 		if (ServerSideLivingClick.isEntityHoldingAnItem(power.getSummonedStandEntity())) {
 			ClientControlScheme controlScheme = AllControlSchemes.getForPowerType(power.getPowerType());
 			if (controlScheme != null) {
-				ClientKeyWrapper RMB = ClientKeyWrapper.make(InputConstants.Type.MOUSE, InputConstants.MOUSE_BUTTON_RIGHT);
+				ClientKey RMB = ClientKey.make(InputConstants.Type.MOUSE, InputConstants.MOUSE_BUTTON_RIGHT);
 				for (InputMethod inputMethod : InputMethod.values()) {
-					List<PowerClassAbility> rmbAbilities = controlScheme.getBindsWithModifier(inputMethod, RMB, KeyModifier.NONE);
-					for (PowerClassAbility abilityName : rmbAbilities) {
+					List<AbilityControlsEntry> rmbAbilities = controlScheme.getBindsWithModifier(inputMethod, RMB, KeyModifier.NONE);
+					for (AbilityControlsEntry abilityName : rmbAbilities) {
 						var ability = abilities._inMoveset.get(abilityName.abilityName());
 						if (ability != null) {
 							AbilityInputState inputState = AbilityInputState.withValue(ability.clientInputState);

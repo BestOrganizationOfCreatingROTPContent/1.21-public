@@ -23,9 +23,9 @@ import com.github.standobyte.jojo.client.ClientUtil;
 import com.github.standobyte.jojo.client.config.ClientModSettings;
 import com.github.standobyte.jojo.client.input.controlscheme.AllControlSchemes;
 import com.github.standobyte.jojo.client.input.controlscheme.ClientControlScheme;
+import com.github.standobyte.jojo.client.input.controlscheme.ClientControlScheme.AbilityControlsEntry;
 import com.github.standobyte.jojo.client.input.controlscheme.ClientControlScheme.Hotbar;
-import com.github.standobyte.jojo.client.input.controlscheme.ClientControlScheme.PowerClassAbility;
-import com.github.standobyte.jojo.client.input.controlscheme.ClientKeyWrapper;
+import com.github.standobyte.jojo.client.input.controlscheme.ClientKey;
 import com.github.standobyte.jojo.client.ui.AbilitySelectionWheel;
 import com.github.standobyte.jojo.client.ui.powerhud.PowerHud;
 import com.github.standobyte.jojo.core.event.client.PreKeyInputEvent;
@@ -48,6 +48,7 @@ import com.github.standobyte.jojo.util.CommonEnums.Direction2D;
 import com.google.common.collect.Sets;
 import com.mojang.blaze3d.platform.InputConstants;
 import com.mojang.blaze3d.platform.InputConstants.Key;
+import com.mojang.datafixers.util.Pair;
 
 import io.netty.buffer.Unpooled;
 import it.unimi.dsi.fastutil.ints.Int2ObjectMap;
@@ -105,7 +106,7 @@ public class InputHandler {
 	
 	@SubscribeEvent(priority = EventPriority.HIGH)
 	public void onFrameUpdate(RenderFrameEvent.Pre event) {
-		inputsDisabled = _heldKeys.containsKey(ClientKeyWrapper.fromVanillaKeybind(vanillaKeybinds.disableHUDControls));
+		inputsDisabled = _heldKeys.containsKey(ClientKey.fromVanillaKeybind(vanillaKeybinds.disableHUDControls));
 		float tickDelta = mc.getTimer()/*getDeltaTracker()*/.getRealtimeDeltaTicks();
 		frameUpdateHeldKeys(tickDelta);
 	}
@@ -126,17 +127,17 @@ public class InputHandler {
 			keyType = InputConstants.Type.KEYSYM;
 			keyCode = event.getKey();
 		}
-		handleInputEvent(ClientKeyWrapper.make(keyType, keyCode), event.getAction(), event.getModifiers(), event);
+		handleInputEvent(ClientKey.make(keyType, keyCode), event.getAction(), event.getModifiers(), event);
 	}
 	
 	@SubscribeEvent(priority = EventPriority.LOW)
 	public void handleMouseInput(InputEvent.MouseButton.Pre event) {
 		if (mc.getConnection() == null) return;
 		
-		handleInputEvent(ClientKeyWrapper.make(InputConstants.Type.MOUSE, event.getButton()), event.getAction(), event.getModifiers(), event);
+		handleInputEvent(ClientKey.make(InputConstants.Type.MOUSE, event.getButton()), event.getAction(), event.getModifiers(), event);
 	}
 	
-	public void handleInputEvent(ClientKeyWrapper key, int action, int modifiers, ICancellableEvent event) {
+	public void handleInputEvent(ClientKey key, int action, int modifiers, ICancellableEvent event) {
 		if (action == InputConstants.RELEASE && mc.screen instanceof ChatScreen) {
 			keyReleaseEventQueue.add(new DelayedInput(key, action, modifiers));
 		}
@@ -154,7 +155,7 @@ public class InputHandler {
 		}
 	}
 	
-	public static record DelayedInput(ClientKeyWrapper key, int action, int modifiers) {}
+	public static record DelayedInput(ClientKey key, int action, int modifiers) {}
 	
 	private Queue<DelayedInput> keyReleaseEventQueue = new ArrayDeque<>();
 
@@ -197,7 +198,7 @@ public class InputHandler {
 	 * Handles the direct events of keyboard/mouse inputs to trigger abilities from the player's moveset.
 	 * @return true if the vanilla input should be cancelled.
 	 */
-	public boolean input(ClientKeyWrapper key, int inputType, int modifiers) {
+	public boolean input(ClientKey key, int inputType, int modifiers) {
 		boolean cancelVanilla = false;
 		Power<?> power = getCurPower();
 		short keyId = key.keyId();
@@ -291,18 +292,18 @@ public class InputHandler {
 	
 	// Held keys stuff
 	
-	public Map<ClientKeyWrapper, HeldKeyTimer> _heldKeys = new HashMap<>();
-	public Map<ClientKeyWrapper, MutableInt> _recentlyClicked = new HashMap<>();
+	public Map<ClientKey, HeldKeyTimer> _heldKeys = new HashMap<>();
+	public Map<ClientKey, MutableInt> _recentlyClicked = new HashMap<>();
 	
-	public HeldKeyTimer getHeldKeyTimer(ClientKeyWrapper key) {
+	public HeldKeyTimer getHeldKeyTimer(ClientKey key) {
 		return _heldKeys.get(key);
 	}
 	
-	public void putHeldKeyTimer(ClientKeyWrapper key, HeldKeyTimer timer) {
+	public void putHeldKeyTimer(ClientKey key, HeldKeyTimer timer) {
 		_heldKeys.put(key, timer);
 	}
 	
-	public HeldKeyTimer removeHeldKeyTimer(ClientKeyWrapper key) {
+	public HeldKeyTimer removeHeldKeyTimer(ClientKey key) {
 		HeldKeyTimer timer = _heldKeys.remove(key);
 		return timer;
 	}
@@ -319,17 +320,17 @@ public class InputHandler {
 		}
 	}
 	
-	public void onResolvedKeyAsClick(ClientKeyWrapper key) {
+	public void onResolvedKeyAsClick(ClientKey key) {
 		_recentlyClicked.computeIfAbsent(key, __ -> new MutableInt(0)).setValue(3);
 	}
 	
-	public boolean wasKeyClickedRecently(ClientKeyWrapper key) {
+	public boolean wasKeyClickedRecently(ClientKey key) {
 		MutableInt timer = _recentlyClicked.get(key);
 		return timer != null && timer.intValue() >= 0;
 	}
 	
 	
-	public boolean isHeld(ClientKeyWrapper key, @Nullable KeyModifier modifier) {
+	public boolean isHeld(ClientKey key, @Nullable KeyModifier modifier) {
 		HeldKeyTimer timer = getHeldKeyTimer(key);
 		if (timer != null) {
 			return modifier == null || timer.modifier == modifier;
@@ -338,7 +339,7 @@ public class InputHandler {
 	}
 	
 	public boolean isKeyHeld(int keyCode) {
-		return isHeld(ClientKeyWrapper.make(InputConstants.Type.KEYSYM, keyCode), null);
+		return isHeld(ClientKey.make(InputConstants.Type.KEYSYM, keyCode), null);
 	}
 	
 	private void clickHeldOnRelease(HeldKeyTimer heldKeyTimer, short keyId) {
@@ -406,15 +407,15 @@ public class InputHandler {
 	
 	// The function that figures out what ability has the player inputed.
 	
-	private CurInput getInputAbilitiesOnClick(Power<?> power, ClientKeyWrapper key, KeyModifier keyModifier) {
+	private CurInput getInputAbilitiesOnClick(Power<?> power, ClientKey key, KeyModifier keyModifier) {
 		CurInput input = CurInput.instance;
 		input.heldAbility = null;
 		input.clickAbility = null;
 		
 		ClientControlScheme controlScheme = getCurControlScheme(power);
 		if (controlScheme != null) {
-			List<PowerClassAbility> heldBound = controlScheme.getBindsWithModifier(InputMethod.HOLD, key, keyModifier);
-			List<PowerClassAbility> clickBound = controlScheme.getBindsWithModifier(InputMethod.CLICK, key, keyModifier);
+			List<AbilityControlsEntry> heldBound = controlScheme.getBindsWithModifier(InputMethod.HOLD, key, keyModifier);
+			List<AbilityControlsEntry> clickBound = controlScheme.getBindsWithModifier(InputMethod.CLICK, key, keyModifier);
 			
 			if (!(heldBound.isEmpty() && clickBound.isEmpty())) {
 				AvailableAbilities available = ClientPowerCache.getAvailableMoves(power.getPowerClass(), power);
@@ -446,19 +447,19 @@ public class InputHandler {
 	
 	// Hotbar stuff
 	
-	public Set<Hotbar> hotbarsSelection = Sets.newIdentityHashSet();
+	public Set<Pair<Hotbar, ClientKey>> hotbarsSelection = Sets.newIdentityHashSet();
 	protected float hotbarsSelectionTimestamp;
 	
-	public void checkStartHotbarSelection(ClientKeyWrapper pressedKey) {
+	public void checkStartHotbarSelection(ClientKey pressedKey) {
 		Power<?> power = getCurPower();
 		ClientControlScheme controlScheme = getCurControlScheme(power);
 		if (controlScheme != null) {
 			Hotbar wheelHotbar = null;
 			var curControls = controlScheme.getCurGroup().getValue();
 			for (Hotbar abilityHotbar : curControls.hotbars) {
-				if (abilityHotbar.switchAbilityKey == pressedKey) {
+				if (abilityHotbar.switchAbilityKey.keyMatches(pressedKey, getCurModifier())) {
 					if (wheelHotbar == null) wheelHotbar = abilityHotbar;
-					setSelectingAbility(abilityHotbar, true);
+					setSelectingAbility(abilityHotbar, pressedKey, true);
 				}
 			}
 			if (ClientModSettings.getSettingsReadOnly().abilitySelectionWheel && wheelHotbar != null) {
@@ -467,12 +468,13 @@ public class InputHandler {
 		}
 	}
 	
-	public void checkStopHotbarSelection(ClientKeyWrapper releasedKey) {
+	public void checkStopHotbarSelection(ClientKey releasedKey) {
 		if (!hotbarsSelection.isEmpty()) {
 			var iter = hotbarsSelection.iterator();
 			while (iter.hasNext()) {
-				Hotbar hotbar = iter.next();
-				if (hotbar.switchAbilityKey == releasedKey) {
+				var entry = iter.next();
+				ClientKey hotbarKey = entry.getSecond();
+				if (hotbarKey == releasedKey) {
 					iter.remove();
 				}
 			}
@@ -482,7 +484,8 @@ public class InputHandler {
 	public boolean hotbarScroll(double scrollDelta) {
 		if (hotbarsSelection.isEmpty()) return false;
 		@Nullable AbilitySelectionWheel curWheel = mc.screen instanceof AbilitySelectionWheel w ? w : null;
-		for (Hotbar hotbar : hotbarsSelection) {
+		for (var entry : hotbarsSelection) {
+			Hotbar hotbar = entry.getFirst();
 			int n = hotbar.slots.size();
 			int newIndex = (hotbar.slotIndex - (int) scrollDelta);
 			if (newIndex < 0) newIndex += (-newIndex / n + 1) * n;
@@ -496,10 +499,10 @@ public class InputHandler {
 		return true;
 	}
 	
-	public boolean hotbarPickSlot(ClientKeyWrapper key) {
+	public boolean hotbarPickSlot(ClientKey digitKey) {
 		if (hotbarsSelection.isEmpty()) return false;
 		
-		Key vanillaKey = key.getVanillaKey();
+		Key vanillaKey = digitKey.getVanillaKey();
 		int newIndex = -1;
 		for (int i = 0; i < mc.options.keyHotbarSlots.length; i++) {
 			if (vanillaKey == mc.options.keyHotbarSlots[i].getKey()) {
@@ -510,7 +513,8 @@ public class InputHandler {
 		if (newIndex < 0) return false;
 		
 		@Nullable AbilitySelectionWheel curWheel = mc.screen instanceof AbilitySelectionWheel w ? w : null;
-		for (Hotbar hotbar : hotbarsSelection) {
+		for (var entry : hotbarsSelection) {
+			Hotbar hotbar = entry.getFirst();
 			if (newIndex < hotbar.slots.size()) {
 				hotbar.slotIndex = newIndex;
 				if (curWheel != null && curWheel.abilities == hotbar) {
@@ -522,18 +526,18 @@ public class InputHandler {
 	}
 	
 	public boolean isSelectingAbility(Hotbar hotbar) {
-		return hotbarsSelection.contains(hotbar);
+		return hotbarsSelection.stream().anyMatch(entry -> entry.getFirst() == hotbar);
 	}
 	
-	public void setSelectingAbility(Hotbar hotbar, boolean selecting) {
+	public void setSelectingAbility(Hotbar hotbar, ClientKey key, boolean selecting) {
 		if (selecting) {
 			if (hotbarsSelection.isEmpty()) {
 				hotbarsSelectionTimestamp = ClientTickHandler.tickCount + ClientUtil.partialTick();
 			}
-			hotbarsSelection.add(hotbar);
+			hotbarsSelection.add(Pair.of(hotbar, key));
 		}
 		else {
-			hotbarsSelection.remove(hotbar);
+			hotbarsSelection.removeIf(entry -> entry.getFirst() == hotbar);
 		}
 	}
 	

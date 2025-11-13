@@ -117,9 +117,6 @@
   "ripples_hud.energy_hamon.desc": "",
   
   "ripples_hud.hold_key": "Удерж. %s",
-  "ripples_hud.modifier_ctrl": "Ctrl",
-  "ripples_hud.modifier_shift": "Shift",
-  "ripples_hud.modifier_alt": "Alt",
   "ripples_hud.hotbar_switch": "(%s - выбрать способность)",
   
   "jojo_ripples.class.stand": "Стенд: %s",

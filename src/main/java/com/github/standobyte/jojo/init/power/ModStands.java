@@ -5,6 +5,7 @@ import com.github.standobyte.jojo.core.JojoRegistries;
 import com.github.standobyte.jojo.powersystem.MovesetBuilder;
 import com.github.standobyte.jojo.powersystem.ability.controls.InputKey;
 import com.github.standobyte.jojo.powersystem.ability.controls.InputMethod;
+import com.github.standobyte.jojo.powersystem.ability.controls.InputUseVanillaMapping;
 import com.github.standobyte.jojo.powersystem.entityaction.ActionPhase;
 import com.github.standobyte.jojo.powersystem.standpower.StandStats;
 import com.github.standobyte.jojo.powersystem.standpower.StandUnlockableSkill;
@@ -18,6 +19,9 @@ import net.neoforged.neoforge.registries.DeferredRegister;
 // XXX add a way to ban hardcoded stands
 public class ModStands {
 	public static final DeferredRegister<StandType> DEFAULT_STANDS = DeferredRegister.create(JojoRegistries.DEFAULT_STANDS_REG, JojoMod.MOD_ID);
+	
+	public static InputUseVanillaMapping USE_SPECIAL = new InputUseVanillaMapping("jojo_ripples.key.use_special_ability");
+	public static InputUseVanillaMapping SWITCH_SPECIAL = new InputUseVanillaMapping("jojo_ripples.key.ability_hotbar");
 	
 	public static final DeferredHolder<StandType, EntityStandType> STAR_PLATINUM = DEFAULT_STANDS.register(
 			"star_platinum", id -> 
@@ -34,12 +38,12 @@ public class ModStands {
 					
 					// has a higher priority than regular item usage (added in addHumanoidStandStuff()) or charged heavy
 					.addAbility("bearing_shot", ModStandAbilities.BEARING_SHOT)
-					.withBind(InputKey.RMB, InputMethod.HOLD)
+					.withBind(InputMethod.HOLD, InputKey.RMB)
 					
 					.addHumanoidStandStuff()
 					
 					.addAbility("punch", ModStandAbilities.PUNCH)
-					.withBind(InputKey.LMB, InputMethod.CLICK)
+					.withBind(InputMethod.CLICK, InputKey.LMB)
 					
 					// TODO refactor sub-punches initialization
 					.addAbility("punch2", ModStandAbilities.PUNCH, punch -> punch.isSubAbility = true)
@@ -50,24 +54,24 @@ public class ModStands {
 					})
 					
 					.addAbility("barrage", ModStandAbilities.BARRAGE)
-					.withBind(InputKey.LMB, InputMethod.HOLD)
+					.withBind(InputMethod.HOLD, InputKey.LMB)
 
 					.addAbility("heavy_punch", ModStandAbilities.HEAVY_PUNCH)
-					.withBind(InputKey.RMB, InputMethod.CLICK)
+					.withBind(InputMethod.CLICK, InputKey.RMB)
 					.addAbility("heavy_punch2", ModStandAbilities.HEAVY_PUNCH, punch -> punch.isSubAbility = true)
 					.addAbility("finisher_uppercut", ModStandAbilities.HEAVY_PUNCH, punch -> punch.isSubAbility = true)
 					
 					.addAbility("heavy_charged", ModStandAbilities.HEAVY_CHARGED)
-					.withBind(InputKey.RMB, InputMethod.HOLD)
+					.withBind(InputMethod.HOLD, InputKey.RMB)
 					
 					.addAbility("grab",ModStandAbilities.GRAB)
-					.withBind(InputKey.RMB.withModifier(InputKey.Modifier.CONTROL), InputMethod.CLICK)
+					.withBind(InputMethod.CLICK, InputKey.RMB.withModifier(InputKey.Modifier.CONTROL))
 					
 					.addAbility("grab_release", ModStandAbilities.GRAB_RELEASE)
-					.withBind(InputKey.Q, InputMethod.CLICK)
+					.withBind(InputMethod.CLICK, InputKey.Q)
 					
 					.addAbility("grab_throw", ModStandAbilities.GRAB_THROW)
-					.withBind(InputKey.RMB, InputMethod.HOLD)
+					.withBind(InputMethod.HOLD, InputKey.RMB)
 					
 					.addAbility("grab_punch", ModStandAbilities.GRAB_PUNCH, punch -> punch.isSubAbility = true)
 					.addAbility("grab_barrage", ModStandAbilities.GRAB_BARRAGE, punch -> punch.isSubAbility = true)
@@ -86,8 +90,8 @@ public class ModStands {
 
 //					.addAbility("uppercut_ground_throw", ModStandAbilities.HEAVY_PUNCH)
 					
-					
-					.makeHotbar(0, InputKey.X, InputKey.C)
+
+					.makeHotbar(0, USE_SPECIAL, SWITCH_SPECIAL)
 					
 //					.addAbility("enhanced_eyesight", ModStandAbilities.SP_EYESIGHT)
 //					.inHotbar(0, InputMethod.CLICK)
@@ -147,10 +151,10 @@ public class ModStands {
 					.addHumanoidStandStuff()
 					
 					.addAbility("repair_item", ModStandAbilities.CD_REPAIR_ITEM)
-					.withBind(InputKey.C, InputMethod.HOLD)
+					.withBind(InputMethod.HOLD, InputKey.C)
 					
-					
-					.makeHotbar(0, InputKey.X, InputKey.C)
+
+					.makeHotbar(0, USE_SPECIAL, SWITCH_SPECIAL)
 					
 					.addAbility("block_bullet", ModStandAbilities.CD_BLOCK_BULLET)
 					.inHotbar(0, InputMethod.CLICK)
@@ -198,8 +202,8 @@ public class ModStands {
 					
 					.addHumanoidStandStuff()
 					
-					
-					.makeHotbar(0, InputKey.X, InputKey.C)
+
+					.makeHotbar(0, USE_SPECIAL, SWITCH_SPECIAL)
 					
 					.addAbility("puppet", ModStandAbilities.HG_PUPPET)
 					.inHotbar(0, InputMethod.CLICK)

@@ -14,9 +14,11 @@ import com.github.standobyte.jojo.powersystem.ability.Ability;
 import com.github.standobyte.jojo.powersystem.ability.AbilityId;
 import com.github.standobyte.jojo.powersystem.ability.AbilityType;
 import com.github.standobyte.jojo.powersystem.ability.config.ConfigAbilityFactory;
+import com.github.standobyte.jojo.powersystem.ability.controls.InputBindTemplate;
 import com.github.standobyte.jojo.powersystem.ability.controls.ControlSchemeTemplate;
 import com.github.standobyte.jojo.powersystem.ability.controls.InputKey;
 import com.github.standobyte.jojo.powersystem.ability.controls.InputMethod;
+import com.github.standobyte.jojo.powersystem.ability.controls.InputUseVanillaMapping;
 import com.github.standobyte.jojo.powersystem.skill.UnlockableSkill;
 
 import net.minecraft.resources.ResourceLocation;
@@ -93,20 +95,20 @@ public class MovesetBuilder {
 	
 	public MovesetBuilder addManualControl() {
 		addAbility("manual_control", ModStandAbilities.MANUAL_CONTROL)
-		.withBind(InputKey.O, InputMethod.CLICK);
+		.withBind(InputMethod.CLICK, InputKey.O);
 		
 		return this;
 	}
 	
 	public MovesetBuilder addItemUsage() {
 		addAbility("items_swap_w_user", ModStandAbilities.ITEMS_SWAP_W_USER)
-		.withBind(InputKey.F.withModifier(InputKey.Modifier.CONTROL), InputMethod.CLICK);
-		
+		.withBind(InputMethod.CLICK, InputKey.F.withModifier(InputKey.Modifier.CONTROL));
+
 		addAbility("items_swap_hands", ModStandAbilities.ITEMS_SWAP_HANDS)
-		.withBind(InputKey.F, InputMethod.CLICK);
-		
+		.withBind(InputMethod.CLICK, new InputUseVanillaMapping("key.swapOffhand"));
+
 		addAbility("item_toss", ModStandAbilities.ITEM_TOSS)
-		.withBind(InputKey.Q, InputMethod.CLICK);
+		.withBind(InputMethod.CLICK, new InputUseVanillaMapping("key.drop"));
 		
 		return this;
 	}
@@ -116,26 +118,26 @@ public class MovesetBuilder {
 	
 	protected String lastAbility;
 	
-	public MovesetBuilder makeMovesetGroup(String name, InputKey toggleHudKey) {
+	public MovesetBuilder makeMovesetGroup(String name, InputBindTemplate toggleHudKey) {
 		_controlScheme.makeMovesetGroup(name, toggleHudKey);
 		return this;
 	}
 	
-	public MovesetBuilder withBind(InputKey key, InputMethod inputMethod) {
-		return withBind(null, key, inputMethod);
+	public MovesetBuilder withBind(InputMethod inputMethod, InputBindTemplate key) {
+		return withBind(null, inputMethod, key);
 	}
-	
-	public MovesetBuilder withBind(String movesetGroupName, InputKey key, InputMethod inputMethod) {
+
+	public MovesetBuilder withBind(String movesetGroupName, InputMethod inputMethod, InputBindTemplate key) {
 		var group = _controlScheme.getMovesetGroup(movesetGroupName);
 		_controlScheme.bind(lastAbility, group, key, inputMethod);
 		return this;
 	}
 	
-	public MovesetBuilder makeHotbar(int hotbarId, InputKey useAbilityKey, InputKey switchAbilityKey) {
+	public MovesetBuilder makeHotbar(int hotbarId, InputBindTemplate useAbilityKey, InputBindTemplate switchAbilityKey) {
 		return makeHotbar(null, hotbarId, useAbilityKey, switchAbilityKey);
 	}
 	
-	public MovesetBuilder makeHotbar(String movesetGroupName, int hotbarId, InputKey useAbilityKey, InputKey switchAbilityKey) {
+	public MovesetBuilder makeHotbar(String movesetGroupName, int hotbarId, InputBindTemplate useAbilityKey, InputBindTemplate switchAbilityKey) {
 		var group = _controlScheme.getMovesetGroup(movesetGroupName);
 		_controlScheme.makeHotbar(hotbarId, group, useAbilityKey, switchAbilityKey);
 		return this;
@@ -156,6 +158,23 @@ public class MovesetBuilder {
 	public MovesetBuilder addSkill(UnlockableSkill skill) {
 		unlockableSkills.put(skill.skillName, skill);
 		return this;
+	}
+	
+	
+	
+	/**
+	 * @deprecated Use {@link #withBind(InputMethod, InputBindTemplate)} (just swap the parameters)
+	 */
+	public MovesetBuilder withBind(InputBindTemplate key, InputMethod inputMethod) {
+		return withBind(inputMethod, key);
+	}
+
+	/**
+	 * @deprecated. Use {@link #withBind(String, InputMethod, InputBindTemplate)}  (just swap the 2nd and 3rd parameters)
+	 */
+	@Deprecated
+	public MovesetBuilder withBind(String movesetGroupName, InputBindTemplate key, InputMethod inputMethod) {
+		return withBind(movesetGroupName, inputMethod, key);
 	}
 	
 }
