@@ -14,6 +14,7 @@ import com.github.standobyte.jojo.client.ui.jojomenu.Tab;
 import com.github.standobyte.jojo.core.JojoMod;
 import com.github.standobyte.jojo.core.packet.fromclient.ClNoParamsPacket;
 import com.github.standobyte.jojo.core.packet.fromclient.ClNoParamsPacket.PacketType;
+import com.github.standobyte.jojo.powersystem.PowerClass;
 import com.mojang.blaze3d.platform.InputConstants;
 
 import net.minecraft.client.KeyMapping;
@@ -94,13 +95,14 @@ public class VanillaKeybinds {
 	}
 
 	public void handleTick() {
-//		if (standHudMode.consumeClick()) {
-//			actionsOverlay.switchMode(PowerClass.STAND);
-//		}
-//		
-//		if (playerPowerHudMode.consumeClick()) {
-//			actionsOverlay.switchMode(PowerClass.PLAYER_POWER);
-//		}
+		InputHandler inputHandler = InputHandler.getInstance();
+		if (standArmsOnlyHUD.consumeClick()) {
+			inputHandler.curPowerClassToggle = inputHandler.curPowerClassToggle != PowerClass.STAND ? PowerClass.STAND : null;
+		}
+		
+		if (playerPowerHUD.consumeClick()) {
+			inputHandler.curPowerClassToggle = inputHandler.curPowerClassToggle != PowerClass.PLAYER_POWER ? PowerClass.PLAYER_POWER : null;
+		}
 //		
 		if (summonStand.consumeClick()) {
 //			if (standPower.hasPower() && !standPower.isActive()) {

@@ -177,6 +177,7 @@ public class InputHandler {
 	
 	
 	private FriendlyByteBuf inputBuf = new FriendlyByteBuf(Unpooled.buffer());
+	public PowerClass<?> curPowerClassToggle = null;
 	
 	public ClientControlScheme getActiveControlScheme() {
 		Power<?> curPower = null;
@@ -186,8 +187,8 @@ public class InputHandler {
 			if (standPower != null && standPower.hasPower() && standPower.isSummoned()) {
 				curPower = standPower;
 			}
-			else {
-				PlayerPower power = ClientPowerCache.getPower(PowerClass.PLAYER_POWER);
+			else if (curPowerClassToggle != null) {
+				Power<?> power = ClientPowerCache.getPower(curPowerClassToggle);
 				if (power != null && power.hasPower()) {
 					curPower = power;
 				}
