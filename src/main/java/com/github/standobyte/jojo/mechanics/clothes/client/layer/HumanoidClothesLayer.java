@@ -27,7 +27,6 @@ import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.fml.common.EventBusSubscriber;
 import net.neoforged.neoforge.client.event.RenderLivingEvent;
 
-// TODO (clothes) fix the model z-fighting
 //public class HumanoidClothesLayer<S extends HumanoidRenderState, M extends HumanoidModel<S>> extends RenderLayer<S, M> {
 @EventBusSubscriber(modid = JojoMod.MOD_ID, value = Dist.CLIENT)
 public class HumanoidClothesLayer<T extends LivingEntity, M extends HumanoidModel<T>> extends RenderLayer<T, M> implements FirstPersonModelLayer {

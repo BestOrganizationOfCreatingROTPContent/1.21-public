@@ -22,8 +22,9 @@ import net.minecraft.client.model.HumanoidModel;
 import net.minecraft.client.model.geom.ModelPart;
 import net.minecraft.world.entity.HumanoidArm;
 
+// TODO (clothes) fix the model z-fighting
 // FIXME model bend on left leg
-// WHY IS IT ONLY LEFT LEG SPECIFICALLY????
+// WHY IS IT ONLY LEFT LEG SPECIFICALLY FOR BOTH????
 public class HumanoidClothesModel extends HumanoidModel/*<HumanoidRenderState>*/ {
 	private Map<ClothesSlotType, List<ModelPart>> byClothesPart = new EnumMap<>(ClothesSlotType.class);
 	public final ModelPart rightArmSlim;
