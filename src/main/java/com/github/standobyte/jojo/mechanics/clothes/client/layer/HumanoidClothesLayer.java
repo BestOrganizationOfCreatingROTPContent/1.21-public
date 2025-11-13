@@ -69,7 +69,8 @@ public class HumanoidClothesLayer<T extends LivingEntity, M extends HumanoidMode
 			clothesModel.setClothesPartsVisibility(clothesRS.slimModel, piece);
 			clothesModel.poseClothes(parentModel);
 			VertexConsumer ivertexbuilder = bufferSource.getBuffer(RenderType.entityCutoutNoCull(clothesTexture));
-			clothesModel.renderToBuffer(poseStack, ivertexbuilder, packedLight, OverlayTexture.NO_OVERLAY);
+			int overlay = LivingEntityRenderer.getOverlayCoords(livingEntity, 0);
+			clothesModel.renderToBuffer(poseStack, ivertexbuilder, packedLight, overlay);
 		}
 	}
 	
