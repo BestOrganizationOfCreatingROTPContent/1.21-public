@@ -4,7 +4,7 @@ import java.util.List;
 
 import com.github.standobyte.jojo.client.ui.hud.marker.MarkerRenderer;
 import com.github.standobyte.jojo.core.JojoMod;
-import com.github.standobyte.jojo.init.power.ModStandEffects;
+import com.github.standobyte.jojo.init.power.ModStandAbilities;
 import com.github.standobyte.jojo.jojoimpl.stands.crazydiamond.CrazyDBlockBulletAbility;
 
 import net.minecraft.client.Minecraft;
@@ -29,6 +29,6 @@ public class CrazyDBloodHomingMarker extends MarkerRenderer {
 
 	@Override
 	protected void updatePositions(List<MarkerInstance> list, float partialTick) {
-		fillWithStandEffectTargets(list, partialTick, ModStandEffects.CRAZY_D_BLOOD_DROPS.get(), CrazyDBlockBulletAbility.PLAYER_TRACKING_RANGE, mc, true);
+		fillWithStandEffectTargets(list, partialTick, ModStandAbilities.EFFECT_CD_BLOOD_DROPS.get(), CrazyDBlockBulletAbility.PLAYER_TRACKING_RANGE, mc, true);
 	}
 }

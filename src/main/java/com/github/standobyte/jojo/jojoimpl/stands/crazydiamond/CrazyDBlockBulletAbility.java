@@ -6,7 +6,7 @@ import com.github.standobyte.jojo.client.sound.ClientsideSoundsHelper;
 import com.github.standobyte.jojo.client.sound.sounds.EntityStoppableSoundInstance;
 import com.github.standobyte.jojo.init.ModSoundEvents;
 import com.github.standobyte.jojo.init.ModUtilTags;
-import com.github.standobyte.jojo.init.power.ModStandEffects;
+import com.github.standobyte.jojo.init.power.ModStandAbilities;
 import com.github.standobyte.jojo.powersystem.Power;
 import com.github.standobyte.jojo.powersystem.PowerClass;
 import com.github.standobyte.jojo.powersystem.ability.AbilityId;
@@ -22,7 +22,6 @@ import com.github.standobyte.jojo.powersystem.standpower.entity.StandEntityAbili
 import com.github.standobyte.jojo.powersystem.standpower.entity.StandOffsetFromUser;
 
 import net.minecraft.network.chat.Component;
-import net.minecraft.tags.BlockTags;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.entity.HumanoidArm;
 import net.minecraft.world.entity.LivingEntity;
@@ -31,7 +30,6 @@ import net.minecraft.world.item.BlockItem;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Block;
-import net.minecraft.world.level.block.InfestedBlock;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.Vec3;
 
@@ -119,7 +117,7 @@ public class CrazyDBlockBulletAbility extends StandEntityAbility {
 				
 				StandPower standPower = StandPower.get(user);
 				if (standPower != null && !isHomingDisabled) {
-					UserStandEffects.getEffectLookedAt(standPower, ModStandEffects.CRAZY_D_BLOOD_DROPS.get(), PLAYER_TRACKING_RANGE, user).ifPresent(effect -> {
+					UserStandEffects.getEffectLookedAt(standPower, ModStandAbilities.EFFECT_CD_BLOOD_DROPS.get(), PLAYER_TRACKING_RANGE, user).ifPresent(effect -> {
 						bullet.setTarget(effect.getTarget());
 					});
 					
@@ -174,7 +172,7 @@ public class CrazyDBlockBulletAbility extends StandEntityAbility {
 
 	public static boolean isHoming(LivingEntity user, StandPower userPower) {
 		return user != null && !disableHoming(user)
-				&& UserStandEffects.getEffectLookedAt(userPower, ModStandEffects.CRAZY_D_BLOOD_DROPS.get(), PLAYER_TRACKING_RANGE, user).isPresent();
+				&& UserStandEffects.getEffectLookedAt(userPower, ModStandAbilities.EFFECT_CD_BLOOD_DROPS.get(), PLAYER_TRACKING_RANGE, user).isPresent();
 	}
 
 
