@@ -2,7 +2,6 @@ package com.github.standobyte.jojo.client.input;
 
 import javax.annotation.Nullable;
 
-import com.github.standobyte.jojo.powersystem.Power;
 import com.github.standobyte.jojo.powersystem.ability.Ability;
 
 import net.minecraft.client.Minecraft;
@@ -13,12 +12,10 @@ public class ClickHoldResolve {
 	private InputState curState = null;
 	private float timeHeld;
 	
-	public final Power<?> power;
 	public final Ability clickAbility;
 	public final Ability heldAbility;
 	
-	public ClickHoldResolve(Power<?> power, Ability heldAbility, Ability clickAbility) {
-		this.power = power;
+	public ClickHoldResolve(Ability heldAbility, Ability clickAbility) {
 		this.clickAbility = clickAbility;
 		this.heldAbility = heldAbility;
 	}

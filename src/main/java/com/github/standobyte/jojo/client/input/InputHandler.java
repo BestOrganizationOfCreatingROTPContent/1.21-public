@@ -35,7 +35,6 @@ import com.github.standobyte.jojo.powersystem.PowerClass;
 import com.github.standobyte.jojo.powersystem.ability.Ability;
 import com.github.standobyte.jojo.powersystem.ability.AbilityInput;
 import com.github.standobyte.jojo.powersystem.ability.AbilityInput.InputEventType;
-import com.github.standobyte.jojo.powersystem.ability.condition.AvailableAbilities;
 import com.github.standobyte.jojo.powersystem.ability.condition.AvailableAbilities.AbilityConditionCheck;
 import com.github.standobyte.jojo.powersystem.ability.condition.ConditionCheck;
 import com.github.standobyte.jojo.powersystem.ability.controls.InputMethod;
@@ -179,17 +178,23 @@ public class InputHandler {
 	
 	private FriendlyByteBuf inputBuf = new FriendlyByteBuf(Unpooled.buffer());
 	
-	public Power<?> getCurPower() {
+	public ClientControlScheme getActiveControlScheme() {
+		Power<?> curPower = null;
+		
 		if (mc.player != null) {
 			StandPower standPower = ClientPowerCache.getPower(PowerClass.STAND);
 			if (standPower != null && standPower.hasPower() && standPower.isSummoned()) {
-				return standPower;
+				curPower = standPower;
 			}
-			
-			PlayerPower power = ClientPowerCache.getPower(PowerClass.PLAYER_POWER);
-			if (power != null && power.hasPower()) {
-				return power;
+			else {
+				PlayerPower power = ClientPowerCache.getPower(PowerClass.PLAYER_POWER);
+				if (power != null && power.hasPower()) {
+					curPower = power;
+				}
 			}
+		}
+		if (curPower != null) {
+			return AllControlSchemes.getForPowerType(curPower.getPowerType());
 		}
 		return null;
 	}
@@ -200,18 +205,18 @@ public class InputHandler {
 	 */
 	public boolean input(ClientKey key, int inputType, int modifiers) {
 		boolean cancelVanilla = false;
-		Power<?> power = getCurPower();
 		short keyId = key.keyId();
 		
 		switch (inputType) {
 			case InputConstants.PRESS -> {
-				if (power == null) return false;
+				ClientControlScheme controlScheme = getActiveControlScheme();
+				if (controlScheme == null) return false;
 				
 				cancelVanilla |= hotbarPickSlot(key);
 				
 				KeyModifier keyModifier = getCurModifier();
 				
-				CurInput input = getInputAbilitiesOnClick(power, key, keyModifier);
+				CurInput input = getInputAbilitiesOnClick(controlScheme, key, keyModifier);
 				@Nullable Ability heldAbility = input.heldAbility != null ? input.heldAbility.ability : null;
 				@Nullable Ability clickAbility = input.clickAbility != null ? input.clickAbility.ability : null;
 				
@@ -227,13 +232,13 @@ public class InputHandler {
 				if (ambiguousClickOrHold) {
 					// TODO (!!!!) only do this if both abilities have a windup (if not, then idfk, it's 2AM rn)
 					// also consider that the windup might be shorted than 4 ticks
-					heldKeyTimer.setResolveInputMethod(new ClickHoldResolve(power, heldAbility, clickAbility));
+					heldKeyTimer.setResolveInputMethod(new ClickHoldResolve(heldAbility, clickAbility));
 				}
 				else if (inputMethod != null) {
 					heldKeyTimer.setInputMethod(inputMethod);
 					switch (inputMethod) {
-						case HOLD -> doInput(InputEventType.PRESS_HOLD, keyId, power, heldAbility, input.heldAbility.conditionCheck, 0);
-						case CLICK -> doInput(InputEventType.PRESS_CLICK, keyId, power, clickAbility, input.clickAbility.conditionCheck, 0);
+						case HOLD -> doInput(InputEventType.PRESS_HOLD, keyId, heldAbility, input.heldAbility.conditionCheck, 0);
+						case CLICK -> doInput(InputEventType.PRESS_CLICK, keyId, clickAbility, input.clickAbility.conditionCheck, 0);
 					}
 				}
 				
@@ -252,7 +257,7 @@ public class InputHandler {
 				HeldKeyTimer heldTicks = getHeldKeyTimer(key);
 				if (heldTicks != null) {
 					clickHeldOnRelease(heldTicks, keyId);
-					doInput(InputEventType.RELEASE, keyId, null, null, ConditionCheck.POSITIVE, 0);
+					doInput(InputEventType.RELEASE, keyId, null, ConditionCheck.POSITIVE, 0);
 					removeHeldKeyTimer(key);
 				}
 
@@ -270,7 +275,7 @@ public class InputHandler {
 		return cancelVanilla;
 	}
 	
-	private void doInput(InputEventType type, short keyId, Power<?> power, Ability ability, ConditionCheck conditionCheck, float timeTookToResolve) {
+	private void doInput(InputEventType type, short keyId, Ability ability, ConditionCheck conditionCheck, float timeTookToResolve) {
 		Player player = mc.player;
 		switch (type) {
 			case PRESS_CLICK, PRESS_HOLD -> {
@@ -347,11 +352,10 @@ public class InputHandler {
 		if (keyResolution != null) {
 			ClickHoldResolve.Result wasItClick = keyResolution.keyReleased();
 			if (wasItClick != null && wasItClick.input() == ClickHoldResolve.InputState.CLICK) {
-				Power<?> power = keyResolution.power;
 				Ability ability = keyResolution.clickAbility;
-				ConditionCheck conditionCheck = ClientPowerCache.getAvailableMoves(power.getPowerClass(), power).getConditionCheck(ability);
+				ConditionCheck conditionCheck = ClientPowerCache.getAvailableAbilities(ability.abilityId.powerClass()).getConditionCheck(ability);
 				float ticksToResolveClick = wasItClick.timeTook();
-				doInput(InputEventType.PRESS_CLICK, keyId, power, ability, conditionCheck, ticksToResolveClick);
+				doInput(InputEventType.PRESS_CLICK, keyId, ability, conditionCheck, ticksToResolveClick);
 				heldKeyTimer.setInputMethod(InputMethod.CLICK);
 			}
 		}
@@ -366,11 +370,10 @@ public class InputHandler {
 					switch (changedState.input()) {
 						case ASSUME_HOLD -> {}
 						case HOLD -> {
-							Power<?> power = keyResolution.power;
 							Ability ability = keyResolution.heldAbility;
-							ConditionCheck conditionCheck = ClientPowerCache.getAvailableMoves(power.getPowerClass(), power).getConditionCheck(ability);
+							ConditionCheck conditionCheck = ClientPowerCache.getAvailableAbilities(ability.getAbilityId().powerClass()).getConditionCheck(ability);
 							float ticksToResolveHeld = changedState.timeTook();
-							doInput(InputEventType.PRESS_HOLD, timer.key.keyId(), power, ability, conditionCheck, ticksToResolveHeld);
+							doInput(InputEventType.PRESS_HOLD, timer.key.keyId(), ability, conditionCheck, ticksToResolveHeld);
 							timer.setInputMethod(InputMethod.HOLD);
 						}
 						default -> {}
@@ -407,22 +410,19 @@ public class InputHandler {
 	
 	// The function that figures out what ability has the player inputed.
 	
-	private CurInput getInputAbilitiesOnClick(Power<?> power, ClientKey key, KeyModifier keyModifier) {
+	private CurInput getInputAbilitiesOnClick(ClientControlScheme controlScheme, ClientKey key, KeyModifier keyModifier) {
 		CurInput input = CurInput.instance;
 		input.heldAbility = null;
 		input.clickAbility = null;
 		
-		ClientControlScheme controlScheme = getCurControlScheme(power);
 		if (controlScheme != null) {
 			List<AbilityControlsEntry> heldBound = controlScheme.getBindsWithModifier(InputMethod.HOLD, key, keyModifier);
 			List<AbilityControlsEntry> clickBound = controlScheme.getBindsWithModifier(InputMethod.CLICK, key, keyModifier);
 			
 			if (!(heldBound.isEmpty() && clickBound.isEmpty())) {
-				AvailableAbilities available = ClientPowerCache.getAvailableMoves(power.getPowerClass(), power);
-
 				Predicate<AbilityInputState> filter = inputState -> AbilityInputState.isInputActive(inputState, PowerHud.isInContainerScreen());
-				input.heldAbility = ClientControlScheme.prioritizedAbility(heldBound, available, power, filter);
-				input.clickAbility = ClientControlScheme.prioritizedAbility(clickBound, available, power, filter);
+				input.heldAbility = ClientControlScheme.prioritizedAbility(heldBound, filter);
+				input.clickAbility = ClientControlScheme.prioritizedAbility(clickBound, filter);
 			}
 		}
 		
@@ -451,8 +451,7 @@ public class InputHandler {
 	protected float hotbarsSelectionTimestamp;
 	
 	public void checkStartHotbarSelection(ClientKey pressedKey) {
-		Power<?> power = getCurPower();
-		ClientControlScheme controlScheme = getCurControlScheme(power);
+		ClientControlScheme controlScheme = getActiveControlScheme();
 		if (controlScheme != null) {
 			Hotbar wheelHotbar = null;
 			var curControls = controlScheme.getCurGroup().getValue();

@@ -18,12 +18,12 @@ import javax.annotation.Nullable;
 
 import org.jetbrains.annotations.ApiStatus;
 
+import com.github.standobyte.jojo.client.ClientPowerCache;
 import com.github.standobyte.jojo.client.input.AbilityInputState;
 import com.github.standobyte.jojo.client.input.InputHandler;
 import com.github.standobyte.jojo.powersystem.Power;
 import com.github.standobyte.jojo.powersystem.PowerClass;
 import com.github.standobyte.jojo.powersystem.PowerType;
-import com.github.standobyte.jojo.powersystem.ability.condition.AvailableAbilities;
 import com.github.standobyte.jojo.powersystem.ability.condition.AvailableAbilities.AbilityConditionCheck;
 import com.github.standobyte.jojo.powersystem.ability.controls.ControlSchemeTemplate;
 import com.github.standobyte.jojo.powersystem.ability.controls.ControlSchemeTemplate.AbilitiesHotbar;
@@ -31,14 +31,13 @@ import com.github.standobyte.jojo.powersystem.ability.controls.InputBindTemplate
 import com.github.standobyte.jojo.powersystem.ability.controls.InputKey;
 import com.github.standobyte.jojo.powersystem.ability.controls.InputMethod;
 import com.github.standobyte.jojo.powersystem.ability.controls.InputUseVanillaMapping;
-import com.github.standobyte.jojo.powersystem.standpower.entity.StandEntity;
-import com.github.standobyte.jojo.util.StandUtil;
 import com.mojang.datafixers.util.Pair;
 
 import net.minecraft.network.chat.Component;
 import net.neoforged.neoforge.client.settings.KeyModifier;
 
 public class ClientControlScheme {
+	public PowerClass<?> powerClassCosmetic;
 	@ApiStatus.Internal public final Map<String, MoveGroup> moveGroups = new LinkedHashMap<>();
 	@ApiStatus.Internal public Map.Entry<String, MoveGroup> curGroup;
 	private static final Map.Entry<String, MoveGroup> EMPTY = new AbstractMap.SimpleEntry<>("", new MoveGroup(Component.empty(), null));
@@ -179,25 +178,20 @@ public class ClientControlScheme {
 	}
 	
 	@Nullable
-	public static AbilityConditionCheck prioritizedAbility(List<AbilityControlsEntry> abilityNames, AvailableAbilities available, 
-			Power<?> abilityCtx, @Nullable Predicate<AbilityInputState> filter) {
+	public static AbilityConditionCheck prioritizedAbility(List<AbilityControlsEntry> abilityNames, @Nullable Predicate<AbilityInputState> filter) {
 		Stream<AbilityConditionCheck> stream = abilityNames.stream()
-				.map(abilityName -> available._inMoveset.get(abilityName.abilityName()))
+				.map(abilityName -> ClientPowerCache.getAvailableAbilities(abilityName.powerClass())._inMoveset.get(abilityName.abilityName()))
 				.filter(Objects::nonNull);
 		if (filter != null) {
 			stream = stream.filter(a -> filter.test(AbilityInputState.withValue(a.clientInputState)));
 		}
 		
-		StandEntity standEntity = StandUtil.getSummonedStand(abilityCtx);
-		boolean standHoldingItem = standEntity != null && 
-				(!standEntity.getMainHandItem().isEmpty() || !standEntity.getOffhandItem().isEmpty());
-		
 		return stream
-				.sorted(Comparator.comparingInt(a -> abilityPriority(a, abilityCtx, standHoldingItem)))
+				.sorted(Comparator.comparingInt(a -> abilityPriority(a, ClientPowerCache.getPower(a.ability.abilityId.powerClass()))))
 				.findFirst().orElse(null);
 	}
 	
-	protected static int abilityPriority(AbilityConditionCheck ability, Power<?> abilityCtx, boolean standHoldingItem) {
+	protected static int abilityPriority(AbilityConditionCheck ability, Power<?> abilityCtx) {
 		if (!ability.conditionCheck.isPositive()) {
 			return 2;
 		}
@@ -208,6 +202,7 @@ public class ClientControlScheme {
 	public static ClientControlScheme create(ControlSchemeTemplate template, PowerType powerType) {
 		ClientControlScheme controls = new ClientControlScheme();
 		PowerClass<?> powerClass = powerType.getPowerClass();
+		controls.powerClassCosmetic = powerClass;
 		
 		for (ControlSchemeTemplate.GroupTemplate groupTemplate : template.groups.values()) {
 			if (groupTemplate.isEmpty()) continue;

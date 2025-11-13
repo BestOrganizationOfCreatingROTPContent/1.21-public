@@ -47,12 +47,12 @@ import net.neoforged.neoforge.common.util.TriState;
 
 @EventBusSubscriber(modid = JojoMod.MOD_ID, value = Dist.CLIENT)
 public class PowerHud {
-	public static PrototypeAbilityHud abilityHUDInstance;
+	public static AbilityHud abilityHUDInstance;
 
 	@SubscribeEvent
 	public static void addHud(RegisterGuiLayersEvent event) {
 		event.registerBelow(VanillaGuiLayers.BOSS_OVERLAY, 
-				JojoMod.resLoc("ability_hud"), abilityHUDInstance = new PrototypeAbilityHud());
+				JojoMod.resLoc("ability_hud"), abilityHUDInstance = new AbilityHud());
 	}
 	
 	
@@ -92,7 +92,7 @@ public class PowerHud {
 	}
 	
 	
-	public static class PrototypeAbilityHud implements LayeredDraw.Layer {
+	public static class AbilityHud implements LayeredDraw.Layer {
 		public Map<String, HudElement> elements = new HashMap<>();
 		
 		public HudElement addElement(HudElement element) {

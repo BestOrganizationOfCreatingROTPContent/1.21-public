@@ -30,7 +30,7 @@
   "key.categories.jojo_ripples": "JoJo: Ripples of the Past",
   "jojo_ripples.key.toggle_stand": "Summon/unsummon Stand",
   "jojo_ripples.key.toggle_stand.desc": "Also toggles the Stand controls HUD.",
-  "jojo_ripples.key.stand_mode": "HUD mode: Stand",
+  "jojo_ripples.key.stand_mode": "HUD mode: Stand (No summon)",
   "jojo_ripples.key.stand_mode.desc": "When your Stand is unsummoned, toggle the Stand controls HUD.\n\nThis way some of the some Stand abilities can be used while summoning only the arms of your Stand.",
   "jojo_ripples.key.non_stand_mode": "HUD mode: Non-Stand power",
   "jojo_ripples.key.non_stand_mode.desc": "Toggle the controls HUD for your power other than a Stand (like Hamon or vampirism).",

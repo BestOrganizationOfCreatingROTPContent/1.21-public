@@ -13,7 +13,6 @@ import com.github.standobyte.jojo.client.ClientUtil;
 import com.github.standobyte.jojo.client.input.AbilityInputState;
 import com.github.standobyte.jojo.client.input.HeldKeyTimer;
 import com.github.standobyte.jojo.client.input.InputHandler;
-import com.github.standobyte.jojo.client.input.controlscheme.AllControlSchemes;
 import com.github.standobyte.jojo.client.input.controlscheme.ClientControlScheme;
 import com.github.standobyte.jojo.client.input.controlscheme.ClientControlScheme.AbilityControlsEntry;
 import com.github.standobyte.jojo.client.input.controlscheme.ClientControlScheme.Hotbar;
@@ -26,7 +25,7 @@ import com.github.standobyte.jojo.client.standskin.StandSkinsLoader;
 import com.github.standobyte.jojo.client.standskin.sprites.AbilityIconSprites;
 import com.github.standobyte.jojo.client.text.IconSymbols;
 import com.github.standobyte.jojo.client.text.ShortenText;
-import com.github.standobyte.jojo.client.ui.powerhud.PowerHud.PrototypeAbilityHud;
+import com.github.standobyte.jojo.client.ui.powerhud.PowerHud.AbilityHud;
 import com.github.standobyte.jojo.client.ui.utils.BlitFloat;
 import com.github.standobyte.jojo.client.ui.utils.GuiIcon;
 import com.github.standobyte.jojo.client.ui.utils.TextUtil;
@@ -34,7 +33,7 @@ import com.github.standobyte.jojo.client.ui.utils.tooltip.TooltipParams;
 import com.github.standobyte.jojo.core.JojoMod;
 import com.github.standobyte.jojo.powersystem.Power;
 import com.github.standobyte.jojo.powersystem.PowerClass;
-import com.github.standobyte.jojo.powersystem.ability.condition.AvailableAbilities;
+import com.github.standobyte.jojo.powersystem.ability.Ability;
 import com.github.standobyte.jojo.powersystem.ability.condition.AvailableAbilities.AbilityConditionCheck;
 import com.github.standobyte.jojo.powersystem.ability.controls.InputMethod;
 import com.github.standobyte.v1_21_4_stuff.missingmethods.ARGB;
@@ -99,8 +98,8 @@ public class ControlsHudElement extends HudElement {
 		Minecraft mc = Minecraft.getInstance();
 		if (mc.player == null) return false;
 
-		Power<?> power = input.getCurPower();
-		if (power == null || !power.hasPower()) return false;
+		ClientControlScheme controlScheme = input.getActiveControlScheme();
+		if (controlScheme == null) return false;
 
 		return !hud.forContainerMenu.isFalse();
 	}
@@ -111,27 +110,19 @@ public class ControlsHudElement extends HudElement {
 
 		Minecraft mc = Minecraft.getInstance();
 		InputHandler input = InputHandler.getInstance();
-		Power<?> power = input.getCurPower();
 		Font font = mc.font;
-		ClientControlScheme controlScheme = AllControlSchemes.getForPowerType(power.getPowerType());
+		ClientControlScheme controlScheme = input.getActiveControlScheme();
 		float partialTick = ClientUtil.partialTick(deltaTracker, false);
-
-		int color = 0xFFFFFFFF;
 		StandSkin standSkin = StandSkinsLoader.getCurSkin();
-		if (standSkin != null && power.getPowerClass() == PowerClass.STAND) {
-			color = standSkin.getColor();
-		}
+		int textColor = controlScheme.powerClassCosmetic == PowerClass.STAND && standSkin != null ? standSkin.getColor() : 0xFFFFFFFF;
 
-		this.prepare(hud, controlScheme, font, input.getCurModifier(), power, standSkin);
+		this.prepare(hud, controlScheme, font, input.getCurModifier(), standSkin);
 		// TODO (controls HUD) update size
-		this.renderControls(this.getX(), this.getY(), mc, guiGraphics, deltaTracker, font, color, partialTick);
+		this.renderControls(this.getX(), this.getY(), mc, guiGraphics, deltaTracker, font, textColor, partialTick);
 	}
 	
 	@Override
 	protected void checkTooltip(double mouseX, double mouseY, DeltaTracker deltaTracker) {
-		InputHandler input = InputHandler.getInstance();
-		Power<?> power = input.getCurPower();
-		
 		for (var abilitySlot : hoverableAbilities) {
 			BindUI slot = abilitySlot.getFirst();
 			ScreenRectangle rectangle = abilitySlot.getSecond();
@@ -142,12 +133,15 @@ public class ControlsHudElement extends HudElement {
 					List<Component> tooltip = new ArrayList<>();
 					for (var byInputMethod : slot.abilities.entrySet()) {
 						InputMethod inputMethod = byInputMethod.getKey();
-						AbilityBindUI ability = byInputMethod.getValue();
+						AbilityBindUI bindUI = byInputMethod.getValue();
 						Component keyName = switch (inputMethod) {
 							case CLICK -> slot.keybind;
 							case HOLD -> Component.translatable("ripples_hud.hold_key", slot.keybind);
 						};
-						Component line = Component.translatable("ripples_hud.key_ability", keyName, ability.ability.ability/*:fire::writing_hand:*/.getName(power))
+						Ability ability = bindUI.ability.ability;
+						Power<?> power = ClientPowerCache.getPower(ability.abilityId.powerClass());
+						Component abilityName = ability.getName(power);
+						Component line = Component.translatable("ripples_hud.key_ability", keyName, abilityName)
 								.withStyle(ChatFormatting.BLACK);
 						tooltip.add(line);
 					}
@@ -216,12 +210,11 @@ public class ControlsHudElement extends HudElement {
 		hoverableAbilities.clear();
 	}
 
-	public void prepare(PrototypeAbilityHud hud, ClientControlScheme controlScheme, Font font, 
-			@Nonnull KeyModifier modifier, Power<?> power, @Nullable StandSkin standSkin) {
+	public void prepare(AbilityHud hud, ClientControlScheme controlScheme, Font font, 
+			@Nonnull KeyModifier modifier, @Nullable StandSkin standSkin) {
 		if (controlScheme == null) return;
 		ClientControlScheme.MoveGroup curGroup = controlScheme.getCurGroup().getValue();
 		if (modifier == KeyModifier.ALT) modifier = KeyModifier.NONE;
-		AvailableAbilities availableAbilities = ClientPowerCache.getAvailableMoves(power.getPowerClass(), power);
 		AbilityIconSprites abilityIconSprites = StandSkinsLoader.getInstance().abilityIcons;
 		
 		InputHandler modInput = InputHandler.getInstance();
@@ -234,8 +227,8 @@ public class ControlsHudElement extends HudElement {
 			InputsByKeyModifier bindsForInputMethod = bindEntry.getValue();
 			
 			for (InputMethod inputMethod : InputMethod.values()) {
-				AbilityBindUI abilityBindUI = makeBindUI(inputMethod, bindsForInputMethod, power, 
-						modifier, availableAbilities, key, false, 
+				AbilityBindUI abilityBindUI = makeBindUI(inputMethod, bindsForInputMethod, 
+						modifier, key, false, 
 						abilityIconSprites, standSkin, 
 						font, hud.forContainerMenu);
 				if (abilityBindUI != null) {
@@ -247,8 +240,8 @@ public class ControlsHudElement extends HudElement {
 						// if you aren't pressing Ctrl or Shift, but there is no ability keybind to render, render the Ctrl and Shift ones instead
 						for (KeyModifier otherModifier : KeyModifier.values()) {
 							if (otherModifier != modifier) {
-								abilityBindUI = makeBindUI(inputMethod, bindsForInputMethod, power, 
-										otherModifier, availableAbilities, key, true, 
+								abilityBindUI = makeBindUI(inputMethod, bindsForInputMethod, 
+										otherModifier, key, true, 
 										abilityIconSprites, standSkin, 
 										font, hud.forContainerMenu);
 								
@@ -293,7 +286,7 @@ public class ControlsHudElement extends HudElement {
 						AbilityControlsEntry ability = slot.getBinds().getFirst(modifier, inputMethod);
 						if (ability != null) {
 							AbilityBindUI bind = makeAbilityBindUI(key, null, 
-									inputMethod, availableAbilities._inMoveset.get(ability.abilityName()), power, 
+									inputMethod, ClientPowerCache.getAvailableAbilities(ability.powerClass())._inMoveset.get(ability.abilityName()), 
 									abilityIconSprites, standSkin, 
 									font, hud.forContainerMenu);
 							if (bind != null) {
@@ -367,25 +360,25 @@ public class ControlsHudElement extends HudElement {
 
 
 	@Nullable
-	private static AbilityBindUI makeBindUI(InputMethod inputMethod, InputsByKeyModifier binds, Power<?> abilityCtx, 
-			@Nonnull KeyModifier modifier, AvailableAbilities available, ClientKey key, boolean withModifierName, 
+	private static AbilityBindUI makeBindUI(InputMethod inputMethod, InputsByKeyModifier binds, 
+			@Nonnull KeyModifier modifier, ClientKey key, boolean withModifierName, 
 			AbilityIconSprites abilitySprites, @Nullable StandSkin standSkin, 
 			Font font, TriState forContainerMenu) {
 		List<AbilityControlsEntry> boundAbilities = binds.getAll(modifier, inputMethod);
 		if (boundAbilities.isEmpty()) {
 			return null;
 		}
-		AbilityConditionCheck ability = ClientControlScheme.prioritizedAbility(boundAbilities, available, abilityCtx, 
+		AbilityConditionCheck ability = ClientControlScheme.prioritizedAbility(boundAbilities, 
 				state -> AbilityInputState.showAbilityInHUD(state, forContainerMenu));
 		return makeAbilityBindUI(key, withModifierName ? modifier : KeyModifier.NONE, 
-				inputMethod, ability, abilityCtx, 
+				inputMethod, ability, 
 				abilitySprites, standSkin, 
 				font, forContainerMenu);
 	}
 
 	@Nullable
 	private static AbilityBindUI makeAbilityBindUI(ClientKey key, KeyModifier modifier, 
-			InputMethod inputMethod, AbilityConditionCheck ability, Power<?> abilityCtx, 
+			InputMethod inputMethod, AbilityConditionCheck ability, 
 			AbilityIconSprites abilitySprites, @Nullable StandSkin standSkin, 
 			Font font, TriState forContainerMenu) {
 		if (ability != null && ability.ability != null) {
@@ -399,6 +392,7 @@ public class ControlsHudElement extends HudElement {
 			if (showAbility) {
 				Component keyName = getKeyName(key, modifier);
 				Component bindName = inputMethod == InputMethod.HOLD ? Component.translatable("ripples_hud.hold_key", keyName) : keyName;
+				Power<?> abilityCtx = ClientPowerCache.getPower(ability.ability.abilityId.powerClass());
 
 				AbilityBindUI bindUI = new AbilityBindUI();
 

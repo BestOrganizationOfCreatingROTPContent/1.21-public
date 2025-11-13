@@ -60,7 +60,7 @@ public class ClientPowerCache {
 	 * @param powerClass
 	 * @param power Just in case, you don't have to provide it
 	 */
-	public static AvailableAbilities getAvailableMoves(PowerClass<?> powerClass, @Nullable Power<?> power) {
+	public static AvailableAbilities getAvailableAbilities(PowerClass<?> powerClass, @Nullable Power<?> power) {
 		int i = powerClass.ordinal();
 		if (availableAbilitiesCache[i] == null && power != null) {
 			powersCache[i] = power;
@@ -68,6 +68,8 @@ public class ClientPowerCache {
 		}
 		return availableAbilitiesCache[i];
 	}
+	
+	public static AvailableAbilities getAvailableAbilities(PowerClass<?> powerClass) { return getAvailableAbilities(powerClass, null); }
 
 	private static Power<?>[] powersCache = new Power<?>[PowerClass.values().length];
 	private static AvailableAbilities[] availableAbilitiesCache = new AvailableAbilities[PowerClass.values().length];
