@@ -11,6 +11,7 @@ import com.github.standobyte.jojo.client.ClientUtil;
 import com.github.standobyte.jojo.client.standskin.StandSkin;
 import com.github.standobyte.jojo.client.standskin.StandSkinsLoader;
 import com.github.standobyte.jojo.client.standskin.StandSkinsScreen;
+import com.github.standobyte.jojo.client.ui.powerhud.PowerHud;
 import com.github.standobyte.jojo.client.ui.utils.GuiIcon;
 import com.github.standobyte.jojo.core.JojoMod;
 import com.github.standobyte.jojo.init.power.ModPlayerPowers;
@@ -141,13 +142,7 @@ public class JojoMenuTabs {
 	public static final Tab STAND_INFO = new Tab(CATEGORY_STAND) {
 		@Override
 		public void renderIcon(GuiGraphics guiGraphics, int x, int y) {
-			StandSkin skin = StandSkinsLoader.getCurSkin();
-			if (skin != null) {
-				this.icon = skin.getStandIcon();
-				if (icon != null) {
-					super.renderIcon(guiGraphics, x, y);
-				}
-			}
+			PowerHud.renderClientStandIcon(guiGraphics.pose(), x, y);
 		}
 	}
 			.withName(Component.translatable(JojoMod.MOD_ID + ".menu.stand.info"));
@@ -185,11 +180,11 @@ public class JojoMenuTabs {
 	
 	public static final TabCategory CATEGORY_HAMON = new TabCategory(PowerClass.PLAYER_POWER, ModPlayerPowers.HAMON)
 			.withName(Component.translatable("power." + JojoMod.MOD_ID + ".hamon"))
-			.withIcon(new GuiIcon(JojoMod.resLoc("textures/power/hamon.png"), 16, 16));
+			.withIcon(PowerHud.getPowerIcon(ModPlayerPowers.HAMON));
 	
 	public static final Tab HAMON_INTRO = new Tab(CATEGORY_HAMON)
 			.withName(Component.translatable("hamon.intro.tab"))
-			.withIcon(new GuiIcon(JojoMod.resLoc("textures/power/hamon.png"), 16, 16));
+			.withIcon(PowerHud.getPowerIcon(ModPlayerPowers.HAMON));
 	
 	public static final Tab HAMON_STATS = new Tab(CATEGORY_HAMON) {
 		@Override
@@ -219,7 +214,7 @@ public class JojoMenuTabs {
 
 	public static final TabCategory CATEGORY_VAMPIRISM = new TabCategory(PowerClass.PLAYER_POWER, ModPlayerPowers.VAMPIRISM)
 			.withName(Component.translatable("power." + JojoMod.MOD_ID + ".vampirism"))
-			.withIcon(new GuiIcon(JojoMod.resLoc("textures/power/vampirism.png"), 16, 16));
+			.withIcon(PowerHud.getPowerIcon(ModPlayerPowers.VAMPIRISM));
 
 	public static final Tab VAMPIRISM_SKILLS = new Tab(CATEGORY_VAMPIRISM)
 			.withName(Component.translatable(JojoMod.MOD_ID + ".vampirism.skills"));

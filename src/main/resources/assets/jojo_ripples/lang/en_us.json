@@ -123,7 +123,8 @@
   "item.jojo_ripples.mannequin_slim": "Mannequin (slim)",
   "ripples_clothes_split": "Right click to split into %s and %s",
   "ripples_clothes_combine": "Left click on a %s to combine into %s",
-  
+
+  "ripples_hud.stand_summoned": "Your %s is summoned",
   "ripples_hud.resolve_bar": "Resolve: %s%%",
   "ripples_hud.resolve_mode": "True Resolve: %s",
   "ripples_hud.resolve_bar.desc": "Attack non-passive targets with your Stand to build up Resolve meter. %s\nWhen the meter is full, you can enter True Resolve mode, which, in addition to the damage resistance, temporarily disables low stamina debuffs.",

@@ -109,11 +109,10 @@
   "item.jojo_ripples.mannequin_slim": "Манекен (худой)",
   "ripples_clothes_split": "ПКМ: разделить на %s и %s",
   "ripples_clothes_combine": "ЛКМ: объединить с %s в %s",
-  
+
+  "ripples_hud.stand_summoned": "Ваш Стенд %s призван",
   "ripples_hud.resolve_bar": "Решимость: %s%%",
   "ripples_hud.resolve_mode": "Истинная Решимость: %s",
-  
-  
   "ripples_hud.resolve_bar.desc": "Когда вы атакуете кого либо, кроме пассивных мобов, своим Стендом, заполняется ваша шкала Решимости. %s\nКогда шкала заполнена, вы можете войти в режим Истинной Решимости, в котором, помимо сопротивления урону, ваш Стенд не ослабевает при низком уровне стойкости.",
   "ripples_hud.resolve_bar.desc1.regular": "От Решимости увеличивается ваше сопротивление ко всем видам урона, вплоть до 60%.",
   "ripples_hud.resolve_bar.desc1.vamp": "",

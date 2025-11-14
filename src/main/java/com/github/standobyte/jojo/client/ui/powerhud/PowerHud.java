@@ -2,10 +2,12 @@ package com.github.standobyte.jojo.client.ui.powerhud;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.function.Supplier;
 
 import com.github.standobyte.jojo.client.ClientGlobals;
 import com.github.standobyte.jojo.client.ClientPowerCache;
 import com.github.standobyte.jojo.client.ClientUtil;
+import com.github.standobyte.jojo.client.input.InputHandler;
 import com.github.standobyte.jojo.client.standskin.StandSkin;
 import com.github.standobyte.jojo.client.standskin.StandSkinsLoader;
 import com.github.standobyte.jojo.client.ui.utils.BlitFloat;
@@ -13,7 +15,9 @@ import com.github.standobyte.jojo.client.ui.utils.GuiIcon;
 import com.github.standobyte.jojo.client.ui.utils.tooltip.MultiLineScreenTooltip;
 import com.github.standobyte.jojo.core.JojoMod;
 import com.github.standobyte.jojo.init.power.ModPlayerPowers;
+import com.github.standobyte.jojo.powersystem.Power;
 import com.github.standobyte.jojo.powersystem.PowerClass;
+import com.github.standobyte.jojo.powersystem.PowerType;
 import com.github.standobyte.jojo.powersystem.playerpower.PlayerPower;
 import com.github.standobyte.jojo.powersystem.standpower.StandPower;
 import com.github.standobyte.jojo.powersystem.standpower.entity.StandEntity;
@@ -21,6 +25,7 @@ import com.github.standobyte.jojo.util.MathUtil;
 import com.github.standobyte.jojo.util.StandUtil;
 import com.github.standobyte.v1_21_4_stuff.missingmethods.ARGB;
 import com.mojang.blaze3d.systems.RenderSystem;
+import com.mojang.blaze3d.vertex.PoseStack;
 
 import net.minecraft.ChatFormatting;
 import net.minecraft.client.DeltaTracker;
@@ -118,8 +123,9 @@ public class PowerHud {
 
 	
 		public HudElement controls = addElement(new ControlsHudElement("controls", 4, 44, -1, -1));
-		public HudElement resolveBar = addElement(new Resolve("resolve_bar", 11, 12, 32, 16));
-		public HudElement staminaBar = addElement(new Stamina("stamina_bar", 61, 16, Bars.HORIZONTAL_LENGTH + 8, Bars.HORIZONTAL_WIDTH));
+		public HudElement powerIcon = addElement(new PowerIcon("powerIcon", 11, 12, 16, 16));
+		public HudElement resolveBar = addElement(new Resolve("resolve_bar", 31, 12, 32, 16));
+		public HudElement staminaBar = addElement(new Stamina("stamina_bar", 81, 16, Bars.HORIZONTAL_LENGTH + 8, Bars.HORIZONTAL_WIDTH));
 		public HudElement standRange = addElement(new StandRange("stand_range", 
 				(int) staminaBar.xOffsetL + staminaBar.getWidth() + 10, (int) staminaBar.yOffsetU, -1, -1));
 		public HudElement finisherBar = addElement(new Finisher("stand_finisher", 
@@ -167,6 +173,117 @@ public class PowerHud {
 		}
 		
 	}
+	
+	
+	public static class PowerIcon extends HudElement {
+		protected PowerClass<?> powerClass;
+		protected boolean standSummoned;
+
+		public PowerIcon(String name, int x0, int y0, int width, int height) {
+			super(name, x0, y0, width, height);
+		}
+
+		public PowerIcon(String name, SnappingH snappingHorizontal, SnappingV snappingVertical, 
+				int xOffset, int yOffset, int width, int height) {
+			super(name, snappingHorizontal, snappingVertical, xOffset, yOffset, width, height);
+		}
+		
+		@Override
+		protected void initText() {
+			super.initText();
+			tooltipText.body.clear();
+		}
+
+		@Override
+		public boolean shouldRender() {
+			standSummoned = ClientPowerCache.getPower(PowerClass.STAND).isSummoned();
+			powerClass = null;
+			
+			if (!hud.forContainerMenu.isTrue()) {
+				var controlScheme = InputHandler.getInstance().getActiveControlScheme();
+				if (controlScheme != null) {
+					powerClass = controlScheme.powerClassCosmetic;
+					if (powerClass == PowerClass.STAND && !standSummoned) {
+						powerClass = null;
+					}
+				}
+			}
+			
+			if (standSummoned) {
+				if (powerClass == null) {
+					powerClass = PowerClass.STAND;
+				}
+				else if (powerClass != PowerClass.STAND) {
+					standSummoned = false;
+				}
+			}
+			
+			return powerClass != null;
+		}
+
+		@Override
+		public void renderElement(GuiGraphics guiGraphics, DeltaTracker deltaTracker) {
+			if (powerClass != null) {
+				if (powerClass == PowerClass.STAND) {
+					renderClientStandIcon(guiGraphics.pose(), getX(), getY());
+				}
+				else {
+					Power<?> power = ClientPowerCache.getPower(powerClass);
+					if (power != null && power.hasPower()) {
+						GuiIcon icon = getPowerIcon(power.getPowerType());
+						icon.render(guiGraphics.pose(), getX(), getY());
+					}
+				}
+			}
+		}
+		
+		@Override
+		protected void checkTooltip(double mouseX, double mouseY, DeltaTracker deltaTracker) {
+			if (standSummoned) {
+				Power<?> power = ClientPowerCache.getPower(PowerClass.STAND);
+				if (power != null && power.hasPower()) {
+					Component powerName = power.getName();
+					tooltipText.setTitle(Component.translatable("ripples_hud.stand_summoned", powerName.copy())
+							.withStyle(ChatFormatting.BLACK));
+				}
+			}
+			else {
+				Power<?> power = ClientPowerCache.getPower(powerClass);
+				if (power != null && power.hasPower()) {
+					Component powerName = power.getName();
+					tooltipText.setTitle(powerName.copy()
+							.withStyle(ChatFormatting.BLACK));
+				}
+			}
+			super.checkTooltip(mouseX, mouseY, deltaTracker);
+		}
+	}
+	
+	public static void renderClientStandIcon(PoseStack pose, int x, int y) {
+		renderStandIcon(ClientPowerCache.getPower(PowerClass.STAND), pose, x, y);
+	}
+	
+	public static void renderStandIcon(StandPower standPower, PoseStack pose, int x, int y) {
+		if (standPower != null) {
+			StandSkin skin = StandSkinsLoader.getInstance().getSkin(standPower);
+			if (skin != null) {
+				GuiIcon icon = skin.getStandIcon();
+				if (icon != null) {
+					RenderSystem.enableBlend();
+					RenderSystem.defaultBlendFunc();
+					icon.render(pose, x, y);
+					RenderSystem.disableBlend();
+				}
+			}
+		}
+	}
+	
+	protected static final Map<ResourceLocation, GuiIcon> POWER_ICONS = new HashMap<>();
+	public static GuiIcon getPowerIcon(PowerType powerType) {
+		return POWER_ICONS.computeIfAbsent(powerType.getId(), 
+				id -> new GuiIcon(id.withPath(path -> "textures/power/" + path + ".png"), 16, 16));
+	}
+	public static GuiIcon getPowerIcon(Supplier<? extends PowerType> powerType) { return getPowerIcon(powerType.get()); }
 		
 		
 	public static class Resolve extends HudElement {

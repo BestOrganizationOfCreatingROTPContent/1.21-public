@@ -9,6 +9,7 @@ import com.github.standobyte.jojo.client.ClientPowerCache;
 import com.github.standobyte.jojo.client.standskin.StandSkin;
 import com.github.standobyte.jojo.client.standskin.StandSkinsLoader;
 import com.github.standobyte.jojo.client.standskin.sprites.AbilityIconSprites;
+import com.github.standobyte.jojo.client.ui.powerhud.PowerHud;
 import com.github.standobyte.jojo.client.ui.utils.BlitFloat;
 import com.github.standobyte.jojo.client.ui.utils.GuiIcon;
 import com.github.standobyte.jojo.client.ui.utils.tooltip.TooltipParams;
@@ -131,13 +132,7 @@ public class ControlSchemeScreen extends Screen implements IJojoMenuScreen {
 			Power<?> power = powerClassLine.powerClass.get(minecraft.player);
 			
 			if (powerClassLine.powerClass == PowerClass.STAND) {
-				StandSkin skin = StandSkinsLoader.getCurSkin();
-				if (skin != null) {
-					var icon = skin.getStandIcon();
-					if (icon != null) {
-						icon.render(guiGraphics.pose(), powerIconX, powerIconY);
-					}
-				}
+				PowerHud.renderClientStandIcon(guiGraphics.pose(), powerIconX, powerIconY);
 			}
 			else {
 				ResourceLocation powerTypeId = power.getPowerType().getId();
