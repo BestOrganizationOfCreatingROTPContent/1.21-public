@@ -8,6 +8,7 @@ import com.github.standobyte.jojo.client.ClientGlobals;
 import com.github.standobyte.jojo.client.ClientPowerCache;
 import com.github.standobyte.jojo.client.ClientUtil;
 import com.github.standobyte.jojo.client.input.InputHandler;
+import com.github.standobyte.jojo.client.input.controlscheme.ClientControlScheme;
 import com.github.standobyte.jojo.client.standskin.StandSkin;
 import com.github.standobyte.jojo.client.standskin.StandSkinsLoader;
 import com.github.standobyte.jojo.client.ui.utils.BlitFloat;
@@ -323,7 +324,12 @@ public class PowerHud {
 		public boolean shouldRender() {
 			if (hud.forContainerMenu.isTrue()) return false;
 			StandPower standPower = ClientPowerCache.getPower(PowerClass.STAND);
-			return standPower != null && standPower.usesResolve();
+			if (standPower != null && standPower.usesResolve()) {
+				ClientControlScheme controlScheme = InputHandler.getInstance().getActiveControlScheme();
+				return controlScheme != null && controlScheme.hasAbility(ability -> ability.powerClass() == PowerClass.STAND);
+			}
+			
+			return false;
 		}
 		
 		@Override
@@ -433,7 +439,12 @@ public class PowerHud {
 		public boolean shouldRender() {
 			if (hud.forContainerMenu.isTrue()) return false;
 			StandPower standPower = ClientPowerCache.getPower(PowerClass.STAND);
-			return standPower != null && !standPower.isUserCreative() && standPower.usesStamina();
+			if (standPower != null && !standPower.isUserCreative() && standPower.usesStamina()) {
+				ClientControlScheme controlScheme = InputHandler.getInstance().getActiveControlScheme();
+				return controlScheme != null && controlScheme.hasAbility(ability -> ability.powerClass() == PowerClass.STAND);
+			}
+			
+			return false;
 		}
 		
 		@Override

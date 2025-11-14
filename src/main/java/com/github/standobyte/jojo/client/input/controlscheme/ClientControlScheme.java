@@ -21,9 +21,12 @@ import org.jetbrains.annotations.ApiStatus;
 import com.github.standobyte.jojo.client.ClientPowerCache;
 import com.github.standobyte.jojo.client.input.AbilityInputState;
 import com.github.standobyte.jojo.client.input.InputHandler;
+import com.github.standobyte.jojo.client.input.controlscheme.ClientControlScheme.AbilityControlsEntry;
+import com.github.standobyte.jojo.client.input.controlscheme.ClientControlScheme.MoveGroup;
 import com.github.standobyte.jojo.powersystem.Power;
 import com.github.standobyte.jojo.powersystem.PowerClass;
 import com.github.standobyte.jojo.powersystem.PowerType;
+import com.github.standobyte.jojo.powersystem.ability.condition.AvailableAbilities;
 import com.github.standobyte.jojo.powersystem.ability.condition.AvailableAbilities.AbilityConditionCheck;
 import com.github.standobyte.jojo.powersystem.ability.controls.ControlSchemeTemplate;
 import com.github.standobyte.jojo.powersystem.ability.controls.ControlSchemeTemplate.AbilitiesHotbar;
@@ -86,7 +89,13 @@ public class ClientControlScheme {
 		}
 	}
 	
-	public static record AbilityControlsEntry(PowerClass<?> powerClass, String abilityName) {}
+	public static record AbilityControlsEntry(PowerClass<?> powerClass, String abilityName) {
+		
+		public AbilityConditionCheck getClientAbility() {
+			AvailableAbilities allAbilities = ClientPowerCache.getAvailableAbilities(powerClass);
+			return allAbilities._inMoveset.get(abilityName);
+		}
+	}
 	
 	public static class Bind {
 		public ClientInputBind input;
@@ -145,8 +154,32 @@ public class ClientControlScheme {
 			return !list.isEmpty() ? list.get(0) : null;
 		}
 	}
-	
-	
+
+
+	public boolean hasAbility(Predicate<AbilityControlsEntry> condition) {
+		MoveGroup moves = this.getCurGroup().getValue();
+		for (var bind : moves.binds) {
+			if (condition.test(bind.ability)) {
+				return true;
+			}
+		}
+		
+		for (var hotbar : moves.hotbars) {
+			for (var hotbarSlot : hotbar.slots) {
+				for (var byModifier : hotbarSlot.binds.movesByModifier.entrySet()) {
+					for (var byInputMethod : byModifier.getValue().entrySet()) {
+						for (var ability : byInputMethod.getValue()) {
+							if (condition.test(ability)) { // looks cursed, I know
+								return true;
+							}
+						}
+					}
+				}
+			}
+		}
+		
+		return false;
+	}
 	
 	
 	@Nonnull
@@ -180,7 +213,7 @@ public class ClientControlScheme {
 	@Nullable
 	public static AbilityConditionCheck prioritizedAbility(List<AbilityControlsEntry> abilityNames, @Nullable Predicate<AbilityInputState> filter) {
 		Stream<AbilityConditionCheck> stream = abilityNames.stream()
-				.map(abilityName -> ClientPowerCache.getAvailableAbilities(abilityName.powerClass())._inMoveset.get(abilityName.abilityName()))
+				.map(abilityName -> abilityName.getClientAbility())
 				.filter(Objects::nonNull);
 		if (filter != null) {
 			stream = stream.filter(a -> filter.test(AbilityInputState.withValue(a.clientInputState)));

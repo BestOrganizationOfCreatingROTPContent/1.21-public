@@ -286,7 +286,7 @@ public class ControlsHudElement extends HudElement {
 						AbilityControlsEntry ability = slot.getBinds().getFirst(modifier, inputMethod);
 						if (ability != null) {
 							AbilityBindUI bind = makeAbilityBindUI(key, null, 
-									inputMethod, ClientPowerCache.getAvailableAbilities(ability.powerClass())._inMoveset.get(ability.abilityName()), 
+									inputMethod, ability.getClientAbility(), 
 									abilityIconSprites, standSkin, 
 									font, hud.forContainerMenu);
 							if (bind != null) {
