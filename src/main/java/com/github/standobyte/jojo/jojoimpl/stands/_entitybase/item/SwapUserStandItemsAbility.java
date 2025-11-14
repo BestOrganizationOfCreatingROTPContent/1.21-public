@@ -49,7 +49,6 @@ public class SwapUserStandItemsAbility extends Ability {
 		AbilityInputState state = super.cl_abilityInputState(context);
 		if (PowerHud.isInContainerScreen()) { // make it work in a container screen too
 			state.setFlag(AbilityInputState.IS_ACTIVE, true);
-			state.setFlag(AbilityInputState.VISIBLE_TRANSLUCENT, false);
 			state.setFlag(AbilityInputState.ONLY_IN_CONTAINER, true);
 		}
 		return state;

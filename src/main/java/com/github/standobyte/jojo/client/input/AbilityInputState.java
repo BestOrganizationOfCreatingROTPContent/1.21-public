@@ -21,12 +21,11 @@ public class AbilityInputState {
 	// named flags
 
 	public static final int IS_ACTIVE = 0;
-	public static final int VISIBLE_EVEN_INACTIVE = 1;
-	public static final int VISIBLE_TRANSLUCENT = 2;
+	public static final int VISIBLE_WHEN_INACTIVE = 1;
 
-	public static final int ONLY_IN_CONTAINER = 3;
-	public static final int WITH_ITEM_HELD = 4;
-	public static final int HIGH_PRIORITY = 5;
+	public static final int ONLY_IN_CONTAINER = 2;
+	public static final int WITH_ITEM_HELD = 3;
+	public static final int HIGH_PRIORITY = 4;
 
 	
 	public static boolean isInputActive(AbilityInputState state, boolean inContainerMenu) {
@@ -35,8 +34,7 @@ public class AbilityInputState {
 	
 	public static boolean showAbilityInHUD(AbilityInputState state, TriState forContainerMenu) {
 		boolean showAbility = state.getFlag(AbilityInputState.IS_ACTIVE)
-				|| state.getFlag(AbilityInputState.VISIBLE_EVEN_INACTIVE)
-				|| state.getFlag(AbilityInputState.VISIBLE_TRANSLUCENT);
+				|| state.getFlag(AbilityInputState.VISIBLE_WHEN_INACTIVE);
 		showAbility &= state.getFlag(AbilityInputState.ONLY_IN_CONTAINER) == forContainerMenu.isTrue();
 		return showAbility;
 	}

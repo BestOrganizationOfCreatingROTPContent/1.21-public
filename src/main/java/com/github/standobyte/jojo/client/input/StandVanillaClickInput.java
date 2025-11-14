@@ -79,8 +79,7 @@ public class StandVanillaClickInput {
 							AbilityInputState inputState = AbilityInputState.withValue(ability.clientInputState);
 							if (!inputState.getFlag(AbilityInputState.WITH_ITEM_HELD)) {
 								inputState.setFlag(AbilityInputState.IS_ACTIVE, false);
-								inputState.setFlag(AbilityInputState.VISIBLE_EVEN_INACTIVE, false);
-								inputState.setFlag(AbilityInputState.VISIBLE_TRANSLUCENT, false);
+								inputState.setFlag(AbilityInputState.VISIBLE_WHEN_INACTIVE, false);
 							}
 							ability.clientInputState = inputState._value;
 						}

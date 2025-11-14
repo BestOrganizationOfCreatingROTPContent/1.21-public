@@ -52,6 +52,7 @@ import net.minecraft.client.gui.screens.inventory.tooltip.BelowOrAboveWidgetTool
 import net.minecraft.client.renderer.texture.TextureAtlasSprite;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
+import net.minecraft.util.FastColor;
 import net.minecraft.util.FastColor.ARGB32;
 import net.minecraft.util.Mth;
 import net.neoforged.neoforge.client.settings.KeyModifier;
@@ -383,11 +384,7 @@ public class ControlsHudElement extends HudElement {
 			Font font, TriState forContainerMenu) {
 		if (ability != null && ability.ability != null) {
 			AbilityInputState state = AbilityInputState.withValue(ability.clientInputState);
-
-			boolean showAbility = state.getFlag(AbilityInputState.IS_ACTIVE)
-					|| state.getFlag(AbilityInputState.VISIBLE_EVEN_INACTIVE)
-					|| state.getFlag(AbilityInputState.VISIBLE_TRANSLUCENT);
-			showAbility &= state.getFlag(AbilityInputState.ONLY_IN_CONTAINER) == forContainerMenu.isTrue();
+			boolean showAbility = AbilityInputState.showAbilityInHUD(state, forContainerMenu);
 
 			if (showAbility) {
 				Component keyName = getKeyName(key, modifier);
@@ -417,6 +414,8 @@ public class ControlsHudElement extends HudElement {
 		RenderSystem.defaultBlendFunc();
 		
 		InputHandler modInput = InputHandler.getInstance();
+		int alpha = InputHandler.inputsDisabled ? 0x40FFFFFF : BlitFloat.NO_TINT;
+		textColor &= alpha;
 		
 		for (BindUI bind : this.binds) {
 			GuiIcon hotbarSprite = getHotbarSprite(bind.abilities.size());
@@ -433,11 +432,11 @@ public class ControlsHudElement extends HudElement {
 
 				RenderSystem.enableBlend();
 				RenderSystem.defaultBlendFunc();
-				hotbarSprite.render(guiGraphics.pose(), x - 14, y - 14);
+				hotbarSprite.render(guiGraphics.pose(), x - 14, y - 14, alpha);
 
 				for (Map.Entry<InputMethod, AbilityBindUI> abilitySprite : bind.abilities.entrySet()) {
 					AbilityBindUI ability = abilitySprite.getValue();
-					renderAbility(guiGraphics, x, y, ability, mc, partialTick);
+					renderAbility(guiGraphics, x, y, ability, mc, partialTick, alpha);
 
 					boolean isClicked = switch (ability.inputMethod) {
 						case CLICK -> {
@@ -477,14 +476,14 @@ public class ControlsHudElement extends HudElement {
 
 				RenderSystem.enableBlend();
 				RenderSystem.defaultBlendFunc();
-				hotbarSprite.render(guiGraphics.pose(), x - 14, y - 14);
+				hotbarSprite.render(guiGraphics.pose(), x - 14, y - 14, alpha);
 
 				for (HotbarSlotUI slot : hotbar.slots) {
 					if (slot.sprite != null) {
-						renderAbility(guiGraphics, x, y, slot.sprite, mc, partialTick);
+						renderAbility(guiGraphics, x, y, slot.sprite, mc, partialTick, alpha);
 					}
 					if (slot == hotbar.selected) {
-						HOTBAR_SELECTION.render(guiGraphics.pose(), x - 15, y - 15);
+						HOTBAR_SELECTION.render(guiGraphics.pose(), x - 15, y - 15, alpha);
 						
 						if (hotbar.selectingAbility) {
 							float time = modInput.getHotbarsSelectionTime();
@@ -512,34 +511,35 @@ public class ControlsHudElement extends HudElement {
 		RenderSystem.disableBlend();
 	}
 
-	static final WindupIndicator windupIndicator = new WindupIndicator();
-	public static void renderAbility(GuiGraphics guiGraphics, float x, float y, AbilityBindUI abilityUi, Minecraft mc, float partialTick) {
-		boolean hotbarsEnabled = true;
+	public static void renderAbility(GuiGraphics guiGraphics, float x, float y, AbilityBindUI abilityUi, Minecraft mc, float partialTick, int alpha) {
 		BlitFloat.blit(guiGraphics.pose(), Minecraft.getInstance(), abilityUi.sprite, 
 				x + 3, y + 3, 16, 16, 0, 
-				abilityColor(BlitFloat.NO_TINT, abilityUi.ability));
+				abilityColor(alpha, abilityUi.ability));
 		
 		if (mc.player != null) {
 			WindupIndicator windup = abilityUi.ability.ability.cl_windupIndicator(mc.player, windupIndicator, partialTick);
 			if (windup != null) {
-				float alpha = !hotbarsEnabled ? 0.25F : 1.0F;
 				renderWindupIndicator(guiGraphics, x + 13, y + 13, windup.value, windup.maxValue, mc, alpha);
 				WindupAtCrosshair.setRender(windup);
 			}
 		}
 	}
+
+	public static void renderAbility(GuiGraphics guiGraphics, float x, float y, AbilityBindUI abilityUi, Minecraft mc, float partialTick) {
+		renderAbility(guiGraphics, x, y, abilityUi, mc, partialTick, BlitFloat.NO_TINT);
+	}
 	
-	public static void renderWindupIndicator(GuiGraphics guiGraphics, float x, float y, float value, float maxValue, Minecraft mc, float alpha) {
+	static final WindupIndicator windupIndicator = new WindupIndicator();
+	public static void renderWindupIndicator(GuiGraphics guiGraphics, float x, float y, float value, float maxValue, Minecraft mc, int color) {
 		if (maxValue > 0) {
 			float ratio;
 			if (value < 0) {
 				ratio = 0;
-				alpha *= 0.75F;
+				color = FastColor.ARGB32.multiply(color, 0xC0FFFFFF);
 			}
 			else {
 				ratio = Mth.clamp(value / maxValue, 0, 1);
 			}
-			int color = ARGB.white(alpha);
 			
 			BlitFloat.blitRadial(guiGraphics.pose(), mc, WINDUP_EMPTY.file, 
 					x, y, WINDUP_EMPTY.width, WINDUP_EMPTY.height, 10, 
@@ -560,10 +560,6 @@ public class ControlsHudElement extends HudElement {
 	public static int abilityColor(int color, AbilityConditionCheck ability) {
 		if (!ability.conditionCheck.isPositive()) {
 			color = ARGB32.multiply(color, 0xFF606060);
-		}
-		AbilityInputState state = AbilityInputState.withValue(ability.clientInputState);
-		if (state.getFlag(AbilityInputState.VISIBLE_TRANSLUCENT)) {
-			color &= 0x40FFFFFF;
 		}
 		return color;
 	}
