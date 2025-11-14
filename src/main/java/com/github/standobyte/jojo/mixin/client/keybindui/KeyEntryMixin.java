@@ -130,7 +130,7 @@ public abstract class KeyEntryMixin {
 	@Inject(method = "children", at = @At("RETURN"), cancellable = true)
 	public void jojo_ripples$THIS_IS_SO_FUCKING_STUPID(CallbackInfoReturnable<List<? extends GuiEventListener>> ci) {
 		if (jojo_ripples$extraButtons != null) {
-			List<? extends GuiEventListener> mutable = new ArrayList<>(ci.getReturnValue());
+			List<GuiEventListener> mutable = new ArrayList<>(ci.getReturnValue());
 			mutable.addAll(jojo_ripples$extraButtons);
 			ci.setReturnValue(mutable);
 		}
@@ -139,7 +139,7 @@ public abstract class KeyEntryMixin {
 	@Inject(method = "narratables", at = @At("RETURN"), cancellable = true)
 	public void jojo_ripples$WHY_DID_THEY_NOT_JUST_MAKE_A_FUCKING_FIELD(CallbackInfoReturnable<List<? extends GuiEventListener>> ci) {
 		if (jojo_ripples$extraButtons != null) {
-			List<? extends GuiEventListener> mutable = new ArrayList<>(ci.getReturnValue());
+			List<GuiEventListener> mutable = new ArrayList<>(ci.getReturnValue());
 			mutable.addAll(jojo_ripples$extraButtons);
 			ci.setReturnValue(mutable);
 		}
