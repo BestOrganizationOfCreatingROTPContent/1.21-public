@@ -14,6 +14,7 @@ import com.github.standobyte.jojo.client.ui.utils.Alignment;
 import com.github.standobyte.jojo.client.ui.utils.GuiIcon;
 import com.github.standobyte.jojo.client.ui.widgets.ButtonInLayout;
 import com.github.standobyte.jojo.client.ui.widgets.ItemButton;
+import com.github.standobyte.jojo.client.utils.SettingsField;
 import com.github.standobyte.jojo.core.JojoMod;
 import com.github.standobyte.jojo.util.reflection.ClientReflection;
 import com.github.standobyte.v1_21_4_stuff.GuiScissor;
@@ -620,7 +621,7 @@ public class ClientModSettingsScreen extends Screen {
 		return JojoMod.resLoc("textures/gui/sprites/settings/" + fileName + ".png");
 	}
 	
-	protected static abstract class Setting<T> {
+	public static abstract class Setting<T> implements SettingsField<T>{
 		protected ClientModSettings settings;
 		protected Component name;
 		protected Component nameWithSprite;
@@ -629,9 +630,6 @@ public class ClientModSettingsScreen extends Screen {
 		protected char spriteCode;
 		
 		protected boolean broadcast = false;
-
-		public abstract T get();
-		public abstract void set(T value);
 		
 		public Setting(ClientModSettings settings, Component name, @Nullable Component tooltip) {
 			this.settings = settings;
@@ -666,7 +664,7 @@ public class ClientModSettingsScreen extends Screen {
 		public abstract Button createButton(int x, int y, int width, int height, Screen screen, int buttonI);
 	}
 
-	protected static abstract class BooleanSetting extends Setting<Boolean> {
+	public static abstract class BooleanSetting extends Setting<Boolean> {
 
 		public BooleanSetting(ClientModSettings settings, Component name, @Nullable Component tooltip) {
 			super(settings, name, tooltip);
@@ -688,7 +686,7 @@ public class ClientModSettingsScreen extends Screen {
 		}
 	}
 
-	protected static abstract class EnumSetting<T extends Enum<T>> extends Setting<T> {
+	public static abstract class EnumSetting<T extends Enum<T>> extends Setting<T> {
 		protected Class<T> enumClass;
 		protected String prefix = "jojo_ripples.config.client.option.";
 

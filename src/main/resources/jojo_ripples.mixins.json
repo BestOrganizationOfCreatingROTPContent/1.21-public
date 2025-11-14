@@ -76,6 +76,7 @@
 	"client.text.tooltip.ClientTextTooltipMixin",
 	"client.modcompat.WoRStandRendering",
 	"client.CloseResources",
-	"client.keybindui.KeyEntryMixin"
+	"client.keybindui.KeyEntryMixin",
+	"client.keybindui.AbstractSelectionListMixin"
   ]
 }

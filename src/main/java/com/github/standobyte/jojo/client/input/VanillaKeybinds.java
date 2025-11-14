@@ -8,9 +8,11 @@ import java.util.Set;
 import org.apache.commons.lang3.mutable.MutableInt;
 import org.lwjgl.glfw.GLFW;
 
+import com.github.standobyte.jojo.client.config.ClientModSettings;
 import com.github.standobyte.jojo.client.ui.jojomenu.IJojoMenuScreen;
 import com.github.standobyte.jojo.client.ui.jojomenu.JojoMenuTabs;
 import com.github.standobyte.jojo.client.ui.jojomenu.Tab;
+import com.github.standobyte.jojo.client.utils.SettingsField;
 import com.github.standobyte.jojo.core.JojoMod;
 import com.github.standobyte.jojo.core.packet.fromclient.ClNoParamsPacket;
 import com.github.standobyte.jojo.core.packet.fromclient.ClNoParamsPacket.PacketType;
@@ -54,14 +56,59 @@ public class VanillaKeybinds {
 				.inInitOrder().withDescTooltip());
 		event.register(binds.disableHUDControls = new Jokerge(
 				JojoMod.MOD_ID + ".key.disable_hotbars", KeyConflictContext.IN_GAME, InputConstants.Type.KEYSYM, GLFW.GLFW_KEY_LEFT_ALT, MAIN_CATEGORY)
-				.inInitOrder().withDescTooltip());
+				.inInitOrder().withDescTooltip().canBeHoldOrToggle(new SettingsField<Boolean>() {
+					@Override public Boolean get() { return ClientModSettings.getSettingsReadOnly().toggleDisableHotbars; }
+					@Override public void set(Boolean value) {
+						ClientModSettings.edit(settings -> {
+							settings.toggleDisableHotbars = value;
+						}, false);
+					}
+				}));
 		event.register(binds.jojoStuffMenu = new Jokerge(
 				JojoMod.MOD_ID + ".key.jojo_menu", KeyConflictContext.IN_GAME, InputConstants.Type.KEYSYM, GLFW.GLFW_KEY_BACKSLASH, MAIN_CATEGORY)
 				.inInitOrder().withDescTooltip());
 		return binds;
 	}
+
+	public void handleTick() {
+		InputHandler inputHandler = InputHandler.getInstance();
+		if (standArmsOnlyHUD.consumeClick()) {
+			inputHandler.curPowerClassToggle = inputHandler.curPowerClassToggle != PowerClass.STAND ? PowerClass.STAND : null;
+		}
+		
+		if (playerPowerHUD.consumeClick()) {
+			inputHandler.curPowerClassToggle = inputHandler.curPowerClassToggle != PowerClass.PLAYER_POWER ? PowerClass.PLAYER_POWER : null;
+		}
+//		
+		if (summonStand.consumeClick()) {
+//			if (standPower.hasPower() && !standPower.isActive()) {
+//				actionsOverlay.onStandSummon();
+//			}
+			PacketDistributor.sendToServer(ClNoParamsPacket.of(PacketType.SUMMON_STAND));
+		}
+		
+		if (ClientModSettings.getSettingsReadOnly().toggleDisableHotbars && disableHUDControls.consumeClick()) {
+			InputHandler.inputsDisabled = !InputHandler.inputsDisabled;
+		}
+		
+		if (jojoStuffMenu.consumeClick()) {
+			Minecraft mc = Minecraft.getInstance();
+			if (mc.screen instanceof IJojoMenuScreen) {
+				mc.popGuiLayer();
+			}
+			else {
+				Tab tab = JojoMenuTabs.getTabToOpenOnMenuKey();
+				if (tab != null) {
+					tab.onClick(mc, mc.screen);
+				}
+			}
+		}
+	}
+	
+	
 	
 	public static final Set<String> ADD_DESC_TOOLTIP = new HashSet<>();
+	public static final Map<String, SettingsField<Boolean>> HOLD_OR_TOGGLE = new HashMap<>();
 	
 	public static class Jokerge extends KeyMapping {
 		protected static Map<String, MutableInt> PER_CATEGORY = new HashMap<String, MutableInt>();
@@ -83,6 +130,11 @@ public class VanillaKeybinds {
 			ADD_DESC_TOOLTIP.add(this.getName());
 			return this;
 		}
+		
+		public Jokerge canBeHoldOrToggle(SettingsField<Boolean> clientSetting) {
+			HOLD_OR_TOGGLE.put(this.getName(), clientSetting);
+			return this;
+		}
 
 		@Override
 		public int compareTo(KeyMapping other) {
@@ -91,37 +143,6 @@ public class VanillaKeybinds {
 				if (compare != 0) return compare;
 			}
 			return super.compareTo(other);
-		}
-	}
-
-	public void handleTick() {
-		InputHandler inputHandler = InputHandler.getInstance();
-		if (standArmsOnlyHUD.consumeClick()) {
-			inputHandler.curPowerClassToggle = inputHandler.curPowerClassToggle != PowerClass.STAND ? PowerClass.STAND : null;
-		}
-		
-		if (playerPowerHUD.consumeClick()) {
-			inputHandler.curPowerClassToggle = inputHandler.curPowerClassToggle != PowerClass.PLAYER_POWER ? PowerClass.PLAYER_POWER : null;
-		}
-//		
-		if (summonStand.consumeClick()) {
-//			if (standPower.hasPower() && !standPower.isActive()) {
-//				actionsOverlay.onStandSummon();
-//			}
-			PacketDistributor.sendToServer(ClNoParamsPacket.of(PacketType.SUMMON_STAND));
-		}
-		
-		if (jojoStuffMenu.consumeClick()) {
-			Minecraft mc = Minecraft.getInstance();
-			if (mc.screen instanceof IJojoMenuScreen) {
-				mc.popGuiLayer();
-			}
-			else {
-				Tab tab = JojoMenuTabs.getTabToOpenOnMenuKey();
-				if (tab != null) {
-					tab.onClick(mc, mc.screen);
-				}
-			}
 		}
 	}
 	
