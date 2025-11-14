@@ -11,7 +11,13 @@ import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
+import com.github.standobyte.jojo.client.config.ClientModSettings;
+import com.github.standobyte.jojo.client.config.ClientModSettingsScreen;
+import com.github.standobyte.jojo.client.input.InputHandler;
 import com.github.standobyte.jojo.client.input.VanillaKeybinds;
+import com.github.standobyte.jojo.client.ui.utils.GuiIcon;
+import com.github.standobyte.jojo.client.ui.utils.tooltip.MultiLineScreenTooltip;
+import com.github.standobyte.jojo.client.ui.widgets.IconButton;
 import com.github.standobyte.jojo.client.utils.SettingsField;
 
 import net.minecraft.client.KeyMapping;
@@ -31,6 +37,7 @@ public abstract class KeyEntryMixin {
 	@Shadow private boolean hasCollision = false;
 
 	protected Button jojo_ripples$holdToggleButton;
+	protected Button jojo_ripples$left20x20Button;
 	protected List<Button> jojo_ripples$extraButtons;
 
 	@Inject(method = "<init>", at = @At("TAIL"))
@@ -48,6 +55,23 @@ public abstract class KeyEntryMixin {
 			
 			if (jojo_ripples$extraButtons == null) jojo_ripples$extraButtons = new ArrayList<>();
 			jojo_ripples$extraButtons.add(jojo_ripples$holdToggleButton);
+			refreshAgain = true;
+		}
+		
+		if (key == InputHandler.getInstance().vanillaKeybinds.switchSpecial) {
+			jojo_ripples$left20x20Button = new IconButton(0, 0, 20, 20, 
+					new GuiIcon(ClientModSettingsScreen.toIconPath("ability_selection_wheel"), 16, 16), 
+					button -> {
+						ClientModSettings.edit(settings -> {
+							settings.abilitySelectionWheel = !settings.abilitySelectionWheel;
+						}, false);
+					},
+					new MultiLineScreenTooltip(
+							Component.translatable("jojo_ripples.config.client.abilitySelectionWheel"),
+							Component.translatable("jojo_ripples.config.client.abilitySelectionWheel.tooltip")));
+			
+			if (jojo_ripples$extraButtons == null) jojo_ripples$extraButtons = new ArrayList<>();
+			jojo_ripples$extraButtons.add(jojo_ripples$left20x20Button);
 			refreshAgain = true;
 		}
 		
@@ -88,6 +112,18 @@ public abstract class KeyEntryMixin {
 			int y = top - 2;
 			this.jojo_ripples$holdToggleButton.setPosition(x, y);
 			this.jojo_ripples$holdToggleButton.render(guiGraphics, mouseX, mouseY, partialTick);
+		}
+		
+		if (jojo_ripples$left20x20Button != null) {
+			int x = left - jojo_ripples$left20x20Button.getWidth() - 10;
+			int y = top - 2;
+			this.jojo_ripples$left20x20Button.setPosition(x, y);
+			this.jojo_ripples$left20x20Button.render(guiGraphics, mouseX, mouseY, partialTick);
+		}
+		
+		if (this.key == InputHandler.getInstance().vanillaKeybinds.switchSpecial) {
+			IconButton.renderCheckmarkOrCross(jojo_ripples$left20x20Button, 
+					ClientModSettings.getSettingsReadOnly().abilitySelectionWheel, guiGraphics.pose());
 		}
 	}
 	

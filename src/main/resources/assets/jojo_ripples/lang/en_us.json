@@ -37,7 +37,7 @@
   "jojo_ripples.key.use_special_ability": "Use special ability",
   "jojo_ripples.key.use_special_ability.desc": "A default key for using the selected special ability.",
   "jojo_ripples.key.ability_hotbar": "Switch special ability",
-  "jojo_ripples.key.ability_hotbar.desc": "A default key for changing the selected special ability.\n\nWhile holding this key, either press 1-9, use mouse wheel, or pick from the ability wheel (can be disabled in the ROTP client settings).",
+  "jojo_ripples.key.ability_hotbar.desc": "A default key for changing the selected special ability.\n\nWhile holding this key, either press 1-9, use mouse wheel, or pick from the ability wheel (this can be disabled with the button to the left, or in the ROTP client settings).",
   "jojo_ripples.key.disable_hotbars": "Disable HUD controls",
   "jojo_ripples.key.disable_hotbars.desc": "When a power controls HUD is active, it rebinds some keys, like mouse buttons, to use ROTP abilities.\n\nHolding this key lets you disable this behavior, for example when you need Right Mouse Button to use an item.",
   "jojo_ripples.key.jojo_menu": "JoJo menu",

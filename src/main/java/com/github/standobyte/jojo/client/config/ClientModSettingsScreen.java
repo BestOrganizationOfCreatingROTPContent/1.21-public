@@ -617,7 +617,7 @@ public class ClientModSettingsScreen extends Screen {
 
 	protected static Object2CharMap<ResourceLocation> iconSymbols = new Object2CharArrayMap<>();
 	
-	protected static ResourceLocation toIconPath(String fileName) {
+	public static ResourceLocation toIconPath(String fileName) {
 		return JojoMod.resLoc("textures/gui/sprites/settings/" + fileName + ".png");
 	}
 	
