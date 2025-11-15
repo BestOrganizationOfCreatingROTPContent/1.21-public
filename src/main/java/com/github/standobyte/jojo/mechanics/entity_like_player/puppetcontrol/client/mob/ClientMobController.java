@@ -193,6 +193,8 @@ public class ClientMobController extends ClientEntityController {
 	@SubscribeEvent(priority = EventPriority.LOW)
 	public void renderHudElements(RenderGuiLayerEvent.Pre event) {
 		Minecraft mc = Minecraft.getInstance();
+		if (mc.options.hideGui) return;
+		
 		ResourceLocation layerName = event.getName();
 		GuiGraphics guiGraphics = event.getGuiGraphics();
 		DeltaTracker deltaTracker = event.getPartialTick();

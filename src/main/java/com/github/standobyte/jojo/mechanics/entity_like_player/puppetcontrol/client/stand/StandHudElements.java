@@ -62,6 +62,8 @@ public class StandHudElements {
 	
 	@SubscribeEvent(priority = EventPriority.LOW)
 	public void renderHudElements(RenderGuiLayerEvent.Pre event) {
+		if (Minecraft.getInstance().options.hideGui) return;
+		
 		StandEntity stand = ClientGlobals.playerStandEntity;
 		if (stand != null) {
 			if (stand.isManuallyControlled()) {
