@@ -50,7 +50,7 @@ public abstract class KeyEntryMixin {
 			jojo_ripples$holdToggleButton = Button.builder(name, button -> {
 				holdOrToggle.set(!holdOrToggle.get());
 			})
-			.bounds(0, 0, 100, 20)
+			.bounds(0, 0, 90, 20)
 			.build();
 			
 			if (jojo_ripples$extraButtons == null) jojo_ripples$extraButtons = new ArrayList<>();
@@ -104,21 +104,23 @@ public abstract class KeyEntryMixin {
 		if (jojo_ripples$holdToggleButton != null) {
 			String keyName = this.key.getName();
 			SettingsField<Boolean> holdOrToggle = VanillaKeybinds.HOLD_OR_TOGGLE.get(keyName);
-			if (holdOrToggle != null) {
-				jojo_ripples$holdToggleButton.setMessage(Component.translatable(holdOrToggle.get() ? "options.key.toggle" : "options.key.hold"));
-			}
+			Component message = holdOrToggle != null ? Component.translatable(holdOrToggle.get() ? "options.key.toggle" : "options.key.hold") : null;
+			jojo_ripples$holdToggleButton.setMessage(message != null ? message : CommonComponents.EMPTY);
 			
 			int x = left - jojo_ripples$holdToggleButton.getWidth() - 10;
 			int y = top - 2;
-			this.jojo_ripples$holdToggleButton.setPosition(x, y);
-			this.jojo_ripples$holdToggleButton.render(guiGraphics, mouseX, mouseY, partialTick);
+			jojo_ripples$holdToggleButton.setPosition(x, y);
+			jojo_ripples$holdToggleButton.render(guiGraphics, mouseX, mouseY, partialTick);
+			if (x < 0) {
+				jojo_ripples$holdToggleButton.setTooltip(message != null ? Tooltip.create(message) : null);
+			}
 		}
 		
 		if (jojo_ripples$left20x20Button != null) {
 			int x = left - jojo_ripples$left20x20Button.getWidth() - 10;
 			int y = top - 2;
-			this.jojo_ripples$left20x20Button.setPosition(x, y);
-			this.jojo_ripples$left20x20Button.render(guiGraphics, mouseX, mouseY, partialTick);
+			jojo_ripples$left20x20Button.setPosition(x, y);
+			jojo_ripples$left20x20Button.render(guiGraphics, mouseX, mouseY, partialTick);
 		}
 		
 		if (this.key == InputHandler.getInstance().vanillaKeybinds.switchSpecial) {
