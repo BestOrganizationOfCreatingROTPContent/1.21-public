@@ -145,12 +145,15 @@ public class StandEntityPunchAbility extends StandEntityAbility {
 					}
 					
 					stand.addFinisherMeter(0.2f);
-					if (target.getType() == TargetType.ENTITY && target.getEntity() instanceof LivingEntity targetLiving) {
-						var damageType = DamageUtil.type(level, ModDamageTypes.STAND_ATTACK);
-						DamageSource dmgSource = new DamageSource(damageType, performer);
-						float dmgAmount = StandStatFormulas.getLightAttackDamage(stand.getAttackDamage());
-						if (standEntityAttack(stand, targetLiving, dmgSource, dmgAmount)) {
-							stand.addFinisherMeter(0.2f);
+					if (target.getType() == TargetType.ENTITY) {
+						Entity targetEntity = target.getMainEntity();
+						if (targetEntity instanceof LivingEntity targetLiving) {
+							var damageType = DamageUtil.type(level, ModDamageTypes.STAND_ATTACK);
+							DamageSource dmgSource = new DamageSource(damageType, performer);
+							float dmgAmount = StandStatFormulas.getLightAttackDamage(stand.getAttackDamage());
+							if (standEntityAttack(stand, targetLiving, dmgSource, dmgAmount)) {
+								stand.addFinisherMeter(0.2f);
+							}
 						}
 					}
 					

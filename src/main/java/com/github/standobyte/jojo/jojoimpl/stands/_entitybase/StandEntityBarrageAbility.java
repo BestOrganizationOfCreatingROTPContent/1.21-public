@@ -36,6 +36,7 @@ import net.minecraft.core.BlockPos;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.sounds.SoundSource;
 import net.minecraft.world.damagesource.DamageSource;
+import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EquipmentSlot;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.level.Level;
@@ -196,13 +197,14 @@ public class StandEntityBarrageAbility extends StandEntityAbility {
 			return StandEntityPunchAbility.aimAtPunchTarget(stand);
 		}
 		
-		protected void dealDamage(ActionTarget entityTarget, Level level, StandEntity stand) {
-			if (entityTarget.getEntity() instanceof LivingEntity targetLiving) {
+		protected void dealDamage(ActionTarget target, Level level, StandEntity stand) {
+			Entity targetEntity = target.getMainEntity();
+			if (targetEntity != null) {
 				var damageType = DamageUtil.type(level, ModDamageTypes.STAND_ATTACK);
 				DamageSource dmgSource = new DamageSource(damageType, performer);
 				((RipplesModifiedDamageSource) dmgSource).jojo_ripples$modifyKnockback(0, 0.1f);
 				float dmgAmount = StandStatFormulas.getBarrageHitDamage(stand.getAttackDamage()) * hitsThisTick;
-				standEntityAttack(stand, targetLiving, dmgSource, dmgAmount);
+				standEntityAttack(stand, targetEntity, dmgSource, dmgAmount);
 				
 				stand.addFinisherMeter(0.005f * hitsThisTick);
 			}

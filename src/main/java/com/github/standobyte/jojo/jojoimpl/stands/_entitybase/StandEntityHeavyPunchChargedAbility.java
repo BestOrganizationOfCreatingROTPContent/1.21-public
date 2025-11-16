@@ -26,6 +26,7 @@ import com.github.standobyte.jojo.util.target.HitResultUtil;
 
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.damagesource.DamageSource;
+import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EquipmentSlot;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.level.Level;
@@ -121,12 +122,15 @@ public class StandEntityHeavyPunchChargedAbility extends StandEntityAbility {
 								stand.getSoundSource(), 1, 1);
 					}
 					
-					if (target.getType() == TargetType.ENTITY && target.getEntity() instanceof LivingEntity targetLiving) {
-						var damageType = DamageUtil.type(level, ModDamageTypes.STAND_ATTACK);
-						DamageSource dmgSource = new DamageSource(damageType, performer);
-						((RipplesModifiedDamageSource) dmgSource).jojo_ripples$modifyKnockback(2.5f, 1);
-						float dmgAmount = 27.75f;
-						standEntityAttack(stand, targetLiving, dmgSource, dmgAmount);
+					if (target.getType() == TargetType.ENTITY) {
+						Entity targetEntity = target.getMainEntity();
+						if (targetEntity instanceof LivingEntity targetLiving) {
+							var damageType = DamageUtil.type(level, ModDamageTypes.STAND_ATTACK);
+							DamageSource dmgSource = new DamageSource(damageType, performer);
+							((RipplesModifiedDamageSource) dmgSource).jojo_ripples$modifyKnockback(2.5f, 1);
+							float dmgAmount = 27.75f;
+							standEntityAttack(stand, targetLiving, dmgSource, dmgAmount);
+						}
 					}
 					
 					standPower.consumeStamina(100);
