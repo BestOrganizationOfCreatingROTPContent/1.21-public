@@ -2,6 +2,7 @@ package com.github.standobyte.jojo.client.entityrender.stand;
 
 import java.util.Optional;
 
+import com.github.standobyte.jojo.client.ClientUtil;
 import com.github.standobyte.jojo.client.entityanim.RotpAnimDefinition;
 import com.github.standobyte.jojo.client.entityrender.EntityActionRenderState;
 import com.github.standobyte.jojo.client.entityrender.parsemodel.loader.RotpGeckoModelLoader;
@@ -18,14 +19,19 @@ import com.github.standobyte.v1_21_4_stuff.renderstate.ArmedEntityRenderState;
 import com.github.standobyte.v1_21_4_stuff.renderstate.LivingEntityRenderState;
 import com.github.standobyte.v1_21_4_stuff.renderstate.RenderStateCrutches;
 import com.mojang.blaze3d.vertex.PoseStack;
+import com.mojang.blaze3d.vertex.VertexConsumer;
+import com.mojang.math.Axis;
 
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.model.HumanoidModel;
 import net.minecraft.client.model.geom.builders.LayerDefinition;
 import net.minecraft.client.renderer.MultiBufferSource;
+import net.minecraft.client.renderer.RenderType;
 import net.minecraft.client.renderer.entity.EntityRendererProvider.Context;
 import net.minecraft.client.renderer.entity.LivingEntityRenderer;
 import net.minecraft.client.renderer.entity.layers.ItemInHandLayer;
+import net.minecraft.client.renderer.entity.layers.RenderLayer;
+import net.minecraft.client.renderer.texture.OverlayTexture;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.Entity;
 
@@ -159,11 +165,12 @@ public class StandEntityRenderer<
 //		return renderState.tint;
 //	}
 
-	protected void setModelFrom(S renderState) {
-		this.model = getEntityModel(renderState);
-		if (this.model == missingSkinModel.get() && renderState.skin != null) {
+	protected M modelFrom(S renderState) {
+		M model = getEntityModel(renderState);
+		if (model == missingSkinModel.get() && renderState.skin != null) {
 			renderState.tint = renderState.skin.getColor();
 		}
+		return model;
 	}
 	
 	public M getEntityModel(T entity) {
@@ -180,6 +187,58 @@ public class StandEntityRenderer<
 	}
 	
 	
+	public void renderForStandSkinUI(StandSkin skin, ResourceLocation standId, float ticks, 
+			PoseStack poseStack, MultiBufferSource bufferSource) {
+		S renderState = outOfLevelRenderState;
+		extractSkinMenuRenderState(renderState, skin, standId, ticks);
+		preRender(renderState);
+
+		M model = modelFrom(renderState);
+
+		poseStack.pushPose();
+		
+		poseStack.translate(0, 1.5f, 0);
+		poseStack.scale(1, -1, 1);
+		poseStack.mulPose(Axis.YP.rotationDegrees(180));
+		poseStack.scale(-1, 1, 1);
+		
+//		Optional<ResourceLocation> nonDefaultSkin = standSkin.getNonDefaultLocation();
+		model.attackTime = 0;
+		model.riding = false;
+		model.young = false;
+
+		model.setupAnim(renderState);
+
+		ResourceLocation texture = getTextureLocation(renderState);
+		RenderType renderType = model.renderType(texture);
+		int packedLight = ClientUtil.MAX_LIGHT;
+		if (renderType != null) {
+			VertexConsumer vertexBuilder = bufferSource.getBuffer(renderType);
+			int packedOverlay = OverlayTexture.NO_OVERLAY;
+			model.renderToBuffer(poseStack, vertexBuilder, packedLight, packedOverlay, 0xFFFFFFFF);
+
+			for (RenderLayer<T, M> layerRenderer : this.layers) {
+				if (layerRenderer instanceof StandModelLayerRenderer) {
+					StandModelLayerRenderer<T, S, M> standLayer = (StandModelLayerRenderer<T, S, M>) layerRenderer;
+//					if (standLayer.shouldRender(null, nonDefaultSkin)) {
+//						M layerModel = standLayer.getLayerModel(nonDefaultSkin);
+//						RenderType layerRenderType = layerModel.renderType(standLayer.getLayerTexture(nonDefaultSkin));
+//						VertexConsumer layerVertexBuilder = bufferSource.getBuffer(layerRenderType);
+//						layerModel.attackTime = 0;
+//						layerModel.riding = false;
+//						layerModel.young = false;
+//						layerModel.setupAnim(renderState);
+//						layerModel.renderToBuffer(poseStack, layerVertexBuilder, packedLight, packedOverlay, 0xFFFFFFFF);
+//					}
+				}
+			}
+		}
+
+		poseStack.popPose();
+		
+		postRender();
+	}
+	
 	// 1.21.2+
 //	public void renderWithRenderState(Consumer<S> renderState, PoseStack poseStack, MultiBufferSource bufferSource, int light) {
 //		renderState.accept(outOfLevelRenderState);
@@ -194,6 +253,16 @@ public class StandEntityRenderer<
 //			super.render(renderState, poseStack, bufferSource, light);
 //		}
 //	}
+	
+	public void preRender(S renderState) {
+		RenderStateCrutches.currentEntityRenderState = renderState;
+		RenderStateCrutches.currentStandEntityRenderState = renderState;
+	}
+	
+	public void postRender() {
+		RenderStateCrutches.currentEntityRenderState = null;
+		RenderStateCrutches.currentStandEntityRenderState = null;
+	}
 
 	@Override
 	public void render(T entity, float entityYaw, float partialTicks, PoseStack poseStack, MultiBufferSource bufferSource, int light) {
@@ -202,10 +271,9 @@ public class StandEntityRenderer<
 	}
 
 	public void render(T entity, S renderState, float entityYaw, float partialTicks, PoseStack poseStack, MultiBufferSource bufferSource, int light) {
-		RenderStateCrutches.currentEntityRenderState = renderState;
-		RenderStateCrutches.currentStandEntityRenderState = renderState;
+		preRender(renderState);
 
-		setModelFrom(renderState);
+		this.model = modelFrom(renderState);
 		
 		if (renderState.mayObstructView) {
 			bufferSource = EntityShaders.firstPersonStandTranslucency.useBufferSourceThisFrame();
@@ -214,9 +282,7 @@ public class StandEntityRenderer<
 		if (this.model != null) {
 			this.doRender(entity, entityYaw, partialTicks, poseStack, bufferSource, light);
 		}
-		RenderStateCrutches.currentEntityRenderState = null;
-		RenderStateCrutches.currentStandEntityRenderState = null;
-
+		postRender();
 	}
 
     public void doRender(T entity, float entityYaw, float partialTicks, PoseStack poseStack, MultiBufferSource bufferSource, int light) {
