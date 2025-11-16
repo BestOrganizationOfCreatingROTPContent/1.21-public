@@ -56,12 +56,17 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.screens.ChatScreen;
 import net.minecraft.client.player.Input;
 import net.minecraft.network.FriendlyByteBuf;
+import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.entity.projectile.AbstractArrow;
+import net.minecraft.world.phys.EntityHitResult;
+import net.minecraft.world.phys.HitResult;
 import net.neoforged.bus.api.EventPriority;
 import net.neoforged.bus.api.ICancellableEvent;
 import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.neoforge.client.event.ClientTickEvent;
 import net.neoforged.neoforge.client.event.InputEvent;
+import net.neoforged.neoforge.client.event.InputEvent.InteractionKeyMappingTriggered;
 import net.neoforged.neoforge.client.event.MovementInputUpdateEvent;
 import net.neoforged.neoforge.client.event.RegisterKeyMappingsEvent;
 import net.neoforged.neoforge.client.event.RenderFrameEvent;
@@ -588,5 +593,25 @@ public class InputHandler {
 	@Nullable
 	public static Direction2D getArrowKey(int keyCode) {
 		return ARROW_KEYS.get(keyCode);
+	}
+
+
+	@SubscribeEvent(priority = EventPriority.LOWEST)
+	public void fixArrowPunchKick(InteractionKeyMappingTriggered event) {
+		if (event.isAttack() && !isValidPlayerAttackTarget(mc.hitResult)) {
+			event.setCanceled(true); // prevents kick for "Attempting to attack an invalid entity"
+			event.setSwingHand(false);
+		}
+	}
+
+	public static boolean isValidPlayerAttackTarget(HitResult hitResult) {
+		if (hitResult.getType() == HitResult.Type.ENTITY) {
+			Entity entity = ((EntityHitResult) hitResult).getEntity();
+			if (entity == Minecraft.getInstance().player || entity instanceof AbstractArrow
+					/* || entity instanceof ItemEntity || entity instanceof ExperienceOrb */) {
+				return false;
+			}
+		}
+		return true;
 	}
 }
