@@ -61,6 +61,12 @@ public class StandPower extends Power<StandPower> implements PostNbtReadEntityDa
 		if (hasPower()) {
 			userStandEffects.tick();
 		}
+		if (!user.level().isClientSide() && !canUsePower()) {
+			StandType type = getPowerType();
+			if (type != null) {
+				type.forceUnsummon(user, this);
+			}
+		}
 		if (summonedStand != null) {
 			summonedStand.tickStand(getUser(), this);
 		}

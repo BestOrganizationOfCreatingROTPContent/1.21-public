@@ -42,6 +42,7 @@ import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.util.FastColor;
 import net.minecraft.util.StringUtil;
+import net.minecraft.world.entity.player.Player;
 import net.neoforged.api.distmarker.Dist;
 import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.fml.common.EventBusSubscriber;
@@ -97,6 +98,11 @@ public class PowerHud {
 		}
 	}
 	
+	public static boolean canHaveHudOpen() {
+		Player player = Minecraft.getInstance().player;
+		return player != null && !player.isSpectator();
+	}
+	
 	
 	public static class AbilityHud implements LayeredDraw.Layer {
 		public Map<String, HudElement> elements = new HashMap<>();
@@ -135,6 +141,8 @@ public class PowerHud {
 		@Override
 		public void render(GuiGraphics guiGraphics, DeltaTracker deltaTracker) {
 			Minecraft mc = Minecraft.getInstance();
+			if (!canHaveHudOpen()) return;
+			
 			int mouseX = -1;
 			int mouseY = -1;
 			boolean isContainer = mc.screen instanceof AbstractContainerScreen;

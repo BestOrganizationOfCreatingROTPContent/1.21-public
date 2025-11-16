@@ -169,7 +169,7 @@ public class StandType extends PowerType {
 	}
 	
 	public boolean summon(LivingEntity user, StandPower standPower) {
-		if (!standPower.isSummoned()) {
+		if (!standPower.isSummoned() && standPower.canUsePower()) {
 			SummonedStand summonedStand = makeSummonedStand();
 			if (summonedStand == null) return false;
 			
