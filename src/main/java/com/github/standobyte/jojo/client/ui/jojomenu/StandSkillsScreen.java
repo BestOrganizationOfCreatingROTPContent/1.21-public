@@ -118,12 +118,12 @@ public class StandSkillsScreen extends Screen implements IJojoMenuScreen {
 			
 			var description = font.split(selectedSkill.textDesc, 111);
 			for (int i = 0; i < description.size(); i++) {
-				guiGraphics.drawString(this.minecraft.font, description.get(i), x + 102, y + 53 + 9 * i, textColor, false);
+				guiGraphics.drawString(this.minecraft.font, description.get(i), x + 90, y + 88 + 9 * i, textColor, false);
 			}
 			
-			var controls = font.split(selectedSkill.textControls, 101);
+			var controls = font.split(selectedSkill.textControls.copy().withStyle(ChatFormatting.ITALIC), 101);
 			for (int i = 0; i < controls.size(); i++) {
-				guiGraphics.drawString(this.minecraft.font, controls.get(i), x + 90, y + 193 + 9 * i, textColor, false);
+				guiGraphics.drawString(this.minecraft.font, controls.get(i), x + 104, y + 53 + 9 * i, textColor, false);
 			}
 		}
 		
