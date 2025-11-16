@@ -27,7 +27,7 @@ import net.minecraft.world.level.Level;
 public class StandEntityGrabAbility extends StandEntityAbility {
 
 	public StandEntityGrabAbility(AbilityType<?> abilityType, AbilityId abilityId) {
-		super(abilityType, abilityId);
+		super(abilityType, abilityId, StandEntityGrab::new);
 		usageGroup = AbilityUsageGroup.COMBAT;
 		setDefaultPhaseLength(ActionPhase.WINDUP, 9);
 		noFinisherBarDecay = true;
@@ -38,11 +38,6 @@ public class StandEntityGrabAbility extends StandEntityAbility {
 		return super.isAbilityAvailable(context) && StandUtil.getStandGrabTarget(context) == null;
 	}
 	
-
-	@Override
-	public EntityActionInstance createActionObj() {
-		return new StandEntityGrab(this);
-	}
 
 	public static class StandEntityGrab extends EntityActionInstance {
 

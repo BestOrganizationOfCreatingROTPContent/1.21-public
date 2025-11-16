@@ -27,7 +27,7 @@ import net.neoforged.neoforge.common.Tags;
 public class StandBearingShotAbility extends StandEntityAbility {
 
 	public StandBearingShotAbility(AbilityType<?> abilityType, AbilityId abilityId) {
-		super(abilityType, abilityId);
+		super(abilityType, abilityId, StandBearingShot::new);
 		usageGroup = AbilityUsageGroup.UTILITY;
 		isSubAbility = true;
 		setButtonHoldPhase(ActionPhase.PERFORM);
@@ -53,11 +53,6 @@ public class StandBearingShotAbility extends StandEntityAbility {
 		return state;
 	}
 	
-	
-	@Override
-	public EntityActionInstance createActionObj() {
-		return new StandBearingShot(this);
-	}
 	
 	public static class StandBearingShot extends EntityActionInstance {
 

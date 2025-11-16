@@ -46,7 +46,7 @@ import net.minecraft.world.phys.Vec3;
 public class CrazyDRepairItemAbility extends StandEntityAbility {
 
 	public CrazyDRepairItemAbility(AbilityType<?> abilityType, AbilityId abilityId) {
-		super(abilityType, abilityId);
+		super(abilityType, abilityId, ItemRepair::new);
 		usageGroup = AbilityUsageGroup.INVENTORY;
 		setButtonHoldPhase(ActionPhase.PERFORM);
 	}
@@ -89,11 +89,6 @@ public class CrazyDRepairItemAbility extends StandEntityAbility {
 		}
 	}
 
-
-	@Override
-	public EntityActionInstance createActionObj() {
-		return new ItemRepair(this);
-	}
 
 	// XXX (item repair) CD heal particles on the model of the item being repaired
 	// TODO (item repair) sounds

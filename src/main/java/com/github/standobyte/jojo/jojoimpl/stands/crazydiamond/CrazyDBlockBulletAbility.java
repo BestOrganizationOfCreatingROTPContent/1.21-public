@@ -36,7 +36,7 @@ import net.minecraft.world.phys.Vec3;
 public class CrazyDBlockBulletAbility extends StandEntityAbility {
 
 	public CrazyDBlockBulletAbility(AbilityType<?> abilityType, AbilityId abilityId) {
-		super(abilityType, abilityId);
+		super(abilityType, abilityId, BlockBulletShot::new);
 		setDefaultPhaseLength(ActionPhase.WINDUP, 15);
 		initVariationAssets();
 	}
@@ -70,11 +70,6 @@ public class CrazyDBlockBulletAbility extends StandEntityAbility {
 		if (!level.isClientSide() && disableHoming(powerUser)) {
 			((BlockBulletShot) action).isHomingDisabled = true;
 		}
-	}
-
-	@Override
-	public EntityActionInstance createActionObj() {
-		return new BlockBulletShot(this);
 	}
 
 	public static class BlockBulletShot extends EntityActionInstance {

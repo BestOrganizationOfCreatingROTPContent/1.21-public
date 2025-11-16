@@ -1,5 +1,7 @@
 package com.github.standobyte.jojo.powersystem.ability;
 
+import java.util.function.Function;
+
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 
@@ -20,11 +22,27 @@ import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.level.Level;
 
 public class EntityActionAbility extends Ability implements EntityActionType {
+	protected Function<EntityActionType, ? extends EntityActionInstance> createActionObj;
 	protected ActionAnimIdentifier anim;
 
+	/**
+	 * @deprecated You can use the other constructor, so that you don't have to override {@link EntityActionAbility#createActionObj()}
+	 */
+	@Deprecated
 	public EntityActionAbility(AbilityType<?> abilityType, AbilityId abilityId) {
+		this(abilityType, abilityId, EntityActionInstance::new);
+	}
+	
+	public EntityActionAbility(AbilityType<?> abilityType, AbilityId abilityId, 
+			Function<EntityActionType, ? extends EntityActionInstance> createActionObj) {
 		super(abilityType, abilityId);
+		this.createActionObj = createActionObj;
 		anim = ActionAnimIdentifier.getOrCreate(abilityId);
+	}
+	
+	@Override
+	public EntityActionInstance createActionObj() {
+		return createActionObj.apply(this);
 	}
 	
 	

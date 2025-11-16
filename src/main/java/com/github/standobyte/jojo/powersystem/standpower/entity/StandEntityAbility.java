@@ -1,5 +1,7 @@
 package com.github.standobyte.jojo.powersystem.standpower.entity;
 
+import java.util.function.Function;
+
 import com.github.standobyte.jojo.powersystem.PowerClass;
 import com.github.standobyte.jojo.powersystem.ability.AbilityId;
 import com.github.standobyte.jojo.powersystem.ability.AbilityType;
@@ -7,6 +9,7 @@ import com.github.standobyte.jojo.powersystem.ability.EntityActionAbility;
 import com.github.standobyte.jojo.powersystem.ability.controls.InputMethod;
 import com.github.standobyte.jojo.powersystem.entityaction.EntityActionInstance;
 import com.github.standobyte.jojo.powersystem.entityaction.HeldInput;
+import com.github.standobyte.jojo.powersystem.entityaction.type.EntityActionType;
 import com.github.standobyte.jojo.powersystem.standpower.StandPower;
 import com.github.standobyte.jojo.util.StandUtil;
 
@@ -17,8 +20,17 @@ import net.minecraft.world.level.Level;
 public class StandEntityAbility extends EntityActionAbility {
 	public boolean noFinisherBarDecay = false;
 
+	/**
+	 * @deprecated You can use the other constructor, so that you don't have to override {@link EntityActionAbility#createActionObj()}
+	 */
+	@Deprecated
 	public StandEntityAbility(AbilityType<?> abilityType, AbilityId abilityId) {
 		super(abilityType, abilityId);
+	}
+	
+	public StandEntityAbility(AbilityType<?> abilityType, AbilityId abilityId, 
+			Function<EntityActionType, ? extends EntityActionInstance> createActionObj) {
+		super(abilityType, abilityId, createActionObj);
 	}
 	
 	

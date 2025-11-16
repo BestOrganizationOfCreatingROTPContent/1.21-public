@@ -46,7 +46,7 @@ import net.minecraft.world.level.block.state.BlockState;
 public class StandEntityPunchAbility extends StandEntityAbility {
 
 	public StandEntityPunchAbility(AbilityType<?> abilityType, AbilityId abilityId) {
-		super(abilityType, abilityId);
+		super(abilityType, abilityId, StandEntityPunch::new);
 		usageGroup = AbilityUsageGroup.COMBAT;
 		setDefaultPhaseLength(ActionPhase.WINDUP, 4);
 		setDefaultPhaseLength(ActionPhase.PERFORM, 2);
@@ -73,11 +73,6 @@ public class StandEntityPunchAbility extends StandEntityAbility {
 		return super.replaceWithSubAbility(context);
 	}
 	
-	
-	@Override
-	public EntityActionInstance createActionObj() {
-		return new StandEntityPunch(this);
-	}
 	
 	@Override
 	public void initActionFromConfig(EntityActionInstance action, Level level, LivingEntity standUser, LivingEntity standEntity) {

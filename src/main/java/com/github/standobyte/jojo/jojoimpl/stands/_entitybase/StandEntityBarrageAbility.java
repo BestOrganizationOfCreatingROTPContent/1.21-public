@@ -47,7 +47,7 @@ import net.minecraft.world.phys.Vec3;
 public class StandEntityBarrageAbility extends StandEntityAbility {
 
 	public StandEntityBarrageAbility(AbilityType<?> abilityType, AbilityId abilityId) {
-		super(abilityType, abilityId);
+		super(abilityType, abilityId, StandEntityBarrage::new);
 		usageGroup = AbilityUsageGroup.COMBAT;
 		setDefaultPhaseLength(ActionPhase.PERFORM, StandStatFormulas.getBarrageMaxDuration(8));
 		setDefaultPhaseLength(ActionPhase.RECOVERY, 10);
@@ -82,11 +82,6 @@ public class StandEntityBarrageAbility extends StandEntityAbility {
 		return super.replaceWithSubAbility(context);
 	}
 	
-	
-	@Override
-	public EntityActionInstance createActionObj() {
-		return new StandEntityBarrage(this);
-	}
 	
 	@Override
 	public void initActionFromConfig(EntityActionInstance action, Level level, 

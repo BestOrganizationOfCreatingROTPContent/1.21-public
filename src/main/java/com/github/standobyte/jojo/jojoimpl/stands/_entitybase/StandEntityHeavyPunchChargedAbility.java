@@ -34,7 +34,7 @@ import net.minecraft.world.level.Level;
 public class StandEntityHeavyPunchChargedAbility extends StandEntityAbility {
 
 	public StandEntityHeavyPunchChargedAbility(AbilityType<?> abilityType, AbilityId abilityId) {
-		super(abilityType, abilityId);
+		super(abilityType, abilityId, StandEntityChargedHeavy::new);
 		usageGroup = AbilityUsageGroup.COMBAT;
 		setDefaultPhaseLength(ActionPhase.BUTTON_CHARGE, 16);
 		setButtonHoldPhase(ActionPhase.WINDUP);
@@ -47,11 +47,6 @@ public class StandEntityHeavyPunchChargedAbility extends StandEntityAbility {
 		return super.isAbilityAvailable(context) && StandUtil.getStandGrabTarget(context) == null;
 	}
 	
-	
-	@Override
-	public EntityActionInstance createActionObj() {
-		return new StandEntityChargedHeavy(this);
-	}
 	
 	public static class StandEntityChargedHeavy extends EntityActionInstance {
 		protected float buttonChargeRatio;

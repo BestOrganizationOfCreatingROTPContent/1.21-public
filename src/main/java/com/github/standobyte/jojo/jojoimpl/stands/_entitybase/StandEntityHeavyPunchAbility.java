@@ -39,7 +39,7 @@ public class StandEntityHeavyPunchAbility extends StandEntityAbility {
 	public boolean verticalKnockback = false;
 
 	public StandEntityHeavyPunchAbility(AbilityType<?> abilityType, AbilityId abilityId) {
-		super(abilityType, abilityId);
+		super(abilityType, abilityId, StandEntityHeavyPunch::new);
 		usageGroup = AbilityUsageGroup.COMBAT;
 		setDefaultPhaseLength(ActionPhase.WINDUP, StandStatFormulas.getHeavyAttackWindup(8, 0));
 		setDefaultPhaseLength(ActionPhase.PERFORM, 6);
@@ -64,11 +64,6 @@ public class StandEntityHeavyPunchAbility extends StandEntityAbility {
 		return super.replaceWithSubAbility(context);
 	}
 	
-	
-	@Override
-	public EntityActionInstance createActionObj() {
-		return new StandEntityHeavyPunch(this);
-	}
 	
 	@Override
 	public void initActionFromConfig(EntityActionInstance action, Level level, 
