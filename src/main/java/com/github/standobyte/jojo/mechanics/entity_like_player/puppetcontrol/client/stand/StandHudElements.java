@@ -393,6 +393,8 @@ public class StandHudElements {
 	
 	public static void renderLivingHeldItems(LivingEntity stand, GuiGraphics guiGraphics, GuiAccessor gui, DeltaTracker deltaTracker, Minecraft mc, 
 			int xLeft, int xRight, boolean renderEmpty) {
+		RenderSystem.enableBlend();
+		RenderSystem.defaultBlendFunc();
 		ItemStack itemLeft = _LivingEntity.getItemHeldByArm(stand, HumanoidArm.LEFT);
 		ItemStack itemRight = _LivingEntity.getItemHeldByArm(stand, HumanoidArm.RIGHT);
 		if (!renderEmpty && itemLeft.isEmpty() && itemRight.isEmpty()) return;
