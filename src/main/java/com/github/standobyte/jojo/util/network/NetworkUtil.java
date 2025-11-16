@@ -18,6 +18,7 @@ import com.google.gson.JsonObject;
 
 import io.netty.buffer.ByteBuf;
 import net.minecraft.core.Registry;
+import net.minecraft.core.RegistryAccess;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.network.RegistryFriendlyByteBuf;
 import net.minecraft.network.codec.ByteBufCodecs;
@@ -29,6 +30,7 @@ import net.minecraft.server.level.ChunkMap;
 import net.minecraft.server.level.ServerChunkCache;
 import net.minecraft.server.network.ServerPlayerConnection;
 import net.minecraft.world.entity.Entity;
+import net.neoforged.neoforge.network.connection.ConnectionType;
 
 public class NetworkUtil {
 	
@@ -55,6 +57,12 @@ public class NetworkUtil {
 	public static FriendlyByteBuf extraPacketData(FriendlyByteBuf remainingData) {
 		int extraInputBytes = remainingData.readableBytes();
 		return extraInputBytes > 0 ? new FriendlyByteBuf(remainingData.readBytes(extraInputBytes)) : null;
+	}
+	
+	@Nullable
+	public static RegistryFriendlyByteBuf extraPacketData(FriendlyByteBuf remainingData, RegistryAccess registryAccess) {
+		int extraInputBytes = remainingData.readableBytes();
+		return extraInputBytes > 0 ? new RegistryFriendlyByteBuf(remainingData.readBytes(extraInputBytes), registryAccess, ConnectionType.NEOFORGE) : null;
 	}
 	
 	// StreamCodec stuff below
