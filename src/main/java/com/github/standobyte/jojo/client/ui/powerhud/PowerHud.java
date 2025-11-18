@@ -41,6 +41,7 @@ import net.minecraft.client.gui.screens.inventory.AbstractContainerScreen;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.util.FastColor;
+import net.minecraft.util.Mth;
 import net.minecraft.util.StringUtil;
 import net.minecraft.world.entity.player.Player;
 import net.neoforged.api.distmarker.Dist;
@@ -498,6 +499,10 @@ public class PowerHud {
 				JojoMod.resLoc("textures/hud/stand_finisher_2.png"),
 				JojoMod.resLoc("textures/hud/stand_finisher_3.png")
 		};
+		public static final ResourceLocation[] BARS_FULL = {
+				JojoMod.resLoc("textures/hud/stand_finisher_1_full.png"),
+				JojoMod.resLoc("textures/hud/stand_finisher_2_full.png")
+		};
 
 		public Finisher(String name, int x0, int y0, int width, int height) {
 			super(name, x0, y0, width, height);
@@ -521,31 +526,27 @@ public class PowerHud {
 			StandEntity stand = ClientGlobals.playerStandEntity;
 			float partialTick = ClientUtil.partialTick(deltaTracker, false);
 			float finisher = stand.getFinisherMeter(partialTick);
-			float x = getX();// + 0.5f;
-			float y = getY();// + 0.5f;
-			float width = getWidth();// - 1;
-			float height = getHeight();// - 1;
-			// FIXME finisher bar is off-center
-			int i = 0;
-			ResourceLocation bar;
-			int color = ARGB.white(0.5f);
 			
-			while (finisher > 0 && i < BARS.length) {
-				bar = BARS[i];
-				if (finisher >= 1) {
-					BlitFloat.blit(guiGraphics.pose(), mc, bar, 
-							x, y, width, height, 0, 
-							color);
-				}
-				else {
-					BlitFloat.blitRadial(guiGraphics.pose(), mc, bar, 
-							x, y, width, height, 0, 
-							0, finisher, color);
-				}
-				
-				finisher -= 1;
-				i++;
+			int crosshairX = (guiGraphics.guiWidth() - 15) / 2;
+			int crosshairY = (guiGraphics.guiHeight() - 15) / 2;
+			
+			float width = getWidth();
+			float height = getHeight();
+			float x = crosshairX - width / 4;
+			float y = crosshairY - height / 4;
+			int color = ARGB.white(0.5f);
+
+			int fullFinishers = Mth.floor(finisher);
+			if (fullFinishers > 0) {
+				BlitFloat.blit(guiGraphics.pose(), mc, BARS_FULL[Math.min(fullFinishers, BARS_FULL.length) - 1], 
+						x, y, width, height, 0, 
+						color);
 			}
+			
+			float finisherFill = Mth.frac(finisher);
+			BlitFloat.blitRadial(guiGraphics.pose(), mc, BARS[Math.min(fullFinishers, BARS.length - 1)], 
+					x, y, width, height, 0, 
+					0, finisherFill, color);
 		}
 	}
 	
