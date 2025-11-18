@@ -1,7 +1,10 @@
 package com.github.standobyte.jojo.client.shader;
 
+import java.util.SequencedMap;
+
 import com.github.standobyte.jojo.client.ClientUtil;
 import com.github.standobyte.jojo.client.rendertype.CustomMultiBufferSource;
+import com.github.standobyte.jojo.util.reflection.ClientReflection;
 import com.github.standobyte.v1_21_4_stuff.PostEffectCache;
 import com.mojang.blaze3d.pipeline.MainTarget;
 import com.mojang.blaze3d.pipeline.RenderTarget;
@@ -10,13 +13,13 @@ import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.blaze3d.vertex.ByteBufferBuilder;
 import com.mojang.blaze3d.vertex.PoseStack;
 
-import it.unimi.dsi.fastutil.objects.Object2ObjectLinkedOpenHashMap;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.model.EntityModel;
 import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.PostChain;
 import net.minecraft.client.renderer.RenderBuffers;
 import net.minecraft.client.renderer.RenderStateShard;
+import net.minecraft.client.renderer.RenderType;
 import net.minecraft.client.renderer.entity.LivingEntityRenderer;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.packs.resources.ResourceManager;
@@ -55,10 +58,11 @@ public class SeparateBufferEntityShader {
 	
 	protected void createBufferSource(Minecraft mc, RenderBuffers vanillaRenderBuffers) {
 		RenderStateShard modification = renderTypeModification();
+		SequencedMap<RenderType, ByteBufferBuilder> fixedBuffers;// = new Object2ObjectLinkedOpenHashMap<>();
+		fixedBuffers = ClientReflection.getFixedBuffers(vanillaRenderBuffers.bufferSource());
 		bufferSource = new CustomMultiBufferSource(
 				new ByteBufferBuilder(786432), 
-				new Object2ObjectLinkedOpenHashMap<>(), 
-				modification);
+				fixedBuffers, modification);
 	}
 	
 	public void onResourceReload(ResourceManager resourceManager) {}
@@ -108,7 +112,18 @@ public class SeparateBufferEntityShader {
 	}
 	
 	protected void endBatch() {
-		((MultiBufferSource.BufferSource) this.bufferSource).endBatch();
+		MultiBufferSource.BufferSource bufferSource = (MultiBufferSource.BufferSource) this.bufferSource;
+//		bufferSource.endLastBatch();
+//		bufferSource.endBatch(Sheets.translucentCullBlockSheet());
+//		bufferSource.endBatch(Sheets.bannerSheet());
+//		bufferSource.endBatch(Sheets.shieldSheet());
+//		bufferSource.endBatch(RenderType.armorEntityGlint());
+//		bufferSource.endBatch(RenderType.glint());
+//		bufferSource.endBatch(RenderType.glintTranslucent());
+//		bufferSource.endBatch(RenderType.entityGlint());
+//		bufferSource.endBatch(RenderType.entityGlintDirect());
+//		bufferSource.endBatch(RenderType.waterMask());
+		bufferSource.endBatch();
 	}
 	
 	protected void setupBuffer() {

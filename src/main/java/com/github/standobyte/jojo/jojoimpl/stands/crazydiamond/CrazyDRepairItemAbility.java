@@ -9,6 +9,8 @@ import com.github.standobyte.jojo.client.input.InputHandler;
 import com.github.standobyte.jojo.powersystem.Power;
 import com.github.standobyte.jojo.powersystem.ability.AbilityId;
 import com.github.standobyte.jojo.powersystem.ability.AbilityType;
+import com.github.standobyte.jojo.powersystem.ability.AbilityUsageGroup;
+import com.github.standobyte.jojo.powersystem.ability.condition.ConditionCheck;
 import com.github.standobyte.jojo.powersystem.entityaction.ActionPhase;
 import com.github.standobyte.jojo.powersystem.entityaction.EntityActionInstance;
 import com.github.standobyte.jojo.powersystem.entityaction.type.EntityActionType;
@@ -44,7 +46,8 @@ import net.minecraft.world.phys.Vec3;
 public class CrazyDRepairItemAbility extends StandEntityAbility {
 
 	public CrazyDRepairItemAbility(AbilityType<?> abilityType, AbilityId abilityId) {
-		super(abilityType, abilityId);
+		super(abilityType, abilityId, ItemRepair::new);
+		usageGroup = AbilityUsageGroup.INVENTORY;
 		setButtonHoldPhase(ActionPhase.PERFORM);
 	}
 
@@ -52,24 +55,30 @@ public class CrazyDRepairItemAbility extends StandEntityAbility {
 	public AbilityInputState cl_abilityInputState(Power<?> context) {
 		AbilityInputState state = AbilityInputState.init();
 		state.setFlag(AbilityInputState.ONLY_IN_CONTAINER, true);
-		
-		Screen screen = Minecraft.getInstance().screen;
-		if (screen instanceof AbstractContainerScreen invScreen) {
-			boolean active = false;
-			if (!InputHandler.holdingLAlt) {
-				Slot hovered = invScreen.getSlotUnderMouse();
-				if (hovered != null) {
-					ItemStack item = hovered.getItem();
-					active = canBeRepaired(item);
+		return state;
+	}
+	
+	@Override
+	public ConditionCheck checkSpecificConditions(Power<?> context) {
+		if (context.getUser().level().isClientSide()) {
+			Screen screen = Minecraft.getInstance().screen;
+			if (screen instanceof AbstractContainerScreen invScreen) {
+				boolean active = false;
+				if (!InputHandler.inputsDisabled) {
+					Slot hovered = invScreen.getSlotUnderMouse();
+					if (hovered != null) {
+						ItemStack item = hovered.getItem();
+						// TODO (item repair) disable it when hovering over an item in a creative tab
+						active = canBeRepaired(item);
+					}
+				}
+				if (!active) {
+					return ConditionCheck.NEGATIVE;
 				}
 			}
-			if (!active) {
-				state.setFlag(AbilityInputState.IS_ACTIVE, false);
-				state.setFlag(AbilityInputState.VISIBLE_TRANSLUCENT, true);
-			}
 		}
-
-		return state;
+		
+		return super.checkSpecificConditions(context);
 	}
 
 	@Override
@@ -80,11 +89,6 @@ public class CrazyDRepairItemAbility extends StandEntityAbility {
 		}
 	}
 
-
-	@Override
-	public EntityActionInstance createActionObj() {
-		return new ItemRepair(this);
-	}
 
 	// XXX (item repair) CD heal particles on the model of the item being repaired
 	// TODO (item repair) sounds

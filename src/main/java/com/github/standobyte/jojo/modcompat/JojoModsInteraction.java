@@ -4,6 +4,7 @@ import java.lang.reflect.Field;
 
 import javax.annotation.Nullable;
 
+import com.github.standobyte.jojo.client.ClientProxy;
 import com.github.standobyte.jojo.core.JojoMod;
 
 import net.minecraft.client.Minecraft;
@@ -23,8 +24,11 @@ public class JojoModsInteraction {
 		return false;
 	}
 	
-	// TODO masochism
 	public static boolean entityHasStandFromAnotherMod(LivingEntity entity) {
+		if (entity.level().isClientSide() && entity == ClientProxy.getClientPlayer()) {
+			return clientHasStandFromAnotherMod();
+		}
+		// XXX masochism
 		return false;
 	}
 

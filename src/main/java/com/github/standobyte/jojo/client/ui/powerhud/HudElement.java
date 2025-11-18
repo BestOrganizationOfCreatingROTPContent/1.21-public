@@ -2,7 +2,7 @@ package com.github.standobyte.jojo.client.ui.powerhud;
 
 import org.jetbrains.annotations.ApiStatus;
 
-import com.github.standobyte.jojo.client.ui.powerhud.PowerHud.PrototypeAbilityHud;
+import com.github.standobyte.jojo.client.ui.powerhud.PowerHud.AbilityHud;
 import com.github.standobyte.jojo.client.ui.utils.tooltip.MultiLineScreenTooltip;
 import com.github.standobyte.jojo.client.ui.utils.tooltip.PowerHudHintTooltipHolder;
 import com.github.standobyte.jojo.client.ui.utils.tooltip.TooltipParams;
@@ -18,7 +18,7 @@ import net.minecraft.network.chat.Component;
 
 public abstract class HudElement implements GuiEventListener {
 	@ApiStatus.Internal
-	public PrototypeAbilityHud hud;
+	public AbilityHud hud;
 	public String name;
 	public MultiLineScreenTooltip tooltipText;
     public PowerHudHintTooltipHolder tooltip = new PowerHudHintTooltipHolder();

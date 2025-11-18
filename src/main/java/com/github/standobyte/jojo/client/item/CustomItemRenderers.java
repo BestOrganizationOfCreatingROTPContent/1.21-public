@@ -8,7 +8,10 @@ import org.slf4j.Logger;
 
 import com.github.standobyte.jojo.client.item.custommodel.BakedCustomModel;
 import com.github.standobyte.jojo.client.item.custommodel.CustomItemRenderer;
+import com.github.standobyte.jojo.client.item.custommodel.ItemRendererProvider;
+import com.github.standobyte.jojo.client.item.standdisc.StandDiscRenderer;
 import com.github.standobyte.jojo.core.JojoMod;
+import com.github.standobyte.jojo.init.ModItemDataComponents;
 import com.github.standobyte.jojo.init.ModItems;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.logging.LogUtils;
@@ -28,7 +31,7 @@ import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.fml.common.EventBusSubscriber;
 import net.neoforged.neoforge.client.event.ModelEvent;
 import net.neoforged.neoforge.client.event.RegisterClientReloadListenersEvent;
-import net.neoforged.neoforge.client.extensions.common.IClientItemExtensions;
+import net.neoforged.neoforge.client.event.RegisterColorHandlersEvent;
 import net.neoforged.neoforge.client.extensions.common.RegisterClientExtensionsEvent;
 
 @EventBusSubscriber(modid = JojoMod.MOD_ID, value = Dist.CLIENT)
@@ -37,6 +40,7 @@ public class CustomItemRenderers {
 
 
 	public static BlockEntityWithoutLevelRenderer modLogoRenderer;
+	public static StandDiscRenderer standDiscRenderer;
 
 	@SubscribeEvent(priority = EventPriority.LOW)
 	public static void addListener(RegisterClientReloadListenersEvent event) {
@@ -60,22 +64,21 @@ public class CustomItemRenderers {
 		};
 	}
 
-
 	@SubscribeEvent
 	public static void registerItemRenderers(RegisterClientExtensionsEvent event) {
-		event.registerItem(new IClientItemExtensions() {
-			@Override
-			public BlockEntityWithoutLevelRenderer getCustomRenderer() {
-				return modLogoRenderer;
-			}
-		}, ModItems.DEBUG_ITEM);
+		Minecraft mc = Minecraft.getInstance();
+		
+		event.registerItem(new ItemRendererProvider(() -> modLogoRenderer), ModItems.DEBUG_ITEM);
+		
+		standDiscRenderer = new StandDiscRenderer(mc);
+		event.registerItem(new ItemRendererProvider(() -> standDiscRenderer), ModItems.STAND_DISC);
 	}
-
 
 	@SubscribeEvent
 	public static void setItemModelsAsCustom(ModelEvent.ModifyBakingResult event) {
 		Map<ModelResourceLocation, BakedModel> registry = event.getModels();
-		registerCustomBakedModel(ModItems.DEBUG_ITEM.getId(), registry, model -> new BakedCustomModel(model));
+		CustomItemRenderers.registerCustomBakedModel(ModItems.DEBUG_ITEM.getId(), registry, model -> new BakedCustomModel(model));
+		CustomItemRenderers.registerCustomBakedModel(ModItems.STAND_DISC.getId(), registry, model -> new BakedCustomModel(model));
 	}
 
 
@@ -94,4 +97,23 @@ public class CustomItemRenderers {
 		}
 	}
 
+
+
+	@SubscribeEvent
+	public static void registerItemColoring(RegisterColorHandlersEvent.Item event) {
+		event.register((stack, layer) -> {
+			return switch (layer) {
+				case 1 -> StandDiscRenderer.lightDiscTint(StandDiscRenderer.getStandColor(stack.get(ModItemDataComponents.DISC_STAND.get())));
+				case 2 -> StandDiscRenderer.getStandColor(stack.get(ModItemDataComponents.DISC_STAND.get()));
+				default -> -1;
+			};
+		}, ModItems.STAND_DISC.get());
+
+//		itemColors.register((stack, layer) -> {
+//			if (layer != 1) return -1;
+//
+//			Optional<DyeColor> dye = CassetteRecordedItem.getCassetteData(stack).map(cap -> cap.getDye());
+//			return dye.isPresent() ? dye.get().getColorValue() : 0xeff0e0;
+//		}, ModItems.CASSETTE_RECORDED.get());
+	}
 }

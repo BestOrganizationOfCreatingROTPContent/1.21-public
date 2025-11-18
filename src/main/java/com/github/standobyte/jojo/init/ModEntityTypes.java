@@ -4,8 +4,8 @@ import com.github.standobyte.jojo.core.JojoMod;
 import com.github.standobyte.jojo.jojoimpl.stands.crazydiamond.CrazyDBlockBulletEntity;
 import com.github.standobyte.jojo.jojoimpl.stands.crazydiamond.CrazyDBloodCutterEntity;
 import com.github.standobyte.jojo.mc.entity.projectile.ThrownNuggetBearingEntity;
-import com.github.standobyte.jojo.mechanics.character.mob.PowerUserMobEntity;
 import com.github.standobyte.jojo.mechanics.clothes.mannequin.MannequinEntity;
+import com.github.standobyte.jojo.mechanics.entity_like_player.npc.PowerUserMobEntity;
 import com.github.standobyte.jojo.powersystem.standpower.entity.StandEntity;
 
 import net.minecraft.core.registries.Registries;
@@ -35,7 +35,6 @@ public final class ModEntityTypes {
 	
 	public static final DeferredHolder<EntityType<?>, EntityType<PowerUserMobEntity>> CHARACTER = ENTITY_TYPES.register("character", key -> 
 			EntityType.Builder.<PowerUserMobEntity>of(PowerUserMobEntity::new, MobCategory.MISC)
-			.noSummon()
 			.sized(0.6F, 1.8F)
 			.eyeHeight(1.62F)
 			.vehicleAttachment(Player.DEFAULT_VEHICLE_ATTACHMENT)

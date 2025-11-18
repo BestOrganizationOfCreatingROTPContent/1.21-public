@@ -25,7 +25,7 @@ import net.minecraft.world.level.Level;
 public class HierophantPuppetAbility extends StandEntityAbility {
 
 	public HierophantPuppetAbility(AbilityType<?> abilityType, AbilityId abilityId) {
-		super(abilityType, abilityId);
+		super(abilityType, abilityId, PuppetingAction::new);
 		initVariationAssets();
 	}
 	
@@ -48,11 +48,6 @@ public class HierophantPuppetAbility extends StandEntityAbility {
 		return super.onKeyPress(level, user, extraClientInput, inputMethod, clickHoldResolveTime);
 	}
 	
-	
-	@Override
-	public EntityActionInstance createActionObj() {
-		return new PuppetingAction(this);
-	}
 	
 	// The action is only created when we click an entity we want Hierophant to puppet
 	public static class PuppetingAction extends EntityActionInstance {

@@ -2,10 +2,13 @@ package com.github.standobyte.jojo.client.ui.powerhud;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.function.Supplier;
 
 import com.github.standobyte.jojo.client.ClientGlobals;
 import com.github.standobyte.jojo.client.ClientPowerCache;
 import com.github.standobyte.jojo.client.ClientUtil;
+import com.github.standobyte.jojo.client.input.InputHandler;
+import com.github.standobyte.jojo.client.input.controlscheme.ClientControlScheme;
 import com.github.standobyte.jojo.client.standskin.StandSkin;
 import com.github.standobyte.jojo.client.standskin.StandSkinsLoader;
 import com.github.standobyte.jojo.client.ui.utils.BlitFloat;
@@ -13,7 +16,9 @@ import com.github.standobyte.jojo.client.ui.utils.GuiIcon;
 import com.github.standobyte.jojo.client.ui.utils.tooltip.MultiLineScreenTooltip;
 import com.github.standobyte.jojo.core.JojoMod;
 import com.github.standobyte.jojo.init.power.ModPlayerPowers;
+import com.github.standobyte.jojo.powersystem.Power;
 import com.github.standobyte.jojo.powersystem.PowerClass;
+import com.github.standobyte.jojo.powersystem.PowerType;
 import com.github.standobyte.jojo.powersystem.playerpower.PlayerPower;
 import com.github.standobyte.jojo.powersystem.standpower.StandPower;
 import com.github.standobyte.jojo.powersystem.standpower.entity.StandEntity;
@@ -21,6 +26,7 @@ import com.github.standobyte.jojo.util.MathUtil;
 import com.github.standobyte.jojo.util.StandUtil;
 import com.github.standobyte.v1_21_4_stuff.missingmethods.ARGB;
 import com.mojang.blaze3d.systems.RenderSystem;
+import com.mojang.blaze3d.vertex.PoseStack;
 
 import net.minecraft.ChatFormatting;
 import net.minecraft.client.DeltaTracker;
@@ -35,7 +41,9 @@ import net.minecraft.client.gui.screens.inventory.AbstractContainerScreen;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.util.FastColor;
+import net.minecraft.util.Mth;
 import net.minecraft.util.StringUtil;
+import net.minecraft.world.entity.player.Player;
 import net.neoforged.api.distmarker.Dist;
 import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.fml.common.EventBusSubscriber;
@@ -47,12 +55,12 @@ import net.neoforged.neoforge.common.util.TriState;
 
 @EventBusSubscriber(modid = JojoMod.MOD_ID, value = Dist.CLIENT)
 public class PowerHud {
-	public static PrototypeAbilityHud abilityHUDInstance;
+	public static AbilityHud abilityHUDInstance;
 
 	@SubscribeEvent
 	public static void addHud(RegisterGuiLayersEvent event) {
 		event.registerBelow(VanillaGuiLayers.BOSS_OVERLAY, 
-				JojoMod.resLoc("ability_hud"), abilityHUDInstance = new PrototypeAbilityHud());
+				JojoMod.resLoc("ability_hud"), abilityHUDInstance = new AbilityHud());
 	}
 	
 	
@@ -91,8 +99,13 @@ public class PowerHud {
 		}
 	}
 	
+	public static boolean canHaveHudOpen() {
+		Player player = Minecraft.getInstance().player;
+		return player != null && !player.isSpectator();
+	}
 	
-	public static class PrototypeAbilityHud implements LayeredDraw.Layer {
+	
+	public static class AbilityHud implements LayeredDraw.Layer {
 		public Map<String, HudElement> elements = new HashMap<>();
 		
 		public HudElement addElement(HudElement element) {
@@ -118,8 +131,9 @@ public class PowerHud {
 
 	
 		public HudElement controls = addElement(new ControlsHudElement("controls", 4, 44, -1, -1));
-		public HudElement resolveBar = addElement(new Resolve("resolve_bar", 11, 12, 32, 16));
-		public HudElement staminaBar = addElement(new Stamina("stamina_bar", 61, 16, Bars.HORIZONTAL_LENGTH + 8, Bars.HORIZONTAL_WIDTH));
+		public HudElement powerIcon = addElement(new PowerIcon("powerIcon", 11, 12, 16, 16));
+		public HudElement resolveBar = addElement(new Resolve("resolve_bar", 31, 12, 32, 16));
+		public HudElement staminaBar = addElement(new Stamina("stamina_bar", 81, 16, Bars.HORIZONTAL_LENGTH + 8, Bars.HORIZONTAL_WIDTH));
 		public HudElement standRange = addElement(new StandRange("stand_range", 
 				(int) staminaBar.xOffsetL + staminaBar.getWidth() + 10, (int) staminaBar.yOffsetU, -1, -1));
 		public HudElement finisherBar = addElement(new Finisher("stand_finisher", 
@@ -128,6 +142,8 @@ public class PowerHud {
 		@Override
 		public void render(GuiGraphics guiGraphics, DeltaTracker deltaTracker) {
 			Minecraft mc = Minecraft.getInstance();
+			if (!canHaveHudOpen()) return;
+			
 			int mouseX = -1;
 			int mouseY = -1;
 			boolean isContainer = mc.screen instanceof AbstractContainerScreen;
@@ -167,6 +183,117 @@ public class PowerHud {
 		}
 		
 	}
+	
+	
+	public static class PowerIcon extends HudElement {
+		protected PowerClass<?> powerClass;
+		protected boolean standSummoned;
+
+		public PowerIcon(String name, int x0, int y0, int width, int height) {
+			super(name, x0, y0, width, height);
+		}
+
+		public PowerIcon(String name, SnappingH snappingHorizontal, SnappingV snappingVertical, 
+				int xOffset, int yOffset, int width, int height) {
+			super(name, snappingHorizontal, snappingVertical, xOffset, yOffset, width, height);
+		}
+		
+		@Override
+		protected void initText() {
+			super.initText();
+			tooltipText.body.clear();
+		}
+
+		@Override
+		public boolean shouldRender() {
+			standSummoned = ClientPowerCache.getPower(PowerClass.STAND).isSummoned();
+			powerClass = null;
+			
+			if (!hud.forContainerMenu.isTrue()) {
+				var controlScheme = InputHandler.getInstance().getActiveControlScheme();
+				if (controlScheme != null) {
+					powerClass = controlScheme.powerClassCosmetic;
+					if (powerClass == PowerClass.STAND && !standSummoned) {
+						powerClass = null;
+					}
+				}
+			}
+			
+			if (standSummoned) {
+				if (powerClass == null) {
+					powerClass = PowerClass.STAND;
+				}
+				else if (powerClass != PowerClass.STAND) {
+					standSummoned = false;
+				}
+			}
+			
+			return powerClass != null;
+		}
+
+		@Override
+		public void renderElement(GuiGraphics guiGraphics, DeltaTracker deltaTracker) {
+			if (powerClass != null) {
+				if (powerClass == PowerClass.STAND) {
+					renderClientStandIcon(guiGraphics.pose(), getX(), getY());
+				}
+				else {
+					Power<?> power = ClientPowerCache.getPower(powerClass);
+					if (power != null && power.hasPower()) {
+						GuiIcon icon = getPowerIcon(power.getPowerType());
+						icon.render(guiGraphics.pose(), getX(), getY());
+					}
+				}
+			}
+		}
+		
+		@Override
+		protected void checkTooltip(double mouseX, double mouseY, DeltaTracker deltaTracker) {
+			if (standSummoned) {
+				Power<?> power = ClientPowerCache.getPower(PowerClass.STAND);
+				if (power != null && power.hasPower()) {
+					Component powerName = power.getName();
+					tooltipText.setTitle(Component.translatable("ripples_hud.stand_summoned", powerName.copy())
+							.withStyle(ChatFormatting.BLACK));
+				}
+			}
+			else {
+				Power<?> power = ClientPowerCache.getPower(powerClass);
+				if (power != null && power.hasPower()) {
+					Component powerName = power.getName();
+					tooltipText.setTitle(powerName.copy()
+							.withStyle(ChatFormatting.BLACK));
+				}
+			}
+			super.checkTooltip(mouseX, mouseY, deltaTracker);
+		}
+	}
+	
+	public static void renderClientStandIcon(PoseStack pose, int x, int y) {
+		renderStandIcon(ClientPowerCache.getPower(PowerClass.STAND), pose, x, y);
+	}
+	
+	public static void renderStandIcon(StandPower standPower, PoseStack pose, int x, int y) {
+		if (standPower != null) {
+			StandSkin skin = StandSkinsLoader.getInstance().getSkin(standPower);
+			if (skin != null) {
+				GuiIcon icon = skin.getStandIcon();
+				if (icon != null) {
+					RenderSystem.enableBlend();
+					RenderSystem.defaultBlendFunc();
+					icon.render(pose, x, y);
+					RenderSystem.disableBlend();
+				}
+			}
+		}
+	}
+	
+	protected static final Map<ResourceLocation, GuiIcon> POWER_ICONS = new HashMap<>();
+	public static GuiIcon getPowerIcon(PowerType powerType) {
+		return POWER_ICONS.computeIfAbsent(powerType.getId(), 
+				id -> new GuiIcon(id.withPath(path -> "textures/power/" + path + ".png"), 16, 16));
+	}
+	public static GuiIcon getPowerIcon(Supplier<? extends PowerType> powerType) { return getPowerIcon(powerType.get()); }
 		
 		
 	public static class Resolve extends HudElement {
@@ -206,7 +333,12 @@ public class PowerHud {
 		public boolean shouldRender() {
 			if (hud.forContainerMenu.isTrue()) return false;
 			StandPower standPower = ClientPowerCache.getPower(PowerClass.STAND);
-			return standPower != null && standPower.usesResolve();
+			if (standPower != null && standPower.usesResolve()) {
+				ClientControlScheme controlScheme = InputHandler.getInstance().getActiveControlScheme();
+				return controlScheme != null && controlScheme.hasAbility(ability -> ability.powerClass() == PowerClass.STAND);
+			}
+			
+			return false;
 		}
 		
 		@Override
@@ -316,7 +448,12 @@ public class PowerHud {
 		public boolean shouldRender() {
 			if (hud.forContainerMenu.isTrue()) return false;
 			StandPower standPower = ClientPowerCache.getPower(PowerClass.STAND);
-			return standPower != null && !standPower.isUserCreative() && standPower.usesStamina();
+			if (standPower != null && !standPower.isUserCreative() && standPower.usesStamina()) {
+				ClientControlScheme controlScheme = InputHandler.getInstance().getActiveControlScheme();
+				return controlScheme != null && controlScheme.hasAbility(ability -> ability.powerClass() == PowerClass.STAND);
+			}
+			
+			return false;
 		}
 		
 		@Override
@@ -362,6 +499,10 @@ public class PowerHud {
 				JojoMod.resLoc("textures/hud/stand_finisher_2.png"),
 				JojoMod.resLoc("textures/hud/stand_finisher_3.png")
 		};
+		public static final ResourceLocation[] BARS_FULL = {
+				JojoMod.resLoc("textures/hud/stand_finisher_1_full.png"),
+				JojoMod.resLoc("textures/hud/stand_finisher_2_full.png")
+		};
 
 		public Finisher(String name, int x0, int y0, int width, int height) {
 			super(name, x0, y0, width, height);
@@ -385,31 +526,27 @@ public class PowerHud {
 			StandEntity stand = ClientGlobals.playerStandEntity;
 			float partialTick = ClientUtil.partialTick(deltaTracker, false);
 			float finisher = stand.getFinisherMeter(partialTick);
-			float x = getX();// + 0.5f;
-			float y = getY();// + 0.5f;
-			float width = getWidth();// - 1;
-			float height = getHeight();// - 1;
-			// FIXME finisher bar is off-center
-			int i = 0;
-			ResourceLocation bar;
-			int color = ARGB.white(0.5f);
 			
-			while (finisher > 0 && i < BARS.length) {
-				bar = BARS[i];
-				if (finisher >= 1) {
-					BlitFloat.blit(guiGraphics.pose(), mc, bar, 
-							x, y, width, height, 0, 
-							color);
-				}
-				else {
-					BlitFloat.blitRadial(guiGraphics.pose(), mc, bar, 
-							x, y, width, height, 0, 
-							0, finisher, color);
-				}
-				
-				finisher -= 1;
-				i++;
+			int crosshairX = (guiGraphics.guiWidth() - 15) / 2;
+			int crosshairY = (guiGraphics.guiHeight() - 15) / 2;
+			
+			float width = getWidth();
+			float height = getHeight();
+			float x = crosshairX - width / 4;
+			float y = crosshairY - height / 4;
+			int color = ARGB.white(0.5f);
+
+			int fullFinishers = Mth.floor(finisher);
+			if (fullFinishers > 0) {
+				BlitFloat.blit(guiGraphics.pose(), mc, BARS_FULL[Math.min(fullFinishers, BARS_FULL.length) - 1], 
+						x, y, width, height, 0, 
+						color);
 			}
+			
+			float finisherFill = Mth.frac(finisher);
+			BlitFloat.blitRadial(guiGraphics.pose(), mc, BARS[Math.min(fullFinishers, BARS.length - 1)], 
+					x, y, width, height, 0, 
+					0, finisherFill, color);
 		}
 	}
 	

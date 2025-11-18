@@ -3,9 +3,12 @@ package com.github.standobyte.jojo.mc.item;
 import java.util.List;
 import java.util.Optional;
 
+import javax.annotation.Nullable;
+
 import com.github.standobyte.jojo.client.standskin.StandSkin;
 import com.github.standobyte.jojo.client.standskin.StandSkinsLoader;
 import com.github.standobyte.jojo.init.ModItemDataComponents;
+import com.github.standobyte.jojo.init.ModItems;
 import com.github.standobyte.jojo.mc.item.component.StandWrittenOnDisc;
 import com.github.standobyte.jojo.mechanics.StoryPart;
 import com.github.standobyte.jojo.powersystem.PowerClass;
@@ -71,6 +74,22 @@ public class StandDiscItem extends Item {
 			return InteractionResultHolder.success(discItem);
 		}
 		return InteractionResultHolder.consume(discItem);
+	}
+
+
+	@Nullable
+	public static StandInstance getStandInstance(ItemStack discItem) {
+		StandWrittenOnDisc discStand = discItem.get(ModItemDataComponents.DISC_STAND.get());
+		if (discStand == null || !discStand.isValid()) return null;
+
+		StandInstance standInstance = discStand.getInstance();
+		return standInstance;
+	}
+
+	public static ItemStack withStand(StandInstance standInstance) {
+		ItemStack disc = new ItemStack(ModItems.STAND_DISC.get());
+		disc.set(ModItemDataComponents.DISC_STAND.get(), new StandWrittenOnDisc(standInstance));
+		return disc;
 	}
 
 }

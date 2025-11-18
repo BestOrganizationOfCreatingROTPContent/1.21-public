@@ -34,13 +34,8 @@ import org.jetbrains.annotations.Nullable;
 public class StarFingerAbility extends StandEntityAbility {
 
 	public StarFingerAbility(AbilityType<?> abilityType, AbilityId abilityId) {
-		super(abilityType, abilityId);
+		super(abilityType, abilityId, StarFingerInstance::new);
 	}
-
-    @Override
-    public EntityActionInstance createActionObj() {
-        return new StarFingerAbility.StarFingerInstance(this);
-    }
 
     public static class StarFingerInstance extends EntityActionInstance implements ActionOBB {
         public StarFingerInstance(EntityActionType ability) {

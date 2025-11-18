@@ -5,6 +5,7 @@ import com.github.standobyte.jojo.mechanics.grab.LivingComponentGrab;
 import com.github.standobyte.jojo.powersystem.Power;
 import com.github.standobyte.jojo.powersystem.ability.AbilityId;
 import com.github.standobyte.jojo.powersystem.ability.AbilityType;
+import com.github.standobyte.jojo.powersystem.ability.AbilityUsageGroup;
 import com.github.standobyte.jojo.powersystem.entityaction.ActionPhase;
 import com.github.standobyte.jojo.powersystem.entityaction.EntityActionInstance;
 import com.github.standobyte.jojo.powersystem.entityaction.type.EntityActionType;
@@ -18,6 +19,7 @@ import com.github.standobyte.jojo.util.target.ActionTarget.TargetType;
 import com.github.standobyte.jojo.util.target.AimingEntity;
 import com.github.standobyte.jojo.util.target.HitResultUtil;
 
+import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EquipmentSlot;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.level.Level;
@@ -25,7 +27,8 @@ import net.minecraft.world.level.Level;
 public class StandEntityGrabAbility extends StandEntityAbility {
 
 	public StandEntityGrabAbility(AbilityType<?> abilityType, AbilityId abilityId) {
-		super(abilityType, abilityId);
+		super(abilityType, abilityId, StandEntityGrab::new);
+		usageGroup = AbilityUsageGroup.COMBAT;
 		setDefaultPhaseLength(ActionPhase.WINDUP, 9);
 		noFinisherBarDecay = true;
 	}
@@ -35,11 +38,6 @@ public class StandEntityGrabAbility extends StandEntityAbility {
 		return super.isAbilityAvailable(context) && StandUtil.getStandGrabTarget(context) == null;
 	}
 	
-
-	@Override
-	public EntityActionInstance createActionObj() {
-		return new StandEntityGrab(this);
-	}
 
 	public static class StandEntityGrab extends EntityActionInstance {
 
@@ -66,9 +64,12 @@ public class StandEntityGrabAbility extends StandEntityAbility {
 										|| LivingComponentGrab.getEntityGrabbing(living) != null)), 
 						0);
 				if (!level.isClientSide()) {
-					if (target.getType() == TargetType.ENTITY && target.getEntity() instanceof LivingEntity targetLiving) {
-						LivingComponentGrab standGrab = performer.getData(ModDataAttachmentTypes.LIVING_GRAB.get());
-						standGrab.setGrabTarget(targetLiving);
+					if (target.getType() == TargetType.ENTITY) {
+						Entity targetEntity = target.getMainEntity();
+						if (targetEntity instanceof LivingEntity targetLiving) {
+							LivingComponentGrab standGrab = performer.getData(ModDataAttachmentTypes.LIVING_GRAB.get());
+							standGrab.setGrabTarget(targetLiving);
+						}
 					}
 					StandPower standPower = StandPower.get(getPowerUser());
 					standPower.consumeStamina(10);

@@ -11,16 +11,22 @@ import com.github.standobyte.jojo.client.ClientUtil;
 import com.github.standobyte.jojo.client.standskin.StandSkin;
 import com.github.standobyte.jojo.client.standskin.StandSkinsLoader;
 import com.github.standobyte.jojo.client.standskin.StandSkinsScreen;
+import com.github.standobyte.jojo.client.ui.powerhud.PowerHud;
 import com.github.standobyte.jojo.client.ui.utils.GuiIcon;
 import com.github.standobyte.jojo.core.JojoMod;
 import com.github.standobyte.jojo.init.power.ModPlayerPowers;
+import com.github.standobyte.jojo.powersystem.Power;
 import com.github.standobyte.jojo.powersystem.PowerClass;
 import com.github.standobyte.jojo.powersystem.standpower.StandPower;
 
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.network.chat.CommonComponents;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
+import net.minecraft.world.entity.Entity;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.level.GameType;
 
 public class JojoMenuTabs {
 	public static Map<TabCategory, Tab> curTabs = new IdentityHashMap<>();
@@ -62,37 +68,56 @@ public class JojoMenuTabs {
 	
 	public static void initDefaults() {}
 	
-	// Player menu
+	// Story tabs
 	
-	public static final TabCategory CATEGORY_PLAYER_MENU = new TabCategory() {
-		@Override
-		public void renderIcon(GuiGraphics guiGraphics, int x, int y) {
-			ClientUtil.renderPlayerFace(guiGraphics.pose(), x, y, Minecraft.getInstance().player);
-		}
-	}
-			.withName(Component.translatable("jojo_ripples.ui.player_menu"));
+	public static final TabCategory CATEGORY_STORY = new TabCategory() {}
+			.withName(Component.translatable("jojo_ripples.ui.story"))
+			.withIcon(new GuiIcon(JojoMod.resLoc("textures/gui/story.png"), 16, 16));
 	
 	static {
 		if (JojoMod.disableDevStuff()) {
-			TabCategory.ALL_CATEGORIES.remove(CATEGORY_PLAYER_MENU);
+			TabCategory.ALL_CATEGORIES.remove(CATEGORY_STORY);
 		}
 	}
 	
-	public static final Tab PLAYER_PROFILE = new Tab(CATEGORY_PLAYER_MENU) {
+	public static final Tab PLAYER_PROFILE = new Tab(CATEGORY_STORY) {
 		@Override
 		public void renderIcon(GuiGraphics guiGraphics, int x, int y) {
 			ClientUtil.renderPlayerFace(guiGraphics.pose(), x, y, Minecraft.getInstance().player);
 		}
-	}
-			.withName(Component.translatable(JojoMod.MOD_ID + ".menu.player.profile"));
+		
+		@Override
+		public Component getName() {
+			Entity curCharacter = Minecraft.getInstance().player;
+			Component curCharacterName = curCharacter != null ? curCharacter.getDisplayName() : CommonComponents.EMPTY;
+			return Component.translatable(JojoMod.MOD_ID + ".menu.player.profile", curCharacterName);
+		}
+	};
 	
-	public static final Tab GROUP = new Tab(CATEGORY_PLAYER_MENU)
+	public static final Tab GROUP = new Tab(CATEGORY_STORY)
 			.withName(Component.translatable(JojoMod.MOD_ID + ".menu.player.group"))
 			.withIcon(new GuiIcon(JojoMod.resLoc("textures/gui/group.png"), 16, 16));
 	
-	public static final Tab STORY_ARCS = new Tab(CATEGORY_PLAYER_MENU)
+	public static final Tab STORY_ARCS = new Tab(CATEGORY_STORY)
 			.withName(Component.translatable(JojoMod.MOD_ID + ".menu.player.story_arcs"))
 			.withIcon(new GuiIcon(JojoMod.resLoc("textures/gui/arcs.png"), 16, 16));
+	
+	public static final Tab STORYTELLING = new Tab(CATEGORY_STORY) {
+		@Override
+		public boolean isActive() {
+			if (super.isActive()) {
+				Minecraft mc = Minecraft.getInstance();
+				Player player = mc.player;
+				if (player != null && player.hasPermissions(2)) {
+					GameType gameMode = mc.gameMode.getPlayerMode();
+					return gameMode == GameType.CREATIVE || gameMode == GameType.SPECTATOR;
+				}
+			}
+			return false;
+		}
+	}
+			.withName(Component.translatable(JojoMod.MOD_ID + ".menu.player.storytelling"))
+			.withIcon(new GuiIcon(JojoMod.resLoc("textures/gui/storytelling.png"), 16, 16));
 	
 	// Stand
 	
@@ -117,13 +142,7 @@ public class JojoMenuTabs {
 	public static final Tab STAND_INFO = new Tab(CATEGORY_STAND) {
 		@Override
 		public void renderIcon(GuiGraphics guiGraphics, int x, int y) {
-			StandSkin skin = StandSkinsLoader.getCurSkin();
-			if (skin != null) {
-				this.icon = skin.getStandIcon();
-				if (icon != null) {
-					super.renderIcon(guiGraphics, x, y);
-				}
-			}
+			PowerHud.renderClientStandIcon(guiGraphics.pose(), x, y);
 		}
 	}
 			.withName(Component.translatable(JojoMod.MOD_ID + ".menu.stand.info"));
@@ -161,11 +180,11 @@ public class JojoMenuTabs {
 	
 	public static final TabCategory CATEGORY_HAMON = new TabCategory(PowerClass.PLAYER_POWER, ModPlayerPowers.HAMON)
 			.withName(Component.translatable("power." + JojoMod.MOD_ID + ".hamon"))
-			.withIcon(new GuiIcon(JojoMod.resLoc("textures/power/hamon.png"), 16, 16));
+			.withIcon(PowerHud.getPowerIcon(ModPlayerPowers.HAMON));
 	
 	public static final Tab HAMON_INTRO = new Tab(CATEGORY_HAMON)
 			.withName(Component.translatable("hamon.intro.tab"))
-			.withIcon(new GuiIcon(JojoMod.resLoc("textures/power/hamon.png"), 16, 16));
+			.withIcon(PowerHud.getPowerIcon(ModPlayerPowers.HAMON));
 	
 	public static final Tab HAMON_STATS = new Tab(CATEGORY_HAMON) {
 		@Override
@@ -195,7 +214,7 @@ public class JojoMenuTabs {
 
 	public static final TabCategory CATEGORY_VAMPIRISM = new TabCategory(PowerClass.PLAYER_POWER, ModPlayerPowers.VAMPIRISM)
 			.withName(Component.translatable("power." + JojoMod.MOD_ID + ".vampirism"))
-			.withIcon(new GuiIcon(JojoMod.resLoc("textures/power/vampirism.png"), 16, 16));
+			.withIcon(PowerHud.getPowerIcon(ModPlayerPowers.VAMPIRISM));
 
 	public static final Tab VAMPIRISM_SKILLS = new Tab(CATEGORY_VAMPIRISM)
 			.withName(Component.translatable(JojoMod.MOD_ID + ".vampirism.skills"));
@@ -206,34 +225,23 @@ public class JojoMenuTabs {
 			.withName(Component.translatable("jojo_ripples.screen.edit_hud_layout"))
 			.withIcon(new GuiIcon(JojoMod.resLoc("textures/gui/controls.png"), 16, 16));
 	
-	public static final Tab STAND_POWER_CONTROLS = new Tab(CATEGORY_CONTROLS, PowerClass.STAND, null) {
-		@Override
-		public Component getName() {
-			return Component.translatable("jojo_ripples.class.stand", ClientPowerCache.getPower(PowerClass.STAND).getName());
-		}
+	public static final Tab EDIT_CONTROL_SCHEMES = new Tab(CATEGORY_CONTROLS, null, null) {
 		
 		@Override
-		public void renderIcon(GuiGraphics guiGraphics, int x, int y) {
-			StandSkin skin = StandSkinsLoader.getCurSkin();
-			if (skin != null) {
-				this.icon = skin.getStandIcon();
-				if (icon != null) {
-					super.renderIcon(guiGraphics, x, y);
+		public boolean isActive() {
+			if (isDisabled) return false;
+			for (PowerClass<?> powerClass : PowerClass.values()) {
+				Power<?> power = ClientPowerCache.getPower(powerClass);
+				if (power != null && power.hasPower()) {
+					return true;
 				}
 			}
+			return false;
 		}
-	};
+	}		
+			.withScreen(tab -> new ControlSchemeScreen(CommonComponents.EMPTY, tab.getCategory(), tab))
+			.withName(Component.translatable("jojo_ripples.screen.edit_hud_layout"))
+			.withIcon(new GuiIcon(JojoMod.resLoc("textures/gui/controls.png"), 16, 16));
 	
-	public static final Tab PLAYER_POWER_CONTROLS = new Tab(CATEGORY_CONTROLS, PowerClass.PLAYER_POWER, null) {
-		@Override
-		public Component getName() {
-			return Component.translatable("jojo_ripples.class.player_power", ClientPowerCache.getPower(PowerClass.PLAYER_POWER).getName());
-		}
-		
-		@Override
-		public void renderIcon(GuiGraphics guiGraphics, int x, int y) {
-//			renderPlayerPowerIcon();
-		}
-	};
 
 }

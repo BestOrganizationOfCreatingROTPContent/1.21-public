@@ -70,10 +70,10 @@ public class ClAimTargetPacket implements CustomPacketPayload {
 					StandEntity stand = StandUtil.getSummonedStand(player);
 					entityActionComponent = stand != null ? LivingComponentAction.getComponent(stand) : null;
 					if (entityActionComponent != null) {
-						payload.target.resolveEntityId(player.level());
-						entityActionComponent.entityAim.setTarget(payload.target);
+						ActionTarget target = payload.target.resolveEntityId(player.level());
+						entityActionComponent.entityAim.setTarget(target);
 						if (entityActionComponent.entityAim.checkDirty()) {
-							PacketDistributor.sendToPlayersTrackingEntityAndSelf(stand, new TrAimTargetPacket(stand.getId(), payload.target));
+							PacketDistributor.sendToPlayersTrackingEntityAndSelf(stand, new TrAimTargetPacket(stand.getId(), target));
 						}
 					}
 				}

@@ -540,7 +540,7 @@ public class StandSkinsScreen extends Screen implements IJojoMenuScreen {
 				.rotateY(-yRot);
 		
 		gui.pose().pushPose();
-		gui.pose().translate(posX, posY, 500.0);
+		gui.pose().translate(posX, posY, 350.0);
 		gui.pose().translate(xOffsetRatio, yOffsetRatio, 0);
 		gui.pose().scale(scale, -scale, scale);
 		gui.pose().translate(0, 1.25, 0);
@@ -556,8 +556,8 @@ public class StandSkinsScreen extends Screen implements IJojoMenuScreen {
 //		gui.drawSpecial(bufferSource -> renderer.renderWithRenderState(renderState -> {
 //			renderer.extractSkinMenuRenderState(renderState, standSkin, standType.getId(), ticks);
 //		}, gui.pose(), bufferSource, 0xF000F0));
-//		RenderSystem.runAsFancy(() -> renderer.render(entity, entityYaw, partialTicks, 
-//				gui.pose(), Minecraft.getInstance().renderBuffers().bufferSource(), 0xF000F0));
+		RenderSystem.runAsFancy(() -> renderer.renderForStandSkinUI(standSkin, standType.getId(), ticks, 
+				gui.pose(), Minecraft.getInstance().renderBuffers().bufferSource()));
 		
 		gui.flush();
 		renderManager.setRenderShadow(true);

@@ -4,6 +4,7 @@ import com.github.standobyte.jojo.init.ModDataAttachmentTypes;
 import com.github.standobyte.jojo.mechanics.grab.LivingComponentGrab;
 import com.github.standobyte.jojo.powersystem.ability.AbilityId;
 import com.github.standobyte.jojo.powersystem.ability.AbilityType;
+import com.github.standobyte.jojo.powersystem.ability.AbilityUsageGroup;
 import com.github.standobyte.jojo.powersystem.entityaction.ActionPhase;
 import com.github.standobyte.jojo.powersystem.entityaction.EntityActionInstance;
 import com.github.standobyte.jojo.powersystem.entityaction.type.EntityActionType;
@@ -19,6 +20,8 @@ public class StandEntityGrabHeavyPunch extends StandEntityHeavyPunchAbility {
 
 	public StandEntityGrabHeavyPunch(AbilityType<?> abilityType, AbilityId abilityId) {
 		super(abilityType, abilityId);
+		usageGroup = AbilityUsageGroup.GRAB;
+		isSubAbility = true;
 		this.spriteName = abilityId.nameInMoveset().replace("grab_", "");
 		this.name = Component.translatable("jojo_ripples.ability." + spriteName);
 	}

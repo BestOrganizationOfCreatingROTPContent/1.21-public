@@ -1,5 +1,9 @@
 package com.github.standobyte.jojo.client.ui.jojomenu;
 
+import java.util.Collections;
+import java.util.HashSet;
+import java.util.Set;
+
 import javax.annotation.Nullable;
 
 import com.github.standobyte.jojo.client.ClientPowerCache;
@@ -21,6 +25,7 @@ import com.github.standobyte.jojo.powersystem.standpower.type.StandTypePersisten
 import com.google.common.collect.Iterables;
 
 import net.minecraft.ChatFormatting;
+import net.minecraft.Util;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.screens.Screen;
@@ -31,6 +36,31 @@ import net.minecraft.resources.ResourceLocation;
 public class StandSkillsScreen extends Screen implements IJojoMenuScreen {
 	public static final ResourceLocation WINDOW = JojoMod.resLoc("textures/gui/paper_style/stand_skills.png");
 	public static final GuiIcon SCROLL_BAR = new GuiIcon(WINDOW, 243, 58, 5, 162, 256, 256);
+	
+	public static final Set<String> NOT_YET_IMPLEMENTED = Util.make(new HashSet<>(), set -> {
+		Collections.addAll(set, 
+				"finisher",
+				"block_toss",
+				"guard",
+				"leap",
+				"ledge_grab",
+				"uppercut",
+				"ground_slam",
+				"grab_terrain",
+				"uppercut_ground_throw",
+				"enhanced_eyesight",
+				"time_stop",
+				"disfiguring_punch",
+				"leave_object",
+				"heal",
+				"revert_state",
+				"uncraft",
+				"restore_terrain",
+				"create_wall",
+				"fuse_with_rock",
+				"block_anchor"
+				);
+	});
 	
 	protected TabCategory category;
 	protected Tab tab;
@@ -97,15 +127,16 @@ public class StandSkillsScreen extends Screen implements IJojoMenuScreen {
 			BlitFloat.blit(guiGraphics.pose(), minecraft, icon, 
 					spriteX, spriteY, 16, 16, 0, BlitFloat.NO_TINT);
 			
-			boolean isUnlocked = true;
-			if (isUnlocked) {
-				guiGraphics.drawString(font, String.valueOf(IconSymbols.CHECKMARK), spriteX + 18, spriteY + 4, 0xFFFFFFFF);
+			if (!NOT_YET_IMPLEMENTED.contains(skill.skillName)) {
+				boolean isUnlocked = true;
+				if (isUnlocked) {
+					guiGraphics.drawString(font, String.valueOf(IconSymbols.CHECKMARK), spriteX + 18, spriteY + 4, 0xFFFFFFFF);
+				}
+				else {
+					int skillPoints = ((StandUnlockableSkill) skill).pointsToUnlock;
+					guiGraphics.drawString(font, "(" + String.valueOf(skillPoints) + ")", spriteX + 19, spriteY + 4, textColor);
+				}
 			}
-			else {
-				int skillPoints = ((StandUnlockableSkill) skill).pointsToUnlock;
-				guiGraphics.drawString(font, "(" + String.valueOf(skillPoints) + ")", spriteX + 19, spriteY + 4, textColor);
-			}
-			
 			spriteY += 20;
 		}
 		
@@ -118,12 +149,12 @@ public class StandSkillsScreen extends Screen implements IJojoMenuScreen {
 			
 			var description = font.split(selectedSkill.textDesc, 111);
 			for (int i = 0; i < description.size(); i++) {
-				guiGraphics.drawString(this.minecraft.font, description.get(i), x + 102, y + 53 + 9 * i, textColor, false);
+				guiGraphics.drawString(this.minecraft.font, description.get(i), x + 90, y + 91 + 9 * i, textColor, false);
 			}
 			
-			var controls = font.split(selectedSkill.textControls, 101);
+			var controls = font.split(selectedSkill.textControls.copy(), 101);
 			for (int i = 0; i < controls.size(); i++) {
-				guiGraphics.drawString(this.minecraft.font, controls.get(i), x + 90, y + 193 + 9 * i, textColor, false);
+				guiGraphics.drawString(this.minecraft.font, controls.get(i), x + 104, y + 52 + 9 * i, textColor, false);
 			}
 		}
 		

@@ -8,6 +8,7 @@ import com.github.standobyte.jojo.powersystem.Power;
 import com.github.standobyte.jojo.powersystem.ability.Ability;
 import com.github.standobyte.jojo.powersystem.ability.AbilityId;
 import com.github.standobyte.jojo.powersystem.ability.AbilityType;
+import com.github.standobyte.jojo.powersystem.ability.AbilityUsageGroup;
 import com.github.standobyte.jojo.powersystem.ability.condition.ConditionCheck;
 import com.github.standobyte.jojo.powersystem.standpower.entity.StandEntity;
 import com.github.standobyte.jojo.util.MathUtil;
@@ -27,6 +28,7 @@ public class SwapUserStandItemsAbility extends Ability {
 
 	public SwapUserStandItemsAbility(AbilityType<?> abilityType, AbilityId abilityId) {
 		super(abilityType, abilityId);
+		usageGroup = AbilityUsageGroup.UTILITY;
 	}
 	
 	@Override
@@ -47,7 +49,6 @@ public class SwapUserStandItemsAbility extends Ability {
 		AbilityInputState state = super.cl_abilityInputState(context);
 		if (PowerHud.isInContainerScreen()) { // make it work in a container screen too
 			state.setFlag(AbilityInputState.IS_ACTIVE, true);
-			state.setFlag(AbilityInputState.VISIBLE_TRANSLUCENT, false);
 			state.setFlag(AbilityInputState.ONLY_IN_CONTAINER, true);
 		}
 		return state;

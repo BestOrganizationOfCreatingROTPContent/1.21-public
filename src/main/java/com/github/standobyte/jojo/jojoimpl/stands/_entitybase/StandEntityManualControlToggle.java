@@ -3,12 +3,13 @@ package com.github.standobyte.jojo.jojoimpl.stands._entitybase;
 import com.github.standobyte.jojo.client.ClientProxy;
 import com.github.standobyte.jojo.client.input.InputHandler;
 import com.github.standobyte.jojo.init.ModDataAttachmentTypes;
-import com.github.standobyte.jojo.mechanics.entitycontrol.ServerEntityController;
-import com.github.standobyte.jojo.mechanics.entitycontrol.client.ClientEntityController;
-import com.github.standobyte.jojo.mechanics.entitycontrol.client.stand.ClientStandController;
+import com.github.standobyte.jojo.mechanics.entity_like_player.puppetcontrol.EntityComponentController;
+import com.github.standobyte.jojo.mechanics.entity_like_player.puppetcontrol.client.ClientEntityController;
+import com.github.standobyte.jojo.mechanics.entity_like_player.puppetcontrol.client.stand.ClientStandController;
 import com.github.standobyte.jojo.powersystem.ability.Ability;
 import com.github.standobyte.jojo.powersystem.ability.AbilityId;
 import com.github.standobyte.jojo.powersystem.ability.AbilityType;
+import com.github.standobyte.jojo.powersystem.ability.AbilityUsageGroup;
 import com.github.standobyte.jojo.powersystem.standpower.entity.StandEntity;
 import com.github.standobyte.jojo.util.StandUtil;
 import com.github.standobyte.jojo.util.entitycomponent.ComponentUtil;
@@ -22,6 +23,7 @@ public class StandEntityManualControlToggle extends Ability {
 
 	public StandEntityManualControlToggle(AbilityType<?> abilityType, AbilityId abilityId) {
 		super(abilityType, abilityId);
+		usageGroup = AbilityUsageGroup.UTILITY;
 	}
 	
 	@Override
@@ -58,7 +60,7 @@ public class StandEntityManualControlToggle extends Ability {
 			}
 		}
 		else {
-			ServerEntityController.setServerControlTarget(user, stand, "stand");
+			EntityComponentController.setControlTarget(user, stand, "stand");
 		}
 	}
 	
@@ -72,9 +74,9 @@ public class StandEntityManualControlToggle extends Ability {
 			}
 		}
 		else {
-			ServerEntityController component = ComponentUtil.getExistingDataOrNull(user, ModDataAttachmentTypes.CONTROLLER);
+			EntityComponentController component = ComponentUtil.getExistingDataOrNull(user, ModDataAttachmentTypes.CONTROLLER);
 			if (component != null) {
-				component.stopControlling(false);
+				component.stopControlling();
 			}
 		}
 	}

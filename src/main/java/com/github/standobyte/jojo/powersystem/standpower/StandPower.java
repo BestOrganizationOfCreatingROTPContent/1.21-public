@@ -61,6 +61,12 @@ public class StandPower extends Power<StandPower> implements PostNbtReadEntityDa
 		if (hasPower()) {
 			userStandEffects.tick();
 		}
+		if (!user.level().isClientSide() && !canUsePower()) {
+			StandType type = getPowerType();
+			if (type != null) {
+				type.forceUnsummon(user, this);
+			}
+		}
 		if (summonedStand != null) {
 			summonedStand.tickStand(getUser(), this);
 		}
@@ -162,6 +168,8 @@ public class StandPower extends Power<StandPower> implements PostNbtReadEntityDa
 			});
 		}
 	}
+	
+	public void skipProgression() {}
 	
 	
 	public boolean usesStamina() {
@@ -328,7 +336,7 @@ public class StandPower extends Power<StandPower> implements PostNbtReadEntityDa
 		newEntityData.staminaLerp = this.staminaLerp;
 		newEntityData.resolveHandler.copyValues(this.resolveHandler, wasDeath);
 		newEntityData.userStandEffects = this.userStandEffects;
-		newEntityData.userStandEffects.setPowerData(this);
+		newEntityData.userStandEffects.setPowerData(newEntityData);
 	}
 	
 	

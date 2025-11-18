@@ -15,6 +15,7 @@ import com.github.standobyte.jojo.powersystem.PowerClass;
 import com.github.standobyte.jojo.powersystem.ability.Ability;
 import com.github.standobyte.jojo.powersystem.ability.AbilityId;
 import com.github.standobyte.jojo.powersystem.ability.AbilityType;
+import com.github.standobyte.jojo.powersystem.ability.AbilityUsageGroup;
 import com.github.standobyte.jojo.powersystem.ability.condition.ConditionCheck;
 import com.github.standobyte.jojo.powersystem.entityaction.ActionPhase;
 import com.github.standobyte.jojo.powersystem.entityaction.EntityActionInstance;
@@ -35,6 +36,7 @@ import net.minecraft.core.BlockPos;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.sounds.SoundSource;
 import net.minecraft.world.damagesource.DamageSource;
+import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EquipmentSlot;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.level.Level;
@@ -45,7 +47,8 @@ import net.minecraft.world.phys.Vec3;
 public class StandEntityBarrageAbility extends StandEntityAbility {
 
 	public StandEntityBarrageAbility(AbilityType<?> abilityType, AbilityId abilityId) {
-		super(abilityType, abilityId);
+		super(abilityType, abilityId, StandEntityBarrage::new);
+		usageGroup = AbilityUsageGroup.COMBAT;
 		setDefaultPhaseLength(ActionPhase.PERFORM, StandStatFormulas.getBarrageMaxDuration(8));
 		setDefaultPhaseLength(ActionPhase.RECOVERY, 10);
 		noFinisherBarDecay = true;
@@ -79,11 +82,6 @@ public class StandEntityBarrageAbility extends StandEntityAbility {
 		return super.replaceWithSubAbility(context);
 	}
 	
-	
-	@Override
-	public EntityActionInstance createActionObj() {
-		return new StandEntityBarrage(this);
-	}
 	
 	@Override
 	public void initActionFromConfig(EntityActionInstance action, Level level, 
@@ -194,13 +192,14 @@ public class StandEntityBarrageAbility extends StandEntityAbility {
 			return StandEntityPunchAbility.aimAtPunchTarget(stand);
 		}
 		
-		protected void dealDamage(ActionTarget entityTarget, Level level, StandEntity stand) {
-			if (entityTarget.getEntity() instanceof LivingEntity targetLiving) {
+		protected void dealDamage(ActionTarget target, Level level, StandEntity stand) {
+			Entity targetEntity = target.getMainEntity();
+			if (targetEntity != null) {
 				var damageType = DamageUtil.type(level, ModDamageTypes.STAND_ATTACK);
 				DamageSource dmgSource = new DamageSource(damageType, performer);
 				((RipplesModifiedDamageSource) dmgSource).jojo_ripples$modifyKnockback(0, 0.1f);
 				float dmgAmount = StandStatFormulas.getBarrageHitDamage(stand.getAttackDamage()) * hitsThisTick;
-				standEntityAttack(stand, targetLiving, dmgSource, dmgAmount);
+				standEntityAttack(stand, targetEntity, dmgSource, dmgAmount);
 				
 				stand.addFinisherMeter(0.005f * hitsThisTick);
 			}

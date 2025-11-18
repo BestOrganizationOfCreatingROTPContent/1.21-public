@@ -1,5 +1,6 @@
 package com.github.standobyte.jojo.client.entityrender.stand;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -20,6 +21,7 @@ import com.mojang.blaze3d.vertex.VertexConsumer;
 import net.minecraft.client.model.ArmedModel;
 import net.minecraft.client.model.EntityModel;
 import net.minecraft.client.model.geom.ModelPart;
+import net.minecraft.client.model.geom.PartPose;
 import net.minecraft.client.renderer.RenderType;
 import net.minecraft.util.FastColor;
 import net.minecraft.world.entity.HumanoidArm;
@@ -54,8 +56,31 @@ public class StandEntityModel<T extends StandEntity, S extends StandEntityRender
 		left_leg = _this.jojo_ripples$getAnyDescendantWithName("left_leg").orElse(null);
 		right_leg_xrot = _this.jojo_ripples$getAnyDescendantWithName("right_leg_xrot").orElse(null);
 		right_leg = _this.jojo_ripples$getAnyDescendantWithName("right_leg").orElse(null);
-		inheritanceChains = ModelUtil.modelPartInheritanceChains("root", ((Model_1_21_2plus) this).jojo_ripples$root(), "left_item", "right_item");
 		// TODO (entity anim) make an array of all model parts that aren't visible by default
+		
+		addMissingItemHoldPoints();
+		inheritanceChains = ModelUtil.modelPartInheritanceChains("root", ((Model_1_21_2plus) this).jojo_ripples$root(), "left_item", "right_item");
+	}
+	
+	protected void addMissingItemHoldPoints() {
+		if (left_arm != null) {
+			ModelPart armBend = left_arm.getChild("left_arm_bend");
+			if (armBend != null && !armBend.hasChild("left_item")) {
+				ModelPart itemPoint = new ModelPart(new ArrayList<>(), new HashMap<>());
+				itemPoint.setInitialPose(PartPose.offset(0, 3.75f, -2.0f));
+				itemPoint.resetPose();
+				armBend.children.put("left_item", itemPoint);
+			}
+		}
+		if (right_arm != null) {
+			ModelPart armBend = right_arm.getChild("right_arm_bend");
+			if (armBend != null && !armBend.hasChild("right_item")) {
+				ModelPart itemPoint = new ModelPart(new ArrayList<>(), new HashMap<>());
+				itemPoint.setInitialPose(PartPose.offset(0, 3.75f, -2.0f));
+				itemPoint.resetPose();
+				armBend.children.put("right_item", itemPoint);
+			}
+		}
 	}
 
 //	@Override // 1.21.2+

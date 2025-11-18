@@ -30,6 +30,9 @@ public class Ability {
 	public final AbilityId abilityId;
 	protected String spriteName;
 	protected Component name;
+	
+	public AbilityUsageGroup usageGroup = AbilityUsageGroup.SPECIAL;
+	public boolean isSubAbility = false;
 
 	public Ability(AbilityType<?> abilityType, AbilityId abilityId) {
 		this.abilityType = abilityType;
@@ -116,9 +119,9 @@ public class Ability {
 	 */
 	public AbilityInputState cl_abilityInputState(Power<?> context) {
 		AbilityInputState state = AbilityInputState.init();
-		if (InputHandler.holdingLAlt || Minecraft.getInstance().screen != null) {
+		if (InputHandler.inputsDisabled || Minecraft.getInstance().screen != null) {
 			state.setFlag(AbilityInputState.IS_ACTIVE, false);
-			state.setFlag(AbilityInputState.VISIBLE_TRANSLUCENT, true);
+			state.setFlag(AbilityInputState.VISIBLE_WHEN_INACTIVE, true);
 		}
 		return state;
 	}

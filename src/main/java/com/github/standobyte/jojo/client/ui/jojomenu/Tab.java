@@ -19,10 +19,10 @@ import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.network.chat.Component;
 
 public class Tab implements IJojoMenuTab {
-	protected final TabCategory category;
+	protected TabCategory category;
 	protected boolean isDisabled = false;
-	protected final @Nullable PowerClass<?> powerClass;
-	protected final @Nullable Supplier<? extends PowerType> powerType;
+	protected @Nullable PowerClass<?> powerClass;
+	protected @Nullable Supplier<? extends PowerType> powerType;
 	
 	public Tab(TabCategory category) {
 		this(category, null, null);
@@ -49,7 +49,7 @@ public class Tab implements IJojoMenuTab {
 		return true;
 	}
 	
-	protected final TabCategory getCategory() {
+	public TabCategory getCategory() {
 		return category;
 	}
 	

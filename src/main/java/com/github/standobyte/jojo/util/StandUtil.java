@@ -56,14 +56,14 @@ public class StandUtil {
     	return standData != null && standData.hasPower() || JojoModsInteraction.entityHasStandFromAnotherMod(entity);
     }
 
-    public static boolean playerCanSeeStands(Player player) {
-    	return player.isSpectator()
-    			|| isEntityStandUser(player) /*|| player.hasEffect(ModStatusEffects.SPIRIT_VISION.get())*/;
+    public static boolean entityCanSeeStands(LivingEntity entity) {
+    	return entity.isSpectator()
+    			|| isEntityStandUser(entity) /*|| player.hasEffect(ModStatusEffects.SPIRIT_VISION.get())*/;
     	// TODO spirit vision effect
     }
 
-    public static boolean playerCanHearStands(Player player) {
-    	return playerCanSeeStands(player);
+    public static boolean entityCanHearStands(Player player) {
+    	return entityCanSeeStands(player);
     }
 
     @Nullable
@@ -138,7 +138,7 @@ public class StandUtil {
         PlayerList playerList = level.getServer().getPlayerList();
         ResourceKey<Level> dimension = level.dimension();
         for (ServerPlayer player : playerList.getPlayers()) {
-        	if (player.level().dimension() == dimension && (!onlyForStandUsers || StandUtil.playerCanHearStands(player))) {
+        	if (player.level().dimension() == dimension && (!onlyForStandUsers || StandUtil.entityCanHearStands(player))) {
         		double diffX = pos.x - player.getX();
         		double diffY = pos.y - player.getY();
         		double diffZ = pos.z - player.getZ();

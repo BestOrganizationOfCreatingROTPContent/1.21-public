@@ -21,6 +21,7 @@ import net.minecraft.world.phys.EntityHitResult;
 import net.minecraft.world.phys.HitResult;
 import net.minecraft.world.phys.Vec3;
 import net.minecraft.world.phys.shapes.VoxelShape;
+import net.neoforged.neoforge.entity.PartEntity;
 
 public class ActionTarget {
 	private final TargetType type;
@@ -118,6 +119,10 @@ public class ActionTarget {
 
 	public Entity getEntity() {
 		return entity;
+	}
+	
+	public Entity getMainEntity() {
+		return entity instanceof PartEntity dragonPart ? dragonPart.getParent() : entity;
 	}
 	
 	public Optional<Vec3> getClipPos() {

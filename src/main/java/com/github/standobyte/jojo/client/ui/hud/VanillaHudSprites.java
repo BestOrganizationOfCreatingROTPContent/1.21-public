@@ -1,6 +1,6 @@
 package com.github.standobyte.jojo.client.ui.hud;
 
-import com.github.standobyte.jojo.mixin.entitycontrol.client.GuiAccessor;
+import com.github.standobyte.jojo.mixin.entity_like_player.puppetcontrol.client.GuiAccessor;
 
 import net.minecraft.resources.ResourceLocation;
 

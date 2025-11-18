@@ -9,6 +9,7 @@ import com.github.standobyte.jojo.powersystem.ability.AbilityId.AbilityInputNetw
 import com.github.standobyte.jojo.powersystem.ability.AbilityInput;
 import com.github.standobyte.jojo.powersystem.ability.AbilityInput.InputEventType;
 import com.github.standobyte.jojo.powersystem.ability.controls.InputMethod;
+import com.github.standobyte.jojo.util.network.NetworkUtil;
 
 import net.minecraft.network.RegistryFriendlyByteBuf;
 import net.minecraft.network.protocol.common.custom.CustomPacketPayload;
@@ -93,7 +94,7 @@ public class TrAbilityUsePacket implements CustomPacketPayload {
 					float timeTookToResolve = buf.readFloat();
 					
 					TrAbilityUsePacket packet = new TrAbilityUsePacket(entityId, key, inputType, null, ability, timeTookToResolve, null);
-					packet.extraData = buf;
+					packet.extraData = NetworkUtil.extraPacketData(buf, buf.registryAccess());
 					yield packet;
 				}
 			};
