@@ -181,8 +181,10 @@ public class StandSkin {
 			return (M) createdStandModelCache.orElse(null);
 		}
 		if (this.standModel != null) {
-			this.createdStandModelCache = Optional.ofNullable(newModelFactory.createStandModel(standModel));
-			return (M) this.createdStandModelCache.orElse(null);
+			LayerDefinition standModel = this.standModel;
+			M model = newModelFactory.createStandModel(standModel);
+			this.createdStandModelCache = Optional.ofNullable(model);
+			return model;
 		}
 		
 		if (this != defaultSkin) {
