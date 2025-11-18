@@ -8,6 +8,7 @@ import com.github.standobyte.jojo.init.ModSoundEvents;
 import com.github.standobyte.jojo.powersystem.Power;
 import com.github.standobyte.jojo.powersystem.ability.AbilityId;
 import com.github.standobyte.jojo.powersystem.ability.AbilityType;
+import com.github.standobyte.jojo.powersystem.ability.AbilityUsageGroup;
 import com.github.standobyte.jojo.powersystem.entityaction.ActionPhase;
 import com.github.standobyte.jojo.powersystem.entityaction.EntityActionInstance;
 import com.github.standobyte.jojo.powersystem.entityaction.type.EntityActionType;
@@ -25,6 +26,7 @@ import com.github.standobyte.jojo.util.target.HitResultUtil;
 
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.damagesource.DamageSource;
+import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EquipmentSlot;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.level.Level;
@@ -32,7 +34,8 @@ import net.minecraft.world.level.Level;
 public class StandEntityHeavyPunchChargedAbility extends StandEntityAbility {
 
 	public StandEntityHeavyPunchChargedAbility(AbilityType<?> abilityType, AbilityId abilityId) {
-		super(abilityType, abilityId);
+		super(abilityType, abilityId, StandEntityChargedHeavy::new);
+		usageGroup = AbilityUsageGroup.COMBAT;
 		setDefaultPhaseLength(ActionPhase.BUTTON_CHARGE, 16);
 		setButtonHoldPhase(ActionPhase.WINDUP);
 		setDefaultPhaseLength(ActionPhase.PERFORM, 6);
@@ -44,11 +47,6 @@ public class StandEntityHeavyPunchChargedAbility extends StandEntityAbility {
 		return super.isAbilityAvailable(context) && StandUtil.getStandGrabTarget(context) == null;
 	}
 	
-	
-	@Override
-	public EntityActionInstance createActionObj() {
-		return new StandEntityChargedHeavy(this);
-	}
 	
 	public static class StandEntityChargedHeavy extends EntityActionInstance {
 		protected float buttonChargeRatio;
@@ -119,12 +117,15 @@ public class StandEntityHeavyPunchChargedAbility extends StandEntityAbility {
 								stand.getSoundSource(), 1, 1);
 					}
 					
-					if (target.getType() == TargetType.ENTITY && target.getEntity() instanceof LivingEntity targetLiving) {
-						var damageType = DamageUtil.type(level, ModDamageTypes.STAND_ATTACK);
-						DamageSource dmgSource = new DamageSource(damageType, performer);
-						((RipplesModifiedDamageSource) dmgSource).jojo_ripples$modifyKnockback(2.5f, 1);
-						float dmgAmount = 27.75f;
-						standEntityAttack(stand, targetLiving, dmgSource, dmgAmount);
+					if (target.getType() == TargetType.ENTITY) {
+						Entity targetEntity = target.getMainEntity();
+						if (targetEntity instanceof LivingEntity targetLiving) {
+							var damageType = DamageUtil.type(level, ModDamageTypes.STAND_ATTACK);
+							DamageSource dmgSource = new DamageSource(damageType, performer);
+							((RipplesModifiedDamageSource) dmgSource).jojo_ripples$modifyKnockback(2.5f, 1);
+							float dmgAmount = 27.75f;
+							standEntityAttack(stand, targetLiving, dmgSource, dmgAmount);
+						}
 					}
 					
 					standPower.consumeStamina(100);

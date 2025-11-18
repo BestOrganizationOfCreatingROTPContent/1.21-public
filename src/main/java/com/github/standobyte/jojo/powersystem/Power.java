@@ -42,6 +42,10 @@ public abstract class Power<P extends Power<P>> implements SynchronizablePlayerD
 		
 	}
 	
+	public boolean canUsePower() {
+		return !user.isSpectator();
+	}
+	
 	
 	@Nullable
 	public abstract PowerType getPowerType();

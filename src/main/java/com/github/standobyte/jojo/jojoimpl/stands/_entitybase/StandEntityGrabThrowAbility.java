@@ -9,6 +9,7 @@ import com.github.standobyte.jojo.mechanics.grab.LivingComponentGrab;
 import com.github.standobyte.jojo.powersystem.Power;
 import com.github.standobyte.jojo.powersystem.ability.AbilityId;
 import com.github.standobyte.jojo.powersystem.ability.AbilityType;
+import com.github.standobyte.jojo.powersystem.ability.AbilityUsageGroup;
 import com.github.standobyte.jojo.powersystem.entityaction.ActionPhase;
 import com.github.standobyte.jojo.powersystem.entityaction.EntityActionInstance;
 import com.github.standobyte.jojo.powersystem.entityaction.type.EntityActionType;
@@ -26,7 +27,8 @@ import net.minecraft.world.phys.Vec3;
 public class StandEntityGrabThrowAbility extends StandEntityAbility {
 
 	public StandEntityGrabThrowAbility(AbilityType<?> abilityType, AbilityId abilityId) {
-		super(abilityType, abilityId);
+		super(abilityType, abilityId, StandEntityGrabThrow::new);
+		usageGroup = AbilityUsageGroup.GRAB;
 		setDefaultPhaseLength(ActionPhase.BUTTON_CHARGE, 16);
 		setButtonHoldPhase(ActionPhase.WINDUP);
 		setDefaultPhaseLength(ActionPhase.PERFORM, 6);
@@ -38,11 +40,6 @@ public class StandEntityGrabThrowAbility extends StandEntityAbility {
 		return super.isAbilityAvailable(context) && StandUtil.getStandGrabTarget(context) != null;
 	}
 	
-	
-	@Override
-	public EntityActionInstance createActionObj() {
-		return new StandEntityGrabThrow(this);
-	}
 	
 	public static class StandEntityGrabThrow extends EntityActionInstance {
 

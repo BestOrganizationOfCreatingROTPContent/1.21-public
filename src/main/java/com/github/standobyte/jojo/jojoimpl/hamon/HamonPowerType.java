@@ -11,6 +11,7 @@ import com.github.standobyte.jojo.powersystem.ability.Ability;
 import com.github.standobyte.jojo.powersystem.ability.AbilityType;
 import com.github.standobyte.jojo.powersystem.ability.controls.InputKey;
 import com.github.standobyte.jojo.powersystem.ability.controls.InputMethod;
+import com.github.standobyte.jojo.powersystem.ability.controls.InputUseVanillaMapping;
 import com.github.standobyte.jojo.powersystem.playerpower.PlayerPowerType;
 
 import net.minecraft.resources.ResourceLocation;
@@ -29,16 +30,16 @@ public class HamonPowerType extends PlayerPowerType<HamonData> {
 
 	public static final DeferredHolder<PlayerPowerType<?>, HamonPowerType> HAMON = PLAYER_POWERS.register(
 			"hamon", key -> new HamonPowerType(key, new MovesetBuilder()
-					.makeMovesetGroup("moveset_group.hamon.combat", InputKey.J)
+					.makeMovesetGroup("moveset_group.hamon.combat", new InputUseVanillaMapping("jojo_ripples.key.non_stand_mode"))
 					
 					.addAbility("hamon_beat", HAMON_BEAT)
-					.withBind("moveset_group.hamon.combat", InputKey.LMB, InputMethod.CLICK)
+					.withBind("moveset_group.hamon.combat", InputMethod.CLICK, InputKey.LMB)
 					
 					.addAbility("sunlight_yellow_overdrive", SUNLIGHT_YELLOW_OVERDRIVE)
-					.withBind("moveset_group.hamon.combat", InputKey.LMB, InputMethod.HOLD)
+					.withBind("moveset_group.hamon.combat", InputMethod.HOLD, InputKey.LMB)
 					
 					.addAbility("rebuff_overdrive", REBUFF_OVERDRIVE)
-					.withBind("moveset_group.hamon.combat", InputKey.RMB, InputMethod.CLICK)
+					.withBind("moveset_group.hamon.combat", InputMethod.CLICK, InputKey.RMB)
 					));
 
 	

@@ -117,7 +117,8 @@ public class RotpAnimDefinition {
 							appliedPhaseAnim = true;
 						}
 						case CONSTANT_LENGTH -> {
-							animSeconds = curPhaseTime + entityAction.phaseTime / 20f;
+							float phaseSecs = entityAction.phaseTime / 20f;
+							animSeconds = curPhaseTime + phaseSecs;
 //							if (entity != null && animSeconds >= this.animation.lengthInSeconds()) {
 //								entity.onSetPoseAnimEnded();
 //							}
@@ -125,7 +126,13 @@ public class RotpAnimDefinition {
 						}
 						case LOOP_BACK -> {
 							float loopLen = nextPhaseTime - curPhase.getValue().loopBackTo;
-							animSeconds = curPhaseTime + (entityAction.phaseTime / 20f) % loopLen;
+							float phaseSecs = entityAction.phaseTime / 20f;
+							if (phaseSecs < nextPhaseTime - curPhaseTime) { // loop hasn't started yet
+								animSeconds = curPhaseTime + phaseSecs;
+							}
+							else {
+								animSeconds = curPhase.getValue().loopBackTo + (phaseSecs - (curPhase.getValue().loopBackTo - curPhaseTime)) % loopLen;
+							}
 							appliedPhaseAnim = true;
 						}
 					}

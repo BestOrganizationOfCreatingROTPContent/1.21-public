@@ -1,6 +1,5 @@
 package com.github.standobyte.jojo.jojoimpl.stands.starplatinum;
 
-import com.github.standobyte.jojo.client.sound.ClientsideSoundsHelper;
 import com.github.standobyte.jojo.client.sound.sounds.EntityStoppableSoundInstance;
 import com.github.standobyte.jojo.init.ModDamageTypes;
 import com.github.standobyte.jojo.init.ModParticles;
@@ -25,12 +24,7 @@ import javax.annotation.Nullable;
 public class StarInhaleAbility extends StandEntityAbility {
 
     public StarInhaleAbility(AbilityType<?> abilityType, AbilityId abilityId) {
-        super(abilityType, abilityId);
-    }
-
-    @Override
-    public EntityActionInstance createActionObj() {
-        return new InhaleAbilityInstance(this);
+        super(abilityType, abilityId, InhaleAbilityInstance::new);
     }
 
     public static class InhaleAbilityInstance extends EntityActionInstance {

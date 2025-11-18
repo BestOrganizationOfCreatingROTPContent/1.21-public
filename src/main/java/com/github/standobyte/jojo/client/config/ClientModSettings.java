@@ -39,9 +39,7 @@ public class ClientModSettings {
 //		public boolean menacingParticles = true;
 //		public boolean characterVoiceLines = true;
 //
-//		public boolean toggleLmbHotbar = false;
-//		public boolean toggleRmbHotbar = false;
-//		public boolean toggleDisableHotbars = false;
+		public boolean toggleDisableHotbars = false;
 
 		public boolean thirdPersonHamonAura = true;
 		public boolean firstPersonHamonAura = true;
@@ -52,10 +50,8 @@ public class ClientModSettings {
 
 
 
-	public static void edit(Consumer<Settings> edit) {
-		ClientModSettings instance = getInstance();
-		edit.accept(instance.settings);
-		instance.save();
+	public static void edit(Consumer<Settings> edit, boolean broadcast) {
+		getInstance().editSettings(edit, broadcast);
 	}
 
 	@Deprecated

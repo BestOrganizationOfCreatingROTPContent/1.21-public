@@ -117,15 +117,15 @@ public class LivingEntityRenderState extends EntityRenderState {
 
     private static float solveBodyRot(LivingEntity entity, float yHeadRot, float partialTick) {
         if (entity.getVehicle() instanceof LivingEntity livingentity) {
-            float f2 = Mth.rotLerp(partialTick, livingentity.yBodyRotO, livingentity.yBodyRot);
-            float f = 85.0F;
-            float f1 = Mth.clamp(Mth.wrapDegrees(yHeadRot - f2), -85.0F, 85.0F);
-            f2 = yHeadRot - f1;
+            float yBodyRot = Mth.rotLerp(partialTick, livingentity.yBodyRotO, livingentity.yBodyRot);
+            float maxRotAbs = 85.0F;
+            float f1 = Mth.clamp(Mth.wrapDegrees(yHeadRot - yBodyRot), -maxRotAbs, maxRotAbs);
+            yBodyRot = yHeadRot - f1;
             if (Math.abs(f1) > 50.0F) {
-                f2 += f1 * 0.2F;
+                yBodyRot += f1 * 0.2F;
             }
 
-            return f2;
+            return yBodyRot;
         } else {
             return Mth.rotLerp(partialTick, entity.yBodyRotO, entity.yBodyRot);
         }

@@ -25,7 +25,7 @@ import net.minecraft.world.phys.Vec3;
 public class CrazyDBloodCutterAbility extends StandEntityAbility {
 
 	public CrazyDBloodCutterAbility(AbilityType<?> abilityType, AbilityId abilityId) {
-		super(abilityType, abilityId);
+		super(abilityType, abilityId, CutterShot::new);
 		setDefaultPhaseLength(ActionPhase.WINDUP, 5);
 	}
 
@@ -39,11 +39,6 @@ public class CrazyDBloodCutterAbility extends StandEntityAbility {
 		return super.checkSpecificConditions(power);
 	}
 
-
-	@Override
-	public EntityActionInstance createActionObj() {
-		return new CutterShot(this);
-	}
 
 	public static class CutterShot extends EntityActionInstance {
 

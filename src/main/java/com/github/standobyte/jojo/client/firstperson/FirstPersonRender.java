@@ -5,7 +5,7 @@ import org.joml.Matrix4f;
 import com.github.standobyte.jojo.client.entityrender.stand.HumanoidPart;
 import com.github.standobyte.jojo.client.entityrender.stand.StandEntityRenderState;
 import com.github.standobyte.jojo.client.entityrender.stand.StandEntityRenderer;
-import com.github.standobyte.jojo.mechanics.entitycontrol.client.ClientEntityController;
+import com.github.standobyte.jojo.mechanics.entity_like_player.puppetcontrol.client.ClientEntityController;
 import com.github.standobyte.jojo.mechanics.possessionv2.LivingComponentPossession;
 import com.github.standobyte.jojo.powersystem.standpower.entity.StandEntity;
 import com.google.common.base.MoreObjects;
@@ -44,7 +44,6 @@ import net.minecraft.world.level.saveddata.maps.MapItemSavedData;
 import net.neoforged.neoforge.client.ClientHooks;
 import net.neoforged.neoforge.client.extensions.common.IClientItemExtensions;
 
-// TODO backport player renderer layers rendering in 1st person
 @SuppressWarnings({ "unchecked", "rawtypes" }) // Silence, Java generics.
 public class FirstPersonRender {
 	static FirstPersonRender instance;

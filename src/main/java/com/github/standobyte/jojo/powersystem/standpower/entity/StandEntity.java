@@ -21,7 +21,7 @@ import com.github.standobyte.jojo.mc.entity.util.EntityStandVisibility;
 import com.github.standobyte.jojo.mc.entity.util.EntityWithStandSkin;
 import com.github.standobyte.jojo.mc.entity.util.HandItemsAsInventory;
 import com.github.standobyte.jojo.mc.entity.util.LivingReactToNewAction;
-import com.github.standobyte.jojo.mechanics.entitycontrol.client.ClientEntityController;
+import com.github.standobyte.jojo.mechanics.entity_like_player.puppetcontrol.client.ClientEntityController;
 import com.github.standobyte.jojo.mechanics.grab.LivingComponentGrab;
 import com.github.standobyte.jojo.powersystem.entityaction.EntityActionInstance;
 import com.github.standobyte.jojo.powersystem.entityaction.LivingComponentAction;
@@ -337,11 +337,14 @@ public class StandEntity extends LivingEntity implements SummonedStand, IEntityW
 		Vec3 targetPos = switch (lookTarget.getType()) {
 			case ENTITY -> {
 				Entity targetEntity = lookTarget.getEntity();
-				// TODO (stand aiming) look closer to where the user is looking (legs/head aiming)
-				double y = targetEntity instanceof LivingEntity ? 
-						targetEntity.getEyeY() : 
-						(targetEntity.getBoundingBox().minY + targetEntity.getBoundingBox().maxY) / 2.0;
-				yield new Vec3(targetEntity.getX(), y, targetEntity.getZ());
+                if (targetEntity != null){
+                    // TODO (stand aiming) look closer to where the user is looking (legs/head aiming)
+                    double y = targetEntity instanceof LivingEntity ?
+                            targetEntity.getEyeY() :
+                            (targetEntity.getBoundingBox().minY + targetEntity.getBoundingBox().maxY) / 2.0;
+                    yield new Vec3(targetEntity.getX(), y, targetEntity.getZ());
+                }
+				yield null;
 			}
 			case BLOCK -> {
 				yield Vec3.atCenterOf(lookTarget.getBlockPos());
@@ -804,6 +807,11 @@ public class StandEntity extends LivingEntity implements SummonedStand, IEntityW
 		return !onlyVisibleToStandUsers();
 	}
 	
+	@Override
+	public boolean canBeSeenByAnyone() {
+		return isVisibleForAll() && super.canBeSeenByAnyone();
+	}
+	
 	
 	@Override
 	public void push(Entity entity) {}
@@ -940,14 +948,14 @@ public class StandEntity extends LivingEntity implements SummonedStand, IEntityW
 					motionVec.x / 2 - knockbackVec.x, 
 					this.onGround() ? Math.min(0.4, motionVec.y / 2 + strength) : motionVec.y, 
 					motionVec.z / 2 - knockbackVec.z);
-			RipplesModifiedDamageSource.afterKnockbackApplied(this, curDamage);
+			RipplesModifiedDamageSource.afterKnockbackApplied(this, curDamage != null ? curDamage.getSource() : null);
 		}
 
 		if (healthLinkedWithUser) {
 			LivingEntity user = getUser();
 			if (user != null && user.isAlive()) {
 				user.knockback(strength, xRatio, zRatio);
-				RipplesModifiedDamageSource.afterKnockbackApplied(user, curDamage);
+				RipplesModifiedDamageSource.afterKnockbackApplied(user, curDamage != null ? curDamage.getSource() : null);
 				user.hurtMarked = true;
 			}
 		}

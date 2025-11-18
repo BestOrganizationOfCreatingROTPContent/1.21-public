@@ -1,5 +1,6 @@
 package com.github.standobyte.jojo.jojoimpl.stands.crazydiamond;
 
+import com.github.standobyte.jojo.init.power.ModStandAbilities;
 import com.github.standobyte.jojo.init.power.ModStandEffects;
 import com.github.standobyte.jojo.powersystem.standpower.StandPower;
 import com.github.standobyte.jojo.powersystem.standpower.effect.StandEffectInstance;
@@ -64,7 +65,7 @@ public class DriedBloodDropsEffect extends StandEffectInstance {
 			if (power != null && power.hasPower()
 					&& power.isAbilityUnlocked("blood_cutter")
 					&& CrazyDBloodCutterEntity.canHaveBloodDropsOn(targetEntity, power)) {
-				/*DriedBloodDropsEffect bloodDrops = */ power.userStandEffects.getOrCreateEffect(ModStandEffects.CRAZY_D_BLOOD_DROPS.get(), targetEntity);
+				/*DriedBloodDropsEffect bloodDrops = */ power.userStandEffects.getOrCreateEffect(ModStandAbilities.EFFECT_CD_BLOOD_DROPS.get(), targetEntity);
 				return true;
 			}
 		}

@@ -27,12 +27,12 @@ public class ControlSchemeTemplate {
     
     public static class GroupTemplate {
     	public final String name;
-    	@Nullable public final InputKey toggleHudKey;
+    	@Nullable public final InputBindTemplate toggleHudKey;
     	
-    	public List<Pair<String, Pair<InputMethod, InputKey>>> separateBinds = new ArrayList<>();
+    	public List<Pair<String, Pair<InputMethod, InputBindTemplate>>> separateBinds = new ArrayList<>();
         public List<AbilitiesHotbar> hotbars = new ArrayList<>();
         
-        public GroupTemplate(String name, InputKey toggleHudKey) {
+        public GroupTemplate(String name, InputBindTemplate toggleHudKey) {
         	this.name = name;
         	this.toggleHudKey = toggleHudKey;
         }
@@ -44,10 +44,10 @@ public class ControlSchemeTemplate {
     
     public static class AbilitiesHotbar {
     	public List<Map<InputKey.Modifier, Map<InputMethod, String>>> slots = new ArrayList<>();
-    	public InputKey useAbilityKey;
-    	public InputKey switchAbilityKey;
+    	public InputBindTemplate useAbilityKey;
+    	public InputBindTemplate switchAbilityKey;
     	
-    	public AbilitiesHotbar(InputKey useAbilityKey, InputKey switchAbilityKey) {
+    	public AbilitiesHotbar(InputBindTemplate useAbilityKey, InputBindTemplate switchAbilityKey) {
     		this.useAbilityKey = useAbilityKey;
     		this.switchAbilityKey = switchAbilityKey;
     	}
@@ -58,7 +58,7 @@ public class ControlSchemeTemplate {
     }
     
     
-    public void makeMovesetGroup(String name, InputKey toggleHudKey) {
+    public void makeMovesetGroup(String name, InputBindTemplate toggleHudKey) {
     	groups.put(name, new GroupTemplate(name, toggleHudKey));
     }
     
@@ -66,13 +66,13 @@ public class ControlSchemeTemplate {
     	return name == null ? defaultGroup : groups.get(name);
     }
     
-	public void bind(String ability, GroupTemplate group, InputKey key, InputMethod inputMethod) {
+	public void bind(String ability, GroupTemplate group, InputBindTemplate key, InputMethod inputMethod) {
 		if (group != null) {
 			group.separateBinds.add(Pair.of(ability, Pair.of(inputMethod, key)));
 		}
 	}
 	
-	public void makeHotbar(int hotbarId, GroupTemplate group, InputKey useAbilityKey, InputKey switchAbilityKey) {
+	public void makeHotbar(int hotbarId, GroupTemplate group, InputBindTemplate useAbilityKey, InputBindTemplate switchAbilityKey) {
 		if (group != null) {
 			AbilitiesHotbar hotbar = new AbilitiesHotbar(useAbilityKey, switchAbilityKey);
 			hotbarsById.put(hotbarId, hotbar);

@@ -3,10 +3,11 @@ package com.github.standobyte.jojo.jojoimpl.stands._entitybase;
 import com.github.standobyte.jojo.client.input.AbilityInputState;
 import com.github.standobyte.jojo.init.ModSoundEvents;
 import com.github.standobyte.jojo.mc.entity.projectile.ThrownNuggetBearingEntity;
-import com.github.standobyte.jojo.mechanics.entityuseitem.StandCallbackWhenShooting;
+import com.github.standobyte.jojo.mechanics.entity_like_player.useitem.StandCallbackWhenShooting;
 import com.github.standobyte.jojo.powersystem.Power;
 import com.github.standobyte.jojo.powersystem.ability.AbilityId;
 import com.github.standobyte.jojo.powersystem.ability.AbilityType;
+import com.github.standobyte.jojo.powersystem.ability.AbilityUsageGroup;
 import com.github.standobyte.jojo.powersystem.entityaction.ActionPhase;
 import com.github.standobyte.jojo.powersystem.entityaction.EntityActionInstance;
 import com.github.standobyte.jojo.powersystem.entityaction.type.EntityActionType;
@@ -26,7 +27,9 @@ import net.neoforged.neoforge.common.Tags;
 public class StandBearingShotAbility extends StandEntityAbility {
 
 	public StandBearingShotAbility(AbilityType<?> abilityType, AbilityId abilityId) {
-		super(abilityType, abilityId);
+		super(abilityType, abilityId, StandBearingShot::new);
+		usageGroup = AbilityUsageGroup.UTILITY;
+		isSubAbility = true;
 		setButtonHoldPhase(ActionPhase.PERFORM);
 		setDefaultPhaseLength(ActionPhase.RECOVERY, 10);
 	}
@@ -50,11 +53,6 @@ public class StandBearingShotAbility extends StandEntityAbility {
 		return state;
 	}
 	
-	
-	@Override
-	public EntityActionInstance createActionObj() {
-		return new StandBearingShot(this);
-	}
 	
 	public static class StandBearingShot extends EntityActionInstance {
 

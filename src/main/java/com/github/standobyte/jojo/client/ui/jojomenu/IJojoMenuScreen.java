@@ -28,13 +28,15 @@ public interface IJojoMenuScreen {
 	
 	Tab getTab();
 	
-	default int getWindowX(Screen screen) { return (screen.width  - getWindowWidth()) / 2; }
-	default int getWindowY(Screen screen) { return (screen.height - getWindowHeight()) / 2; }
+	default int getWindowX(Screen screen) { return (screen.width  - DEFAULT_WIDTH) / 2; }
+	default int getWindowY(Screen screen) { return (screen.height - DEFAULT_HEIGHT) / 2; }
 	default int getWindowWidth() { return DEFAULT_WIDTH; }
 	default int getWindowHeight() { return DEFAULT_HEIGHT; }
 	
 	public static final int TAB_WIDTH = 28;
 	public static final int TAB_LENGTH = 32;
+	
+	default boolean rightSideTabsEnabled() { return true; }
 	
 	public default void renderTabs(GuiGraphics guiGraphics, Screen screen) {
 		int x = getWindowX(screen);
@@ -58,19 +60,21 @@ public interface IJojoMenuScreen {
 			firstTab = false;
 		}
 
-		tabX = x + width - 4;
-		tabY = y;
-		firstTab = true;
-		for (Tab tab : curCategory.getActiveTabs()) {
-			float texX = TAB_LENGTH * 3 + (firstTab ? 0 : TAB_LENGTH);
-			float texY = TAB_LENGTH * 2 + (tab == curTab ? TAB_WIDTH : 0);
-			BlitFloat.blit(guiGraphics.pose(), screen.getMinecraft(), TABS_TEXTURE, 
-					tabX, tabY, TAB_LENGTH, TAB_WIDTH, 0, 
-					texX, texY, TAB_LENGTH, TAB_WIDTH, 256, 256, 
-					BlitFloat.NO_TINT);
-			tab.renderIcon(guiGraphics, tabX + 6, tabY + 6);
-			tabY += TAB_WIDTH;
-			firstTab = false;
+		if (rightSideTabsEnabled()) {
+			tabX = x + width - 4;
+			tabY = y;
+			firstTab = true;
+			for (Tab tab : curCategory.getActiveTabs()) {
+				float texX = TAB_LENGTH * 3 + (firstTab ? 0 : TAB_LENGTH);
+				float texY = TAB_LENGTH * 2 + (tab == curTab ? TAB_WIDTH : 0);
+				BlitFloat.blit(guiGraphics.pose(), screen.getMinecraft(), TABS_TEXTURE, 
+						tabX, tabY, TAB_LENGTH, TAB_WIDTH, 0, 
+						texX, texY, TAB_LENGTH, TAB_WIDTH, 256, 256, 
+						BlitFloat.NO_TINT);
+				tab.renderIcon(guiGraphics, tabX + 6, tabY + 6);
+				tabY += TAB_WIDTH;
+				firstTab = false;
+			}
 		}
 	}
 	
@@ -120,11 +124,13 @@ public interface IJojoMenuScreen {
 				}
 			}
 			
-			if (mouseX > x + width && mouseX <= x + width + TAB_LENGTH) {
-				int tabIndex = (int) ((mouseY - y) / TAB_WIDTH);
-				List<Tab> tabs = getTabCategory().getActiveTabs();
-				if (tabIndex < tabs.size()) {
-					return tabs.get(tabIndex);
+			if (rightSideTabsEnabled()) {
+				if (mouseX > x + width && mouseX <= x + width + TAB_LENGTH) {
+					int tabIndex = (int) ((mouseY - y) / TAB_WIDTH);
+					List<Tab> tabs = getTabCategory().getActiveTabs();
+					if (tabIndex < tabs.size()) {
+						return tabs.get(tabIndex);
+					}
 				}
 			}
 		}

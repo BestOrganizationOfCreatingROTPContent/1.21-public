@@ -15,7 +15,7 @@ public class ModDamageTypes {
 	 * jojo_ripples:adds_resolve, 
 	 * minecraft:bypasses_cooldown, 
 	 * minecraft:bypasses_enchantments, 
-	 * minecraft:always_hurts_ender_dragon, 
+	 * minecraft:always_hurts_ender_dragons, 
 	 * minecraft:panic_causes, 
 	 * neoforge:is_physical
 	 */
@@ -27,7 +27,7 @@ public class ModDamageTypes {
 	 * minecraft:is_projectile, 
 	 * minecraft:bypasses_cooldown, 
 	 * minecraft:bypasses_enchantments, 
-	 * minecraft:always_hurts_ender_dragon, 
+	 * minecraft:always_hurts_ender_dragons, 
 	 * minecraft:panic_causes, 
 	 * neoforge:is_physical
 	 */
@@ -36,7 +36,7 @@ public class ModDamageTypes {
 	/** Tags: 
 	 * minecraft:is_projectile, 
 	 * minecraft:bypasses_cooldown, 
-	 * minecraft:always_hurts_ender_dragon, 
+	 * minecraft:always_hurts_ender_dragons, 
 	 * minecraft:panic_causes, 
 	 * neoforge:is_physical
 	 */
@@ -56,7 +56,6 @@ public class ModDamageTypes {
      * minecraft:bypasses_armor,
      * minecraft:bypasses_cooldown,
      * minecraft:bypasses_enchantments,
-     * minecraft:always_hurts_ender_dragon,
      * minecraft:panic_causes,
      * minecraft:no_knockback,
      * neoforge:is_physical

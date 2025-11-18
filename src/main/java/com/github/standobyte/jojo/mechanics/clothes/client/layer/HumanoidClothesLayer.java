@@ -27,7 +27,6 @@ import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.fml.common.EventBusSubscriber;
 import net.neoforged.neoforge.client.event.RenderLivingEvent;
 
-// TODO (clothes) fix the model z-fighting
 //public class HumanoidClothesLayer<S extends HumanoidRenderState, M extends HumanoidModel<S>> extends RenderLayer<S, M> {
 @EventBusSubscriber(modid = JojoMod.MOD_ID, value = Dist.CLIENT)
 public class HumanoidClothesLayer<T extends LivingEntity, M extends HumanoidModel<T>> extends RenderLayer<T, M> implements FirstPersonModelLayer {
@@ -69,7 +68,8 @@ public class HumanoidClothesLayer<T extends LivingEntity, M extends HumanoidMode
 			clothesModel.setClothesPartsVisibility(clothesRS.slimModel, piece);
 			clothesModel.poseClothes(parentModel);
 			VertexConsumer ivertexbuilder = bufferSource.getBuffer(RenderType.entityCutoutNoCull(clothesTexture));
-			clothesModel.renderToBuffer(poseStack, ivertexbuilder, packedLight, OverlayTexture.NO_OVERLAY);
+			int overlay = LivingEntityRenderer.getOverlayCoords(livingEntity, 0);
+			clothesModel.renderToBuffer(poseStack, ivertexbuilder, packedLight, overlay);
 		}
 	}
 	

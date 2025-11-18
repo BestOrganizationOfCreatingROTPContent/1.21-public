@@ -5,7 +5,7 @@ import java.util.Map;
 
 import javax.annotation.Nullable;
 
-public class InputKey {
+public class InputKey implements InputBindTemplate {
     public static final InputKey LMB = new InputKey(InputType.MOUSE, "key.mouse.left", 0);
     public static final InputKey RMB = new InputKey(InputType.MOUSE, "key.mouse.right", 1);
     public static final InputKey MMB = new InputKey(InputType.MOUSE, "key.mouse.middle", 2);

@@ -12,8 +12,8 @@ import com.github.standobyte.jojo.client.ClientPowerCache;
 import com.github.standobyte.jojo.client.ClientUtil;
 import com.github.standobyte.jojo.client.input.InputHandler;
 import com.github.standobyte.jojo.client.input.controlscheme.ClientControlScheme;
+import com.github.standobyte.jojo.client.input.controlscheme.ClientControlScheme.AbilityControlsEntry;
 import com.github.standobyte.jojo.client.input.controlscheme.ClientControlScheme.HotbarSlot;
-import com.github.standobyte.jojo.client.input.controlscheme.ClientControlScheme.PowerClassAbility;
 import com.github.standobyte.jojo.client.standskin.StandSkin;
 import com.github.standobyte.jojo.client.standskin.StandSkinsLoader;
 import com.github.standobyte.jojo.client.standskin.sprites.AbilityIconSprites;
@@ -154,14 +154,14 @@ public class AbilitySelectionWheel extends Screen implements ScreenLetsUseWASD {
 			}
 			
 			
-			var slot = abilities.slots.get(i);
+			HotbarSlot slot = abilities.slots.get(i);
 			KeyModifier curModifier = InputHandler.getInstance().getCurModifier();
 			AbilityIconSprites abilityIconSprites = StandSkinsLoader.getInstance().abilityIcons;
 
 			TextureAtlasSprite abilitySprite = null;
 			
 			for (InputMethod inputMethod : InputMethod.values()) {
-				PowerClassAbility ability = slot.binds.getFirst(curModifier, inputMethod);
+				AbilityControlsEntry ability = slot.getBinds().getFirst(curModifier, inputMethod);
 				if (ability != null) {
 					abilitySprite = abilityIconSprites.getAbilityIcon(ability.abilityName(), standSkin);
 					break;
@@ -187,7 +187,7 @@ public class AbilitySelectionWheel extends Screen implements ScreenLetsUseWASD {
 			hoveredSlot = abilities.slots.get(hoveredSlotIndex);
 			KeyModifier curModifier = InputHandler.getInstance().getCurModifier();
 			for (InputMethod inputMethod : InputMethod.values()) {
-				PowerClassAbility abilityPath = hoveredSlot.binds
+				AbilityControlsEntry abilityPath = hoveredSlot.getBinds()
 						.getFirst(curModifier, inputMethod);							if (abilityPath == null) continue;
 				Power<?> power = ClientPowerCache.getPower(abilityPath.powerClass());	if (power == null) continue;
 				Moveset moveset = power.getMoveset();									if (moveset == null) continue;
@@ -254,7 +254,7 @@ public class AbilitySelectionWheel extends Screen implements ScreenLetsUseWASD {
 	
 	@Override
 	public void onClose() {
-		InputHandler.getInstance().setSelectingAbility(abilities, false);
+		InputHandler.getInstance().setSelectingAbility(abilities, null, false);
 		super.onClose();
 	}
 

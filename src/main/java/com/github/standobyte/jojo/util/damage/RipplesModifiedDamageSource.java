@@ -1,5 +1,7 @@
 package com.github.standobyte.jojo.util.damage;
 
+import javax.annotation.Nullable;
+
 import com.github.standobyte.jojo.core.JojoMod;
 import com.github.standobyte.jojo.util.mc.AttributeUtil;
 
@@ -37,8 +39,7 @@ public interface RipplesModifiedDamageSource {
 		}
 	}
 	
-	public static void afterKnockbackApplied(LivingEntity target, DamageContainer curDamage) {
-		DamageSource dmgSource = curDamage.getSource();
+	public static void afterKnockbackApplied(LivingEntity target, @Nullable DamageSource dmgSource) {
 		if (dmgSource instanceof RipplesModifiedDamageSource kbModifier) {
 			float vertical = kbModifier.jojo_ripples$verticalKnockbackStrength();
 			if (vertical > 0) {
