@@ -4,6 +4,8 @@ import javax.annotation.Nullable;
 
 import org.jetbrains.annotations.ApiStatus;
 
+import com.github.standobyte.jojo.client.text.IconSymbols;
+
 import it.unimi.dsi.fastutil.chars.Char2ObjectArrayMap;
 import it.unimi.dsi.fastutil.chars.Char2ObjectMap;
 
@@ -11,6 +13,7 @@ public class IconGlyphsCache {
 	public static Char2ObjectMap<IconGlyphInfo> _glyphsByIndex = new Char2ObjectArrayMap<>();
 
 	public static char makeCharCodeFor(IconGlyphInfo glyph) {
+		IconSymbols.makeSureThisClassLoadsFirst();
 		char index = (char) _glyphsByIndex.size();
 		_glyphsByIndex.put(index, glyph);
 		return indexToCharCode(index);

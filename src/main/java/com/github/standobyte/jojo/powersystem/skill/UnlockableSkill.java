@@ -3,12 +3,14 @@ package com.github.standobyte.jojo.powersystem.skill;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.Optional;
 
 import net.minecraft.network.chat.Component;
 
 public abstract class UnlockableSkill {
 	public final String skillName;
 	public List<String> prerequisiteSkills;
+	public Optional<String> mainSkill;
 	public List<String> unlocksAbilities;
 	
 	public Component textName;
@@ -18,6 +20,7 @@ public abstract class UnlockableSkill {
 	public UnlockableSkill(String name) {
 		this.skillName = name;
 		this.prerequisiteSkills = new ArrayList<>();
+		this.mainSkill = Optional.empty();
 		this.unlocksAbilities = new ArrayList<>();
 		this.textName = Component.translatable("jojo_ripples.skill." + name);
 		this.textDesc = Component.translatable("jojo_ripples.skill." + name + ".desc");

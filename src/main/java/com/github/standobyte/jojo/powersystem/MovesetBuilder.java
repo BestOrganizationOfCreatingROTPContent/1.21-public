@@ -20,6 +20,7 @@ import com.github.standobyte.jojo.powersystem.ability.controls.InputKey;
 import com.github.standobyte.jojo.powersystem.ability.controls.InputMethod;
 import com.github.standobyte.jojo.powersystem.ability.controls.InputUseVanillaMapping;
 import com.github.standobyte.jojo.powersystem.skill.UnlockableSkill;
+import com.github.standobyte.jojo.powersystem.standpower.StandUnlockableSkill;
 
 import net.minecraft.resources.ResourceLocation;
 
@@ -158,6 +159,15 @@ public class MovesetBuilder {
 	public MovesetBuilder addSkill(UnlockableSkill skill) {
 		unlockableSkills.put(skill.skillName, skill);
 		return this;
+	}
+	
+	public MovesetBuilder addHumanoidStandSkills() {
+		return this
+		.addSkill(StandUnlockableSkill.startingAbility("guard"))
+		.addSkill(StandUnlockableSkill.startingAbility("manual_control"))
+		.addSkill(StandUnlockableSkill.startingAbility("swap_items"))
+		.addSkill(StandUnlockableSkill.startingAbility("leap"))
+		.addSkill(StandUnlockableSkill.startingAbility("ledge_grab"));
 	}
 	
 	
