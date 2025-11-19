@@ -44,6 +44,7 @@ public class ModDamageTypes {
 
 	/** Tags: 
 	 * minecraft:bypasses_armor, 
+	 * minecraft:bypasses_wolf_armor, 
 	 * minecraft:bypasses_shield, 
 	 * minecraft:bypasses_cooldown, 
 	 * minecraft:bypasses_effects,  
@@ -54,11 +55,11 @@ public class ModDamageTypes {
 
     /** Tags:
      * minecraft:bypasses_armor,
-     * minecraft:bypasses_cooldown,
-     * minecraft:bypasses_enchantments,
+	 * minecraft:bypasses_wolf_armor,
      * minecraft:panic_causes,
+     * minecraft:no_impact,
      * minecraft:no_knockback,
-     * neoforge:is_physical
+     * minecraft:wither_immune_to
      */
     public static final ResourceKey<DamageType> SUFFOCATION = ResourceKey.create(Registries.DAMAGE_TYPE, JojoMod.resLoc("suffocation"));
 	

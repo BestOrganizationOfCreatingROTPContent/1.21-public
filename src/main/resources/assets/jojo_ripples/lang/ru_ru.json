@@ -34,6 +34,11 @@
   "jojo_ripples.subtitle.blood_drain": "Кровь поглощена",
   "jojo_ripples.subtitle.liquid_splash": "Брызг жидкости",
   
+  "death.attack.suffocation": "%s задохнулся",
+  "death.attack.suffocation.player": "%s задохнулся, пока боролся с %s",
+  "death.attack.suffocation.entity": "%s был задушен %s",
+  "death.attack.suffocation.entity.item": "%s был задушен %s с помощью %s",
+  
   "jojo_ripples.options.client.title": "Клиентские настройки Ripples of the Past",
   "jojo_ripples.options.client.hud": "Интерфейс",
   "jojo_ripples.options.client.stand": "Стенд",

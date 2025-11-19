@@ -48,6 +48,11 @@
   "jojo_ripples.subtitle.blood_drain": "Blood drained",
   "jojo_ripples.subtitle.liquid_splash": "Liquid splashes",
   
+  "death.attack.suffocation": "%s suffocated",
+  "death.attack.suffocation.player": "%s suffocated whilst fighting %s",
+  "death.attack.suffocation.entity": "%s was suffocated by %s",
+  "death.attack.suffocation.entity.item": "%s was suffocated by %s using %s",
+  
   "jojo_ripples.options.client.title": "Ripples of the Past client settings",
   "jojo_ripples.options.client.hud": "HUD",
   "jojo_ripples.options.client.stand": "Stand",
