@@ -186,6 +186,9 @@ public class RotpAnimDefinition {
 		else if (tf.target() == AnimationChannel.Targets.POSITION) {
 			TEMP.mul(1, -1, 1);
 		}
+		else if (tf.target() == AnimationChannel.Targets.SCALE) {
+			TEMP.add(-1, -1, -1);
+		}
 		return TEMP;
 	}
 	

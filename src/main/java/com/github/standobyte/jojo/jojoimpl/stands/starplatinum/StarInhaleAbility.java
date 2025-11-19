@@ -60,7 +60,7 @@ public class StarInhaleAbility extends StandEntityAbility {
             LivingEntity user = getPowerUser();
 
             Vec3 mouthPos = standEntity.position()
-                    .add(0, standEntity.getBbHeight() * 0.75F, 0)
+                    .add(0, standEntity.getBbHeight() * 0.9F, 0)
                     .add(new Vec3(0, standEntity.getBbHeight() / 16F, standEntity.getBbWidth() * 0.5F)
                             .xRot(-standEntity.getXRot() * MathUtil.DEG_TO_RAD)
                             .yRot(-standEntity.getYRot() * MathUtil.DEG_TO_RAD));
