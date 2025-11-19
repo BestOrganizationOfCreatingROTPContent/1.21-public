@@ -47,10 +47,11 @@ public class SwapUserStandItemsAbility extends Ability {
 	@Override
 	public AbilityInputState cl_abilityInputState(Power<?> context) {
 		AbilityInputState state = super.cl_abilityInputState(context);
-		if (PowerHud.isInContainerScreen()) { // make it work in a container screen too
-			state.setFlag(AbilityInputState.IS_ACTIVE, true);
-			state.setFlag(AbilityInputState.ONLY_IN_CONTAINER, true);
-		}
+		// FIXME fix Ctrl+F on an item in the inventory
+//		if (PowerHud.isInContainerScreen()) { // make it work in a container screen too
+//			state.setFlag(AbilityInputState.IS_ACTIVE, true);
+//			state.setFlag(AbilityInputState.ONLY_IN_CONTAINER, true);
+//		}
 		return state;
 	}
 
@@ -69,34 +70,34 @@ public class SwapUserStandItemsAbility extends Ability {
 			if (stand != null) {
 				var slotInInventory = NetworkUtil.readOptional(extraClientInput, ContainerSlotInput.STREAM_CODEC);
 				if (slotInInventory.isPresent()) {
-					// the ability was used on a slot in the player inventory
-					if (user instanceof Player player) {
-						ContainerSlotInput slotData = slotInInventory.get();
-						ItemStack inventoryItem = ContainerSlotInput.getItem(slotData, player);
-						
-						int inventoryItemCount = inventoryItem.getCount();;
-						if (!inventoryItem.isEmpty()) {
-							// try giving it to the stand
-							stand.addItem(inventoryItem);
-						}
-						if (inventoryItemCount == inventoryItem.getCount()) {
-							// swap the stand main hand item with the hovered slot
-							Slot inventorySlot = player.inventoryMenu.slots.get(slotData.slotNum());
-							InteractionHand standHandToSwap;
-							if (inventoryItem.isEmpty()
-									&& stand.getItemInHand(InteractionHand.MAIN_HAND).isEmpty()
-									&& !stand.getItemInHand(InteractionHand.OFF_HAND).isEmpty()) {
-								// take the item from the stand's off-hand
-								standHandToSwap = InteractionHand.OFF_HAND;
-							}
-							else {
-								standHandToSwap = InteractionHand.MAIN_HAND;
-							}
-							
-							inventorySlot.set(stand.getItemInHand(standHandToSwap));
-							stand.setItemInHand(standHandToSwap, inventoryItem);
-						}
-					}
+//					// the ability was used on a slot in the player inventory
+//					if (user instanceof Player player) {
+//						ContainerSlotInput slotData = slotInInventory.get();
+//						ItemStack inventoryItem = ContainerSlotInput.getItem(slotData, player);
+//						
+//						int inventoryItemCount = inventoryItem.getCount();;
+//						if (!inventoryItem.isEmpty()) {
+//							// try giving it to the stand
+//							stand.addItem(inventoryItem);
+//						}
+//						if (inventoryItemCount == inventoryItem.getCount()) {
+//							// swap the stand main hand item with the hovered slot
+//							Slot inventorySlot = player.inventoryMenu.slots.get(slotData.slotNum());
+//							InteractionHand standHandToSwap;
+//							if (inventoryItem.isEmpty()
+//									&& stand.getItemInHand(InteractionHand.MAIN_HAND).isEmpty()
+//									&& !stand.getItemInHand(InteractionHand.OFF_HAND).isEmpty()) {
+//								// take the item from the stand's off-hand
+//								standHandToSwap = InteractionHand.OFF_HAND;
+//							}
+//							else {
+//								standHandToSwap = InteractionHand.MAIN_HAND;
+//							}
+//							
+//							inventorySlot.set(stand.getItemInHand(standHandToSwap));
+//							stand.setItemInHand(standHandToSwap, inventoryItem);
+//						}
+//					}
 				}
 				else {
 					ItemStack lUserItem = user.getOffhandItem();
