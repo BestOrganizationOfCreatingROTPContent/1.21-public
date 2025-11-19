@@ -17,16 +17,16 @@ import net.minecraft.world.entity.player.Player;
 
 public class JojoDefinitions {
 
-//	public static boolean isUndeadOrVampiric(LivingEntity entity) {
-//		if (entity.getMobType() == CreatureAttribute.UNDEAD) {
-//			return true;
-//		}
-//		if (entity instanceof Player player) {
-//			return isPlayerJojoVampiric(player);
-//		}
-//		return false;
-//	}
-//
+	public static boolean isUndeadOrVampiric(LivingEntity entity) {
+		if (entity.getType().is(EntityTypeTags.UNDEAD)) {
+			return true;
+		}
+		if (entity instanceof Player player) {
+			return isPlayerJojoVampiric(player);
+		}
+		return false;
+	}
+
 //	/** 
 //	 * You don't have to call this, it's just a condition to change the PlayerEntity's getMobType() to CreatureAttribute.UNDEAD via a mixin
 //	 */
@@ -75,6 +75,10 @@ public class JojoDefinitions {
 				|| entity instanceof AbstractIllager
 				|| entity instanceof WaterAnimal;
 //				|| entity instanceof IMobStandUser;
+	}
+	
+	public static boolean isDyingBody(LivingEntity entity) {
+		return false;
 	}
 	
 }

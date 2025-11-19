@@ -1,9 +1,12 @@
 package com.github.standobyte.jojo.jojoimpl.stands.starplatinum;
 
+import javax.annotation.Nullable;
+
 import com.github.standobyte.jojo.client.sound.sounds.EntityStoppableSoundInstance;
 import com.github.standobyte.jojo.init.ModDamageTypes;
 import com.github.standobyte.jojo.init.ModParticles;
 import com.github.standobyte.jojo.init.ModSoundEvents;
+import com.github.standobyte.jojo.jojoimpl.JojoDefinitions;
 import com.github.standobyte.jojo.powersystem.ability.AbilityId;
 import com.github.standobyte.jojo.powersystem.ability.AbilityType;
 import com.github.standobyte.jojo.powersystem.entityaction.ActionPhase;
@@ -11,15 +14,19 @@ import com.github.standobyte.jojo.powersystem.entityaction.EntityActionInstance;
 import com.github.standobyte.jojo.powersystem.entityaction.type.EntityActionType;
 import com.github.standobyte.jojo.powersystem.standpower.entity.StandEntity;
 import com.github.standobyte.jojo.powersystem.standpower.entity.StandEntityAbility;
+import com.github.standobyte.jojo.powersystem.standpower.entity.StandOffsetFromUser;
 import com.github.standobyte.jojo.util.MathUtil;
 import com.github.standobyte.jojo.util.damage.DamageUtil;
+
 import net.minecraft.client.Minecraft;
+import net.minecraft.util.Mth;
 import net.minecraft.world.damagesource.DamageSource;
+import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.entity.animal.IronGolem;
+import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.phys.Vec3;
-
-import javax.annotation.Nullable;
 
 public class StarInhaleAbility extends StandEntityAbility {
 
@@ -33,12 +40,11 @@ public class StarInhaleAbility extends StandEntityAbility {
         }
 
         private static final double RANGE = 12.0;
-        @Nullable
-        private EntityStoppableSoundInstance inhaleSoundInstance;
 
         @Override
         public void onActionSet(@Nullable EntityActionInstance prevAction) {
             super.onActionSet(prevAction);
+            setStandOffset(0, 1.5, StandOffsetFromUser.Rotations.HEAD_XY, true);
         }
 
         @Override
@@ -76,18 +82,13 @@ public class StarInhaleAbility extends StandEntityAbility {
                         entity.getDeltaMovement().add(suctionVec.scale(1 / distance))
                         : suctionVec.scale(Math.max(distance - 1, 0)));
 
-                if (!level.isClientSide() && distance < 4 && entity instanceof LivingEntity livingEntity && getPhaseTick() % 15 == 0) {
-                    var damageType = DamageUtil.type(level, ModDamageTypes.SUFFOCATION);
-                    DamageSource dmgSource = new DamageSource(damageType, performer);
-                    livingEntity.hurt(dmgSource, 0.5F);
+                if (!level.isClientSide() && distance < 4 && entity instanceof LivingEntity livingEntity) {
+                	suffocateTick(livingEntity, standEntity, 0.025f);
                 }
             });
 
             if (level.isClientSide()) {
-                for (int i = 0; i < 2; i++) {
-                    spawnAirStreamParticle(level, mouthPos, spLookVec);
-                }
-                if (level.random.nextFloat() < 0.5F) {
+                for (int i = 0; i < MathUtil.fractionRandomInc(2.5); i++) {
                     spawnAirStreamParticle(level, mouthPos, spLookVec);
                 }
             }
@@ -130,5 +131,38 @@ public class StarInhaleAbility extends StandEntityAbility {
                 }
             }
         }
+        
+        @Override
+    	public boolean canBeCancelledInto(EntityActionType cancellingAbility) {
+    		return true;
+    	}
     }
+
+    public static void suffocateTick(LivingEntity target, @Nullable Entity damageSourceEntity, float airReductionSpeed) {
+    	if (target.canBreatheUnderwater() || target instanceof Player player && JojoDefinitions.isUndeadOrVampiric(player)
+    			|| JojoDefinitions.isDyingBody(target) || target instanceof IronGolem) return;
+
+    	if (target.getAirSupply() > 0) {
+    		// TODO suffocation interaction with hamon
+//    		PlayerPower power = PlayerPower.get(target);
+//    		if (power != null && power.getPowerType() == ModPlayerPowers.HAMON) {
+//    			Optional<HamonData> hamonOptional = Optional.empty();
+//    			if (hamonOptional.isPresent()) {
+//    				HamonData hamon = hamonOptional.get();
+//    				speed /= 1 + hamonOptional.get().getBreathingLevel() * 0.04F;
+//    				hamon.suffocateTick(speed);
+//    			}
+//    		}
+    	
+
+    		int airReduction = MathUtil.fractionRandomInc((double) target.getMaxAirSupply() * Mth.clamp(airReductionSpeed, 0.0, 1.0)) + 4;
+    		target.setAirSupply(Math.max(target.getAirSupply() - airReduction, -18));
+    	}
+    	else {
+            var damageType = DamageUtil.type(target.level(), ModDamageTypes.SUFFOCATION);
+            DamageSource dmgSource = new DamageSource(damageType, damageSourceEntity);
+            target.hurt(dmgSource, 1F);
+    	}
+    }
+
 }
