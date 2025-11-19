@@ -313,7 +313,7 @@
   "jojo_ripples.ability.grab_terrain": "Grab terrain",
 
   "jojo_ripples.skill.uppercut_ground_throw": "(NYI) Ground Throw",
-  "jojo_ripples.skill.uppercut_ground_throw.desc": "After an uppercut, Star Platinum catches the enemy mid-air and throw them to the ground. A devastating finishing move.",
+  "jojo_ripples.skill.uppercut_ground_throw.desc": "After an uppercut, Star Platinum catches the enemy mid-air and throws them to the ground. A devastating finishing move.",
   "jojo_ripples.skill.uppercut_ground_throw.controls": "Ctrl + \uEAFE while the target is suspended",
   "jojo_ripples.ability.uppercut_ground_throw": "Ground Throw",
   
