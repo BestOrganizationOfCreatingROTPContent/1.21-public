@@ -10,6 +10,7 @@ import com.github.standobyte.jojo.client.ClientUtil;
 import com.github.standobyte.jojo.client.utils.ModelUtil;
 import com.github.standobyte.jojo.core.JojoMod;
 import com.github.standobyte.jojo.init.ModDataAttachmentTypes;
+import com.github.standobyte.jojo.powersystem.standpower.entity.StandEntity;
 import com.github.standobyte.jojo.util.MathUtil;
 import com.github.standobyte.jojo.util.UtilFunctions;
 import com.github.standobyte.jojo.util.entitycomponent.TickingEntityData;
@@ -71,6 +72,12 @@ public class LivingComponentGrab implements TickingEntityData {
 		if (grabbedTarget != null) {
 			if (!grabbedTarget.isAlive()) {
 				this.setGrabTarget(null);
+			}
+			else if (thisEntity instanceof StandEntity stand) {
+				LivingEntity user = stand.getUser();
+				if (user != null && grabbedTarget.isPassengerOfSameVehicle(user)) {
+					this.setGrabTarget(null);
+				}
 			}
 		}
 
