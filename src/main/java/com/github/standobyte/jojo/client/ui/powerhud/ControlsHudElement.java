@@ -564,7 +564,11 @@ public class ControlsHudElement extends HudElement {
 		return color;
 	}
 
-	public static Component getKeyName(ClientKey key, KeyModifier modifier) {
+	public static final Component NOT_BOUND = Component.translatable("key.keyboard.unknown");
+	public static Component getKeyName(@Nullable ClientKey key, KeyModifier modifier) {
+		if (key == null) {
+			return NOT_BOUND;
+		}
 		return modifier != null ? modifier.getCombinedName(key.getVanillaKey(), () -> getKeyName(key)) : getKeyName(key);
 	}
 
