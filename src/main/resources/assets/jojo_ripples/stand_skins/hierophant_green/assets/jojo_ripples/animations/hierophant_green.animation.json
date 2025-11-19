@@ -1,0 +1,129 @@
+{
+	"format_version": "1.8.0",
+	"animations": {
+		"idle": {
+			"loop": true,
+			"animation_length": 2,
+			"bones": {
+				"body": {
+					"rotation": {
+						"0.0": {
+							"vector": [0, 20, 0]
+						},
+						"2.0": {
+							"vector": [0, 20, 0]
+						}
+					}
+				},
+				"leftArmBone": {
+					"rotation": {
+						"0.0": {
+							"vector": [0, 0, -12.5]
+						},
+						"1.0": {
+							"vector": [5, 0, -12.5]
+						},
+						"2.0": {
+							"vector": [0, 0, -12.5]
+						}
+					}
+				},
+				"leftForeArm": {
+					"rotation": {
+						"0.0": {
+							"vector": [-25, 0, 0]
+						},
+						"1.0": {
+							"vector": [-30, 0, 0]
+						},
+						"2.0": {
+							"vector": [-25, 0, 0]
+						}
+					}
+				},
+				"rightArmBone": {
+					"rotation": {
+						"0.0": {
+							"vector": [-5, 0, 45]
+						},
+						"1.0": {
+							"vector": [4, 0, 45]
+						},
+						"2.0": {
+							"vector": [-5, 0, 45]
+						}
+					}
+				},
+				"rightForeArm": {
+					"rotation": {
+						"0.0": {
+							"vector": [-110, -32.5, 55]
+						},
+						"1.0": {
+							"vector": [-115, -25, 55]
+						},
+						"2.0": {
+							"vector": [-110, -32.5, 55]
+						}
+					}
+				},
+				"leftLegBone": {
+					"rotation": {
+						"0.0": {
+							"vector": [-32.5, -35, -7.5]
+						},
+						"2.0": {
+							"vector": [-32.5, -35, -7.5]
+						}
+					}
+				},
+				"leftLowerLeg": {
+					"rotation": {
+						"0.0": {
+							"vector": [75, -7.5, 0]
+						},
+						"2.0": {
+							"vector": [75, -7.5, 0]
+						}
+					}
+				},
+				"rightLegBone": {
+					"rotation": {
+						"0.0": {
+							"vector": [12.5, 7.5, 7.5]
+						},
+						"2.0": {
+							"vector": [12.5, 7.5, 7.5]
+						}
+					}
+				},
+				"rightLowerLeg": {
+					"rotation": {
+						"0.0": {
+							"vector": [12.5, 7.5, 0]
+						},
+						"2.0": {
+							"vector": [12.5, 7.5, 0]
+						}
+					}
+				},
+				"leftLegJoint": {
+					"rotation": {
+						"vector": [47.35795, 0.47689, -0.67051]
+					}
+				},
+				"rightArmJoint": {
+					"rotation": {
+						"vector": [-47.5, 0, 0]
+					}
+				},
+				"head_rot": {
+					"rotation": {
+						"vector": ["query.head_x_rotation", "query.head_y_rotation", 0]
+					}
+				}
+			}
+		}
+	},
+	"geckolib_format_version": 2
+}
